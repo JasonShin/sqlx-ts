@@ -11,8 +11,7 @@ use swc_common::{
     FileName, FilePathMapping, SourceMap,
 };
 use swc_ecma_ast::{Expr, ExprStmt, Ident, ModuleItem, Pat, Stmt, VarDecl, VarDeclarator};
-use swc_ecma_parser::{
-    lexer::Lexer, Parser, StringInput, Syntax};
+use swc_ecma_parser::{lexer::Lexer, Parser, StringInput, Syntax};
 
 fn get_sql_from_expr<'a>(expr: Expr) -> Vec<String> {
     let mut sqls: Vec<String> = vec![];
@@ -23,24 +22,22 @@ fn get_sql_from_expr<'a>(expr: Expr) -> Vec<String> {
                 let ident = ident.to_string();
 
                 if ident.contains("sql") {
-                    let mut sql_statements: Vec<String> = tagged_tpl.tpl.quasis
+                    let mut sql_statements: Vec<String> = tagged_tpl
+                        .tpl
+                        .quasis
                         .iter()
-                        .map(|tpl_element| {
-                            tpl_element.raw.to_string()
-                        })
+                        .map(|tpl_element| tpl_element.raw.to_string())
                         .collect();
 
                     sqls.append(&mut sql_statements)
                 }
             }
         }
-        _ => {},
+        _ => {}
     }
 
     sqls
 }
-
-
 
 /// you would normally pass in any var declarator such as
 /// const sql = sql`SELECT * FROM xxx;`
@@ -55,7 +52,10 @@ fn get_sql_from_var_decl(var_declarator: VarDeclarator) -> Vec<String> {
     bag_of_sqls
 }
 
-fn recurse_and_find_gql(mut sqls_container: &mut Vec<std::string::String>, stmt: Stmt) -> Option<String> {
+fn recurse_and_find_gql(
+    mut sqls_container: &mut Vec<std::string::String>,
+    stmt: Stmt,
+) -> Option<String> {
     match stmt {
         Stmt::Block(_) => todo!(),
         Stmt::Empty(_) => todo!(),
@@ -84,7 +84,7 @@ fn recurse_and_find_gql(mut sqls_container: &mut Vec<std::string::String>, stmt:
                         }
                     }
                     None
-                },
+                }
                 swc_ecma_ast::Decl::Var(var) => {
                     for var_decl in var.decls {
                         let mut sqls = get_sql_from_var_decl(var_decl);
@@ -93,27 +93,25 @@ fn recurse_and_find_gql(mut sqls_container: &mut Vec<std::string::String>, stmt:
                     // println!("checking var decl {:?}", var.decls);
 
                     None
-                },
+                }
                 swc_ecma_ast::Decl::TsInterface(_) => todo!(),
                 swc_ecma_ast::Decl::TsTypeAlias(_) => todo!(),
                 swc_ecma_ast::Decl::TsEnum(_) => todo!(),
                 swc_ecma_ast::Decl::TsModule(_) => todo!(),
             }
-        },
+        }
         Stmt::Expr(expr) => {
             let expr = *expr.expr;
             let mut result = get_sql_from_expr(expr);
             &sqls_container.append(&mut result);
             None
-        },
+        }
     }
 }
 
 fn main() {
     let cm: Lrc<SourceMap> = Default::default();
-    let handler =
-        Handler::with_tty_emitter(ColorConfig::Auto, true, false,
-                                  Some(cm.clone()));
+    let handler = Handler::with_tty_emitter(ColorConfig::Auto, true, false, Some(cm.clone()));
 
     let fm = cm.new_source_file(
         FileName::Custom("test.ts".into()),
@@ -130,7 +128,8 @@ fn main() {
             const sql = sql`
             SELECT * FROM people;
             `
-        ".into(),
+        "
+        .into(),
     );
     let lexer = Lexer::new(
         Syntax::Typescript(Default::default()),
@@ -155,10 +154,10 @@ fn main() {
             ModuleItem::Stmt(stmt) => {
                 // TODO: maybe have a main mutable array and pass it to the recurse method
                 recurse_and_find_gql(&mut sqls, stmt);
-            },
+            }
             ModuleItem::ModuleDecl(decl) => {
                 println!("skip decl");
-            },
+            }
         }
         println!("______");
     }
