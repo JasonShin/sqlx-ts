@@ -2,6 +2,7 @@
 extern crate swc_common;
 extern crate swc_ecma_parser;
 
+use sqlx_ts_core::execute::execute;
 use std::borrow::BorrowMut;
 use std::process::id;
 use string_cache::Atom;
@@ -110,6 +111,7 @@ fn recurse_and_find_gql(
 }
 
 fn main() {
+    execute();
     let cm: Lrc<SourceMap> = Default::default();
     let handler = Handler::with_tty_emitter(ColorConfig::Auto, true, false, Some(cm.clone()));
 
