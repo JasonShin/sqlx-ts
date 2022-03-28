@@ -1,5 +1,6 @@
 use std::fs;
 use std::borrow::BorrowMut;
+use std::path::Path;
 use swc_common::errors::{ColorConfig, Handler};
 use swc_common::{FileName, SourceMap};
 use swc_common::input::StringInput;
@@ -56,7 +57,13 @@ fn recurse_and_find_gql(
         Stmt::Empty(_) => todo!(),
         Stmt::Debugger(_) => todo!(),
         Stmt::With(_) => todo!(),
-        Stmt::Return(_) => todo!(),
+        Stmt::Return(rtn) => {
+            if let Some(expr) = rtn.arg {
+                let mut sqls = get_sql_from_expr(*expr);
+                &sqls_container.append(&mut sqls);
+            }
+            None
+        },
         Stmt::Labeled(_) => todo!(),
         Stmt::Break(_) => todo!(),
         Stmt::Continue(_) => todo!(),
@@ -105,14 +112,16 @@ fn recurse_and_find_gql(
 }
 
 pub fn parse_source(path: &str) -> Vec<String> {
+    let path = Path::new(path);
+    println!("checking path {:?}", path);
     let contents = fs::read_to_string(path).unwrap();
 
     let cm: Lrc<SourceMap> = Default::default();
     let handler = Handler::with_tty_emitter(ColorConfig::Auto, true, false, Some(cm.clone()));
 
-
+    let file_path = path.as_os_str().to_str().unwrap().to_string();
     let fm = cm.new_source_file(
-        FileName::Custom(path.into()),
+        FileName::Custom(file_path),
         contents.into(),
     );
     let lexer = Lexer::new(
@@ -140,7 +149,9 @@ pub fn parse_source(path: &str) -> Vec<String> {
                 // TODO: maybe have a main mutable array and pass it to the recurse method
                 recurse_and_find_gql(&mut sqls, stmt);
             }
-            ModuleItem::ModuleDecl(decl) => todo!()
+            ModuleItem::ModuleDecl(decl) => {
+                println!("decl?");
+            }
         }
     }
 
