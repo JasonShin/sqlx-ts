@@ -111,7 +111,6 @@ fn recurse_and_find_gql(
 }
 
 fn main() {
-    execute();
     let cm: Lrc<SourceMap> = Default::default();
     let handler = Handler::with_tty_emitter(ColorConfig::Auto, true, false, Some(cm.clone()));
 
@@ -164,5 +163,8 @@ fn main() {
         println!("______");
     }
 
-    println!("sqls {:?}", sqls);
+    let sqls = sqls.iter()
+        .map(|x| x.trim()).collect();
+    println!("checking sqls {:?}", sqls);
+    execute(&sqls)
 }

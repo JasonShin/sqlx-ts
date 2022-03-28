@@ -1,11 +1,5 @@
-use postgres::{Client, NoTls};
+use crate::postgres::explain as postgres_explain;
 
-pub fn execute(query: &str) {
-    let mut conn = Client::connect(
-        "host=localhost user=postgres password=postgres port=54321",
-        NoTls,
-    )
-    .unwrap();
-
-    conn.prepare(query).unwrap();
+pub fn execute(queries: &Vec<&str>) {
+    postgres_explain::explain(&queries)
 }
