@@ -12,10 +12,24 @@ fn main() {
 
     let files = scan_folder(&source_folder, JsExtension::Ts);
 
-    for file_path in files {
-        let sqls = parse_source(&file_path);
-        let sqls = sqls.iter().map(String::as_str).collect();
-        println!("explain sqls {:?}", sqls);
-        execute(&sqls)
+
+    let explain_results: Vec<bool> = files.into_iter()
+        .map(|file_path| {
+            let (sqls, handler) = parse_source(&file_path);
+
+            execute(&sqls, &handler)
+        })
+        .collect();
+
+    let failed_to_compile = explain_results.iter().any(|x| x == &true);
+
+    if failed_to_compile == false {
+        println!("No SQL errors detected!");
+        // NOTE: There are different exit code depending on the platform https://doc.rust-lang.org/std/process/fn.exit.html#platform-specific-behavior
+        // Make sure to consider exit code all major platforms
+        std::process::exit(0)
+    } else {
+        println!("SQLs failed to compile!");
+        std::process::exit(1)
     }
 }

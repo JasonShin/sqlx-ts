@@ -986,6 +986,7 @@ dependencies = [
 name = "sqlx-ts"
 version = "0.1.0"
 dependencies = [
+ "sqlx-ts-common",
  "sqlx-ts-core",
  "string_cache",
  "swc_common",
@@ -996,10 +997,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "sqlx-ts-common"
+version = "0.1.0"
+dependencies = [
+ "swc_common",
+]
+
+[[package]]
 name = "sqlx-ts-core"
 version = "0.1.0"
 dependencies = [
  "postgres",
+ "sqlx-ts-common",
+ "swc_common",
 ]
 
 [[package]]

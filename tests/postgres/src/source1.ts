@@ -25,6 +25,6 @@ function test() {
     return sql`
         INSERT INTO
     items (food_type, time_takes_to_cook, table_id, points)
-    VALUES ('sushi', 1, 1, 20);
+    VALUES ('sushi', 1, aaa, 20);
     `
 }

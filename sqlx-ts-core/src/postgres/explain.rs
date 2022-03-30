@@ -1,17 +1,26 @@
-use postgres::{Client, NoTls};
+use postgres::{Client, Error, NoTls, Row};
+use swc_common::errors::Handler;
+use sqlx_ts_common::SQL;
 
-pub fn explain<'a>(queries: &Vec<&str>) {
+pub fn explain<'a>(sqls: &Vec<SQL>, handler: &Handler) -> bool {
     let mut conn = Client::connect(
         "host=localhost user=postgres password=postgres port=54321",
         NoTls,
     )
     .unwrap();
 
-    let explain_queries: Vec<Result<_, _>> = queries
-        .iter()
-        .map(|x| format!("EXPLAIN {}", x))
-        .map(|x| conn.query(x.as_str(), &[]))
-        .collect();
+    let mut failed = false;
 
-    println!("checking explain queries {:?}", explain_queries);
+    for sql in sqls {
+        let span = sql.span.to_owned();
+        let explain_query = format!("EXPLAIN {}", sql.query);
+        let result = conn.query(explain_query.as_str(), &[]);
+
+        if let Err(e) = result {
+            handler.span_bug_no_panic(span, e.as_db_error().unwrap().message());
+            failed = true;
+        }
+    }
+
+    failed
 }

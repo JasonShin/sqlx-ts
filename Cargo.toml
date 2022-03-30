@@ -7,7 +7,8 @@ edition = "2021"
 
 [workspace]
 members = [
-    "sqlx-ts-core"
+    "sqlx-ts-common",
+    "sqlx-ts-core",
 ]
 
 [dependencies]
@@ -18,3 +19,4 @@ swc_ecma_parser_macros = "0.4.1"
 string_cache = "0.8.3"
 walkdir = "2.3.2"
 sqlx-ts-core = { path = "./sqlx-ts-core" }
+sqlx-ts-common = { path = "./sqlx-ts-common" }

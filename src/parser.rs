@@ -4,13 +4,14 @@ use std::path::{Path, PathBuf};
 use swc_common::errors::{ColorConfig, Handler};
 use swc_common::input::StringInput;
 use swc_common::sync::Lrc;
-use swc_common::{FileName, SourceMap};
+use swc_common::{FileName, MultiSpan, SourceMap};
 use swc_ecma_ast::{Expr, ModuleItem, Stmt, VarDeclarator};
 use swc_ecma_parser::lexer::Lexer;
 use swc_ecma_parser::{Parser, Syntax};
+use sqlx_ts_common::SQL;
 
-fn get_sql_from_expr<'a>(expr: Expr) -> Vec<String> {
-    let mut sqls: Vec<String> = vec![];
+fn get_sql_from_expr<'a>(expr: Expr, span: MultiSpan) -> Vec<SQL> {
+    let mut sqls: Vec<SQL> = vec![];
     match expr {
         Expr::TaggedTpl(tagged_tpl) => {
             let tag = *tagged_tpl.tag;
@@ -18,11 +19,14 @@ fn get_sql_from_expr<'a>(expr: Expr) -> Vec<String> {
                 let ident = ident.to_string();
 
                 if ident.contains("sql") {
-                    let mut sql_statements: Vec<String> = tagged_tpl
+                    let mut sql_statements: Vec<SQL> = tagged_tpl
                         .tpl
                         .quasis
                         .iter()
-                        .map(|tpl_element| tpl_element.raw.to_string())
+                        .map(|tpl_element| SQL {
+                            query: tpl_element.raw.to_string(),
+                            span: span.clone(),
+                        })
                         .collect();
 
                     sqls.append(&mut sql_statements)
@@ -37,11 +41,11 @@ fn get_sql_from_expr<'a>(expr: Expr) -> Vec<String> {
 
 /// you would normally pass in any var declarator such as
 /// const sql = sql`SELECT * FROM xxx;`
-fn get_sql_from_var_decl(var_declarator: VarDeclarator) -> Vec<String> {
-    let mut bag_of_sqls: Vec<String> = vec![];
+fn get_sql_from_var_decl(var_declarator: VarDeclarator, span: MultiSpan) -> Vec<SQL> {
+    let mut bag_of_sqls: Vec<SQL> = vec![];
 
     if let Some(init) = var_declarator.init {
-        let mut result = get_sql_from_expr(*init);
+        let mut result = get_sql_from_expr(*init, span);
         bag_of_sqls.append(&mut result);
     }
 
@@ -49,7 +53,7 @@ fn get_sql_from_var_decl(var_declarator: VarDeclarator) -> Vec<String> {
 }
 
 fn recurse_and_find_gql(
-    mut sqls_container: &mut Vec<std::string::String>,
+    mut sqls_container: &mut Vec<SQL>,
     stmt: Stmt,
 ) -> Option<String> {
     match stmt {
@@ -59,7 +63,8 @@ fn recurse_and_find_gql(
         Stmt::With(_) => todo!(),
         Stmt::Return(rtn) => {
             if let Some(expr) = rtn.arg {
-                let mut sqls = get_sql_from_expr(*expr);
+                let span: MultiSpan = rtn.span.into();
+                let mut sqls = get_sql_from_expr(*expr, span);
                 &sqls_container.append(&mut sqls);
             }
             None
@@ -89,7 +94,8 @@ fn recurse_and_find_gql(
                 }
                 swc_ecma_ast::Decl::Var(var) => {
                     for var_decl in var.decls {
-                        let mut sqls = get_sql_from_var_decl(var_decl);
+                        let span: MultiSpan = var.span.into();
+                        let mut sqls = get_sql_from_var_decl(var_decl, span);
                         &sqls_container.append(sqls.borrow_mut());
                     }
                     // println!("checking var decl {:?}", var.decls);
@@ -103,15 +109,16 @@ fn recurse_and_find_gql(
             }
         }
         Stmt::Expr(expr) => {
+            let span: MultiSpan = expr.span.into();
             let expr = *expr.expr;
-            let mut result = get_sql_from_expr(expr);
+            let mut result = get_sql_from_expr(expr, span);
             &sqls_container.append(&mut result);
             None
         }
     }
 }
 
-pub fn parse_source(path: &PathBuf) -> Vec<String> {
+pub fn parse_source(path: &PathBuf) -> (Vec<SQL>, Handler) {
     let contents = fs::read_to_string(path).unwrap();
 
     let cm: Lrc<SourceMap> = Default::default();
@@ -136,7 +143,7 @@ pub fn parse_source(path: &PathBuf) -> Vec<String> {
         })
         .expect("failed to parser module");
 
-    let mut sqls = vec![];
+    let mut sqls: Vec<SQL> = vec![];
 
     for item in _module.body {
         match item {
@@ -150,5 +157,5 @@ pub fn parse_source(path: &PathBuf) -> Vec<String> {
         }
     }
 
-    sqls
+    (sqls, handler)
 }
