@@ -8,8 +8,10 @@
 <br />
 
 <div align="center">
-Built to free Node developers from ORMs
+Built to free Node developers from ORMs' unpredictably generated SQL queries
 </div>
+
+<br />
 
 SQLx-ts is a CLI application featuring compile-time checked queries without a DSL and prevents broken SQL queries being run during runtime.
 
