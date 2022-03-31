@@ -52,7 +52,7 @@ fn get_sql_from_var_decl(var_declarator: VarDeclarator, span: MultiSpan) -> Vec<
     bag_of_sqls
 }
 
-fn recurse_and_find_gql(
+fn recurse_and_find_sql(
     mut sqls_container: &mut Vec<SQL>,
     stmt: Stmt,
 ) -> Option<String> {
@@ -87,7 +87,7 @@ fn recurse_and_find_gql(
                 swc_ecma_ast::Decl::Fn(fun) => {
                     if let Some(body) = fun.function.body {
                         for stmt in body.stmts {
-                            recurse_and_find_gql(&mut sqls_container, stmt);
+                            recurse_and_find_sql(&mut sqls_container, stmt);
                         }
                     }
                     None
@@ -149,7 +149,7 @@ pub fn parse_source(path: &PathBuf) -> (Vec<SQL>, Handler) {
         match item {
             ModuleItem::Stmt(stmt) => {
                 // TODO: maybe have a main mutable array and pass it to the recurse method
-                recurse_and_find_gql(&mut sqls, stmt);
+                recurse_and_find_sql(&mut sqls, stmt);
             }
             ModuleItem::ModuleDecl(decl) => {
                 println!("decl?");
