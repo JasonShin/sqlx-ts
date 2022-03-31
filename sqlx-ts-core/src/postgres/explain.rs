@@ -1,6 +1,6 @@
 use postgres::{Client, Error, NoTls, Row};
-use swc_common::errors::Handler;
 use sqlx_ts_common::SQL;
+use swc_common::errors::Handler;
 
 pub fn explain<'a>(sqls: &Vec<SQL>, handler: &Handler) -> bool {
     let mut conn = Client::connect(

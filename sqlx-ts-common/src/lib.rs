@@ -4,4 +4,3 @@ pub struct SQL {
     pub query: String,
     pub span: MultiSpan,
 }
-

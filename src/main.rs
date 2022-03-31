@@ -12,8 +12,8 @@ fn main() {
 
     let files = scan_folder(&source_folder, JsExtension::Ts);
 
-
-    let explain_results: Vec<bool> = files.into_iter()
+    let explain_results: Vec<bool> = files
+        .into_iter()
         .map(|file_path| {
             let (sqls, handler) = parse_source(&file_path);
 

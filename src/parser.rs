@@ -1,3 +1,4 @@
+use sqlx_ts_common::SQL;
 use std::borrow::BorrowMut;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -8,7 +9,6 @@ use swc_common::{FileName, MultiSpan, SourceMap};
 use swc_ecma_ast::{Expr, ModuleItem, Stmt, VarDeclarator};
 use swc_ecma_parser::lexer::Lexer;
 use swc_ecma_parser::{Parser, Syntax};
-use sqlx_ts_common::SQL;
 
 fn get_sql_from_expr<'a>(expr: Expr, span: MultiSpan) -> Vec<SQL> {
     let mut sqls: Vec<SQL> = vec![];
@@ -52,10 +52,7 @@ fn get_sql_from_var_decl(var_declarator: VarDeclarator, span: MultiSpan) -> Vec<
     bag_of_sqls
 }
 
-fn recurse_and_find_sql(
-    mut sqls_container: &mut Vec<SQL>,
-    stmt: Stmt,
-) -> Option<String> {
+fn recurse_and_find_sql(mut sqls_container: &mut Vec<SQL>, stmt: Stmt) -> Option<String> {
     match stmt {
         Stmt::Block(_) => todo!(),
         Stmt::Empty(_) => todo!(),
