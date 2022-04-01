@@ -2,7 +2,7 @@ use crate::shared::JsExtension;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
-pub fn scan_folder<'a>(folder: &'a str, js_extension: JsExtension) -> Vec<PathBuf> {
+pub fn scan_folder<'a>(folder: &'a PathBuf, js_extension: JsExtension) -> Vec<PathBuf> {
     let path = Path::new(folder);
     let result: Vec<_> = WalkDir::new(path)
         .follow_links(true)

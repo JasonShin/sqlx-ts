@@ -2,15 +2,40 @@ mod parser;
 mod scan_folder;
 mod shared;
 
+extern crate clap;
+
+use std::path::PathBuf;
+use clap::{Parser, Args, Subcommand, ArgEnum};
+
 use crate::parser::parse_source;
 use crate::scan_folder::scan_folder;
 use crate::shared::JsExtension;
 use sqlx_ts_core::execute::execute;
 
-fn main() {
-    let source_folder = "./tests/postgres";
+#[derive(Parser, Debug)]
+#[clap(author, version, about)]
+struct Cli {
 
-    let files = scan_folder(&source_folder, JsExtension::Ts);
+    /// Path to the Typescript or Javascript project
+    #[clap(parse(from_os_str))]
+    path: std::path::PathBuf,
+
+    /// Javascript Extension
+    #[clap(
+        arg_enum,
+        long,
+        default_value_t=JsExtension::Ts
+    )]
+    ext: JsExtension,
+}
+
+fn main() {
+    let args = Cli::parse();
+    let source_folder: PathBuf = args.path;
+    let ext: JsExtension = args.ext;
+    println!("Scanning {:?} for sqls with extension {:?}", source_folder, ext);
+
+    let files = scan_folder(&source_folder, ext);
 
     let explain_results: Vec<bool> = files
         .into_iter()
