@@ -35,6 +35,7 @@ SQLx-ts is a CLI application featuring compile-time checked queries without a DS
 
 - [ ] Support for MySQL, SQLite and possibly mssql
 - [ ] Run sqlx-tx-core multi-threaded and check multiple files at once
+  - [ ] at this point we should try bench-marking performance difference
 - [ ] Support for multiple database connections to difference DBs at once
 
 ##### Phase 4
