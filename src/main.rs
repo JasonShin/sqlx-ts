@@ -5,6 +5,7 @@ mod shared;
 
 extern crate clap;
 extern crate dotenv;
+extern crate core;
 
 use std::path::PathBuf;
 
@@ -31,6 +32,8 @@ struct Cli {
 }
 
 fn main() {
+    dotenv().ok();
+
     let args = Cli::parse();
     let source_folder: PathBuf = args.path;
     let ext: JsExtension = args.ext;
