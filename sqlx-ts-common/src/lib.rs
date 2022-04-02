@@ -1,4 +1,6 @@
-use swc_common::{MultiSpan, Span};
+use swc_common::MultiSpan;
+
+pub mod config;
 
 pub struct SQL {
     pub query: String,

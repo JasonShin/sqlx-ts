@@ -1,19 +1,19 @@
-mod config;
 mod parser;
 mod scan_folder;
 mod shared;
 
 extern crate clap;
-extern crate dotenv;
 extern crate core;
+extern crate dotenv;
 
 use std::path::PathBuf;
 
 use clap::{ArgEnum, Args, Parser, Subcommand};
 use dotenv::dotenv;
+use sqlx_ts_common::config::Config;
 use sqlx_ts_core::execute::execute;
 
-use crate::{config::Config, parser::parse_source, scan_folder::scan_folder, shared::JsExtension};
+use crate::{parser::parse_source, scan_folder::scan_folder, shared::JsExtension};
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about)]
