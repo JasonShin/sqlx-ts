@@ -17,10 +17,6 @@ SQLx-ts is a CLI application featuring compile-time checked queries without a DS
 
 - **Compile time checked queries** - never ship a broken SQL query to production
 
-### Inspiration
-
-Rust's philosophy of guaranteed compile-time safety of your code has always inspired me. Rust is still new and many seasoned developers would view Rust's increased benefit/cost ratio claims are as yet unproven. However, there are lessons from these new technologies that we can bring back to our everyday languages such as JavaScript and TypeScript. [SQLx](https://github.com/launchbadge/sqlx) is a great example of this, although the idea isn't directly co-related to Rust, but its philosophy well-aligns with Rust's overall ecosystem.
-
 ### ROADMAP
 
 ##### Phase 1
@@ -45,3 +41,9 @@ Rust's philosophy of guaranteed compile-time safety of your code has always insp
 ##### Phase 4
 
 - [ ] Publish an NPM module with `sql` tagged template literal. It shouldn't do anything special but return the raw SQL back again
+
+<br />
+
+### Motivation
+
+Rust's philosophy of guaranteed compile-time safety of your code has always inspired me. Rust is still new and many seasoned developers would view Rust's increased benefit/cost ratio claims are as yet unproven. However, there are lessons from these new technologies that we can bring back to our everyday languages such as JavaScript and TypeScript. [SQLx](https://github.com/launchbadge/sqlx) is a great example of this, although the idea isn't directly co-related to Rust, but its philosophy well-aligns with Rust's overall ecosystem.
