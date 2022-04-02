@@ -41,7 +41,17 @@ SQLx-ts is a CLI application featuring compile-time checked queries without a DS
 ##### Phase 4
 
 - [ ] Publish an NPM module with `sql` tagged template literal. It shouldn't do anything special but return the raw SQL back again
+- [ ] Support fragmented SQL queries. For example:
+```typescript
+const whereFragment = fragment`WHERE ID = ?`
 
+const query1 = sql`
+    SELECT * FROM items ${whereFragment};
+`
+const query2 = sql`
+    SELECT * FROM items ${whereFragment};
+`
+```
 <br />
 
 ### Motivation

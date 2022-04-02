@@ -1093,6 +1093,7 @@ dependencies = [
 name = "sqlx-ts-common"
 version = "0.1.0"
 dependencies = [
+ "clap",
  "swc_common",
 ]
 

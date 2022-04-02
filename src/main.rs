@@ -10,10 +10,11 @@ use std::path::PathBuf;
 
 use clap::{ArgEnum, Args, Parser, Subcommand};
 use dotenv::dotenv;
+use sqlx_ts_common::cli::{DatabaseType, JsExtension};
 use sqlx_ts_common::config::Config;
 use sqlx_ts_core::execute::execute;
 
-use crate::{parser::parse_source, scan_folder::scan_folder, shared::JsExtension};
+use crate::{parser::parse_source, scan_folder::scan_folder};
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about)]
@@ -29,6 +30,30 @@ struct Cli {
         default_value_t=JsExtension::Ts
     )]
     ext: JsExtension,
+
+    /// Type of primary database to connect
+    #[clap(
+        arg_enum,
+        long,
+        default_value_t=DatabaseType::Postgres
+    )]
+    db_type: DatabaseType,
+
+    /// Primary DB host
+    #[clap(long)]
+    db_host: Option<String>,
+
+    /// Primary DB Port
+    #[clap(long)]
+    db_port: Option<i32>,
+
+    /// Primary DB user
+    #[clap(long)]
+    db_user: Option<String>,
+
+    /// Primary DB pass
+    #[clap(long)]
+    db_pass: Option<String>,
 }
 
 fn main() {
