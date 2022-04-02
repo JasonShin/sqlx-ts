@@ -1,19 +1,23 @@
+use std::{
+    borrow::BorrowMut,
+    fs,
+    path::{Path, PathBuf},
+};
+
 use sqlx_ts_common::SQL;
-use std::borrow::BorrowMut;
-use std::fs;
-use std::path::{Path, PathBuf};
-use swc_common::errors::{ColorConfig, Handler};
-use swc_common::input::StringInput;
-use swc_common::sync::Lrc;
-use swc_common::{FileName, MultiSpan, SourceMap};
+use swc_common::{
+    errors::{ColorConfig, Handler},
+    input::StringInput,
+    sync::Lrc,
+    FileName, MultiSpan, SourceMap,
+};
 use swc_ecma_ast::{Expr, ModuleItem, Stmt, VarDeclarator};
-use swc_ecma_parser::lexer::Lexer;
-use swc_ecma_parser::{Parser, Syntax};
+use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 
 fn get_sql_from_expr<'a>(expr: Expr, span: MultiSpan) -> Vec<SQL> {
     let mut sqls: Vec<SQL> = vec![];
     match expr {
-        Expr::TaggedTpl(tagged_tpl) => {
+        | Expr::TaggedTpl(tagged_tpl) => {
             let tag = *tagged_tpl.tag;
             if let Expr::Ident(ident) = tag {
                 let ident = ident.to_string();
@@ -23,17 +27,19 @@ fn get_sql_from_expr<'a>(expr: Expr, span: MultiSpan) -> Vec<SQL> {
                         .tpl
                         .quasis
                         .iter()
-                        .map(|tpl_element| SQL {
-                            query: tpl_element.raw.to_string(),
-                            span: span.clone(),
+                        .map(|tpl_element| {
+                            SQL {
+                                query: tpl_element.raw.to_string(),
+                                span: span.clone(),
+                            }
                         })
                         .collect();
 
                     sqls.append(&mut sql_statements)
                 }
             }
-        }
-        _ => {}
+        },
+        | _ => {},
     }
 
     sqls
@@ -54,42 +60,42 @@ fn get_sql_from_var_decl(var_declarator: VarDeclarator, span: MultiSpan) -> Vec<
 
 fn recurse_and_find_sql(mut sqls_container: &mut Vec<SQL>, stmt: Stmt) -> Option<String> {
     match stmt {
-        Stmt::Block(_) => todo!(),
-        Stmt::Empty(_) => todo!(),
-        Stmt::Debugger(_) => todo!(),
-        Stmt::With(_) => todo!(),
-        Stmt::Return(rtn) => {
+        | Stmt::Block(_) => todo!(),
+        | Stmt::Empty(_) => todo!(),
+        | Stmt::Debugger(_) => todo!(),
+        | Stmt::With(_) => todo!(),
+        | Stmt::Return(rtn) => {
             if let Some(expr) = rtn.arg {
                 let span: MultiSpan = rtn.span.into();
                 let mut sqls = get_sql_from_expr(*expr, span);
                 &sqls_container.append(&mut sqls);
             }
             None
-        }
-        Stmt::Labeled(_) => todo!(),
-        Stmt::Break(_) => todo!(),
-        Stmt::Continue(_) => todo!(),
-        Stmt::If(_) => todo!(),
-        Stmt::Switch(_) => todo!(),
-        Stmt::Throw(_) => todo!(),
-        Stmt::Try(_) => todo!(),
-        Stmt::While(_) => todo!(),
-        Stmt::DoWhile(_) => todo!(),
-        Stmt::For(_) => todo!(),
-        Stmt::ForIn(_) => todo!(),
-        Stmt::ForOf(_) => todo!(),
-        Stmt::Decl(decl) => {
+        },
+        | Stmt::Labeled(_) => todo!(),
+        | Stmt::Break(_) => todo!(),
+        | Stmt::Continue(_) => todo!(),
+        | Stmt::If(_) => todo!(),
+        | Stmt::Switch(_) => todo!(),
+        | Stmt::Throw(_) => todo!(),
+        | Stmt::Try(_) => todo!(),
+        | Stmt::While(_) => todo!(),
+        | Stmt::DoWhile(_) => todo!(),
+        | Stmt::For(_) => todo!(),
+        | Stmt::ForIn(_) => todo!(),
+        | Stmt::ForOf(_) => todo!(),
+        | Stmt::Decl(decl) => {
             match decl {
-                swc_ecma_ast::Decl::Class(_) => todo!(),
-                swc_ecma_ast::Decl::Fn(fun) => {
+                | swc_ecma_ast::Decl::Class(_) => todo!(),
+                | swc_ecma_ast::Decl::Fn(fun) => {
                     if let Some(body) = fun.function.body {
                         for stmt in body.stmts {
                             recurse_and_find_sql(&mut sqls_container, stmt);
                         }
                     }
                     None
-                }
-                swc_ecma_ast::Decl::Var(var) => {
+                },
+                | swc_ecma_ast::Decl::Var(var) => {
                     for var_decl in var.decls {
                         let span: MultiSpan = var.span.into();
                         let mut sqls = get_sql_from_var_decl(var_decl, span);
@@ -98,20 +104,20 @@ fn recurse_and_find_sql(mut sqls_container: &mut Vec<SQL>, stmt: Stmt) -> Option
                     // println!("checking var decl {:?}", var.decls);
 
                     None
-                }
-                swc_ecma_ast::Decl::TsInterface(_) => todo!(),
-                swc_ecma_ast::Decl::TsTypeAlias(_) => todo!(),
-                swc_ecma_ast::Decl::TsEnum(_) => todo!(),
-                swc_ecma_ast::Decl::TsModule(_) => todo!(),
+                },
+                | swc_ecma_ast::Decl::TsInterface(_) => todo!(),
+                | swc_ecma_ast::Decl::TsTypeAlias(_) => todo!(),
+                | swc_ecma_ast::Decl::TsEnum(_) => todo!(),
+                | swc_ecma_ast::Decl::TsModule(_) => todo!(),
             }
-        }
-        Stmt::Expr(expr) => {
+        },
+        | Stmt::Expr(expr) => {
             let span: MultiSpan = expr.span.into();
             let expr = *expr.expr;
             let mut result = get_sql_from_expr(expr, span);
             &sqls_container.append(&mut result);
             None
-        }
+        },
     }
 }
 
@@ -144,13 +150,13 @@ pub fn parse_source(path: &PathBuf) -> (Vec<SQL>, Handler) {
 
     for item in _module.body {
         match item {
-            ModuleItem::Stmt(stmt) => {
+            | ModuleItem::Stmt(stmt) => {
                 // TODO: maybe have a main mutable array and pass it to the recurse method
                 recurse_and_find_sql(&mut sqls, stmt);
-            }
-            ModuleItem::ModuleDecl(decl) => {
+            },
+            | ModuleItem::ModuleDecl(decl) => {
                 println!("decl?");
-            }
+            },
         }
     }
 

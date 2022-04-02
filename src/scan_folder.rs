@@ -1,6 +1,8 @@
-use crate::shared::JsExtension;
 use std::path::{Path, PathBuf};
+
 use walkdir::WalkDir;
+
+use crate::shared::JsExtension;
 
 pub fn scan_folder<'a>(folder: &'a PathBuf, js_extension: JsExtension) -> Vec<PathBuf> {
     let path = Path::new(folder);
