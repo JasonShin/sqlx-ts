@@ -1,4 +1,4 @@
-use clap::{ArgEnum};
+use clap::ArgEnum;
 
 #[derive(ArgEnum, Debug, Clone)]
 pub enum JsExtension {

@@ -1,12 +1,16 @@
+mod config;
 mod parser;
 mod scan_folder;
 mod shared;
 
 extern crate clap;
+extern crate dotenv;
 
+use clap::{ArgEnum, Args, Parser, Subcommand};
+use dotenv::dotenv;
 use std::path::PathBuf;
-use clap::{Parser, Args, Subcommand, ArgEnum};
 
+use crate::config::Config;
 use crate::parser::parse_source;
 use crate::scan_folder::scan_folder;
 use crate::shared::JsExtension;
@@ -15,7 +19,6 @@ use sqlx_ts_core::execute::execute;
 #[derive(Parser, Debug)]
 #[clap(author, version, about)]
 struct Cli {
-
     /// Path to the Typescript or Javascript project
     #[clap(parse(from_os_str))]
     path: std::path::PathBuf,
@@ -33,7 +36,10 @@ fn main() {
     let args = Cli::parse();
     let source_folder: PathBuf = args.path;
     let ext: JsExtension = args.ext;
-    println!("Scanning {:?} for sqls with extension {:?}", source_folder, ext);
+    println!(
+        "Scanning {:?} for sqls with extension {:?}",
+        source_folder, ext
+    );
 
     let files = scan_folder(&source_folder, ext);
 

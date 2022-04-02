@@ -12,6 +12,7 @@ members = [
 ]
 
 [dependencies]
+dotenv = "0.15.0"
 swc_common = { version = "0.17.18", features = ["tty-emitter"] }
 swc_ecma_ast = "0.72.0"
 swc_ecma_parser = "0.96.0"
