@@ -1,0 +1,4 @@
+[toolchain]
+channel = "stable"
+component = ["rustfmt@1.4.38", "rustc@1.59.0"]
+profile = ["default"]
