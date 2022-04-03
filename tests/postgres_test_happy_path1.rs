@@ -32,3 +32,18 @@ fn success_with_env_vars() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
+
+#[test]
+fn success_with_partial_env_vars() -> Result<(), Box<dyn std::error::Error>> {
+    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+
+    cmd.arg("samples/postgres/happy-path1")
+        .arg("--db-port=54321")
+        .arg("--db-pass=postgres");
+
+    cmd.assert()
+        .success()
+        .stdout(predicates::str::contains("No SQL errors detected!"));
+
+    Ok(())
+}
