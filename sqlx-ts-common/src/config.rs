@@ -1,5 +1,10 @@
+use crate::cli::Cli;
 use std::env::var;
 
+/// Config is used to determine connection configurations for primary target Database
+/// It uses 2 sources of config and they are used in following priorities
+/// 1. any configuration via CLI options
+/// 2. any dotenv configured options
 pub struct Config {
     db_host: String,
     db_port: i32,
@@ -8,24 +13,14 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new() -> Config {
+    pub fn new(cli_args: Cli) -> Config {
         return Config {
-            db_host: match var("DB_HOST") {
-                Ok(s) => s,
-                _ => panic!("DB_HOST environment variable is missing!"),
-            },
-            db_port: match var("DB_PORT") {
-                Ok(s) => s.parse::<i32>().unwrap(),
-                _ => panic!("DB_PORT environment variable is missing!"),
-            },
-            db_user: match var("DB_USER") {
-                Ok(s) => s,
-                _ => panic!("DB_USER environment variable is missing!"),
-            },
-            db_pass: match var("DB_PASS") {
-                Ok(s) => s,
-                _ => panic!("DB_PASS environment variable is missing!"),
-            },
+            db_host: cli_args.db_host.unwrap_or(var("DB_HOST").unwrap()),
+            db_port: cli_args
+                .db_port
+                .unwrap_or(var("DB_PORT").unwrap().parse::<i32>().unwrap()),
+            db_user: cli_args.db_user.unwrap_or(var("DB_USER").unwrap()),
+            db_pass: cli_args.db_pass.unwrap_or(var("DB_PASS").unwrap()),
         };
     }
 

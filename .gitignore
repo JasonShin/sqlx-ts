@@ -5,3 +5,5 @@
 
 # scratch files
 **/*.scratch.rs
+
+.env
