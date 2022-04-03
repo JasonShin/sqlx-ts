@@ -28,7 +28,7 @@ SQLx-ts is a CLI application featuring compile-time checked queries without a DS
 
 ##### Phase 2
 
-- [ ] CLI integration - supporting parameters for folder source, database credentials and etc
+- [x] CLI integration - supporting parameters for folder source, database credentials and etc
 - [ ] Add more complex Typescript and Javascript examples in `samples` folder
 
 ##### Phase 3
