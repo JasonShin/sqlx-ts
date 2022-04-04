@@ -1,0 +1,45 @@
+name: build, lint, check, clippy and test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Wait / Sleep
+        uses: jakejarvis/wait-action@v0.1.1
+
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install nightly toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: build docker-compose services for integration tests
+        run: docker-compose -f docker-compose.yml up -d
+
+      - name: Sleep for 10 seconds
+        run: sleep 10s
+        shell: bash
+
+      - name: Check the docker-compose services running
+        run: docker ps -a
+
+      - name: tests
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --verbose
