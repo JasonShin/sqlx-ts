@@ -29,12 +29,6 @@ jobs:
       - name: print versions
         run: rustc -V && cargo fmt --version
 
-      - name: build docker-compose services for integration tests
-        run: docker-compose -f docker-compose.yml up -d
-
-      - name: Check the docker-compose services running
-        run: docker ps -a
-
       - name: build
         uses: actions-rs/cargo@v1
         with:
