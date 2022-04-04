@@ -1,4 +1,4 @@
-name: build, lint, check, clippy and test
+name: test
 
 on:
   push:
