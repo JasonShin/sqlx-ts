@@ -1,3 +1,4 @@
+# Thanks https://github.com/XAMPPRocky/mean-bean-ci-template!
 on:
   push:
     # Sequence of patterns matched against refs/tags
@@ -45,8 +46,8 @@ jobs:
           - i686-pc-windows-msvc
           - x86_64-pc-windows-msvc
           # GNU
-          # - i686-pc-windows-gnu
-          # - x86_64-pc-windows-gnu
+          - i686-pc-windows-gnu
+          - x86_64-pc-windows-gnu
     steps:
       - uses: actions/checkout@v2
       - run: bash ci/set_rust_version.bash stable ${{ matrix.target }}
@@ -87,12 +88,6 @@ jobs:
         target:
           # macOS
           - x86_64-apple-darwin
-          # iOS
-          # - aarch64-apple-ios
-          # - armv7-apple-ios
-          # - armv7s-apple-ios
-          # - i386-apple-ios
-          # - x86_64-apple-ios
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v1
@@ -129,45 +124,10 @@ jobs:
     strategy:
       matrix:
         target:
-          # WASM, off by default as most rust projects aren't compatible yet.
-          # - wasm32-unknown-emscripten
           # Linux
           - aarch64-unknown-linux-gnu
           - arm-unknown-linux-gnueabi
-          - armv7-unknown-linux-gnueabihf
-          - i686-unknown-linux-gnu
-          - i686-unknown-linux-musl
-          - mips-unknown-linux-gnu
-          - mips64-unknown-linux-gnuabi64
-          - mips64el-unknown-linux-gnuabi64
-          - mipsel-unknown-linux-gnu
-          - powerpc-unknown-linux-gnu
-          - powerpc64-unknown-linux-gnu
-          - powerpc64le-unknown-linux-gnu
-          - s390x-unknown-linux-gnu
           - x86_64-unknown-linux-gnu
-          - x86_64-unknown-linux-musl
-          # Android
-          - aarch64-linux-android
-          - arm-linux-androideabi
-          - armv7-linux-androideabi
-          - i686-linux-android
-          - x86_64-linux-android
-          # *BSD
-          # The FreeBSD targets can have issues linking so they are disabled
-          # by default.
-          # - i686-unknown-freebsd
-          # - x86_64-unknown-freebsd
-          - x86_64-unknown-netbsd
-          # Solaris
-          - sparcv9-sun-solaris
-          # Bare Metal
-          # These are no-std embedded targets, so they will only build if your
-          # crate is `no_std` compatible.
-          # - thumbv6m-none-eabi
-          # - thumbv7em-none-eabi
-          # - thumbv7em-none-eabihf
-          # - thumbv7m-none-eabi
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v1
