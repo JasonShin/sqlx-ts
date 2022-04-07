@@ -3,18 +3,28 @@ on: [push]
 name: ARMv7 build
 
 jobs:
-  linux_arm7:
-    name: Linux ARMv7
+  linux:
+    name: Linux
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          target: armv7-unknown-linux-gnueabihf
+          target: aarch64-unknown-linux-gnu
           override: true
       - uses: actions-rs/cargo@v1
         with:
           use-cross: true
           command: build
-          args: --target armv7-unknown-linux-gnueabihf
+          args: --target aarch64-unknown-linux-gnu
+      - uses: actions-rs/toolchain@v1
+          with:
+          toolchain: stable
+          target: i686-unknown-linux-gnu
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: build
+          args: --target i686-unknown-linux-gnu
