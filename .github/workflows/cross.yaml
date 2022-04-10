@@ -28,4 +28,5 @@ jobs:
     - name: Package
       shell: bash
       run: |
-        ls target
+        pwd
+        upx target/${{ matrix.target }}/release/sqlx-ts
