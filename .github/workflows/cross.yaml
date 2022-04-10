@@ -16,14 +16,14 @@ jobs:
     - uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
-        target: {{ matrix.target }}
+        target: ${{ matrix.target }}
         override: true
 
     - uses: actions-rs/cargo@v1
       with:
         use-cross: true
         command: build
-        args: --target {{ matrix.target }}
+        args: --target ${{ matrix.target }}
 
     - name: Package
       shell: bash
