@@ -5,14 +5,25 @@ name: release
 jobs:
   linux:
     name: Linux
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [aarch64-unknown-linux-gnu, i686-unknown-linux-gnu]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: zephraph/toolchain@support-toolchain-toml
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: {{ matrix.target }}
+          override: true
+
       - uses: actions-rs/cargo@v1
         with:
           use-cross: true
           command: build
+          args: --target {{ matrix.target }}
+
       - name: Package
         shell: bash
         run: |
