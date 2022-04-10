@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [aarch64-unknown-linux-gnu, i686-unknown-linux-gnu]
+        target: [x86_64-pc-windows-gnu, x86_64-unknown-linux-musl, x86_64-apple-darwin]
     steps:
     - uses: actions/checkout@v2
     - uses: actions-rs/toolchain@v1
@@ -24,9 +24,3 @@ jobs:
         use-cross: true
         command: build
         args: --target ${{ matrix.target }}
-
-    - name: Package
-      shell: bash
-      run: |
-        pwd
-        upx target/${{ matrix.target }}/release/sqlx-ts
