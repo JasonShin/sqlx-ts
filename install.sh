@@ -8,11 +8,12 @@ Install a binary release of a Rust crate hosted on GitHub
 Usage:
     install.sh [options]
 Options:
-    -h, --help      Display this message
-    -f, --force     Force overwriting an existing binary
-    --tag TAG       Tag (version) of the crate to install (default <latest release>)
-    --target TARGET Install the release compiled for $TARGET (default <`rustc` host>)
-    --to LOCATION   Where to install the binary (default ~/.cargo/bin)
+    -h, --help            Display this message
+    -f, --force           Force overwriting an existing binary
+    --os OS               Your current OS, it's used to determine the type of binary to be installed (one of darwin or win32 or linux)
+    --artifact ARTIFACT   Specific artifact to install. Please find the artifact name from https://github.com/JasonShin/sqlx-ts/releases (e.g. sqlx-ts_v0.1.0_x86_64-apple-darwin.zip)
+    --tag TAG             Tag (version) of the crate to install (default <latest release>)
+    --to LOCATION         Where to install the binary (default ~/.cargo/bin)
 EOF
 }
 
@@ -61,10 +62,6 @@ while test $# -gt 0; do
             tag=$2
             shift
             ;;
-        --target)
-            target=$2
-            shift
-            ;;
         --to)
             dest=$2
             shift
@@ -96,7 +93,7 @@ need tar
 need sed
 
 # Optional dependencies
-if [ -z $tag ] || [ -z $target ]; then
+if [ -z $tag ]; then
     need cut
 fi
 
@@ -104,7 +101,7 @@ if [ -z $tag ]; then
     need rev
 fi
 
-if [ -z $target ]; then
+if [ -z $to ]; then
     need grep
     need rustc
 fi
@@ -145,7 +142,7 @@ if [ -z $artifact ]; then
     echo "Cannot find a matching OS for $os"
     exit 1
   fi
-  url="$url/download/$tag/sqlx-ts_$tag\_$target"
+  url="$url/download/$tag/sqlx-ts_${tag}_${target}"
 else
   tag="$(cut -d'_' -f2 <<< "$artifact")"
   url="$url/download/$tag/$artifact"
@@ -153,6 +150,7 @@ fi
 
 td=$(mktemp -d || mktemp -d -t tmp)
 
+echo "URL to download $url"
 curl -sL $url | tar -C $td -xz
 
 # shellcheck disable=SC2045
