@@ -1,0 +1,17 @@
+on:
+  release:
+    types: [created]
+name: Deploy scripts to gh-pages branch for public use
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Deploy 🚀
+          uses: JamesIves/github-pages-deploy-action@v4.3.0
+          with:
+            branch: gh-pages
+            folder: scripts
