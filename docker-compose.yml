@@ -11,3 +11,13 @@ services:
       - ./playpen/db/postgres_migration.sql:/docker-entrypoint-initdb.d/migration.sql
     ports:
       - 54321:5432
+
+  mysql:
+    platform: linux/amd64
+    image: mysql:8
+    restart: always
+    ports:
+      - 33306:3306
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
+      MYSQL_DATABASE: sqlx-ts
