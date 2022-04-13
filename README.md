@@ -26,42 +26,42 @@ The binary name for sqlx-ts is `sqlx-ts`.
 If you're a **macOS** user, then you can install sqlx-ts from via install.sh:
 
 ```bash
-$ curl -LSfs https://japaric.github.io/trust/install.sh | \
+$ curl -LSfs https://github.com/JasonShin/sqlx-ts/install.sh | \
     sh -s -- --os darwin
 ```
 
 If you're a **Windows** user, then you can install sqlx-ts from via install.sh:
 
 ```bash
-$ curl -LSfs https://japaric.github.io/trust/install.sh | \
+$ curl -LSfs https://github.com/JasonShin/sqlx-ts/install.sh | \
     sh -s -- --os win32
 ```
 
 If you're a **Linux** user, then you can install sqlx-ts from via install.sh:
 
 ```bash
-$ curl -LSfs https://japaric.github.io/trust/install.sh | \
+$ curl -LSfs https://github.com/JasonShin/sqlx-ts/install.sh | \
     sh -s -- --os linux
 ```
 
 To install a specific artifact, [go to the release page to find the exact name of the artifact](https://github.com/JasonShin/sqlx-ts/releases)
 
 ```bash
-$ curl -LSfs https://japaric.github.io/trust/install.sh | \
+$ curl -LSfs https://github.com/JasonShin/sqlx-ts/install.sh | \
     sh -s -- --artifact sqlx-ts_v0.1.0_x86_64-apple-darwin.tar.gz
 ```
 
 Upgrading to a new version can be done by grabbing the next version of the sqlx-ts artifact and use `--force` command from install.sh
 
 ```bash
-$ curl -LSfs https://japaric.github.io/trust/install.sh | \
+$ curl -LSfs https://github.com/JasonShin/sqlx-ts/install.sh | \
     sh -s -- --artifact sqlx-ts_v0.2.0_x86_64-apple-darwin.tar.gz --force
 ```
 
 For more advanced usage, please check `--help` command of install.sh
 
 ```bash
-$ curl -LSfs https://japaric.github.io/trust/install.sh | \
+$ curl -LSfs https://github.com/JasonShin/sqlx-ts/install.sh | \
     sh -s --help
 ```
 
