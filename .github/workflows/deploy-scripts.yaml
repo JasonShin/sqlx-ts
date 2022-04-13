@@ -1,7 +1,7 @@
+name: Deploy scripts to gh-pages branch for public use
 on:
   release:
     types: [created]
-name: Deploy scripts to gh-pages branch for public use
 
 jobs:
   deploy:

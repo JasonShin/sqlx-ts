@@ -17,6 +17,54 @@ SQLx-ts is a CLI application featuring compile-time checked queries without a DS
 
 - **Compile time checked queries** - never ship a broken SQL query to production
 
+### Installation
+
+The binary name for sqlx-ts is `sqlx-ts`.
+
+[Archives of precompiled binaries of sqlx-ts are available for Windows, macOS and Linux](https://github.com/JasonShin/sqlx-ts/releases). Linux and Windows binaries are static executables. Users of platforms not explicitly mentioned below are advised to download one of these archives.
+
+If you're a **macOS** user, then you can install sqlx-ts from via install.sh:
+
+```bash
+$ curl -LSfs https://japaric.github.io/trust/install.sh | \
+    sh -s -- --os darwin
+```
+
+If you're a **Windows** user, then you can install sqlx-ts from via install.sh:
+
+```bash
+$ curl -LSfs https://japaric.github.io/trust/install.sh | \
+    sh -s -- --os win32
+```
+
+If you're a **Linux** user, then you can install sqlx-ts from via install.sh:
+
+```bash
+$ curl -LSfs https://japaric.github.io/trust/install.sh | \
+    sh -s -- --os linux
+```
+
+To install a specific artifact, [go to the release page to find the exact name of the artifact](https://github.com/JasonShin/sqlx-ts/releases)
+
+```bash
+$ curl -LSfs https://japaric.github.io/trust/install.sh | \
+    sh -s -- --artifact sqlx-ts_v0.1.0_x86_64-apple-darwin.tar.gz
+```
+
+Upgrading to a new version can be done by grabbing the next version of the sqlx-ts artifact and use `--force` command from install.sh
+
+```bash
+$ curl -LSfs https://japaric.github.io/trust/install.sh | \
+    sh -s -- --artifact sqlx-ts_v0.2.0_x86_64-apple-darwin.tar.gz --force
+```
+
+For more advanced usage, please check `--help` command of install.sh
+
+```bash
+$ curl -LSfs https://japaric.github.io/trust/install.sh | \
+    sh -s --help
+```
+
 ### ROADMAP
 
 ##### Phase 1
