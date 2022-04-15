@@ -7,5 +7,6 @@ edition = "2021"
 
 [dependencies]
 postgres = { version = "0.19.2" }
+mysql = { version = "22.1.0" }
 swc_common = { version = "0.17.18", features = ["tty-emitter"] }
 sqlx-ts-common = { path = "../sqlx-ts-common" }
