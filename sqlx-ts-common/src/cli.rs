@@ -60,4 +60,8 @@ pub struct Cli {
     /// Primary DB pass
     #[clap(long)]
     pub db_pass: Option<String>,
+
+    /// Primary DB database name
+    #[clap(long)]
+    pub db_database: Option<String>,
 }

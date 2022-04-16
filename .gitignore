@@ -9,3 +9,4 @@
 **/*.scratch.rs
 
 .env
+.env.mysql
