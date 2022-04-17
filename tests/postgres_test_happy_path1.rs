@@ -24,6 +24,10 @@ fn success_with_all_cli_args() -> Result<(), Box<dyn std::error::Error>> {
 fn success_with_env_vars() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
 
+    cmd.env("DB_HOST", "127.0.0.1")
+        .env("DB_PORT", "54321")
+        .env("DB_USER", "postgres")
+        .env("DB_PASS", "postgres");
     cmd.arg("samples/generic/happy-path1");
 
     cmd.assert()
@@ -36,6 +40,10 @@ fn success_with_env_vars() -> Result<(), Box<dyn std::error::Error>> {
 #[test]
 fn success_with_partial_env_vars() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+
+    cmd.env("DB_HOST", "127.0.0.1")
+        .env("DB_PORT", "54321")
+        .env("DB_USER", "postgres");
 
     cmd.arg("samples/generic/happy-path1")
         .arg("--db-port=54321")

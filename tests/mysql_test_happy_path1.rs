@@ -28,8 +28,8 @@ fn success_with_env_vars() -> Result<(), Box<dyn std::error::Error>> {
     cmd.env("DB_HOST", "127.0.0.1")
         .env("DB_PORT", "33306")
         .env("DB_USER", "root")
-        .env("DB_NAME", "sqlx-ts")
-        .arg("samples/generic/happy-path1")
+        .env("DB_NAME", "sqlx-ts");
+    cmd.arg("samples/generic/happy-path1")
         .arg("--db-type=mysql");
 
     cmd.assert()
