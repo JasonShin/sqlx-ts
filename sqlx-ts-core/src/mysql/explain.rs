@@ -15,7 +15,8 @@ pub fn explain(sqls: &Vec<SQL>, handler: &Handler, cli_args: &Cli) -> bool {
         .tcp_port(config.db_port as u16)
         .user(Some(config.db_user))
         .pass(config.db_pass)
-        .db_name(config.db_database);
+        .db_name(config.db_name);
+    println!("checking opts {:?}", opts);
     let pool = Pool::new(opts).unwrap();
     let mut conn = pool.get_conn().unwrap();
 

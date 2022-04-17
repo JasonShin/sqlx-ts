@@ -63,5 +63,5 @@ pub struct Cli {
 
     /// Primary DB database name
     #[clap(long)]
-    pub db_database: Option<String>,
+    pub db_name: Option<String>,
 }

@@ -7,7 +7,7 @@ use std::process::Command;
 fn failure_with_all_cli_args() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
 
-    cmd.arg("samples/postgres/failure-path1")
+    cmd.arg("samples/generic/failure-path1")
         .arg("--db-host=localhost")
         .arg("--db-port=54321")
         .arg("--db-user=postgres")

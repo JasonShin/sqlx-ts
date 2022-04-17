@@ -1,4 +1,4 @@
-use crate::cli::Cli;
+use crate::cli::{Cli, DatabaseType};
 use std::env::var;
 
 /// Config is used to determine connection configurations for primary target Database
@@ -11,7 +11,7 @@ pub struct Config {
     pub db_port: i32,
     pub db_user: String,
     pub db_pass: Option<String>,
-    pub db_database: Option<String>,
+    pub db_name: Option<String>,
 }
 
 fn required_var_msg(key: &str) -> String {
@@ -43,8 +43,14 @@ impl Config {
                 Some(db_user) => db_user,
                 None => var("DB_USER").expect(required_var_msg("DB_USER").as_str()),
             },
-            db_pass: cli_args.db_pass.or(var("DB_PASS").ok()),
-            db_database: cli_args.db_database.or(var("DB_DATABASE").ok()),
+            db_pass: match cli_args.db_pass {
+                Some(db_pass) => Some(db_pass),
+                None => var("DB_PASS").ok(),
+            },
+            db_name: match cli_args.db_name {
+                Some(db_name) => Some(db_name),
+                None => var("DB_NAME").ok(),
+            },
         };
     }
 
@@ -55,32 +61,6 @@ impl Config {
             self.db_user,
             self.db_pass.as_ref().unwrap_or(&"".to_string()),
             self.db_port,
-        )
-    }
-
-    pub fn get_mysql_cred(&self) -> String {
-        let db_database = &self
-            .db_database
-            .as_ref()
-            .expect("DB_DATABASE is required for mysql connection");
-
-        if let Some(db_pass) = &self.db_pass {
-            return format!(
-                "mysql://{user}:{password}@{host}:{port}/{database}",
-                user = self.db_user,
-                password = db_pass,
-                host = self.db_host,
-                port = self.db_port,
-                database = db_database,
-            );
-        }
-
-        format!(
-            "mysql://{user}:pass@{host}:{port}/{database}?prefer_socket=true",
-            user = self.db_user,
-            host = self.db_host,
-            port = self.db_port,
-            database = db_database,
         )
     }
 }
