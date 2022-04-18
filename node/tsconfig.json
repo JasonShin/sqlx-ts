@@ -1,8 +1,10 @@
 {
   "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.spec.ts"],
   "compilerOptions": {
     "outDir": "dist",
     "declaration": true,
-    "strict": true
+    "strict": true,
+    "esModuleInterop": true
   }
 }
