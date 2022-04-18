@@ -16,6 +16,7 @@ Built to free Node developers from ORMs' unpredictably generated SQL queries
 SQLx-ts is a CLI application featuring compile-time checked queries without a DSL and prevents broken SQL queries being run during runtime.
 
 - **Compile time checked queries** - never ship a broken SQL query to production
+- **Database Agnostic** - support for [PostgreSQL](http://postgresql.org/), [MySQL](https://www.mysql.com/), and [MSSQL](https://www.microsoft.com/en-us/sql-server)
 
 ### Installation
 
@@ -81,14 +82,18 @@ $ curl -LSfs https://github.com/JasonShin/sqlx-ts/install.sh | \
 
 ##### Phase 3
 
-- [ ] Support for MySQL, SQLite and possibly mssql
-- [ ] Run sqlx-tx-core multi-threaded and check multiple files at once
-  - [ ] at this point we should try bench-marking performance difference
-- [ ] Support for multiple database connections to difference DBs at once
+- [ ] Support for MySQL and MSSQL
 
 ##### Phase 4
 
 - [ ] Publish an NPM module with `sql` tagged template literal. It shouldn't do anything special but return the raw SQL back again
+
+##### Phase 5
+
+- [ ] SQLite support
+- [ ] Support for multiple database connections to difference DBs at once
+- [ ] Run sqlx-tx-core multi-threaded and check multiple files at once
+  - [ ] at this point we should try bench-marking performance difference
 
 <br />
 
