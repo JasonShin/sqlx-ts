@@ -10,3 +10,7 @@
 
 .env
 .env.mysql
+
+# node/typescript
+dist
+node_modules
