@@ -82,7 +82,7 @@ $ curl -LSfs https://github.com/JasonShin/sqlx-ts/install.sh | \
 
 ##### Phase 3
 
-- [ ] Support for MySQL and MSSQL
+- [x] Support for MySQL
 
 ##### Phase 4
 
@@ -91,6 +91,7 @@ $ curl -LSfs https://github.com/JasonShin/sqlx-ts/install.sh | \
 ##### Phase 5
 
 - [ ] SQLite support
+- [ ] MSSQL support
 - [ ] Support for multiple database connections to difference DBs at once
 - [ ] Run sqlx-tx-core multi-threaded and check multiple files at once
   - [ ] at this point we should try bench-marking performance difference
