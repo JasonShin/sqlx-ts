@@ -1,8 +1,8 @@
 {
   "name": "sqlx-ts",
   "version": "0.1.0",
-  "description": "",
-  "main": "index.js",
+  "description": "sqlx-ts ensures your raw SQLs are compile-time checked",
+  "main": "dist/index.js",
   "scripts": {
     "compile": "npx tsc",
     "lint": "npx eslint --ext .ts src/",
