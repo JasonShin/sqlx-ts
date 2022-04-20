@@ -6,7 +6,8 @@
   "maintainers": [
     "visualbbasic@gmail.com"
   ],
-  "readme": "",
+  "author": "Jason Shin <visualbbasic@gmail.com>",
+  "license": "MIT",
   "scripts": {
     "compile": "npx tsc -p tsconfig.json",
     "lint": "npx eslint --ext .ts src",
@@ -14,8 +15,6 @@
     "test": "npx jest",
     "prepublishOnly": "cp ../README.md . && npm i && npm run compile"
   },
-  "author": "Jason Shin <visualbbasic@gmail.com>",
-  "license": "MIT",
   "devDependencies": {
     "@types/jest": "^27.4.1",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
