@@ -3,15 +3,19 @@
   "version": "0.1.0",
   "description": "sqlx-ts ensures your raw SQLs are compile-time checked",
   "main": "dist/index.js",
+  "maintainers": [
+    "visualbbasic@gmail.com"
+  ],
   "readme": "",
   "scripts": {
-    "compile": "npx tsc",
-    "lint": "npx eslint --ext .ts src/",
-    "lint:fix": "npx eslint --ext .ts src/ --fix",
-    "test": "npx jest"
+    "compile": "npx tsc -p tsconfig.json",
+    "lint": "npx eslint --ext .ts src",
+    "lint:fix": "npx eslint --ext .ts src --fix",
+    "test": "npx jest",
+    "prepublishOnly": "cp ../README.md . && npm i && npm run compile"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Jason Shin <visualbbasic@gmail.com>",
+  "license": "MIT",
   "devDependencies": {
     "@types/jest": "^27.4.1",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
