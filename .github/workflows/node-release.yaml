@@ -12,12 +12,24 @@ jobs:
         working-directory: ./node
     steps:
       - uses: actions/checkout@v3
-      # Setup .npmrc file to publish to npm
+      # sets up .npmrc
       - uses: actions/setup-node@v3
-      with:
-        node-version: '16.x'
-        registry-url: 'https://registry.npmjs.org'
+        with:
+          node-version: '14.x'
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: npm version ${{ github.event.release.tag_name }}
+      - name: install dependencies
+        run: npm install
+      - name: build
+        run: npm run compile
+
       - run: npm ci
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - uses: EndBug/add-and-commit@v9
+        with:
+          add: package.json
+          message: ":rocket: Release sqlx-ts version ${ github.event.release.tag_name } to NPM"
+          push: true
