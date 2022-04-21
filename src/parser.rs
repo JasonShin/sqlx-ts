@@ -11,7 +11,7 @@ use swc_common::{
     sync::Lrc,
     FileName, MultiSpan, SourceMap,
 };
-use swc_ecma_ast::{Expr, ModuleItem, Stmt, VarDeclarator};
+use swc_ecma_ast::{Expr, ModuleDecl, ModuleItem, Stmt, VarDeclarator};
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 
 fn get_sql_from_expr<'a>(expr: Expr, span: MultiSpan) -> Vec<SQL> {
@@ -153,8 +153,19 @@ pub fn parse_source(path: &PathBuf) -> (Vec<SQL>, Handler) {
                 recurse_and_find_sql(&mut sqls, stmt);
             }
             ModuleItem::ModuleDecl(decl) => {
-                // println!("checking decl {:?}", decl);
-                println!("decl?");
+                println!("checking decl {:?}", decl);
+                match decl {
+                    ModuleDecl::Import(_) => {}
+                    ModuleDecl::ExportDecl(_) => {}
+                    ModuleDecl::ExportNamed(_) => {}
+                    ModuleDecl::ExportDefaultDecl(_) => {}
+                    ModuleDecl::ExportDefaultExpr(_) => {}
+                    ModuleDecl::ExportAll(_) => {}
+                    ModuleDecl::TsImportEquals(_) => {}
+                    ModuleDecl::TsExportAssignment(_) => {}
+                    ModuleDecl::TsNamespaceExport(_) => {}
+                }
+                // println!("decl?");
             }
         }
     }
