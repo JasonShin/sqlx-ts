@@ -6,6 +6,7 @@ use swc_common::errors::Handler;
 
 pub fn explain<'a>(sqls: &Vec<SQL>, handler: &Handler, cli_args: &Cli) -> bool {
     let config = Config::new(cli_args.to_owned());
+    println!("checking postgres cred {:?}", &config.get_postgres_cred());
     let mut conn = Client::connect(&config.get_postgres_cred(), NoTls).unwrap();
 
     let mut failed = false;

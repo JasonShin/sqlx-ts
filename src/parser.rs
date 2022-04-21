@@ -153,6 +153,7 @@ pub fn parse_source(path: &PathBuf) -> (Vec<SQL>, Handler) {
                 recurse_and_find_sql(&mut sqls, stmt);
             }
             ModuleItem::ModuleDecl(decl) => {
+                // println!("checking decl {:?}", decl);
                 println!("decl?");
             }
         }

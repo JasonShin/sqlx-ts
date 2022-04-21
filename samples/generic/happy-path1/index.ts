@@ -1,7 +1,4 @@
-function sql(query) {
-    return query
-}
-
+import { sql } from 'sqlx-ts'
 /////////////////
 // expressions //
 /////////////////
