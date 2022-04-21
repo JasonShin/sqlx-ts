@@ -14,7 +14,6 @@ pub fn explain(sqls: &Vec<SQL>, handler: &Handler, cli_args: &Cli) -> bool {
         .ip_or_hostname(Some(config.db_host))
         .tcp_port(config.db_port as u16)
         .user(Some(config.db_user))
-        .pass(config.db_pass)
         .db_name(config.db_name);
 
     let pool = Pool::new(opts).unwrap();
