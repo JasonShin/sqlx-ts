@@ -106,7 +106,7 @@ pub fn parse_source(path: &PathBuf) -> (Vec<SQL>, Handler) {
             // Unrecoverable fatal error occurred
             e.into_diagnostic(&handler).emit()
         })
-        .expect("failed to parser module");
+        .expect("failed to parse module");
 
     let mut sqls: Vec<SQL> = vec![];
 
