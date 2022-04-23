@@ -12,7 +12,7 @@ pub fn scan_folder<'a>(folder: &'a PathBuf, js_extension: &JsExtension) -> Vec<P
         .filter_map(|e| e.ok())
         .filter(|entry| {
             if entry.path().starts_with(node_modules_path.as_path()) {
-                return false
+                return false;
             }
 
             let f_name = entry.file_name().to_string_lossy();

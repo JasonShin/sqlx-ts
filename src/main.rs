@@ -10,7 +10,6 @@ use clap::{ArgEnum, Args, Parser, Subcommand};
 use dotenv::dotenv;
 use sqlx_ts_common::cli::Cli;
 use sqlx_ts_core::execute::execute;
-use std::env::var;
 
 use crate::{parser::parse_source, scan_folder::scan_folder};
 

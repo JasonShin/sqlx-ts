@@ -1,9 +1,13 @@
+mod import;
+mod tag;
+
 use std::{
     borrow::BorrowMut,
     fs,
     path::{Path, PathBuf},
 };
 
+use crate::parser::import::find_sqlx_import_alias;
 use sqlx_ts_common::SQL;
 use swc_common::{
     errors::{ColorConfig, Handler},
@@ -11,61 +15,24 @@ use swc_common::{
     sync::Lrc,
     FileName, MultiSpan, SourceMap,
 };
-use swc_ecma_ast::{Expr, ModuleDecl, ModuleItem, Stmt, VarDeclarator};
+use swc_ecma_ast::{ModuleDecl, ModuleItem, Stmt};
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
+use tag::{get_sql_from_expr, get_sql_from_var_decl};
 
-fn get_sql_from_expr<'a>(expr: Expr, span: MultiSpan) -> Vec<SQL> {
-    let mut sqls: Vec<SQL> = vec![];
-    match expr {
-        Expr::TaggedTpl(tagged_tpl) => {
-            let tag = *tagged_tpl.tag;
-            if let Expr::Ident(ident) = tag {
-                let ident = ident.to_string();
-
-                if ident.contains("sql") {
-                    let mut sql_statements: Vec<SQL> = tagged_tpl
-                        .tpl
-                        .quasis
-                        .iter()
-                        .map(|tpl_element| SQL {
-                            query: tpl_element.raw.to_string(),
-                            span: span.clone(),
-                        })
-                        .collect();
-
-                    sqls.append(&mut sql_statements)
-                }
-            }
-        }
-        _ => {}
-    }
-
-    sqls
-}
-
-/// you would normally pass in any var declarator such as
-/// const sql = sql`SELECT * FROM xxx;`
-fn get_sql_from_var_decl(var_declarator: VarDeclarator, span: MultiSpan) -> Vec<SQL> {
-    let mut bag_of_sqls: Vec<SQL> = vec![];
-
-    if let Some(init) = var_declarator.init {
-        let mut result = get_sql_from_expr(*init, span);
-        bag_of_sqls.append(&mut result);
-    }
-
-    bag_of_sqls
-}
-
-fn recurse_and_find_sql(mut sqls_container: &mut Vec<SQL>, stmt: Stmt) -> Option<String> {
+fn recurse_and_find_sql(
+    mut sqls_container: &mut Vec<SQL>,
+    stmt: &Stmt,
+    import_alias: &String,
+) -> Option<String> {
     match stmt {
         Stmt::Block(_) => todo!(),
         Stmt::Empty(_) => todo!(),
         Stmt::Debugger(_) => todo!(),
         Stmt::With(_) => todo!(),
         Stmt::Return(rtn) => {
-            if let Some(expr) = rtn.arg {
+            if let Some(expr) = &rtn.arg {
                 let span: MultiSpan = rtn.span.into();
-                let mut sqls = get_sql_from_expr(*expr, span);
+                let mut sqls = get_sql_from_expr(*expr.clone(), span, import_alias);
                 &sqls_container.append(&mut sqls);
             }
             None
@@ -86,17 +53,17 @@ fn recurse_and_find_sql(mut sqls_container: &mut Vec<SQL>, stmt: Stmt) -> Option
             match decl {
                 swc_ecma_ast::Decl::Class(_) => todo!(),
                 swc_ecma_ast::Decl::Fn(fun) => {
-                    if let Some(body) = fun.function.body {
-                        for stmt in body.stmts {
-                            recurse_and_find_sql(&mut sqls_container, stmt);
+                    if let Some(body) = &fun.function.body {
+                        for stmt in &body.stmts {
+                            recurse_and_find_sql(&mut sqls_container, &stmt, import_alias);
                         }
                     }
                     None
                 }
                 swc_ecma_ast::Decl::Var(var) => {
-                    for var_decl in var.decls {
+                    for var_decl in &var.decls {
                         let span: MultiSpan = var.span.into();
-                        let mut sqls = get_sql_from_var_decl(var_decl, span);
+                        let mut sqls = get_sql_from_var_decl(var_decl, span, import_alias);
                         &sqls_container.append(sqls.borrow_mut());
                     }
                     // println!("checking var decl {:?}", var.decls);
@@ -111,8 +78,8 @@ fn recurse_and_find_sql(mut sqls_container: &mut Vec<SQL>, stmt: Stmt) -> Option
         }
         Stmt::Expr(expr) => {
             let span: MultiSpan = expr.span.into();
-            let expr = *expr.expr;
-            let mut result = get_sql_from_expr(expr, span);
+            let expr = *expr.expr.clone();
+            let mut result = get_sql_from_expr(expr, span, import_alias);
             &sqls_container.append(&mut result);
             None
         }
@@ -146,26 +113,34 @@ pub fn parse_source(path: &PathBuf) -> (Vec<SQL>, Handler) {
 
     let mut sqls: Vec<SQL> = vec![];
 
-    for item in _module.body {
+    let import_alias = _module
+        .body
+        .iter()
+        .filter_map(|line| match line {
+            ModuleItem::ModuleDecl(module_decl) => match module_decl {
+                ModuleDecl::Import(module_import_decl) => Some(module_import_decl),
+                _ => None,
+            },
+            _ => None,
+        })
+        .find_map(|import_decl| find_sqlx_import_alias(import_decl))
+        .unwrap_or_else(|| "sql".to_string());
+
+    for item in &_module.body {
         match item {
             ModuleItem::Stmt(stmt) => {
                 // TODO: maybe have a main mutable array and pass it to the recurse method
-                recurse_and_find_sql(&mut sqls, stmt);
+                recurse_and_find_sql(&mut sqls, &stmt, &import_alias);
             }
             ModuleItem::ModuleDecl(decl) => {
-                println!("checking decl {:?}", decl);
                 match decl {
-                    ModuleDecl::Import(_) => {}
-                    ModuleDecl::ExportDecl(_) => {}
-                    ModuleDecl::ExportNamed(_) => {}
-                    ModuleDecl::ExportDefaultDecl(_) => {}
-                    ModuleDecl::ExportDefaultExpr(_) => {}
-                    ModuleDecl::ExportAll(_) => {}
-                    ModuleDecl::TsImportEquals(_) => {}
-                    ModuleDecl::TsExportAssignment(_) => {}
-                    ModuleDecl::TsNamespaceExport(_) => {}
+                    ModuleDecl::Import(decl) => {
+                        let sql_import_name = find_sqlx_import_alias(&decl);
+                        println!("sql import name {:?}", sql_import_name);
+                        // decl.src.value
+                    }
+                    _ => {}
                 }
-                // println!("decl?");
             }
         }
     }
