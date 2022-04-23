@@ -1,14 +1,12 @@
-function sql(query) {
-    return query
-}
+import { sql as aliasedSql } from 'sqlx-ts'
 
 /////////////////
 // expressions //
 /////////////////
 
-const query1 = sql`SELECT * FROM items;`
+const query1 = aliasedSql`SELECT * FROM items;`
 // variable de
-const query2 = sql`
+const query2 = aliasedSql`
    SELECT * FROM items;
 `
 
@@ -18,11 +16,11 @@ const query2 = sql`
 
 function test() {
     const name = 'sqlx-ts'
-    const query3 = sql`
+    const query3 = aliasedSql`
         SELECT * FROM items;
     `
 
-    return sql`
+    return aliasedSql`
         INSERT INTO
     items (food_type, time_takes_to_cook, table_id, points)
     VALUES ('sushi', 1, aaa, 20);
