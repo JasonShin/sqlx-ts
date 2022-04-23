@@ -22,6 +22,6 @@ function test() {
     return aliased`
         INSERT INTO
     items (food_type, time_takes_to_cook, table_id, points)
-    VALUES ('sushi', 1, 1, 20, 1);
+    VALUES ('sushi', 1, 1, 20);
     `
 }

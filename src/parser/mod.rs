@@ -49,33 +49,30 @@ fn recurse_and_find_sql(
         Stmt::For(_) => todo!(),
         Stmt::ForIn(_) => todo!(),
         Stmt::ForOf(_) => todo!(),
-        Stmt::Decl(decl) => {
-            match decl {
-                swc_ecma_ast::Decl::Class(_) => todo!(),
-                swc_ecma_ast::Decl::Fn(fun) => {
-                    if let Some(body) = &fun.function.body {
-                        for stmt in &body.stmts {
-                            recurse_and_find_sql(&mut sqls_container, &stmt, import_alias);
-                        }
+        Stmt::Decl(decl) => match decl {
+            swc_ecma_ast::Decl::Class(_) => todo!(),
+            swc_ecma_ast::Decl::Fn(fun) => {
+                if let Some(body) = &fun.function.body {
+                    for stmt in &body.stmts {
+                        recurse_and_find_sql(&mut sqls_container, &stmt, import_alias);
                     }
-                    None
                 }
-                swc_ecma_ast::Decl::Var(var) => {
-                    for var_decl in &var.decls {
-                        let span: MultiSpan = var.span.into();
-                        let mut sqls = get_sql_from_var_decl(var_decl, span, import_alias);
-                        &sqls_container.append(sqls.borrow_mut());
-                    }
-                    // println!("checking var decl {:?}", var.decls);
-
-                    None
-                }
-                swc_ecma_ast::Decl::TsInterface(_) => todo!(),
-                swc_ecma_ast::Decl::TsTypeAlias(_) => todo!(),
-                swc_ecma_ast::Decl::TsEnum(_) => todo!(),
-                swc_ecma_ast::Decl::TsModule(_) => todo!(),
+                None
             }
-        }
+            swc_ecma_ast::Decl::Var(var) => {
+                for var_decl in &var.decls {
+                    let span: MultiSpan = var.span.into();
+                    let mut sqls = get_sql_from_var_decl(var_decl, span, import_alias);
+                    &sqls_container.append(sqls.borrow_mut());
+                }
+
+                None
+            }
+            swc_ecma_ast::Decl::TsInterface(_) => todo!(),
+            swc_ecma_ast::Decl::TsTypeAlias(_) => todo!(),
+            swc_ecma_ast::Decl::TsEnum(_) => todo!(),
+            swc_ecma_ast::Decl::TsModule(_) => todo!(),
+        },
         Stmt::Expr(expr) => {
             let span: MultiSpan = expr.span.into();
             let expr = *expr.expr.clone();
@@ -132,16 +129,7 @@ pub fn parse_source(path: &PathBuf) -> (Vec<SQL>, Handler) {
                 // TODO: maybe have a main mutable array and pass it to the recurse method
                 recurse_and_find_sql(&mut sqls, &stmt, &import_alias);
             }
-            ModuleItem::ModuleDecl(decl) => {
-                match decl {
-                    ModuleDecl::Import(decl) => {
-                        let sql_import_name = find_sqlx_import_alias(&decl);
-                        println!("sql import name {:?}", sql_import_name);
-                        // decl.src.value
-                    }
-                    _ => {}
-                }
-            }
+            _ => {}
         }
     }
 
