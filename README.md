@@ -71,11 +71,11 @@ $ curl -LSfs https://github.com/JasonShin/sqlx-ts/install.sh | \
 ##### Phase 1
 
 - [x] swc to parse JavaScript/TypeScript
-- [x] pick all sql`` tagged template literals
-- [x] compilation success if no errors detected in SQLs
+- [x] pick all sql`` tagged template literals via parser logic
+- [x] compilation success if there are no errors detected in SQLs
 - [x] compilation failure if any error is detected in SQLs
-- [x] CLI integration - supporting parameters for folder source, database credentials and etc
-- [x] Support for MySQL
+- [x] CLI support for sqlx-ts binary - supporting parameters for folder source, database credentials and etc
+- [x] Support for MySQL and PostgresSQL
 - [x] Publish an NPM module with `sql` tagged template literal. It shouldn't do anything special but return the raw SQL back again
 
 ##### Phase 2
