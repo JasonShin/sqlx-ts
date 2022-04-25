@@ -1,7 +1,7 @@
 import { sql } from 'sqlx-ts'
 
 // Querying from an unknown table
-const someQuery = sql`SELECT * FROM itemzz`;
+const someQuery = sql`SELECT * FROM indexjs_unknown`;
 
 // Inserting more values than expected
 const insertQuery = sql`

@@ -1,6 +1,6 @@
 import { sql } from 'sqlx-ts'
 
-const someQuery = sql`SELECT * FROM unknown`;
+const someQuery = sql`SELECT * FROM nested_unknown`;
 
 function test() {
     function test2() {

@@ -4,11 +4,7 @@ import { sql as aliased } from 'sqlx-ts'
 // expressions //
 /////////////////
 
-const query1 = aliased`SELECT * FROM items;`
-// variable de
-const query2 = aliased`
-   SELECT * FROM items;
-`
+const query1 = aliased`SELECT * FROM aliased_unknown;`
 
 ///////////////
 // functions //
