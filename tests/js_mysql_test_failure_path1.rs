@@ -18,7 +18,9 @@ mod mysql_failure_path_tests {
             .arg("--db-name=sqlx-ts");
         cmd.assert()
             .failure()
-            .stderr(predicates::str::contains("Table \'sqlx-ts.unknown\' doesn\'t exist"))
+            .stderr(predicates::str::contains(
+                "Table \'sqlx-ts.unknown\' doesn\'t exist",
+            ))
             .stdout(predicates::str::contains("SQLs failed to compile!"));
 
         Ok(())

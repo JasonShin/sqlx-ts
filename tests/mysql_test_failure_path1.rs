@@ -18,14 +18,26 @@ mod mysql_failure_path_tests {
         cmd.assert()
             .failure()
             // src/index.js
-            .stderr(predicates::str::contains("Column count doesn\'t match value count at row 1"))
-            .stderr(predicates::str::contains("Table \'sqlx-ts.indexjs_unknown\' doesn\'t exist"))
+            .stderr(predicates::str::contains(
+                "Column count doesn\'t match value count at row 1",
+            ))
+            .stderr(predicates::str::contains(
+                "Table \'sqlx-ts.indexjs_unknown\' doesn\'t exist",
+            ))
             // src/import-alias.ts
-            .stderr(predicates::str::contains("Table \'sqlx-ts.aliased_unknown\' doesn\'t exist"))
+            .stderr(predicates::str::contains(
+                "Table \'sqlx-ts.aliased_unknown\' doesn\'t exist",
+            ))
             // src/nested/more-nested/more-nested/index.js
-            .stderr(predicates::str::contains("Table \'sqlx-ts.nested_unknown1\' doesn\'t exist"))
-            .stderr(predicates::str::contains("Table \'sqlx-ts.nested_unknown2\' doesn\'t exist"))
-            .stderr(predicates::str::contains("Table \'sqlx-ts.nested_unknown3\' doesn\'t exist"))
+            .stderr(predicates::str::contains(
+                "Table \'sqlx-ts.nested_unknown1\' doesn\'t exist",
+            ))
+            .stderr(predicates::str::contains(
+                "Table \'sqlx-ts.nested_unknown2\' doesn\'t exist",
+            ))
+            .stderr(predicates::str::contains(
+                "Table \'sqlx-ts.nested_unknown3\' doesn\'t exist",
+            ))
             .stdout(predicates::str::contains("SQLs failed to compile!"));
 
         Ok(())
