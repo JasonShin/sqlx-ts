@@ -1,3 +1,5 @@
+// TODO: Support lazy loading in the future phases
+
 function test() {
     const { sql: sqlx } = require('sqlx-ts')
 

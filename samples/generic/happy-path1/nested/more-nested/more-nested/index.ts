@@ -17,6 +17,11 @@ function test() {
         SELECT * FROM items;
     `
 
+    function test2() {
+        const query4 = sql`
+            SELECT * FROM items;
+        `
+    }
     return sql`
         INSERT INTO
     items (food_type, time_takes_to_cook, table_id, points)
