@@ -17,14 +17,26 @@ mod postgres_failure_path_tests {
         cmd.assert()
             .failure()
             // src/index.ts
-            .stderr(predicates::str::contains("relation \"indexjs_unknown\" does not exist"))
-            .stderr(predicates::str::contains("INSERT has more expressions than target columns"))
+            .stderr(predicates::str::contains(
+                "relation \"indexjs_unknown\" does not exist",
+            ))
+            .stderr(predicates::str::contains(
+                "INSERT has more expressions than target columns",
+            ))
             // src/import-alias.ts
-            .stderr(predicates::str::contains("relation \"aliased_unknown\" does not exist"))
+            .stderr(predicates::str::contains(
+                "relation \"aliased_unknown\" does not exist",
+            ))
             // src/nested/more-nested/more-nested
-            .stderr(predicates::str::contains("relation \"nested_unknown1\" does not exist"))
-            .stderr(predicates::str::contains("relation \"nested_unknown2\" does not exist"))
-            .stderr(predicates::str::contains("relation \"nested_unknown3\" does not exist"))
+            .stderr(predicates::str::contains(
+                "relation \"nested_unknown1\" does not exist",
+            ))
+            .stderr(predicates::str::contains(
+                "relation \"nested_unknown2\" does not exist",
+            ))
+            .stderr(predicates::str::contains(
+                "relation \"nested_unknown3\" does not exist",
+            ))
             .stdout(predicates::str::contains("SQLs failed to compile!"));
 
         Ok(())

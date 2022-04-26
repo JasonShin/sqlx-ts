@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod mysql_failure_path_tests {
+mod js_mysql_failure_path_tests {
     use assert_cmd::prelude::*;
     use predicates::prelude::*;
     use std::process::Command;
@@ -18,8 +18,27 @@ mod mysql_failure_path_tests {
             .arg("--db-name=sqlx-ts");
         cmd.assert()
             .failure()
+            // src/index.js
             .stderr(predicates::str::contains(
-                "Table \'sqlx-ts.unknown\' doesn\'t exist",
+                "Column count doesn\'t match value count at row 1",
+            ))
+            // src/import-alias.js
+            .stderr(predicates::str::contains(
+                "Table \'sqlx-ts.aliased_unknown\' doesn\'t exist",
+            ))
+            // src/nested/more-nested/more-nested/index.js
+            .stderr(predicates::str::contains(
+                "Table \'sqlx-ts.nested_unknown1\' doesn\'t exist",
+            ))
+            .stderr(predicates::str::contains(
+                "Table \'sqlx-ts.nested_unknown2\' doesn\'t exist",
+            ))
+            .stderr(predicates::str::contains(
+                "Table \'sqlx-ts.nested_unknown3\' doesn\'t exist",
+            ))
+            // src/lazy-import.js
+            .stderr(predicates::str::contains(
+                "Table \'sqlx-ts.lazy_unknown1\' doesn\'t exist",
             ))
             .stdout(predicates::str::contains("SQLs failed to compile!"));
 
