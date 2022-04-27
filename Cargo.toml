@@ -2,12 +2,14 @@
 name = "sqlx-ts"
 version = "0.1.0"
 edition = "2021"
+homepage = "https://github.com/JasonShin/sqlx-ts"
 authors = ['Jason Shin <visualbbasic@gmail.com>']
 license = "MIT"
 description = "A tool for Javascript/Typescript for compile-time safe SQL queries"
 readme = "README.md"
 keywords = ["cli", "sql", "sqlx", "typescript", "javascript"]
 categories = ["command-line-utilities"]
+documentation = ""
 
 [workspace]
 members = [
