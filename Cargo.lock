@@ -1848,7 +1848,7 @@ dependencies = [
 
 [[package]]
 name = "sqlx-ts"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 dependencies = [
  "assert_cmd",
  "clap",
@@ -1866,7 +1866,7 @@ dependencies = [
 
 [[package]]
 name = "sqlx-ts-common"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 dependencies = [
  "clap",
  "swc_common",
@@ -1874,7 +1874,7 @@ dependencies = [
 
 [[package]]
 name = "sqlx-ts-core"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 dependencies = [
  "mysql",
  "postgres",
