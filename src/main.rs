@@ -26,6 +26,11 @@ fn main() {
 
     let files = scan_folder(&source_folder, ext);
 
+    if files.is_empty() {
+        println!("No targets detected, is it an empty folder?");
+        return
+    }
+
     let explain_results: Vec<bool> = files
         .into_iter()
         .map(|file_path| {
