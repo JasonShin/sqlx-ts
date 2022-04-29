@@ -64,4 +64,8 @@ pub struct Cli {
     /// Primary DB database name
     #[clap(long)]
     pub db_name: Option<String>,
+
+    /// Folder paths to ignore
+    #[clap(long, parse(from_os_str), multiple_values = true)]
+    pub ignore: Vec<std::path::PathBuf>,
 }

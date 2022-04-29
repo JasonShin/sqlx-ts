@@ -10,6 +10,7 @@ use clap::{ArgEnum, Args, Parser, Subcommand};
 use dotenv::dotenv;
 use sqlx_ts_common::cli::Cli;
 use sqlx_ts_core::execute::execute;
+use std::path::Path;
 
 use crate::{parser::parse_source, scan_folder::scan_folder};
 
@@ -19,16 +20,20 @@ fn main() {
     let cli_args = Cli::parse();
     let source_folder = &cli_args.path;
     let ext = &cli_args.ext;
+    let ignore_paths = &cli_args.ignore;
+
     println!(
         "Scanning {:?} for sqls with extension {:?}",
         source_folder, ext
     );
 
-    let files = scan_folder(&source_folder, ext);
+    let files = scan_folder(&source_folder, ext, ignore_paths);
+
+    println!("checking files {:?}", files);
 
     if files.is_empty() {
         println!("No targets detected, is it an empty folder?");
-        return
+        return;
     }
 
     let explain_results: Vec<bool> = files
