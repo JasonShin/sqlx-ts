@@ -32,7 +32,7 @@ mod js_mysql_happy_path_tests {
             .env("DB_PORT", "33306")
             .env("DB_USER", "root")
             .env("DB_NAME", "sqlx-ts");
-        cmd.arg("samples/generic/happy-path1")
+        cmd.arg("samples/generic/js-happy-path1")
             .arg("--ext=js")
             .arg("--db-type=mysql");
 
@@ -51,7 +51,7 @@ mod js_mysql_happy_path_tests {
             .env("DB_PORT", "33306")
             .env("DB_USER", "root")
             .env("DB_NAME", "wrong-db");
-        cmd.arg("samples/generic/happy-path1")
+        cmd.arg("samples/generic/js-happy-path1")
             .arg("--ext=js")
             .arg("--db-port=33306")
             .arg("--db-type=mysql")

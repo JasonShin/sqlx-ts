@@ -10,10 +10,12 @@ mod postgres_test_happy_path_tests {
         let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
 
         cmd.arg("samples/generic/js-happy-path1")
-            .arg("--db-type=mysql")
+            .arg("--ext=js")
+            .arg("--db-type=postgres")
             .arg("--db-host=localhost")
-            .arg("--db-port=33306")
-            .arg("--db-user=root");
+            .arg("--db-port=54321")
+            .arg("--db-user=postgres")
+            .arg("--db-pass=postgres");
         cmd.assert()
             .success()
             .stdout(predicates::str::contains("No SQL errors detected!"));
@@ -27,10 +29,12 @@ mod postgres_test_happy_path_tests {
         let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
 
         cmd.env("DB_HOST", "127.0.0.1")
-            .env("DB_PORT", "33306")
-            .env("DB_USER", "root");
+            .env("DB_PORT", "54321")
+            .env("DB_USER", "postgres");
         cmd.arg("samples/generic/js-happy-path1")
-            .arg("--db-type=mysql");
+            .arg("--ext=js")
+            .arg("--db-type=postgres")
+            .arg("--db-pass=postgres");
 
         cmd.assert()
             .success()
@@ -45,10 +49,12 @@ mod postgres_test_happy_path_tests {
 
         cmd.env("DB_HOST", "127.0.0.1")
             .env("DB_PORT", "333abc06")
-            .env("DB_USER", "root");
+            .env("DB_USER", "postgres");
 
         cmd.arg("samples/generic/js-happy-path1")
-            .arg("--db-port=33306");
+            .arg("--ext=js")
+            .arg("--db-port=54321")
+            .arg("--db-pass=postgres");
 
         cmd.assert()
             .success()

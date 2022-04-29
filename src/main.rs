@@ -29,8 +29,6 @@ fn main() {
 
     let files = scan_folder(&source_folder, ext, ignore_paths);
 
-    println!("checking files {:?}", files);
-
     if files.is_empty() {
         println!("No targets detected, is it an empty folder?");
         return;
