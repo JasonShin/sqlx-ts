@@ -36,3 +36,15 @@ function testIfStatement() {
         const query3 = sql`SELECT * FROM items;`
     }
 }
+
+//////////////////////
+// Switch Statement //
+//////////////////////
+
+switch (true) {
+    case true:
+        const query4 = sql`SELECT * FROM items`;
+        break;
+    default:
+        const query5 = sql`SELECT * FROM items`;
+}

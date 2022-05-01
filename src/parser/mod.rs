@@ -43,14 +43,20 @@ fn recurse_and_find_sql(
             None
         }
         Stmt::Labeled(_) => todo!(),
-        Stmt::Break(_) => todo!(),
         Stmt::Continue(_) => todo!(),
         Stmt::If(if_stmt) => {
             let stmt = *if_stmt.cons.clone();
             recurse_and_find_sql(&mut sqls_container, &stmt, import_alias);
             None
         }
-        Stmt::Switch(_) => todo!(),
+        Stmt::Switch(switch_stmt) => {
+            for case in &switch_stmt.cases {
+                for stmt in &case.cons {
+                    recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias);
+                }
+            }
+            None
+        }
         Stmt::Throw(_) => todo!(),
         Stmt::Try(_) => todo!(),
         Stmt::While(_) => todo!(),
@@ -89,6 +95,7 @@ fn recurse_and_find_sql(
             &sqls_container.append(&mut result);
             None
         }
+        _ => None,
     }
 }
 
