@@ -24,8 +24,15 @@ function test() {
     `
 }
 
-
+///////////////////
 // If statements //
+///////////////////
 if (true) {
-    const query3 = sql`SELECT ??...`
+    const query3 = sql`SELECT * FROM items;`
+}
+
+function testIfStatement() {
+    if (true) {
+        const query3 = sql`SELECT * FROM items;`
+    }
 }

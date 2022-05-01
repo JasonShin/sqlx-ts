@@ -23,6 +23,13 @@ mod postgres_failure_path_tests {
             .stderr(predicates::str::contains(
                 "INSERT has more expressions than target columns",
             ))
+            // src/index.ts -> if statements
+            .stderr(predicates::str::contains(
+                "relation \"if_statement1\" does not exist",
+            ))
+            .stderr(predicates::str::contains(
+                "relation \"if_statement2\" does not exist",
+            ))
             // src/import-alias.ts
             .stderr(predicates::str::contains(
                 "relation \"aliased_unknown\" does not exist",
