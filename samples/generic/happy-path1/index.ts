@@ -48,3 +48,20 @@ switch (true) {
     default:
         const query5 = sql`SELECT * FROM items`;
 }
+
+///////////////
+// For loops //
+///////////////
+
+for (let i = 0; i < 10; i++) {
+    const query3 = sql`SELECT * FROM items`;
+}
+
+const list = [1, 2, 3]
+for (let n in list) {
+    const query3 = sql`SELECT * FROM items`;
+}
+
+for (let n of list) {
+    const query3 = sql`SELECT * FROM items`;
+}

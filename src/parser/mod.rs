@@ -61,9 +61,21 @@ fn recurse_and_find_sql(
         Stmt::Try(_) => todo!(),
         Stmt::While(_) => todo!(),
         Stmt::DoWhile(_) => todo!(),
-        Stmt::For(_) => todo!(),
-        Stmt::ForIn(_) => todo!(),
-        Stmt::ForOf(_) => todo!(),
+        Stmt::For(for_stmt) => {
+            let body_stmt = *for_stmt.body.clone();
+            recurse_and_find_sql(&mut sqls_container, &body_stmt, &import_alias);
+            None
+        }
+        Stmt::ForIn(for_in_stmt) => {
+            let body_stmt = *for_in_stmt.body.clone();
+            recurse_and_find_sql(&mut sqls_container, &body_stmt, &import_alias);
+            None
+        }
+        Stmt::ForOf(for_of_stmt) => {
+            let body_stmt = *for_of_stmt.body.clone();
+            recurse_and_find_sql(&mut sqls_container, &body_stmt, &import_alias);
+            None
+        }
         Stmt::Decl(decl) => match decl {
             swc_ecma_ast::Decl::Class(_) => todo!(),
             swc_ecma_ast::Decl::Fn(fun) => {
