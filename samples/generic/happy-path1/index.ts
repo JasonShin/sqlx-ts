@@ -23,3 +23,9 @@ function test() {
     VALUES ('steak', 1, 1, 20);
     `
 }
+
+
+// If statements //
+if (true) {
+    const query3 = sql`SELECT ??...`
+}

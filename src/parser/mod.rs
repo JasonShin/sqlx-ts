@@ -15,7 +15,7 @@ use swc_common::{
     sync::Lrc,
     FileName, MultiSpan, SourceMap,
 };
-use swc_ecma_ast::{ModuleDecl, ModuleItem, Stmt};
+use swc_ecma_ast::{BlockStmt, ModuleDecl, ModuleItem, Stmt};
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 use tag::{get_sql_from_expr, get_sql_from_var_decl};
 
@@ -25,7 +25,12 @@ fn recurse_and_find_sql(
     import_alias: &String,
 ) -> Option<String> {
     match stmt {
-        Stmt::Block(_) => todo!(),
+        Stmt::Block(block) => {
+            for stmt in &block.stmts {
+                recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias);
+            }
+            None
+        }
         Stmt::Empty(_) => todo!(),
         Stmt::Debugger(_) => todo!(),
         Stmt::With(_) => todo!(),
@@ -40,7 +45,11 @@ fn recurse_and_find_sql(
         Stmt::Labeled(_) => todo!(),
         Stmt::Break(_) => todo!(),
         Stmt::Continue(_) => todo!(),
-        Stmt::If(_) => todo!(),
+        Stmt::If(if_stmt) => {
+            let stmt = *if_stmt.cons.clone();
+            recurse_and_find_sql(&mut sqls_container, &stmt, import_alias);
+            None
+        }
         Stmt::Switch(_) => todo!(),
         Stmt::Throw(_) => todo!(),
         Stmt::Try(_) => todo!(),
