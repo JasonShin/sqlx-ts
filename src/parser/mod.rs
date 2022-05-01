@@ -31,7 +31,11 @@ fn recurse_and_find_sql(
             }
             None
         }
-        Stmt::With(_) => todo!(),
+        Stmt::With(with_stmt) => {
+            let stmt = *with_stmt.body.clone();
+            recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias);
+            None
+        }
         Stmt::Return(rtn) => {
             if let Some(expr) = &rtn.arg {
                 let span: MultiSpan = rtn.span.into();

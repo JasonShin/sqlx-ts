@@ -77,3 +77,14 @@ try {
 
     throw sql`SELECT * FROM items`
 }
+
+////////////////////
+// with statement //
+////////////////////
+
+function with_stmt(o: string, n: number) {
+    // @ts-ignore
+    with (o) {
+        const query3 = sql`SELECT * FROM items`;
+    }
+}
