@@ -21,3 +21,15 @@ function testIfStatement() {
         const query3 = sql`SELECT * FROM if_statement2;`
     }
 }
+
+//////////////////////
+// Switch Statement //
+//////////////////////
+
+switch (true) {
+    case true:
+        const query4 = sql`SELECT * FROM switch_statements1`;
+        break;
+    default:
+        const query5 = sql`SELECT * FROM switch_statements2`;
+}
