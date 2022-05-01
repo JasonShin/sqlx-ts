@@ -33,3 +33,21 @@ switch (true) {
     default:
         const query5 = sql`SELECT * FROM switch_statements2`;
 }
+
+///////////////
+// For loops //
+///////////////
+
+for (let i = 0; i < 10; i++) {
+    const query3 = sql`SELECT * FROM for_loops1`;
+}
+
+const list = [1, 2, 3]
+for (let n in list) {
+    const query3 = sql`SELECT * FROM for_loops2`;
+}
+
+for (let n of list) {
+    const query3 = sql`SELECT * FROM for_loops3`;
+}
+

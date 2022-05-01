@@ -37,6 +37,16 @@ mod postgres_failure_path_tests {
             .stderr(predicates::str::contains(
                 "relation \"switch_statements2\" does not exist",
             ))
+            // src/index -> for loop statements
+            .stderr(predicates::str::contains(
+                "relation \"for_loops1\" does not exist",
+            ))
+            .stderr(predicates::str::contains(
+                "relation \"for_loops2\" does not exist",
+            ))
+            .stderr(predicates::str::contains(
+                "relation \"for_loops3\" does not exist",
+            ))
             // src/import-alias.ts
             .stderr(predicates::str::contains(
                 "relation \"aliased_unknown\" does not exist",
