@@ -65,3 +65,13 @@ for (let n in list) {
 for (let n of list) {
     const query3 = sql`SELECT * FROM items`;
 }
+
+///////////////
+// Try/Catch //
+///////////////
+
+try {
+    const query3 = sql`SELECT * FROM items`;
+} catch {
+    const query3 = sql`SELECT * FROM items`;
+}

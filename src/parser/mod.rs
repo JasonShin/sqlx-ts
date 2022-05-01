@@ -58,7 +58,20 @@ fn recurse_and_find_sql(
             None
         }
         Stmt::Throw(_) => todo!(),
-        Stmt::Try(_) => todo!(),
+        Stmt::Try(try_stmt) => {
+            // handles statements inside try {}
+            for stmt in &try_stmt.block.stmts {
+                recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias);
+            }
+
+            // handles statements inside catch {}
+            if let Some(stmt) = &try_stmt.handler {
+                for stmt in &stmt.body.stmts {
+                    recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias);
+                }
+            }
+            None
+        }
         Stmt::While(_) => todo!(),
         Stmt::DoWhile(_) => todo!(),
         Stmt::For(for_stmt) => {

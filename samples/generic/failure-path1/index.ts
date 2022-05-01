@@ -51,3 +51,12 @@ for (let n of list) {
     const query3 = sql`SELECT * FROM for_loops3`;
 }
 
+///////////////
+// Try/Catch //
+///////////////
+
+try {
+    const query3 = sql`SELECT * FROM try1`;
+} catch {
+    const query3 = sql`SELECT * FROM catch1`;
+}
