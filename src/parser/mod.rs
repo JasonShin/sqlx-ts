@@ -31,8 +31,6 @@ fn recurse_and_find_sql(
             }
             None
         }
-        Stmt::Empty(_) => todo!(),
-        Stmt::Debugger(_) => todo!(),
         Stmt::With(_) => todo!(),
         Stmt::Return(rtn) => {
             if let Some(expr) = &rtn.arg {
@@ -43,7 +41,6 @@ fn recurse_and_find_sql(
             None
         }
         Stmt::Labeled(_) => todo!(),
-        Stmt::Continue(_) => todo!(),
         Stmt::If(if_stmt) => {
             let stmt = *if_stmt.cons.clone();
             recurse_and_find_sql(&mut sqls_container, &stmt, import_alias);
@@ -57,7 +54,13 @@ fn recurse_and_find_sql(
             }
             None
         }
-        Stmt::Throw(_) => todo!(),
+        Stmt::Throw(throw_stmt) => {
+            let span: MultiSpan = throw_stmt.span.into();
+            let expr = *throw_stmt.arg.clone();
+            let mut result = get_sql_from_expr(expr, span, import_alias);
+            &sqls_container.append(&mut result);
+            None
+        }
         Stmt::Try(try_stmt) => {
             // handles statements inside try {}
             for stmt in &try_stmt.block.stmts {

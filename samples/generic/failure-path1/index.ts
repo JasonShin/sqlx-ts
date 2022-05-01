@@ -59,4 +59,6 @@ try {
     const query3 = sql`SELECT * FROM try1`;
 } catch {
     const query3 = sql`SELECT * FROM catch1`;
+
+    throw sql`SELECT * FROM throw1`
 }

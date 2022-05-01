@@ -74,4 +74,6 @@ try {
     const query3 = sql`SELECT * FROM items`;
 } catch {
     const query3 = sql`SELECT * FROM items`;
+
+    throw sql`SELECT * FROM items`
 }

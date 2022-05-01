@@ -54,6 +54,9 @@ mod postgres_failure_path_tests {
             .stderr(predicates::str::contains(
                 "relation \"catch1\" does not exist",
             ))
+            .stderr(predicates::str::contains(
+                "relation \"throw1\" does not exist",
+            ))
             // src/import-alias.ts
             .stderr(predicates::str::contains(
                 "relation \"aliased_unknown\" does not exist",
