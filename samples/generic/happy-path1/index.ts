@@ -88,3 +88,20 @@ function with_stmt(o: string, n: number) {
         const query3 = sql`SELECT * FROM items`;
     }
 }
+
+/////////////////////
+// While Statement //
+/////////////////////
+
+let i = 0
+while (i < 5) {
+    const query = sql`SELECT * FROM items`;
+    i++;
+}
+
+
+i = 0;
+do {
+    const query = sql`SELECT * FROM items`;
+    i++;
+} while (i < 5)

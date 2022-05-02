@@ -61,6 +61,14 @@ mod postgres_failure_path_tests {
             .stderr(predicates::str::contains(
                 "relation \"with1\" does not exist",
             ))
+            // src/index.ts -> while statement
+            .stderr(predicates::str::contains(
+                "relation \"while1\" does not exist",
+            ))
+            // src/index.ts -> do while statement
+            .stderr(predicates::str::contains(
+                "relation \"do_while1\" does not exist",
+            ))
             // src/import-alias.ts
             .stderr(predicates::str::contains(
                 "relation \"aliased_unknown\" does not exist",
