@@ -15,7 +15,7 @@ use swc_common::{
     sync::Lrc,
     FileName, MultiSpan, SourceMap,
 };
-use swc_ecma_ast::{ModuleDecl, ModuleItem, Stmt};
+use swc_ecma_ast::{BlockStmt, ClassMember, Decl, ModuleDecl, ModuleItem, Stmt};
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 use tag::{get_sql_from_expr, get_sql_from_var_decl};
 
@@ -25,10 +25,17 @@ fn recurse_and_find_sql(
     import_alias: &String,
 ) -> Option<String> {
     match stmt {
-        Stmt::Block(_) => todo!(),
-        Stmt::Empty(_) => todo!(),
-        Stmt::Debugger(_) => todo!(),
-        Stmt::With(_) => todo!(),
+        Stmt::Block(block) => {
+            for stmt in &block.stmts {
+                recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias);
+            }
+            None
+        }
+        Stmt::With(with_stmt) => {
+            let stmt = *with_stmt.body.clone();
+            recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias);
+            None
+        }
         Stmt::Return(rtn) => {
             if let Some(expr) = &rtn.arg {
                 let span: MultiSpan = rtn.span.into();
@@ -37,20 +44,95 @@ fn recurse_and_find_sql(
             }
             None
         }
-        Stmt::Labeled(_) => todo!(),
-        Stmt::Break(_) => todo!(),
-        Stmt::Continue(_) => todo!(),
-        Stmt::If(_) => todo!(),
-        Stmt::Switch(_) => todo!(),
-        Stmt::Throw(_) => todo!(),
-        Stmt::Try(_) => todo!(),
-        Stmt::While(_) => todo!(),
-        Stmt::DoWhile(_) => todo!(),
-        Stmt::For(_) => todo!(),
-        Stmt::ForIn(_) => todo!(),
-        Stmt::ForOf(_) => todo!(),
+        Stmt::If(if_stmt) => {
+            let stmt = *if_stmt.cons.clone();
+            recurse_and_find_sql(&mut sqls_container, &stmt, import_alias);
+            None
+        }
+        Stmt::Switch(switch_stmt) => {
+            for case in &switch_stmt.cases {
+                for stmt in &case.cons {
+                    recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias);
+                }
+            }
+            None
+        }
+        Stmt::Throw(throw_stmt) => {
+            let span: MultiSpan = throw_stmt.span.into();
+            let expr = *throw_stmt.arg.clone();
+            let mut result = get_sql_from_expr(expr, span, import_alias);
+            &sqls_container.append(&mut result);
+            None
+        }
+        Stmt::Try(try_stmt) => {
+            // handles statements inside try {}
+            for stmt in &try_stmt.block.stmts {
+                recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias);
+            }
+
+            // handles statements inside catch {}
+            if let Some(stmt) = &try_stmt.handler {
+                for stmt in &stmt.body.stmts {
+                    recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias);
+                }
+            }
+            None
+        }
+        Stmt::While(while_stmt) => {
+            let body_stmt = *while_stmt.body.clone();
+            recurse_and_find_sql(&mut sqls_container, &body_stmt, &import_alias);
+            None
+        }
+        Stmt::DoWhile(do_while_stmt) => {
+            let body_stmt = *do_while_stmt.body.clone();
+            recurse_and_find_sql(&mut sqls_container, &body_stmt, &import_alias);
+            None
+        }
+        Stmt::For(for_stmt) => {
+            let body_stmt = *for_stmt.body.clone();
+            recurse_and_find_sql(&mut sqls_container, &body_stmt, &import_alias);
+            None
+        }
+        Stmt::ForIn(for_in_stmt) => {
+            let body_stmt = *for_in_stmt.body.clone();
+            recurse_and_find_sql(&mut sqls_container, &body_stmt, &import_alias);
+            None
+        }
+        Stmt::ForOf(for_of_stmt) => {
+            let body_stmt = *for_of_stmt.body.clone();
+            recurse_and_find_sql(&mut sqls_container, &body_stmt, &import_alias);
+            None
+        }
         Stmt::Decl(decl) => match decl {
-            swc_ecma_ast::Decl::Class(_) => todo!(),
+            swc_ecma_ast::Decl::Class(class) => {
+                let class_body = &class.class.body;
+                for body_stmt in class_body {
+                    match body_stmt {
+                        ClassMember::Constructor(_) => {}
+                        ClassMember::Method(class_method) => {
+                            if let Some(body) = &class_method.function.body {
+                                for stmt in &body.stmts {
+                                    recurse_and_find_sql(&mut sqls_container, &stmt, import_alias);
+                                }
+                            }
+                        }
+                        ClassMember::PrivateMethod(private_method) => {
+                            if let Some(body) = &private_method.function.body {
+                                for stmt in &body.stmts {
+                                    recurse_and_find_sql(&mut sqls_container, &stmt, import_alias);
+                                }
+                            }
+                        }
+                        ClassMember::StaticBlock(static_block) => {
+                            for stmt in &static_block.body.stmts {
+                                recurse_and_find_sql(&mut sqls_container, &stmt, import_alias);
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+                None
+            }
             swc_ecma_ast::Decl::Fn(fun) => {
                 if let Some(body) = &fun.function.body {
                     for stmt in &body.stmts {
@@ -68,10 +150,7 @@ fn recurse_and_find_sql(
 
                 None
             }
-            swc_ecma_ast::Decl::TsInterface(_) => todo!(),
-            swc_ecma_ast::Decl::TsTypeAlias(_) => todo!(),
-            swc_ecma_ast::Decl::TsEnum(_) => todo!(),
-            swc_ecma_ast::Decl::TsModule(_) => todo!(),
+            _ => None,
         },
         Stmt::Expr(expr) => {
             let span: MultiSpan = expr.span.into();
@@ -80,6 +159,7 @@ fn recurse_and_find_sql(
             &sqls_container.append(&mut result);
             None
         }
+        _ => None,
     }
 }
 
