@@ -15,7 +15,7 @@ use swc_common::{
     sync::Lrc,
     FileName, MultiSpan, SourceMap,
 };
-use swc_ecma_ast::{BlockStmt, ClassMember, ModuleDecl, ModuleItem, Stmt};
+use swc_ecma_ast::{BlockStmt, ClassMember, Decl, ModuleDecl, ModuleItem, Stmt};
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 use tag::{get_sql_from_expr, get_sql_from_var_decl};
 
@@ -150,10 +150,7 @@ fn recurse_and_find_sql(
 
                 None
             }
-            swc_ecma_ast::Decl::TsInterface(_) => todo!(),
-            swc_ecma_ast::Decl::TsTypeAlias(_) => todo!(),
-            swc_ecma_ast::Decl::TsEnum(_) => todo!(),
-            swc_ecma_ast::Decl::TsModule(_) => todo!(),
+            _ => None,
         },
         Stmt::Expr(expr) => {
             let span: MultiSpan = expr.span.into();

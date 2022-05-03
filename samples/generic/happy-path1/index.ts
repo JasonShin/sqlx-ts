@@ -123,3 +123,22 @@ class Foo {
         const query = sql`SELECT * FROM items`;
     }
 }
+
+///////////////////////////////////
+// Interface, type, enum, module //
+///////////////////////////////////
+
+interface TestInterface {
+    name: string
+}
+
+type TestType = number
+
+enum TestEnum {
+    a, b, c
+}
+
+module TestModule {
+
+}
+
