@@ -120,7 +120,7 @@ fn recurse_and_find_sql(
                 }
                 println!("checking class {:?}", class.class.body);
                 None
-            },
+            }
             swc_ecma_ast::Decl::Fn(fun) => {
                 if let Some(body) = &fun.function.body {
                     for stmt in &body.stmts {
