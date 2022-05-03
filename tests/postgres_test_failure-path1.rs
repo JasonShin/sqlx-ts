@@ -69,6 +69,18 @@ mod postgres_failure_path_tests {
             .stderr(predicates::str::contains(
                 "relation \"do_while1\" does not exist",
             ))
+            // src/index.ts -> class private method
+            .stderr(predicates::str::contains(
+                "relation \"class_private1\" does not exist",
+            ))
+            // src/index.ts -> class public method
+            .stderr(predicates::str::contains(
+                "relation \"class_public1\" does not exist",
+            ))
+            // src/index.ts -> class protected method
+            .stderr(predicates::str::contains(
+                "relation \"class_protected1\" does not exist",
+            ))
             // src/import-alias.ts
             .stderr(predicates::str::contains(
                 "relation \"aliased_unknown\" does not exist",

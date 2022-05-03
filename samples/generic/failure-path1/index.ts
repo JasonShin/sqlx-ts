@@ -90,3 +90,21 @@ do {
     const query = sql`SELECT * FROM do_while1`;
     i++;
 } while (i < 5)
+
+///////////
+// Class //
+///////////
+
+class Foo {
+    private bar() {
+        const query = sql`SELECT * FROM class_private1`;
+    }
+
+    public baz() {
+        const query = sql`SELECT * FROM class_public1`;
+    }
+
+    protected qux() {
+        const query = sql`SELECT * FROM class_protected1`;
+    }
+}

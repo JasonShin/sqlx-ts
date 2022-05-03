@@ -109,16 +109,28 @@ fn recurse_and_find_sql(
                 for body_stmt in class_body {
                     match body_stmt {
                         ClassMember::Constructor(_) => {}
-                        ClassMember::Method(_) => {}
-                        ClassMember::PrivateMethod(_) => {}
-                        ClassMember::ClassProp(_) => {}
-                        ClassMember::PrivateProp(_) => {}
-                        ClassMember::TsIndexSignature(_) => {}
-                        ClassMember::Empty(_) => {}
-                        ClassMember::StaticBlock(_) => {}
+                        ClassMember::Method(class_method) => {
+                            if let Some(body) = &class_method.function.body {
+                                for stmt in &body.stmts {
+                                    recurse_and_find_sql(&mut sqls_container, &stmt, import_alias);
+                                }
+                            }
+                        }
+                        ClassMember::PrivateMethod(private_method) => {
+                            if let Some(body) = &private_method.function.body {
+                                for stmt in &body.stmts {
+                                    recurse_and_find_sql(&mut sqls_container, &stmt, import_alias);
+                                }
+                            }
+                        }
+                        ClassMember::StaticBlock(static_block) => {
+                            for stmt in &static_block.body.stmts {
+                                recurse_and_find_sql(&mut sqls_container, &stmt, import_alias);
+                            }
+                        }
+                        _ => {}
                     }
                 }
-                println!("checking class {:?}", class.class.body);
                 None
             }
             swc_ecma_ast::Decl::Fn(fun) => {

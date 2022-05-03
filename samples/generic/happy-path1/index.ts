@@ -112,14 +112,14 @@ do {
 
 class Foo {
     private bar() {
-        const query = sql`SELECT * FROM zz`;
+        const query = sql`SELECT * FROM items`;
     }
 
     public baz() {
-        const query = sql`SELECT * FROM zz`;
+        const query = sql`SELECT * FROM items`;
     }
 
     protected qux() {
-        const query = sql`SELECT * FROM zz`;
+        const query = sql`SELECT * FROM items`;
     }
 }
