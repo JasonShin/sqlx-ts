@@ -15,7 +15,7 @@ use swc_common::{
     sync::Lrc,
     FileName, MultiSpan, SourceMap,
 };
-use swc_ecma_ast::{BlockStmt, ModuleDecl, ModuleItem, Stmt};
+use swc_ecma_ast::{BlockStmt, ClassMember, ModuleDecl, ModuleItem, Stmt};
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 use tag::{get_sql_from_expr, get_sql_from_var_decl};
 
@@ -104,7 +104,23 @@ fn recurse_and_find_sql(
             None
         }
         Stmt::Decl(decl) => match decl {
-            swc_ecma_ast::Decl::Class(_) => todo!(),
+            swc_ecma_ast::Decl::Class(class) => {
+                let class_body = &class.class.body;
+                for body_stmt in class_body {
+                    match body_stmt {
+                        ClassMember::Constructor(_) => {}
+                        ClassMember::Method(_) => {}
+                        ClassMember::PrivateMethod(_) => {}
+                        ClassMember::ClassProp(_) => {}
+                        ClassMember::PrivateProp(_) => {}
+                        ClassMember::TsIndexSignature(_) => {}
+                        ClassMember::Empty(_) => {}
+                        ClassMember::StaticBlock(_) => {}
+                    }
+                }
+                println!("checking class {:?}", class.class.body);
+                None
+            },
             swc_ecma_ast::Decl::Fn(fun) => {
                 if let Some(body) = &fun.function.body {
                     for stmt in &body.stmts {

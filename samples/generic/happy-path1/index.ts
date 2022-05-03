@@ -105,3 +105,21 @@ do {
     const query = sql`SELECT * FROM items`;
     i++;
 } while (i < 5)
+
+///////////
+// Class //
+///////////
+
+class Foo {
+    private bar() {
+        const query = sql`SELECT * FROM zz`;
+    }
+
+    public baz() {
+        const query = sql`SELECT * FROM zz`;
+    }
+
+    protected qux() {
+        const query = sql`SELECT * FROM zz`;
+    }
+}
