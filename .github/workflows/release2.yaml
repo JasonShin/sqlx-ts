@@ -20,7 +20,7 @@ jobs:
       - name: Update repository cache
         run: sudo apt update -y
       - name: Install dependencies
-        run: sudo apt-get install -y librust-libz-sys-dev
+        run: sudo apt-get install -y librust-libz-sys-dev pkg-config
       - uses: actions/checkout@master
       - name: Compile
         uses: actions-rs/toolchain@v1
