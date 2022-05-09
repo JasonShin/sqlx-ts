@@ -19,8 +19,8 @@ jobs:
     steps:
       - name: Update repository cache
         run: sudo apt update -y
-      - name: Install dependencies
-        run: sudo apt-get install -y librust-libz-sys-dev pkg-config
+      # - name: Install dependencies
+      #   run: sudo apt-get install -y cmake librust-libz-sys-dev pkg-config
       - uses: actions/checkout@master
       - name: Compile
         uses: actions-rs/toolchain@v1
@@ -30,5 +30,6 @@ jobs:
           override: true
       - uses: actions-rs/cargo@v1
         with:
+          use-cross: true
           command: build
           args: --release --target ${{ matrix.target }} --locked
