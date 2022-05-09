@@ -40,7 +40,7 @@ jobs:
       - name: Update repository cache
         run: sudo apt update -y
       - name: Install dependencies
-        run: sudo apt-get install -y pkg-config libssl-dev
+        run: sudo apt-get install -y libssl-dev pkg-config
       - uses: actions/checkout@master
       - name: Compile
         uses: actions-rs/toolchain@v1
@@ -49,6 +49,9 @@ jobs:
           target: ${{ matrix.target }}
           override: true
       - uses: actions-rs/cargo@v1
+        env:
+          OPENSSL_LIB_DIR: /usr/lib
+          OPENSSL_INCLUDE_DIR: /usr/include/openssl
         with:
           command: build
           args: --release --target ${{ matrix.target }} --locked
