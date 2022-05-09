@@ -27,6 +27,7 @@ jobs:
         with:
           command: build
           args: --release --target ${{ matrix.target }} --locked
+
   release-linux:
     name: release ${{ matrix.target }}
     runs-on: ubuntu-20.04
@@ -35,12 +36,11 @@ jobs:
         include:
           # - target: x86_64-pc-windows-gnu
           - target: x86_64-unknown-linux-musl
-          # - target: x86_64-apple-darwin
     steps:
       - name: Update repository cache
         run: sudo apt update -y
       - name: Install dependencies
-        run: sudo apt-get install -y cmake librust-libz-sys-dev pkg-config
+        run: sudo apt-get install -y cmake librust-libz-sys-dev pkg-config libssl-dev
       - uses: actions/checkout@master
       - name: Compile
         uses: actions-rs/toolchain@v1
