@@ -7,7 +7,27 @@ on:
 name: release
 
 jobs:
-  release:
+  release-macos:
+    name: release ${{ matrix.target }}
+    runs-on: macos-12
+    strategy:
+      matrix:
+        include:
+          # - target: x86_64-pc-windows-gnu
+          - target: x86_64-apple-darwin
+    steps:
+      - uses: actions/checkout@master
+      - name: Compile
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target ${{ matrix.target }} --locked
+  release-linux:
     name: release ${{ matrix.target }}
     runs-on: ubuntu-20.04
     strategy:
@@ -30,6 +50,5 @@ jobs:
           override: true
       - uses: actions-rs/cargo@v1
         with:
-          use-cross: true
           command: build
           args: --release --target ${{ matrix.target }} --locked
