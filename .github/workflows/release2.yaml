@@ -50,8 +50,9 @@ jobs:
           override: true
       - uses: actions-rs/cargo@v1
         env:
-          OPENSSL_LIB_DIR: /usr/lib
-          OPENSSL_INCLUDE_DIR: /usr/include/openssl
+          OPENSSL_DIR: /usr/local/ssl
+          # OPENSSL_LIB_DIR: /usr/lib
+          # OPENSSL_INCLUDE_DIR: /usr/include/openssl
         with:
           command: build
           args: --release --target ${{ matrix.target }} --locked
