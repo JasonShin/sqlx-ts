@@ -38,9 +38,9 @@ jobs:
           - target: x86_64-unknown-linux-musl
     steps:
       - name: Update repository cache
-        run: apt update -y
+        run: sudo apt update -y
       - name: Install dependencies
-        run: apt install -y libssl-dev pkg-config
+        run: sudo apt install -y libssl-dev pkg-config
       - uses: actions/checkout@master
       - name: Compile
         uses: actions-rs/toolchain@v1
