@@ -40,7 +40,7 @@ jobs:
       - name: Update repository cache
         run: sudo apt update -y
       - name: Install dependencies
-        run: sudo apt install -y build-essential libssl-dev pkg-config
+        run: sudo apt install -y build-essential libssl-dev pkg-config musl-tools
       - uses: actions/checkout@master
       - name: Compile
         uses: actions-rs/toolchain@v1
