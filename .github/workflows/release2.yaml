@@ -38,9 +38,9 @@ jobs:
           - target: x86_64-unknown-linux-musl
     steps:
       - name: Update repository cache
-        run: sudo apt update -y
+        run: apt update -y
       - name: Install dependencies
-        run: sudo apt-get install -y libssl-dev pkg-config
+        run: apt install -y libssl-dev pkg-config
       - uses: actions/checkout@master
       - name: Compile
         uses: actions-rs/toolchain@v1
@@ -50,7 +50,8 @@ jobs:
           override: true
       - uses: actions-rs/cargo@v1
         env:
-          OPENSSL_DIR: /usr/local/ssl
+          # OPENSSL_DIR: /usr/local/ssl
+          DEBIAN_FRONTEND: noninteractive
           # OPENSSL_LIB_DIR: /usr/lib
           # OPENSSL_INCLUDE_DIR: /usr/include/openssl
         with:
