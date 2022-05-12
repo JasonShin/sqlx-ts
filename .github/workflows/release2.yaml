@@ -50,4 +50,4 @@ jobs:
         with:
           use-cross: false
           command: build
-          args: --release --target ${{ matrix.target }} --locked
+          args: --release --target ${{ matrix.target }}
