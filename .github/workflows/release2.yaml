@@ -40,14 +40,5 @@ jobs:
           profile: minimal
           override: true
 
-      - uses: actions-rs/cargo@v1
-        env:
-          OPENSSL_DIR: /usr/bin
-          DEBIAN_FRONTEND: noninteractive
-          PKG_CONFIG_ALLOW_CROSS: 1
-          OPENSSL_LIB_DIR: /usr/lib/aarch64-linux-gnu/
-          OPENSSL_INCLUDE_DIR: /usr/include/openssl
-        with:
-          use-cross: false
-          command: build
-          args: --release --target ${{ matrix.target }}
+      - name: Build release binary
+        run: cargo build --verbose --release
