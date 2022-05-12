@@ -32,7 +32,7 @@ jobs:
         run: |
           ci/ubuntu-install-packages
 
-      - name: Compile
+      - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.rust }}
@@ -42,7 +42,7 @@ jobs:
 
       - uses: actions-rs/cargo@v1
         env:
-          OPENSSL_DIR: /usr/local/ssl
+          OPENSSL_DIR: /usr/lib/ssl
           DEBIAN_FRONTEND: noninteractive
           PKG_CONFIG_ALLOW_CROSS: 1
           # OPENSSL_LIB_DIR: /usr/lib
