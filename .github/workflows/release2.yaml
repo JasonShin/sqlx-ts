@@ -45,5 +45,5 @@ jobs:
 
       - name: check
         run: |
-          ls target/
-          ls target/${{ matrix.target }}
+          ls target/release
+          ls target/release/${{ matrix.target }}
