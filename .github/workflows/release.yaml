@@ -55,12 +55,13 @@ jobs:
         run: |
           ls target/release
           file_name="sqlx_ts_${{ github.event.release.tag_name }}_${{ matrix.target }}"
-          cp target/release/sqlx-ts sqlx-ts
 
           if [ "${{ matrix.os }}" = "windows-2022" ]; then
-            7z a "$file_name.zip" sqlx-ts
+            cp target/release/sqlx-ts.exe sqlx-ts.exe
+            7z a "$file_name.zip" sqlx-ts.exe
             echo "ASSET=$file_name.zip" >> $GITHUB_ENV
           else
+            cp target/release/sqlx-ts sqlx-ts
             tar -czf "$file_name.tar.gz" sqlx-ts
             echo "ASSET=$file_name.tar.gz" >> $GITHUB_ENV
           fi
