@@ -46,4 +46,6 @@ jobs:
       - name: check
         run: |
           ls target/release
+          echo ${{ github.event.release.tag_name }}
+          tar -cvf 
           ls target/release/${{ matrix.target }}
