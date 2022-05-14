@@ -58,8 +58,8 @@ jobs:
           cp target/release/sqlx-ts sqlx-ts
 
           if [ "${{ matrix.os }}" = "windows-2022" ]; then
-            7z a "$staging.zip" sqlx-ts
-             echo "ASSET=$file_name.zip" >> $GITHUB_ENV
+            7z a "$file_name.zip" sqlx-ts
+            echo "ASSET=$file_name.zip" >> $GITHUB_ENV
           else
             tar -czf "$file_name.tar.gz" sqlx-ts
             echo "ASSET=$file_name.tar.gz" >> $GITHUB_ENV
