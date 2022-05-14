@@ -47,7 +47,8 @@ jobs:
       - name: Build release binary
         run: cargo build --verbose --release
 
-      - name: check
+      - name: Build archive
+        shell: bash
         run: |
           ls target/release
           file_name="sqlx_ts_${{ github.event.release.tag_name }}_${{ matrix.target }}"
