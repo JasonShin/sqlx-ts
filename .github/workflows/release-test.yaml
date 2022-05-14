@@ -53,7 +53,8 @@ jobs:
           ls target/release
           file_name="sqlx_ts_${{ github.event.release.tag_name }}_${{ matrix.target }}"
 
-          tar -czf "$file_name.tar.gz" target/release/sqlx-ts
+          cp target/release/sqlx-ts sqlx-ts
+          tar -czf "$file_name.tar.gz" sqlx-ts
           echo "ASSET=$file_name.tar.gz" >> $GITHUB_ENV
           
       - name: Upload release archive
