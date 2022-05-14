@@ -2,7 +2,7 @@ on:
   release:
     types: [created]
 
-name: release
+name: release-test
 
 jobs:
   build-release:
@@ -25,6 +25,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@master
 
+    - name: Get release
+      id: get_release
+      uses: bruceadams/get-release@v1.2.3
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+
       - name: Install packages (Ubuntu)
         if: matrix.os == 'ubuntu-20.04'
         run: |
@@ -44,4 +50,17 @@ jobs:
       - name: check
         run: |
           ls target/release
-          echo ${{ github.event.release.tag_name }}
+          file_name="sqlx_ts_${{ github.event.release.tag_name }}_${{ matrix.target }}"
+          
+          tar -czf "${{ file_name }}.tar.gz" target/release/sqlx-ts
+          echo "ASSET=${{ file_name }}.tar.gz" >> $GITHUB_ENV
+          
+      - name: Upload release archive
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ${{ env.ASSET }}
+          asset_name: ${{ env.ASSET }}
+          asset_content_type: application/octet-stream
