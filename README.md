@@ -89,14 +89,14 @@ To install a specific artifact, [go to the release page to find the exact name o
 
 ```bash
 $ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | \
-    sh -s -- --artifact sqlx-ts_v0.1.0_x86_64-apple-darwin.tar.gz
+    sh -s -- --artifact sqlx_ts_v0.1.0_x86_64-apple-darwin.tar.gz
 ```
 
 Upgrading to a new version can be done by grabbing the next version of the sqlx-ts artifact and use `--force` command from install.sh
 
 ```bash
 $ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | \
-    sh -s -- --artifact sqlx-ts_v0.2.0_x86_64-apple-darwin.tar.gz --force
+    sh -s -- --artifact sqlx_ts_v0.2.0_x86_64-apple-darwin.tar.gz --force
 ```
 
 For more advanced usage, please check `--help` command of install.sh

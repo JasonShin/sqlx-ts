@@ -10,10 +10,10 @@ Usage:
 Options:
     -h, --help            Display this message
     -f, --force           Force overwriting an existing binary
-    --os OS               Your current OS, it's used to determine the type of binary to be installed (one of darwin or win32 or linux)
-    --artifact ARTIFACT   Specific artifact to install. Please find the artifact name from https://github.com/JasonShin/sqlx-ts/releases (e.g. sqlx-ts_v0.1.0_x86_64-apple-darwin.zip)
+    --os OS               Your current OS, it's used to determine the type of binary to be installed (one of macos or win32 or linux)
+    --artifact ARTIFACT   Specific artifact to install. Please find the artifact name from https://github.com/JasonShin/sqlx-ts/releases (e.g. sqlx_ts_v0.1.0_x86_64-apple-darwin.zip)
     --tag TAG             Tag (version) of the crate to install (default <latest release>)
-    --to LOCATION         Where to install the binary (default ~/.cargo/bin)
+    --to LOCATION         Where to install the binary (default to ~/.cargo/bin)
 EOF
 }
 
@@ -89,7 +89,13 @@ need curl
 need install
 need mkdir
 need mktemp
-need tar
+
+if [ "$os" == "macos" ] || [ "$os" == "linux" ]; then
+  need tar
+else
+  need unzip
+fi
+
 need sed
 
 # Optional dependencies
@@ -151,7 +157,13 @@ fi
 td=$(mktemp -d || mktemp -d -t tmp)
 
 echo "URL to download $url"
-curl -sL $url | tar -C $td -xz
+if [ "$os" == "macos" ] || [ "$os" == "linux" ]; then
+  curl -sL $url | tar -C $td -xz
+else
+  curl -sL -o ./sqlx-ts-latest.zip $url
+  unzip ./sqlx-ts-latest.zip -d $td
+  rm -f ./sqlx-ts-latest.zip
+fi
 
 # shellcheck disable=SC2045
 for f in $(ls $td); do
