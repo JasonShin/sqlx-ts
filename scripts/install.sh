@@ -78,9 +78,10 @@ done
 
 if [ -z $os ] && [ -z $artifact ]; then
   echo "You must provide your OS type for installation"
-  echo "Currently supporting darwin, win32 and linux"
+  echo "Currently supporting macos, win32 and linux"
   echo "You can provide a specific artifact to install with --artifact, find the name of the artifact from https://github.com/JasonShin/sqlx-ts/releases"
-  echo "e.g. sqlx-ts_v0.1.0_x86_64-apple-darwin.zip (It must be a name in a format of sqlx-ts_v1.2.3_arch.tar.gz)"
+  echo "e.g. sqlx_ts_v0.1.0_x86_64-apple-darwin.zip (It must be a name in a format of sqlx-ts_v1
+  .2.3_arch.tar.gz)"
   exit 1
 fi
 

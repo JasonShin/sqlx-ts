@@ -68,7 +68,7 @@ If you're a **macOS** user, then you can install sqlx-ts from via install.sh:
 
 ```bash
 $ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | \
-    sh -s -- --os darwin
+    sh -s -- --os macos
 ```
 
 If you're a **Windows** user, then you can install sqlx-ts from via install.sh:
