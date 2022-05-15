@@ -10,10 +10,10 @@ Usage:
 Options:
     -h, --help            Display this message
     -f, --force           Force overwriting an existing binary
-    --os OS               Your current OS, it's used to determine the type of binary to be installed (one of darwin or win32 or linux)
-    --artifact ARTIFACT   Specific artifact to install. Please find the artifact name from https://github.com/JasonShin/sqlx-ts/releases (e.g. sqlx-ts_v0.1.0_x86_64-apple-darwin.zip)
+    --os OS               Your current OS, it's used to determine the type of binary to be installed (one of macos or win32 or linux)
+    --artifact ARTIFACT   Specific artifact to install. Please find the artifact name from https://github.com/JasonShin/sqlx-ts/releases (e.g. sqlx_ts_v0.1.0_x86_64-apple-darwin.zip)
     --tag TAG             Tag (version) of the crate to install (default <latest release>)
-    --to LOCATION         Where to install the binary (default ~/.cargo/bin)
+    --to LOCATION         Where to install the binary (default to ~/.cargo/bin)
 EOF
 }
 
@@ -89,7 +89,13 @@ need curl
 need install
 need mkdir
 need mktemp
-need tar
+
+if [ "$os" == "macos" ] || [ "$os" == "linux" ]; then
+  need tar
+else
+  need unzip
+fi
+
 need sed
 
 # Optional dependencies
@@ -117,7 +123,7 @@ if [ -z $tag ]; then
       echo "artifact was given, it will override tag - artifact: $artifact, tag: $tag"
     fi
 
-    tag=$(curl -s "$url/latest" | cut -d'"' -f2 | rev | cut -d'/' -f1 | rev)
+    tag=$(curl --silent "https://api.github.com/repos/jasonshin/sqlx-ts/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
     say_err "Tag: latest ($tag)"
 else
     say_err "Tag: $tag"
@@ -132,26 +138,32 @@ say_err "Installing to: $dest"
 # if a full artifact path is given, use that
 # if only OS is given use OS + version | latest
 if [ -z $artifact ]; then
-  if [ "$os" == "darwin" ]; then
+  if [ "$os" == "macos" ]; then
     target="x86_64-apple-darwin.tar.gz"
-  elif [ "$os" == "win32" ]; then
-    target="x86_64-pc-windows-gnu.tar.gz"
+  elif [ "$os" == "windows" ]; then
+    target="x86_64-pc-windows-gnu.zip"
   elif [ "$os" == "linux" ]; then
     target="unknown-linux-musl.tar.gz"
   else
     echo "Cannot find a matching OS for $os"
     exit 1
   fi
-  url="$url/download/$tag/sqlx-ts_${tag}_${target}"
+  url="$url/download/$tag/sqlx_ts_${tag}_${target}"
 else
-  tag="$(cut -d'_' -f2 <<< "$artifact")"
+  tag="$(cut -d'_' -f3 <<< "$artifact")"
   url="$url/download/$tag/$artifact"
 fi
 
 td=$(mktemp -d || mktemp -d -t tmp)
 
 echo "URL to download $url"
-curl -sL $url | tar -C $td -xz
+if [ "$os" == "macos" ] || [ "$os" == "linux" ]; then
+  curl -sL $url | tar -C $td -xz
+else
+  curl -sL -o ./sqlx-ts-latest.zip $url
+  unzip ./sqlx-ts-latest.zip -d $td
+  rm -f ./sqlx-ts-latest.zip
+fi
 
 # shellcheck disable=SC2045
 for f in $(ls $td); do
