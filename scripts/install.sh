@@ -117,7 +117,7 @@ if [ -z $tag ]; then
       echo "artifact was given, it will override tag - artifact: $artifact, tag: $tag"
     fi
 
-    tag=$(curl -s "$url/latest" | cut -d'"' -f2 | rev | cut -d'/' -f1 | rev)
+    tag=$(curl --silent "https://api.github.com/repos/jasonshin/sqlx-ts/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
     say_err "Tag: latest ($tag)"
 else
     say_err "Tag: $tag"
@@ -132,19 +132,19 @@ say_err "Installing to: $dest"
 # if a full artifact path is given, use that
 # if only OS is given use OS + version | latest
 if [ -z $artifact ]; then
-  if [ "$os" == "darwin" ]; then
+  if [ "$os" == "macos" ]; then
     target="x86_64-apple-darwin.tar.gz"
-  elif [ "$os" == "win32" ]; then
-    target="x86_64-pc-windows-gnu.tar.gz"
+  elif [ "$os" == "windows" ]; then
+    target="x86_64-pc-windows-gnu.zip"
   elif [ "$os" == "linux" ]; then
     target="unknown-linux-musl.tar.gz"
   else
     echo "Cannot find a matching OS for $os"
     exit 1
   fi
-  url="$url/download/$tag/sqlx-ts_${tag}_${target}"
+  url="$url/download/$tag/sqlx_ts_${tag}_${target}"
 else
-  tag="$(cut -d'_' -f2 <<< "$artifact")"
+  tag="$(cut -d'_' -f3 <<< "$artifact")"
   url="$url/download/$tag/$artifact"
 fi
 
