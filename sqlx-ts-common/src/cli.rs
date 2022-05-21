@@ -68,4 +68,8 @@ pub struct Cli {
     /// Folder paths to ignore
     #[clap(long, parse(from_os_str), multiple_values = true)]
     pub ignore: Vec<std::path::PathBuf>,
+
+    /// Path to the file based configuration
+    #[clap(long, parse(from_os_str))]
+    pub config: Option<std::path::PathBuf>,
 }

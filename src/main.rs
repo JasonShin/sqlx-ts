@@ -10,7 +10,6 @@ use clap::{ArgEnum, Args, Parser, Subcommand};
 use dotenv::dotenv;
 use sqlx_ts_common::cli::Cli;
 use sqlx_ts_core::execute::execute;
-use std::path::Path;
 
 use crate::{parser::parse_source, scan_folder::scan_folder};
 
@@ -21,6 +20,7 @@ fn main() {
     let source_folder = &cli_args.path;
     let ext = &cli_args.ext;
     let ignore_paths = &cli_args.ignore;
+    let json_config_path = &cli_args.config;
 
     println!(
         "Scanning {:?} for sqls with extension {:?}",
@@ -38,7 +38,6 @@ fn main() {
         .into_iter()
         .map(|file_path| {
             let (sqls, handler) = parse_source(&file_path);
-
             execute(&sqls, &handler, &cli_args)
         })
         .collect();

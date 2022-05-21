@@ -4,7 +4,7 @@ mod tag;
 use std::{
     borrow::BorrowMut,
     fs,
-    path::{Path, PathBuf},
+    path::{PathBuf},
 };
 
 use crate::parser::import::find_sqlx_import_alias;
@@ -213,5 +213,6 @@ pub fn parse_source(path: &PathBuf) -> (Vec<SQL>, Handler) {
         }
     }
 
+    println!("checking sqlx {:?}", sqls);
     (sqls, handler)
 }
