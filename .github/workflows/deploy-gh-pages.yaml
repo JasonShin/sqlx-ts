@@ -1,4 +1,4 @@
-name: Deploy scripts to gh-pages branch for public use
+name: Deploy scripts/mdBook to gh-pages branch for public use
 on:
   release:
     types: [created]
