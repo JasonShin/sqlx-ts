@@ -19,7 +19,6 @@ impl ToString for JsExtension {
 pub enum DatabaseType {
     Postgres,
     Mysql,
-    SQLite,
 }
 
 #[derive(Parser, Debug, Clone)]
