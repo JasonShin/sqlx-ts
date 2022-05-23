@@ -10,7 +10,7 @@
 
 # Reference Guide
 
-- [Command Line Tool](./reference-guide/1.command-line-tool.md)
+- [SQL Check](./reference-guide/1.sql-check.md)
 
 # Miscellaneous
 
