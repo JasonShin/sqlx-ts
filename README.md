@@ -20,9 +20,7 @@ SQLx-ts is a CLI application featuring compile-time checked queries without a DS
 - **TypeScript and JavaScript** - supports for both [TypeScript](https://www.typescriptlang.org/) and JavaScript
 
 <div align="center">
- <strong>
     📔 [Please check out the official documentation](https://jasonshin.github.io/sqlx-ts/)
- </strong>
 </div>
 
 ### Installation
