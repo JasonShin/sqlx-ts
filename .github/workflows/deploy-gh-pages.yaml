@@ -18,6 +18,9 @@ jobs:
 
   publish-docs:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./book
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
