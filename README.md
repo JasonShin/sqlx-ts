@@ -19,8 +19,7 @@ SQLx-ts is a CLI application featuring compile-time checked queries without a DS
 - **Database Agnostic** - support for [PostgreSQL](http://postgresql.org/) and [MySQL](https://www.mysql.com/)
 - **TypeScript and JavaScript** - supports for both [TypeScript](https://www.typescriptlang.org/) and JavaScript
 
-:notebook_with_decorative_cover: [Please check out the official documentation](https://jasonshin.
-github.io/sqlx-ts/)
+:notebook_with_decorative_cover: [Please check out the official documentation](https://jasonshin.github.io/sqlx-ts/)
 
 ### Installation
 
