@@ -19,6 +19,14 @@ SQLx-ts is a CLI application featuring compile-time checked queries without a DS
 - **Database Agnostic** - support for [PostgreSQL](http://postgresql.org/) and [MySQL](https://www.mysql.com/)
 - **TypeScript and JavaScript** - supports for both [TypeScript](https://www.typescriptlang.org/) and JavaScript
 
+<br>
+<div align="center">
+    <strong>
+    📔 <a href="https://jasonshin.github.io/sqlx-ts/">Official Documentation</a>
+    </strong>
+</div>
+<br>
+
 ### Installation
 
 ##### Install sqlx-ts npm module
@@ -105,24 +113,6 @@ For more advanced usage, please check `--help` command of install.sh
 $ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | \
     sh -s --help
 ```
-
-### Troubleshooting
-
-#### MacOS
-
-1. Running the binary simply returns `[1]    <PID> killed     ./sqlx-ts --help`
-
-This is because sqlx-ts haven't yet solved the developer license issue described https://users.
-rust-lang.org/t/distributing-cli-apps-on-macos/70223/13 for MacOS specifically.
-
-To fix this, you will need to goto `System Preferences -> Security & Privacy`
-
-<img src="https://i.imgur.com/nGjqlgI.png" width="350px">
-
-You will see `sqlx-ts` binary blocked. Please manually enable it and you can start using sqlx-ts 
-locally.
-
-<br />
 
 ### Motivation
 

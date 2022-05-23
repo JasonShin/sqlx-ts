@@ -10,6 +10,5 @@ pub fn execute(queries: &Vec<SQL>, handler: &Handler, cli_args: &Cli) -> bool {
     match cli_args.db_type {
         DatabaseType::Postgres => postgres_explain::explain(&queries, &handler, &cli_args),
         DatabaseType::Mysql => mysql_explain::explain(&queries, &handler, &cli_args),
-        DatabaseType::SQLite => todo!(),
     }
 }
