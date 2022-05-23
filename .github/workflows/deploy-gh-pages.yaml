@@ -1,22 +1,10 @@
-name: Deploy scripts/mdBook to gh-pages branch for public use
+name: Deploy docs/install-script to gh-pages branch for public use
 on:
   release:
     types: [created]
 
 jobs:
-  deploy-installation-script:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v3
-
-      - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@v4.3.0
-        with:
-          branch: gh-pages
-          folder: scripts
-
-  publish-docs:
+  publish-docs-and-install-script:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -28,10 +16,13 @@ jobs:
       - name: Setup mdBook
         uses: peaceiris/actions-mdbook@v1
         with:
-          # mdbook-version: '0.4.10'
           mdbook-version: 'latest'
 
-      - run: mdbook build
+      - name: compiles the documentation
+        run: mdbook build
+
+      - name: copies install.sh into the deployment folder
+        run: cp ../scripts/install.sh ./book/
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.3.0
