@@ -1,17 +1,28 @@
-use crate::cli::{Cli, DatabaseType};
+use std::collections::HashMap;
+use crate::cli::{Cli};
 use std::env::var;
+
+#[derive(Clone, Debug)]
+pub struct DbConnectionConfig {
+    pub db_host: String,
+    pub db_port: i32,
+    pub db_user: String,
+    pub db_pass: Option<String>,
+    pub db_name: Option<String>,
+}
 
 /// Config is used to determine connection configurations for primary target Database
 /// It uses 2 sources of config and they are used in following priorities
 /// 1. any configuration via CLI options
 /// 2. any dotenv configured options
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Config {
     pub db_host: String,
     pub db_port: i32,
     pub db_user: String,
     pub db_pass: Option<String>,
     pub db_name: Option<String>,
+    pub connections: HashMap<String, DbConnectionConfig>,
 }
 
 fn required_var_msg(key: &str) -> String {
@@ -23,6 +34,9 @@ fn required_var_msg(key: &str) -> String {
 
 impl Config {
     pub fn new(cli_args: Cli) -> Config {
+        let json_config_path = cli_args.config;
+        println!("json config path {:?}", json_config_path);
+
         return Config {
             db_host: match cli_args.db_host {
                 Some(db_host) => db_host,
@@ -51,6 +65,7 @@ impl Config {
                 Some(db_name) => Some(db_name),
                 None => var("DB_NAME").ok(),
             },
+            connections: HashMap::new(),
         };
     }
 

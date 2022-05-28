@@ -1,6 +1,5 @@
 mod parser;
 mod scan_folder;
-mod shared;
 
 extern crate clap;
 extern crate core;
@@ -20,7 +19,6 @@ fn main() {
     let source_folder = &cli_args.path;
     let ext = &cli_args.ext;
     let ignore_paths = &cli_args.ignore;
-    let json_config_path = &cli_args.config;
 
     println!(
         "Scanning {:?} for sqls with extension {:?}",
