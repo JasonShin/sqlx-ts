@@ -83,9 +83,11 @@ impl Config {
     fn build_connection_configs(cli_args: &Cli) -> Option<HashMap<String, DbConnectionConfig>> {
         let default_config_path = PathBuf::from_str(".sqlxrc.json").unwrap();
         let file_config_path = &cli_args.config.clone().unwrap_or(default_config_path);
+        println!("default {:?}", file_config_path);
         let file_based_config = fs::read_to_string(&file_config_path);
         if let Ok(file_based_config) = file_based_config {
-            serde_json::from_str(&file_based_config).unwrap()
+            let result: HashMap<String, DbConnectionConfig> = serde_json::from_str(&file_based_config).unwrap();
+            return Some(result)
         }
         None
     }
