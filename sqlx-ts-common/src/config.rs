@@ -1,25 +1,25 @@
 use crate::cli::{Cli, DatabaseType};
+use serde;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env::var;
 use std::fs;
-use std::path::{PathBuf};
+use std::path::PathBuf;
 use std::str::FromStr;
-use serde;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DbConnectionConfig {
-    #[serde(rename="DB_TYPE")]
+    #[serde(rename = "DB_TYPE")]
     pub db_type: String,
-    #[serde(rename="DB_HOST")]
+    #[serde(rename = "DB_HOST")]
     pub db_host: String,
-    #[serde(rename="DB_PORT")]
+    #[serde(rename = "DB_PORT")]
     pub db_port: i32,
-    #[serde(rename="DB_USER")]
+    #[serde(rename = "DB_USER")]
     pub db_user: String,
-    #[serde(rename="DB_PASS")]
+    #[serde(rename = "DB_PASS")]
     pub db_pass: Option<String>,
-    #[serde(rename="DB_NAME")]
+    #[serde(rename = "DB_NAME")]
     pub db_name: Option<String>,
 }
 
@@ -86,8 +86,9 @@ impl Config {
         println!("default {:?}", file_config_path);
         let file_based_config = fs::read_to_string(&file_config_path);
         if let Ok(file_based_config) = file_based_config {
-            let result: HashMap<String, DbConnectionConfig> = serde_json::from_str(&file_based_config).unwrap();
-            return Some(result)
+            let result: HashMap<String, DbConnectionConfig> =
+                serde_json::from_str(&file_based_config).unwrap();
+            return Some(result);
         }
         None
     }

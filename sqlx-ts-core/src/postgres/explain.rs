@@ -13,6 +13,7 @@ pub fn explain<'a>(sqls: &Vec<SQL>, handler: &Handler, cli_args: &Cli) -> bool {
     for sql in sqls {
         let span = sql.span.to_owned();
         let explain_query = format!("EXPLAIN {}", sql.query);
+        println!("postgres sql {explain_query}");
         let result = conn.query(explain_query.as_str(), &[]);
 
         if let Err(e) = result {
