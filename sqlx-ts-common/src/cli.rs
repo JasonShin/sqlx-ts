@@ -1,10 +1,5 @@
+use crate::types::{DatabaseType, JsExtension};
 use clap::{ArgEnum, Parser};
-
-#[derive(ArgEnum, Debug, Clone)]
-pub enum JsExtension {
-    Ts,
-    Js,
-}
 
 impl ToString for JsExtension {
     fn to_string(&self) -> String {
@@ -13,12 +8,6 @@ impl ToString for JsExtension {
             JsExtension::Js => ".js".to_string(),
         }
     }
-}
-
-#[derive(ArgEnum, Debug, Clone)]
-pub enum DatabaseType {
-    Postgres,
-    Mysql,
 }
 
 #[derive(Parser, Debug, Clone)]
@@ -37,12 +26,8 @@ pub struct Cli {
     pub ext: JsExtension,
 
     /// Type of primary database to connect
-    #[clap(
-    arg_enum,
-    long,
-    default_value_t=DatabaseType::Postgres
-    )]
-    pub db_type: DatabaseType,
+    #[clap(arg_enum, long)]
+    pub db_type: Option<DatabaseType>,
 
     /// Primary DB host
     #[clap(long)]

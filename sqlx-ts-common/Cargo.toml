@@ -11,3 +11,4 @@ clap = { version = "3.1.6", features = ["derive"] }
 serde = { version = "1.0" }
 serde_json = { version = "1.0" }
 serde_derive = { version = "1.0" }
+regex = { version = "1.5" }
