@@ -154,36 +154,17 @@ impl Config {
         }
     }
 
-    pub fn get_correct_connection(&self, raw_sql: &str) -> bool {
-        if let Some(connections) = &self.connections {
-            // NOTE: once we've fully migrated to using the HashMap approach, we can delete this if statement
-            let mut connection_names = connections.keys();
-            let re = Regex::new(r"(/*|//) db: (?P<conn>[\w]+)( */){0,}").unwrap();
-            let found_matches = re.captures(raw_sql);
+    pub fn get_correct_connection(&self, raw_sql: &str) -> Option<DbConnectionConfig> {
+        let re = Regex::new(r"(/*|//) db: (?P<conn>[\w]+)( */){0,}").unwrap();
+        let found_matches = re.captures(raw_sql);
 
-            // Self::get_default_connection_config(self);
-            if let Some(found_match) = &found_matches {
-                let detected_conn_name = &found_match[2];
-                let conn = connections.get(detected_conn_name)
-                    .expect("Failed to find a matching connection type - connection name: {detected_conn_name}");
-            }
-            self.get_default_connection_config(&connections.get("default"));
-            false
-        } else {
-            /*DbConnectionConfig {
-                db_host: &self.db_host,
-            }*/
-            false
+        if let Some(found_match) = &found_matches {
+            let detected_conn_name = &found_match[2];
+            Some(self.connections.get(detected_conn_name)
+                .expect(format!("Failed to find a matching connection type - connection name: {detected_conn_name}").as_str())
+                .clone());
         }
-    }
 
-    pub fn get_postgres_cred(&self) -> String {
-        format!(
-            "host={} user={} password={} port={:?}",
-            self.db_host,
-            self.db_user,
-            self.db_pass.as_ref().unwrap_or(&"".to_string()),
-            self.db_port,
-        )
+        None
     }
 }
