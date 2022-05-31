@@ -27,10 +27,13 @@ pub fn explain<'a>(sqls: &Vec<SQL>, handler: &Handler, cli_args: &Cli) -> bool {
         if let Some(connection) = connection {
             let mut conn = Client::connect(get_postgres_cred(&connection).as_str(), NoTls).unwrap();
             let result = conn.query(explain_query.as_str(), &[]);
-        }
 
-        if let Err(e) = result {
-            handler.span_bug_no_panic(span, e.as_db_error().unwrap().message());
+            if let Err(e) = result {
+                handler.span_bug_no_panic(span, e.as_db_error().unwrap().message());
+                failed = true;
+            }
+        } else {
+            handler.span_bug_no_panic(span, "Failed to find a matching DB connection for Postgres DB");
             failed = true;
         }
     }

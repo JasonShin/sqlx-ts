@@ -1,4 +1,5 @@
 use clap::ArgEnum;
+use serde::{Serialize, Deserialize};
 
 #[derive(ArgEnum, Debug, Clone)]
 pub enum JsExtension {
@@ -6,7 +7,7 @@ pub enum JsExtension {
     Js,
 }
 
-#[derive(ArgEnum, Debug, Clone)]
+#[derive(ArgEnum, Debug, Clone, Serialize, Deserialize)]
 pub enum DatabaseType {
     Postgres,
     Mysql,
