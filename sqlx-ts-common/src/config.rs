@@ -34,7 +34,7 @@ pub struct DbConnectionConfig {
 pub struct Config {
     cli_args: Cli,
     dotenv: Dotenv,
-    pub connections: Option<HashMap<String, DbConnectionConfig>>,
+    pub connections: HashMap<String, DbConnectionConfig>,
 }
 
 fn required_var_msg(key: &str) -> String {
@@ -52,22 +52,29 @@ impl Config {
         Config {
             dotenv,
             cli_args: cli_args.to_owned(),
-            connections: Self::build_connection_configs(&cli_args),
+            connections: Self::build_connection_configs(&cli_args, &dotenv),
         }
     }
 
     /// Build the initial connection config to be used as a HashMap
-    fn build_connection_configs(cli_args: &Cli) -> Option<HashMap<String, DbConnectionConfig>> {
+    fn build_connection_configs(
+        cli_args: &Cli,
+        dotenv: &Dotenv,
+    ) -> HashMap<String, DbConnectionConfig> {
         let default_config_path = PathBuf::from_str(".sqlxrc.json").unwrap();
         let file_config_path = &cli_args.config.clone().unwrap_or(default_config_path);
         let file_based_config = fs::read_to_string(&file_config_path);
+
+        let mut connections: HashMap<String, DbConnectionConfig> = HashMap::new();
+
         if let Ok(file_based_config) = file_based_config {
-            let result: HashMap<String, DbConnectionConfig> =
-                serde_json::from_str(&file_based_config).unwrap();
-            println!("checking connections {:?}", result);
-            return Some(result);
+            connections = serde_json::from_str(&file_based_config).unwrap();
         }
-        None
+
+        connections["default"] =
+            Self::get_default_connection_config(&cli_args, &dotenv, &connections.get("default"));
+
+        connections
     }
 
     /// Figures out the default connection, default connection must exist for sqlx-ts to work
@@ -76,11 +83,11 @@ impl Config {
     /// 2. Environment variables
     /// 3. .sqlxrc.json configuration file
     fn get_default_connection_config(
-        &self,
+        cli_args: &Cli,
+        dotenv: &Dotenv,
         default_config: &Option<&DbConnectionConfig>,
     ) -> DbConnectionConfig {
-        let db_type = &self
-            .cli_args
+        let db_type = &cli_args
             .db_type
             .or_else(|| default_config.map(|x| x.db_type))
             .expect(
@@ -91,10 +98,9 @@ impl Config {
              ",
             );
 
-        let db_host = &self
-            .cli_args
+        let db_host = &cli_args
             .db_host
-            .or_else(|| self.dotenv.db_host)
+            .or_else(|| dotenv.db_host)
             .or_else(|| default_config.map(|x| x.db_host))
             .expect(
                 r"
@@ -104,10 +110,9 @@ impl Config {
              ",
             );
 
-        let db_port = &self
-            .cli_args
+        let db_port = &cli_args
             .db_port
-            .or_else(|| self.dotenv.db_port)
+            .or_else(|| dotenv.db_port)
             .or_else(|| default_config.map(|x| x.db_port))
             .expect(
                 r"
@@ -117,10 +122,9 @@ impl Config {
              ",
             );
 
-        let db_user = &self
-            .cli_args
+        let db_user = &cli_args
             .db_user
-            .or_else(|| self.dotenv.db_host)
+            .or_else(|| dotenv.db_host)
             .or_else(|| default_config.map(|x| x.db_user))
             .expect(
                 r"
@@ -130,16 +134,14 @@ impl Config {
              ",
             );
 
-        let db_pass = &self
-            .cli_args
+        let db_pass = &cli_args
             .db_pass
-            .or_else(|| self.dotenv.db_pass)
+            .or_else(|| dotenv.db_pass)
             .or_else(|| default_config.map(|x| x.db_pass.unwrap()));
 
-        let db_name = &self
-            .cli_args
+        let db_name = &cli_args
             .db_name
-            .or_else(|| self.dotenv.db_name)
+            .or_else(|| dotenv.db_name)
             .or_else(|| default_config.map(|x| x.db_name.unwrap()));
 
         DbConnectionConfig {
