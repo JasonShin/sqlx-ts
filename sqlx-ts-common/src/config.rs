@@ -17,7 +17,7 @@ pub struct DbConnectionConfig {
     #[serde(rename = "DB_HOST")]
     pub db_host: String,
     #[serde(rename = "DB_PORT")]
-    pub db_port: i32,
+    pub db_port: u16,
     #[serde(rename = "DB_USER")]
     pub db_user: String,
     #[serde(rename = "DB_PASS")]
@@ -50,7 +50,7 @@ impl Config {
         let dotenv = Dotenv::new();
 
         Config {
-            dotenv,
+            dotenv: dotenv.clone(),
             cli_args: cli_args.to_owned(),
             connections: Self::build_connection_configs(&cli_args, &dotenv),
         }
@@ -71,8 +71,10 @@ impl Config {
             connections = serde_json::from_str(&file_based_config).unwrap();
         }
 
-        connections["default"] =
-            Self::get_default_connection_config(&cli_args, &dotenv, &connections.get("default"));
+        connections.insert(
+            "default".to_string(),
+            Self::get_default_connection_config(&cli_args, &dotenv, &connections.get("default")),
+        );
 
         connections
     }
@@ -89,7 +91,9 @@ impl Config {
     ) -> DbConnectionConfig {
         let db_type = &cli_args
             .db_type
-            .or_else(|| default_config.map(|x| x.db_type))
+            .clone()
+            .or_else(|| dotenv.db_type.clone())
+            .or_else(|| default_config.map(|x| x.db_type.clone()))
             .expect(
                 r"
              Failed to fetch DB type.
@@ -100,8 +104,9 @@ impl Config {
 
         let db_host = &cli_args
             .db_host
-            .or_else(|| dotenv.db_host)
-            .or_else(|| default_config.map(|x| x.db_host))
+            .clone()
+            .or_else(|| dotenv.db_host.clone())
+            .or_else(|| default_config.map(|x| x.db_host.clone()))
             .expect(
                 r"
              Failed to fetch DB host.
@@ -124,8 +129,9 @@ impl Config {
 
         let db_user = &cli_args
             .db_user
-            .or_else(|| dotenv.db_host)
-            .or_else(|| default_config.map(|x| x.db_user))
+            .clone()
+            .or_else(|| dotenv.db_host.clone())
+            .or_else(|| default_config.map(|x| x.db_user.clone()))
             .expect(
                 r"
              Failed to fetch DB user.
@@ -136,16 +142,18 @@ impl Config {
 
         let db_pass = &cli_args
             .db_pass
-            .or_else(|| dotenv.db_pass)
-            .or_else(|| default_config.map(|x| x.db_pass.unwrap()));
+            .clone()
+            .or_else(|| dotenv.db_pass.clone())
+            .or_else(|| default_config.map(|x| x.db_pass.clone()).flatten());
 
         let db_name = &cli_args
             .db_name
-            .or_else(|| dotenv.db_name)
-            .or_else(|| default_config.map(|x| x.db_name.unwrap()));
+            .clone()
+            .or_else(|| dotenv.db_name.clone())
+            .or_else(|| default_config.map(|x| x.db_name.clone()).flatten());
 
         DbConnectionConfig {
-            db_type: db_type.to_owned(),
+            db_type: db_type.to_owned().to_owned(),
             db_host: db_host.to_owned(),
             db_port: db_port.to_owned(),
             db_user: db_user.to_owned(),

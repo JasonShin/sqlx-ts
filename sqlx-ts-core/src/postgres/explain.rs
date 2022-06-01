@@ -14,28 +14,18 @@ fn get_postgres_cred(conn: &DbConnectionConfig) -> String {
     )
 }
 
-pub fn explain<'a>(sqls: &Vec<SQL>, handler: &Handler, cli_args: &Cli) -> bool {
-    let config = Config::new(cli_args.to_owned());
-
+pub fn explain<'a>(sql: &SQL, connection: &DbConnectionConfig, handler: &Handler) -> bool {
     let mut failed = false;
 
-    for sql in sqls {
-        let span = sql.span.to_owned();
-        let explain_query = format!("EXPLAIN {}", sql.query);
-        let connection = &config.get_correct_connection(&sql.query);
+    let span = sql.span.to_owned();
+    let explain_query = format!("EXPLAIN {}", sql.query);
 
-        if let Some(connection) = connection {
-            let mut conn = Client::connect(get_postgres_cred(&connection).as_str(), NoTls).unwrap();
-            let result = conn.query(explain_query.as_str(), &[]);
+    let mut conn = Client::connect(get_postgres_cred(&connection).as_str(), NoTls).unwrap();
+    let result = conn.query(explain_query.as_str(), &[]);
 
-            if let Err(e) = result {
-                handler.span_bug_no_panic(span, e.as_db_error().unwrap().message());
-                failed = true;
-            }
-        } else {
-            handler.span_bug_no_panic(span, "Failed to find a matching DB connection for Postgres DB");
-            failed = true;
-        }
+    if let Err(e) = result {
+        handler.span_bug_no_panic(span, e.as_db_error().unwrap().message());
+        failed = true;
     }
 
     failed

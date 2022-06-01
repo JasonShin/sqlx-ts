@@ -35,7 +35,7 @@ pub struct Cli {
 
     /// Primary DB Port
     #[clap(long)]
-    pub db_port: Option<i32>,
+    pub db_port: Option<u16>,
 
     /// Primary DB user
     #[clap(long)]

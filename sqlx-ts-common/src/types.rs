@@ -1,5 +1,5 @@
 use clap::ArgEnum;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(ArgEnum, Debug, Clone)]
 pub enum JsExtension {
