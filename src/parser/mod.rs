@@ -209,6 +209,5 @@ pub fn parse_source(path: &PathBuf) -> (Vec<SQL>, Handler) {
         }
     }
 
-    println!("checking sqlx {:?}", sqls);
     (sqls, handler)
 }

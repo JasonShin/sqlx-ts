@@ -168,7 +168,7 @@ impl Config {
 
         if let Some(found_match) = &found_matches {
             let detected_conn_name = &found_match[2];
-            Some(self.connections.get(detected_conn_name)
+            return Some(self.connections.get(detected_conn_name)
                 .expect(format!("Failed to find a matching connection type - connection name: {detected_conn_name}").as_str())
                 .clone());
         }

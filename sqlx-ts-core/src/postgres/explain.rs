@@ -1,6 +1,5 @@
 use postgres::{Client, NoTls};
-use sqlx_ts_common::cli::Cli;
-use sqlx_ts_common::config::{Config, DbConnectionConfig};
+use sqlx_ts_common::config::DbConnectionConfig;
 use sqlx_ts_common::SQL;
 use swc_common::errors::Handler;
 
@@ -20,7 +19,8 @@ pub fn explain<'a>(sql: &SQL, connection: &DbConnectionConfig, handler: &Handler
     let span = sql.span.to_owned();
     let explain_query = format!("EXPLAIN {}", sql.query);
 
-    let mut conn = Client::connect(get_postgres_cred(&connection).as_str(), NoTls).unwrap();
+    let postgres_cred = &get_postgres_cred(&connection).clone();
+    let mut conn = Client::connect(postgres_cred, NoTls).unwrap();
     let result = conn.query(explain_query.as_str(), &[]);
 
     if let Err(e) = result {

@@ -8,6 +8,7 @@ pub enum JsExtension {
 }
 
 #[derive(ArgEnum, Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum DatabaseType {
     Postgres,
     Mysql,
