@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>File based config for multiple database connections - sqlx-ts</title>
+        <title>Documentation Best Practices - sqlx-ts</title>
         <!-- Custom HTML head -->
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">User Guide</li><li class="chapter-item expanded "><a href="../user-guide/1.installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../user-guide/2.getting-started.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../user-guide/2.1.cli-options.html"><strong aria-hidden="true">2.1.</strong> CLI Options</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Reference Guide</li><li class="chapter-item expanded "><a href="../reference-guide/1.sql-check.html"><strong aria-hidden="true">3.</strong> SQL Check</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../reference-guide/1.1.sql-check-mysql.html"><strong aria-hidden="true">3.1.</strong> MySQL</a></li><li class="chapter-item expanded "><a href="../reference-guide/1.2.sql-check-postgres.html"><strong aria-hidden="true">3.2.</strong> Postgres</a></li></ol></li><li class="chapter-item expanded "><a href="../reference-guide/2.configs-file-based.html" class="active"><strong aria-hidden="true">4.</strong> File based config for multiple database connections</a></li><li class="chapter-item expanded "><a href="../reference-guide/3.npm-module.html"><strong aria-hidden="true">5.</strong> sqlx-ts npm module</a></li><li class="chapter-item expanded "><a href="../reference-guide/4.typescript-types-generation.html"><strong aria-hidden="true">6.</strong> Typescript type generation based on SQL queries</a></li><li class="chapter-item expanded affix "><li class="part-title">Miscellaneous</li><li class="chapter-item expanded "><a href="../misc/1.troubleshooting.html"><strong aria-hidden="true">7.</strong> Troubleshooting</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">User Guide</li><li class="chapter-item expanded "><a href="../user-guide/1.installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../user-guide/2.getting-started.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../user-guide/2.1.cli-options.html"><strong aria-hidden="true">2.1.</strong> CLI Options</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Reference Guide</li><li class="chapter-item expanded "><a href="../reference-guide/1.sql-check.html"><strong aria-hidden="true">3.</strong> SQL Check</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../reference-guide/1.1.sql-check-mysql.html"><strong aria-hidden="true">3.1.</strong> MySQL</a></li><li class="chapter-item expanded "><a href="../reference-guide/1.2.sql-check-postgres.html"><strong aria-hidden="true">3.2.</strong> Postgres</a></li></ol></li><li class="chapter-item expanded "><a href="../reference-guide/2.connection-config.html"><strong aria-hidden="true">4.</strong> Connection Config</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../reference-guide/2.1.configs-file-based.html"><strong aria-hidden="true">4.1.</strong> File based config for multiple database connections</a></li><li class="chapter-item expanded "><a href="../reference-guide/2.2.environment-variables.html"><strong aria-hidden="true">4.2.</strong> Environment variables</a></li></ol></li><li class="chapter-item expanded "><a href="../reference-guide/3.npm-module.html"><strong aria-hidden="true">5.</strong> sqlx-ts npm module</a></li><li class="chapter-item expanded "><a href="../reference-guide/4.typescript-types-generation.html"><strong aria-hidden="true">6.</strong> Typescript type generation based on SQL queries</a></li><li class="chapter-item expanded affix "><li class="part-title">Miscellaneous</li><li class="chapter-item expanded "><a href="../misc/1.troubleshooting.html"><strong aria-hidden="true">7.</strong> Troubleshooting</a></li><li class="chapter-item expanded "><a href="../misc/2.documentation-practices.html" class="active"><strong aria-hidden="true">8.</strong> Documentation Best Practices</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -134,18 +134,55 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="file-base-configuration-for-multiple-db-connections"><a class="header" href="#file-base-configuration-for-multiple-db-connections">File Base Configuration for Multiple DB connections</a></h1>
-<p>-- The feature will be introduced in the future --</p>
+                        <h1 id="documentation-best-practices"><a class="header" href="#documentation-best-practices">Documentation Best Practices</a></h1>
+<p>When you are contributing to the SQLx-ts documentation, please keep in mind following three 
+principles. </p>
+<h2 id="1-write-what-readers-want-to-read"><a class="header" href="#1-write-what-readers-want-to-read">1. Write what readers want to read</a></h2>
+<p>Let's keep our documentation focused on its objective. Readers open up the documentation to find 
+out an answer.</p>
+<ul>
+<li>Write concisely, respect the readers</li>
+<li>Write about the topic / title, make a new page if it's about something else</li>
+</ul>
+<h2 id="2-structure-matters"><a class="header" href="#2-structure-matters">2. Structure matters</a></h2>
+<h5 id="-dont-write"><a class="header" href="#-dont-write"><strong>🚫 Don't Write</strong></a></h5>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla convallis justo
+nulla, non pharetra sem ullamcorper vel. Nam luctus congue lorem, vel egestas tortor ornare non. Duis rhoncus ipsum in quam tristique scelerisque. Curabitur ac rutrum massa, sit amet tempor ex. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed quam lacus, mollis placerat libero in, malesuada laoreet mi. Duis vestibulum nulla sem, fermentum auctor purus ultricies vel.
+Fusce nibh turpis, tristique id scelerisque quis, consequat nec urna. Vivamus finibus commodo imperdiet. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nam porta ullamcorper diam. Phasellus auctor, mauris eget lacinia mollis, dui odio mattis justo, quis commodo sem magna et nisl. Mauris urna massa, tincidunt a rhoncus nec, hendrerit ut purus. Nunc consequat quam in lorem mattis, ac lobortis ex rutrum. Aenean id varius odio. Aliquam a tempus nulla. Nulla in enim in nisi luctus varius ac a elit. Donec ligula dolor, placerat quis erat vitae, accumsan ultrices leo. Integer orci enim, feugiat ac nunc vitae, fringilla porta tortor. Nullam erat diam, dapibus in libero at, rutrum ornare turpis. Quisque fermentum magna at cursus egestas. Etiam tortor nisi, dictum non volutpat vitae, consequat quis nisl. Suspendisse aliquam rutrum viverra. Quisque vel mattis ligula. In posuere nibh sed lacinia gravida. Interdum et malesuada fames ac ante ipsum primis in faucibus. Donec molestie ultrices lorem, sit amet facilisis leo condimentum eu.</p>
+<h5 id="--write-this"><a class="header" href="#--write-this"><strong>✅  Write this</strong></a></h5>
+<p><strong>Lorem ipsum dolor sit amet</strong>
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+<p>Nulla convallis justo nulla, non pharetra sem ullamcorper vel. Nam luctus congue lorem, vel egestas tortor ornare non. Duis rhoncus ipsum in quam tristique scelerisque.</p>
+<p><strong>Fusce nibh turpis</strong></p>
+<p>Suspendisse aliquam rutrum viverra. Quisque vel mattis ligula. In posuere nibh sed lacinia gravida. Interdum et malesuada fames ac ante ipsum primis in faucibus. Donec molestie ultrices lorem, sit amet facilisis leo condimentum eu.</p>
+<p><strong>finibus commodo imperdiet</strong>
+Donec ligula dolor, placerat quis erat vitae</p>
+<ul>
+<li>mauris </li>
+<li>eget </li>
+<li>lacinia </li>
+<li>mollis</li>
+</ul>
+<pre><code class="language-bash">$ sqlx-ts abcd
+</code></pre>
+<h2 id="3-write-readably"><a class="header" href="#3-write-readably">3. Write readably</a></h2>
+<p>Our core audiences are software engineers, we like structured information more than a wordy essay.</p>
+<p>Do following:</p>
+<ul>
+<li>Concise sentences to explain the big picture</li>
+<li>Use dot points to break down information</li>
+<li>Code examples</li>
+<li>Commandline examples</li>
+<li>Tables</li>
+<li>Pictures</li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../reference-guide/1.2.sql-check-postgres.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../misc/1.troubleshooting.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
-                            </a>
-                            <a rel="next" href="../reference-guide/3.npm-module.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <i class="fa fa-angle-right"></i>
                             </a>
                         <div style="clear: both"></div>
                     </nav>
@@ -153,11 +190,8 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../reference-guide/1.2.sql-check-postgres.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../misc/1.troubleshooting.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
-                    </a>
-                    <a rel="next" href="../reference-guide/3.npm-module.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
 

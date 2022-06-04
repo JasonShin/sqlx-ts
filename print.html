@@ -76,7 +76,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">User Guide</li><li class="chapter-item expanded "><a href="user-guide/1.installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="user-guide/2.getting-started.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="user-guide/2.1.cli-options.html"><strong aria-hidden="true">2.1.</strong> CLI Options</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Reference Guide</li><li class="chapter-item expanded "><a href="reference-guide/1.sql-check.html"><strong aria-hidden="true">3.</strong> SQL Check</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="reference-guide/1.1.sql-check-mysql.html"><strong aria-hidden="true">3.1.</strong> MySQL</a></li><li class="chapter-item expanded "><a href="reference-guide/1.2.sql-check-postgres.html"><strong aria-hidden="true">3.2.</strong> Postgres</a></li></ol></li><li class="chapter-item expanded "><a href="reference-guide/2.configs-file-based.html"><strong aria-hidden="true">4.</strong> File based config for multiple database connections</a></li><li class="chapter-item expanded "><a href="reference-guide/3.npm-module.html"><strong aria-hidden="true">5.</strong> sqlx-ts npm module</a></li><li class="chapter-item expanded "><a href="reference-guide/4.typescript-types-generation.html"><strong aria-hidden="true">6.</strong> Typescript type generation based on SQL queries</a></li><li class="chapter-item expanded affix "><li class="part-title">Miscellaneous</li><li class="chapter-item expanded "><a href="misc/1.troubleshooting.html"><strong aria-hidden="true">7.</strong> Troubleshooting</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">User Guide</li><li class="chapter-item expanded "><a href="user-guide/1.installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="user-guide/2.getting-started.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="user-guide/2.1.cli-options.html"><strong aria-hidden="true">2.1.</strong> CLI Options</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Reference Guide</li><li class="chapter-item expanded "><a href="reference-guide/1.sql-check.html"><strong aria-hidden="true">3.</strong> SQL Check</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="reference-guide/1.1.sql-check-mysql.html"><strong aria-hidden="true">3.1.</strong> MySQL</a></li><li class="chapter-item expanded "><a href="reference-guide/1.2.sql-check-postgres.html"><strong aria-hidden="true">3.2.</strong> Postgres</a></li></ol></li><li class="chapter-item expanded "><a href="reference-guide/2.connection-config.html"><strong aria-hidden="true">4.</strong> Connection Config</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="reference-guide/2.1.configs-file-based.html"><strong aria-hidden="true">4.1.</strong> File based config for multiple database connections</a></li><li class="chapter-item expanded "><a href="reference-guide/2.2.environment-variables.html"><strong aria-hidden="true">4.2.</strong> Environment variables</a></li></ol></li><li class="chapter-item expanded "><a href="reference-guide/3.npm-module.html"><strong aria-hidden="true">5.</strong> sqlx-ts npm module</a></li><li class="chapter-item expanded "><a href="reference-guide/4.typescript-types-generation.html"><strong aria-hidden="true">6.</strong> Typescript type generation based on SQL queries</a></li><li class="chapter-item expanded affix "><li class="part-title">Miscellaneous</li><li class="chapter-item expanded "><a href="misc/1.troubleshooting.html"><strong aria-hidden="true">7.</strong> Troubleshooting</a></li><li class="chapter-item expanded "><a href="misc/2.documentation-practices.html"><strong aria-hidden="true">8.</strong> Documentation Best Practices</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -152,6 +152,12 @@ Built to free Node developers from ORMs' unpredictably generated SQL queries
 <li><strong>Database Agnostic</strong> - support for <a href="http://postgresql.org/">PostgreSQL</a> and <a href="https://www.mysql.com/">MySQL</a></li>
 <li><strong>TypeScript and JavaScript</strong> - supports for both <a href="https://www.typescriptlang.org/">TypeScript</a> and JavaScript</li>
 </ul>
+<h1 id="documentation-philosophies"><a class="header" href="#documentation-philosophies">Documentation Philosophies</a></h1>
+<ul>
+<li>Starts with what readers need</li>
+<li>Write less, be objective</li>
+<li>Pages with structures</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
 <p>To start using sqlx-ts, you need to install the sqlx-ts binary and the npm module. If you are 
 installing sqlx-ts for automatic deployment, check out continuous integration chapter for more 
@@ -217,6 +223,7 @@ using <code>--ignore=&lt;path&gt;</code>.</p>
 <tr><td>--db-port &lt;DB_PORT&gt;</td><td>Primary DB port number</td></tr>
 <tr><td>--db-type &lt;DB_TYPE&gt;</td><td>Type of primary database to connect [default: postgres] [possible values: postgres, mysql]</td></tr>
 <tr><td>--db-user &lt;DB_USER&gt;</td><td>Primary DB user name</td></tr>
+<tr><td>--db-name &lt;DB_NAME&gt;</td><td>Primary DB name</td></tr>
 <tr><td>--ext <Extension></td><td>Javascript Extension to check SQLs against [default: ts] [possible values: ts, js]</td></tr>
 <tr><td>--ignore <IGNORE>...</td><td>Folder paths to ignore. You can pass in multiple ignore paths.</td></tr>
 <tr><td>-V, --version</td><td>Print version information</td></tr>
@@ -232,6 +239,7 @@ primary database connection only <a href="reference-guide/../user-guide/2.1.cli-
 <li><a href="reference-guide/./1.1.sql-check-mysql.html">MySQL</a></li>
 <li><a href="reference-guide/./1.2.sql-check-postgres.html">Postgres</a></li>
 </ul>
+<p>If your project needs to connect to multiple databases at the same time, <a href="reference-guide/./2.configs-file-based.html">please check here</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="sql-check-with-mysql"><a class="header" href="#sql-check-with-mysql">SQL Check with MySQL</a></h1>
 <h3 id="check-sqls-against-your-primary-database"><a class="header" href="#check-sqls-against-your-primary-database">Check SQLs against your primary database</a></h3>
 <p>For SQLx to check your raw SQLs, you must have a database that you can connect via CLI options 
@@ -276,8 +284,80 @@ example of this in <a href="https://github.com/JasonShin/sqlx-ts/blob/main/docke
 <p>Running above commands will give you either success or failure. If you are using CI, it should
 fail the build based on the status code that it returns.</p>
 <img src="reference-guide/../assets/postgres-check-success.png">
-<div style="break-before: page; page-break-before: always;"></div><h1 id="file-base-configuration-for-multiple-db-connections"><a class="header" href="#file-base-configuration-for-multiple-db-connections">File Base Configuration for Multiple DB connections</a></h1>
-<p>-- The feature will be introduced in the future --</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="file-based-config-for-multiple-database-connections"><a class="header" href="#file-based-config-for-multiple-database-connections">File based config for multiple database connections</a></h1>
+<p><code>sqlx-ts</code> supports three major ways to configure database connections and it picks the 
+appropriate configuration in the priority of</p>
+<ol>
+<li>CLI options</li>
+<li>Environment variables</li>
+<li>File based configuration</li>
+</ol>
+<p>If you provide database host by a CLI option and an environment variable, CLI option will take 
+the priority over the environment variable.</p>
+<h3 id="1-cli-options"><a class="header" href="#1-cli-options">1. CLI options</a></h3>
+<p>You can only configure the primary database connection through CLI options. <a href="reference-guide/../user-guide/2.1.cli-options.html">Please check here for 
+more details</a>.</p>
+<h3 id="2-environment-variables"><a class="header" href="#2-environment-variables">2. Environment variables</a></h3>
+<p>You can only configure the primary database connection through environment variables. <a href="reference-guide/./2.2.environment-variables.html">Please 
+check here for more details</a></p>
+<h3 id="3-file-based-config"><a class="header" href="#3-file-based-config">3. File based config</a></h3>
+<p>If your project needs connections to multiple databases for SQL check, you have to use the file 
+based config and specify connection details for those databases. <a href="reference-guide/./2.1.configs-file-based.html">Please check here for more 
+details</a></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="file-base-configuration-for-connecting-to-multiple-db"><a class="header" href="#file-base-configuration-for-connecting-to-multiple-db">File Base Configuration for connecting to Multiple DB</a></h1>
+<p>If you have a project that you need requires connections to multiple databases, you can support 
+that by using file based configuration.</p>
+<p>By default, configuration file is named <code>.sqlxrc.json</code> and sqlx-ts will try to find a file with 
+this name, unless you give it a custom path to override it using <code>--config</code> CLI option.</p>
+<pre><code class="language-bash">$ sqlx-ts --config &lt;path to a custom .sqlxrc.json&gt;
+</code></pre>
+<p>Example <code>sqlxrc.json</code></p>
+<pre><code class="language-json">{
+  &quot;default&quot;: {
+    &quot;DB_TYPE&quot;: &quot;mysql&quot;,
+    &quot;DB_USER&quot;: &quot;root&quot;,
+    &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
+    &quot;DB_PORT&quot;: 3306
+  },
+  &quot;postgres&quot;: {
+    &quot;DB_TYPE&quot;: &quot;postgres&quot;,
+    &quot;DB_USER&quot;: &quot;postgres&quot;,
+    &quot;DB_PASS&quot;: &quot;postgres&quot;,
+    &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
+    &quot;DB_PORT&quot;: 4321
+  },
+  &quot;some_other_db&quot;: {
+    &quot;DB_TYPE&quot;: &quot;mysql&quot;,
+    &quot;DB_USER&quot;: &quot;app_user&quot;,
+    &quot;DB_PASS&quot;: &quot;password&quot;,
+    &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
+    &quot;DB_PORT&quot;: 3307
+  }
+}
+</code></pre>
+<p>For default database, you must call it <code>default</code> like example above. Any extra DB connections 
+should have its own unique name such as <code>postgres</code> or <code>some_other_db</code></p>
+<p>Along with the configuration above, when writing SQLs in your codebase, you need to provide 
+supportive comment in your raw SQL, indicate which database the query should point.</p>
+<p>For example,</p>
+<pre><code class="language-typescript">import { sql } from 'sqlx-ts'
+
+const defaultDbSQL = sql`SELECT * FROM test;`
+const postgresSQL = sql`
+ /* db: postgres */
+ SELECT * FROM other_table;
+`
+</code></pre>
+<p>Then running <code>sqlx-ts</code> compile time query checker along with the </p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="environment-variables"><a class="header" href="#environment-variables">Environment variables</a></h1>
+<table><thead><tr><th>Environment variables</th><th>Description</th></tr></thead><tbody>
+<tr><td>DB_HOST</td><td>Primary DB host</td></tr>
+<tr><td>DB_PASS</td><td>Primary DB password</td></tr>
+<tr><td>DB_PORT</td><td>Primary DB port number</td></tr>
+<tr><td>DB_TYPE</td><td>Type of primary database to connect [default: postgres] [possible values: postgres, mysql]</td></tr>
+<tr><td>DB_USER</td><td>Primary DB user name</td></tr>
+<tr><td>DB_NAME</td><td>Primary DB name</td></tr>
+</tbody></table>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="npm-module-1"><a class="header" href="#npm-module-1">NPM module</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="typescript-types-generation"><a class="header" href="#typescript-types-generation">TypeScript Types Generation</a></h1>
 <p>-- The feature will be introduced in the future --</p>
@@ -291,6 +371,48 @@ rust-lang.org/t/distributing-cli-apps-on-macos/70223/13 for MacOS specifically.<
 <p>You will see <code>sqlx-ts</code> binary blocked. Please manually enable it and you can start using sqlx-ts
 locally.</p>
 <br />
+<div style="break-before: page; page-break-before: always;"></div><h1 id="documentation-best-practices"><a class="header" href="#documentation-best-practices">Documentation Best Practices</a></h1>
+<p>When you are contributing to the SQLx-ts documentation, please keep in mind following three 
+principles. </p>
+<h2 id="1-write-what-readers-want-to-read"><a class="header" href="#1-write-what-readers-want-to-read">1. Write what readers want to read</a></h2>
+<p>Let's keep our documentation focused on its objective. Readers open up the documentation to find 
+out an answer.</p>
+<ul>
+<li>Write concisely, respect the readers</li>
+<li>Write about the topic / title, make a new page if it's about something else</li>
+</ul>
+<h2 id="2-structure-matters"><a class="header" href="#2-structure-matters">2. Structure matters</a></h2>
+<h5 id="-dont-write"><a class="header" href="#-dont-write"><strong>🚫 Don't Write</strong></a></h5>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla convallis justo
+nulla, non pharetra sem ullamcorper vel. Nam luctus congue lorem, vel egestas tortor ornare non. Duis rhoncus ipsum in quam tristique scelerisque. Curabitur ac rutrum massa, sit amet tempor ex. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed quam lacus, mollis placerat libero in, malesuada laoreet mi. Duis vestibulum nulla sem, fermentum auctor purus ultricies vel.
+Fusce nibh turpis, tristique id scelerisque quis, consequat nec urna. Vivamus finibus commodo imperdiet. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nam porta ullamcorper diam. Phasellus auctor, mauris eget lacinia mollis, dui odio mattis justo, quis commodo sem magna et nisl. Mauris urna massa, tincidunt a rhoncus nec, hendrerit ut purus. Nunc consequat quam in lorem mattis, ac lobortis ex rutrum. Aenean id varius odio. Aliquam a tempus nulla. Nulla in enim in nisi luctus varius ac a elit. Donec ligula dolor, placerat quis erat vitae, accumsan ultrices leo. Integer orci enim, feugiat ac nunc vitae, fringilla porta tortor. Nullam erat diam, dapibus in libero at, rutrum ornare turpis. Quisque fermentum magna at cursus egestas. Etiam tortor nisi, dictum non volutpat vitae, consequat quis nisl. Suspendisse aliquam rutrum viverra. Quisque vel mattis ligula. In posuere nibh sed lacinia gravida. Interdum et malesuada fames ac ante ipsum primis in faucibus. Donec molestie ultrices lorem, sit amet facilisis leo condimentum eu.</p>
+<h5 id="--write-this"><a class="header" href="#--write-this"><strong>✅  Write this</strong></a></h5>
+<p><strong>Lorem ipsum dolor sit amet</strong>
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+<p>Nulla convallis justo nulla, non pharetra sem ullamcorper vel. Nam luctus congue lorem, vel egestas tortor ornare non. Duis rhoncus ipsum in quam tristique scelerisque.</p>
+<p><strong>Fusce nibh turpis</strong></p>
+<p>Suspendisse aliquam rutrum viverra. Quisque vel mattis ligula. In posuere nibh sed lacinia gravida. Interdum et malesuada fames ac ante ipsum primis in faucibus. Donec molestie ultrices lorem, sit amet facilisis leo condimentum eu.</p>
+<p><strong>finibus commodo imperdiet</strong>
+Donec ligula dolor, placerat quis erat vitae</p>
+<ul>
+<li>mauris </li>
+<li>eget </li>
+<li>lacinia </li>
+<li>mollis</li>
+</ul>
+<pre><code class="language-bash">$ sqlx-ts abcd
+</code></pre>
+<h2 id="3-write-readably"><a class="header" href="#3-write-readably">3. Write readably</a></h2>
+<p>Our core audiences are software engineers, we like structured information more than a wordy essay.</p>
+<p>Do following:</p>
+<ul>
+<li>Concise sentences to explain the big picture</li>
+<li>Use dot points to break down information</li>
+<li>Code examples</li>
+<li>Commandline examples</li>
+<li>Tables</li>
+<li>Pictures</li>
+</ul>
 
                     </main>
 
