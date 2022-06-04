@@ -1,0 +1,15 @@
+{
+  "default": {
+    "DB_TYPE": "postgres",
+    "DB_HOST": "127.0.0.1",
+    "DB_PORT": 54321,
+    "DB_USER": "postgres"
+  },
+  "db_mysql": {
+    "DB_TYPE": "mysql",
+    "DB_HOST": "127.0.0.1",
+    "DB_PORT": 33306,
+    "DB_USER": "root",
+    "DB_NAME": "sqlx-ts"
+  }
+}

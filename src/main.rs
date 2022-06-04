@@ -1,6 +1,5 @@
 mod parser;
 mod scan_folder;
-mod shared;
 
 extern crate clap;
 extern crate core;
@@ -10,7 +9,6 @@ use clap::{ArgEnum, Args, Parser, Subcommand};
 use dotenv::dotenv;
 use sqlx_ts_common::cli::Cli;
 use sqlx_ts_core::execute::execute;
-use std::path::Path;
 
 use crate::{parser::parse_source, scan_folder::scan_folder};
 
@@ -38,7 +36,6 @@ fn main() {
         .into_iter()
         .map(|file_path| {
             let (sqls, handler) = parse_source(&file_path);
-
             execute(&sqls, &handler, &cli_args)
         })
         .collect();

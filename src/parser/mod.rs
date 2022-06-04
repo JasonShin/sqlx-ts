@@ -1,11 +1,7 @@
 mod import;
 mod tag;
 
-use std::{
-    borrow::BorrowMut,
-    fs,
-    path::{Path, PathBuf},
-};
+use std::{borrow::BorrowMut, fs, path::PathBuf};
 
 use crate::parser::import::find_sqlx_import_alias;
 use sqlx_ts_common::SQL;

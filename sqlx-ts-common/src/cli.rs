@@ -1,10 +1,5 @@
+use crate::types::{DatabaseType, JsExtension};
 use clap::{ArgEnum, Parser};
-
-#[derive(ArgEnum, Debug, Clone)]
-pub enum JsExtension {
-    Ts,
-    Js,
-}
 
 impl ToString for JsExtension {
     fn to_string(&self) -> String {
@@ -13,12 +8,6 @@ impl ToString for JsExtension {
             JsExtension::Js => ".js".to_string(),
         }
     }
-}
-
-#[derive(ArgEnum, Debug, Clone)]
-pub enum DatabaseType {
-    Postgres,
-    Mysql,
 }
 
 #[derive(Parser, Debug, Clone)]
@@ -37,12 +26,8 @@ pub struct Cli {
     pub ext: JsExtension,
 
     /// Type of primary database to connect
-    #[clap(
-    arg_enum,
-    long,
-    default_value_t=DatabaseType::Postgres
-    )]
-    pub db_type: DatabaseType,
+    #[clap(arg_enum, long)]
+    pub db_type: Option<DatabaseType>,
 
     /// Primary DB host
     #[clap(long)]
@@ -50,7 +35,7 @@ pub struct Cli {
 
     /// Primary DB Port
     #[clap(long)]
-    pub db_port: Option<i32>,
+    pub db_port: Option<u16>,
 
     /// Primary DB user
     #[clap(long)]
@@ -67,4 +52,8 @@ pub struct Cli {
     /// Folder paths to ignore
     #[clap(long, parse(from_os_str), multiple_values = true)]
     pub ignore: Vec<std::path::PathBuf>,
+
+    /// Path to the file based configuration
+    #[clap(long, parse(from_os_str))]
+    pub config: Option<std::path::PathBuf>,
 }

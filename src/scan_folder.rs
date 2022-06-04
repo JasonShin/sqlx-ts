@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use sqlx_ts_common::cli::JsExtension;
+use sqlx_ts_common::types::JsExtension;
 use walkdir::WalkDir;
 
 pub fn scan_folder<'a>(

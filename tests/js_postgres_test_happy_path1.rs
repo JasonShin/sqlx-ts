@@ -48,7 +48,8 @@ mod postgres_test_happy_path_tests {
         let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
 
         cmd.env("DB_HOST", "127.0.0.1")
-            .env("DB_PORT", "333abc06")
+            .env("DB_TYPE", "postgres")
+            .env("DB_PORT", "33306")
             .env("DB_USER", "postgres");
 
         cmd.arg("samples/generic/js-happy-path1")
