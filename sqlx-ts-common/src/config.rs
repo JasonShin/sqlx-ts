@@ -162,17 +162,21 @@ impl Config {
         }
     }
 
-    pub fn get_correct_connection(&self, raw_sql: &str) -> Option<DbConnectionConfig> {
+    pub fn get_correct_connection(&self, raw_sql: &str) -> DbConnectionConfig {
         let re = Regex::new(r"(/*|//) db: (?P<conn>[\w]+)( */){0,}").unwrap();
         let found_matches = re.captures(raw_sql);
 
         if let Some(found_match) = &found_matches {
             let detected_conn_name = &found_match[2];
-            return Some(self.connections.get(detected_conn_name)
+            return self.connections.get(detected_conn_name)
                 .expect(format!("Failed to find a matching connection type - connection name: {detected_conn_name}").as_str())
-                .clone());
+                .clone();
         }
 
-        None
+        self.connections.get("default")
+            .expect(r"Failed to find the default connection configuration - check your configuration
+              CLI options: https://jasonshin.github.io/sqlx-ts/user-guide/2.1.cli-options.html
+              File based config: https://jasonshin.github.io/sqlx-ts/reference-guide/2.configs-file-based.html
+            ").clone()
     }
 }

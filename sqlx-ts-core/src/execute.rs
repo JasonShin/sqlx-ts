@@ -12,20 +12,11 @@ pub fn execute(queries: &Vec<SQL>, handler: &Handler, cli_args: &Cli) -> bool {
 
     for sql in queries {
         let config = Config::new(cli_args.to_owned());
-        let span = sql.span.to_owned();
         let connection = &config.get_correct_connection(&sql.query);
 
-        if let Some(connection) = connection {
-            failed = match connection.db_type {
-                DatabaseType::Postgres => postgres_explain::explain(&sql, &connection, &handler),
-                DatabaseType::Mysql => mysql_explain::explain(&sql, &connection, &handler),
-            }
-        } else {
-            handler.span_bug_no_panic(
-                span,
-                "Failed to find a matching DB connection for Postgres DB",
-            );
-            failed = true;
+        failed = match connection.db_type {
+            DatabaseType::Postgres => postgres_explain::explain(&sql, &connection, &handler),
+            DatabaseType::Mysql => mysql_explain::explain(&sql, &connection, &handler),
         }
     }
 
