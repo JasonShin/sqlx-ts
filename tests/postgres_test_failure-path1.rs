@@ -10,6 +10,7 @@ mod postgres_failure_path_tests {
         let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
 
         cmd.arg("samples/generic/failure-path1")
+            .arg("--db-type=postgres")
             .arg("--db-host=localhost")
             .arg("--db-port=54321")
             .arg("--db-user=postgres")

@@ -11,6 +11,7 @@ mod js_postgres_failure_path_tests {
 
         cmd.arg("samples/generic/js-failure-path1")
             .arg("--ext=js")
+            .arg("--db-type=postgres")
             .arg("--db-host=127.0.0.1")
             .arg("--db-port=54321")
             .arg("--db-user=postgres")

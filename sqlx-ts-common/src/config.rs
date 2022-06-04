@@ -5,7 +5,6 @@ use regex::Regex;
 use serde;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::env::var;
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -130,7 +129,7 @@ impl Config {
         let db_user = &cli_args
             .db_user
             .clone()
-            .or_else(|| dotenv.db_host.clone())
+            .or_else(|| dotenv.db_user.clone())
             .or_else(|| default_config.map(|x| x.db_user.clone()))
             .expect(
                 r"

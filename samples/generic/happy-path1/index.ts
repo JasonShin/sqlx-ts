@@ -14,7 +14,6 @@ const query2 = sql`
 ///////////////
 function test() {
     const query3 = sql`
-        # db: db1
         SELECT * FROM items;
     `
 
