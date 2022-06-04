@@ -10,6 +10,7 @@ mod postgres_test_happy_path_tests {
         let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
 
         cmd.arg("samples/generic/happy-path1")
+            .arg("--db-type=postgres")
             .arg("--db-host=localhost")
             .arg("--db-port=54321")
             .arg("--db-user=postgres")
@@ -27,6 +28,7 @@ mod postgres_test_happy_path_tests {
         let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
 
         cmd.env("DB_HOST", "127.0.0.1")
+            .env("DB_TYPE", "postgres")
             .env("DB_PORT", "54321")
             .env("DB_USER", "postgres")
             .env("DB_PASS", "postgres");
@@ -44,6 +46,7 @@ mod postgres_test_happy_path_tests {
         let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
 
         cmd.env("DB_HOST", "127.0.0.1")
+            .env("DB_TYPE", "postgres")
             .env("DB_PORT", "54321")
             .env("DB_USER", "postgres");
 
