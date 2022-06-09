@@ -83,6 +83,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@master
 
+      - name: Checkout main
+        run: git checkout main
+
       - name: Get release
         id: get_release
         uses: bruceadams/get-release@v1.2.3
