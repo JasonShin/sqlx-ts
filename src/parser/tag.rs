@@ -1,4 +1,4 @@
-use sqlx_ts_common::SQL;
+use crate::common::SQL;
 use swc_common::MultiSpan;
 use swc_ecma_ast::{Expr, VarDeclarator};
 

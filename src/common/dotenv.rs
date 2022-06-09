@@ -1,4 +1,4 @@
-use crate::types::DatabaseType;
+use crate::common::types::DatabaseType;
 use std::env::var;
 
 #[derive(Clone, Debug)]

@@ -1,7 +1,7 @@
+use crate::common::config::DbConnectionConfig;
+use crate::common::SQL;
 use mysql::prelude::*;
 use mysql::*;
-use sqlx_ts_common::config::DbConnectionConfig;
-use sqlx_ts_common::SQL;
 use std::borrow::Borrow;
 use swc_common::errors::Handler;
 
