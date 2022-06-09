@@ -89,11 +89,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
+      - name: Install packages (Ubuntu)
+        run: |
+          ci/ubuntu-install-packages
+
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: ${{ matrix.rust }}
-          target: ${{ matrix.target }}
+          toolchain: stable
           profile: minimal
           override: true
 
