@@ -111,5 +111,5 @@ jobs:
           cargo release \
             --tag-name="${{ github.event.release.tag_name }}" \
             --token="$env:CARGO_TOKEN" \
-            --no-tag
+            --no-tag \
             --execute
