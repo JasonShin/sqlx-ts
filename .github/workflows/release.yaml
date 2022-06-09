@@ -75,3 +75,34 @@ jobs:
           asset_path: ${{ env.ASSET }}
           asset_name: ${{ env.ASSET }}
           asset_content_type: application/octet-stream
+
+  build-cargo-release:
+    name: cargo release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@master
+
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.3
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          target: ${{ matrix.target }}
+          profile: minimal
+          override: true
+
+      - name: Install cargo-release
+        run: cargo install cargo-release
+
+      - name: Release to crates.io
+        run: cargo release \
+          --tag-name="${{ github.event.release.tag_name }}" \
+          --token="${{ secrets.CRATES_API_TOKEN }}" \
+          --no-tag
+

@@ -1,6 +1,6 @@
+use crate::common::config::DbConnectionConfig;
+use crate::common::SQL;
 use postgres::{Client, NoTls};
-use sqlx_ts_common::config::DbConnectionConfig;
-use sqlx_ts_common::SQL;
 use swc_common::errors::Handler;
 
 fn get_postgres_cred(conn: &DbConnectionConfig) -> String {

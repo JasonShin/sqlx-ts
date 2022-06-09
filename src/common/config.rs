@@ -1,6 +1,6 @@
-use crate::cli::Cli;
-use crate::dotenv::Dotenv;
-use crate::types::DatabaseType;
+use crate::common::cli::Cli;
+use crate::common::dotenv::Dotenv;
+use crate::common::types::DatabaseType;
 use regex::Regex;
 use serde;
 use serde::{Deserialize, Serialize};

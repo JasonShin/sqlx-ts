@@ -1,6 +1,6 @@
 [package]
 name = "sqlx-ts"
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.5"
 edition = "2021"
 homepage = "https://github.com/JasonShin/sqlx-ts"
 authors = ['Jason Shin <visualbbasic@gmail.com>']
@@ -11,12 +11,6 @@ keywords = ["cli", "sql", "sqlx", "typescript", "javascript"]
 categories = ["command-line-utilities"]
 documentation = ""
 
-[workspace]
-members = [
-    "sqlx-ts-common",
-    "sqlx-ts-core",
-]
-
 [dependencies]
 dotenv = "0.15.0"
 swc_common = { version = "0.17.18", features = ["tty-emitter"] }
@@ -26,8 +20,11 @@ swc_ecma_parser_macros = "0.4.1"
 string_cache = "0.8.3"
 walkdir = "2.3.2"
 clap = { version = "3.1.6", features = ["derive"] }
-sqlx-ts-core = { path = "./sqlx-ts-core", verison = "0.1.0-alpha.1" }
-sqlx-ts-common = { path = "./sqlx-ts-common", verison = "0.1.0-alpha.1" }
+postgres = { version = "0.19.2" }
+mysql = { version = "22.1.0" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0" }
+regex = { version = "1.5" }
 
 [dev-dependencies]
 assert_cmd = "2.0.4"

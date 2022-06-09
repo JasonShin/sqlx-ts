@@ -3,15 +3,15 @@ mod tag;
 
 use std::{borrow::BorrowMut, fs, path::PathBuf};
 
+use crate::common::SQL;
 use crate::parser::import::find_sqlx_import_alias;
-use sqlx_ts_common::SQL;
 use swc_common::{
     errors::{ColorConfig, Handler},
     input::StringInput,
     sync::Lrc,
     FileName, MultiSpan, SourceMap,
 };
-use swc_ecma_ast::{BlockStmt, ClassMember, Decl, ModuleDecl, ModuleItem, Stmt};
+use swc_ecma_ast::{ClassMember, ModuleDecl, ModuleItem, Stmt};
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 use tag::{get_sql_from_expr, get_sql_from_var_decl};
 

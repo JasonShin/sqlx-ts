@@ -1,10 +1,10 @@
-use sqlx_ts_common::config::{Config, DbConnectionConfig};
-use sqlx_ts_common::SQL;
-use sqlx_ts_common::{cli::Cli, types::DatabaseType};
+use crate::common::cli::Cli;
+use crate::common::config::Config;
+use crate::common::types::DatabaseType;
+use crate::common::SQL;
+use crate::core::mysql::explain as mysql_explain;
+use crate::core::postgres::explain as postgres_explain;
 use swc_common::errors::Handler;
-
-use crate::mysql::explain as mysql_explain;
-use crate::postgres::explain as postgres_explain;
 
 pub fn execute(queries: &Vec<SQL>, handler: &Handler, cli_args: &Cli) -> bool {
     // TODO: later we will add mysql_explain, sqlite_explain depending on the database type

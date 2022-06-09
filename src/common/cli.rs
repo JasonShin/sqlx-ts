@@ -1,4 +1,4 @@
-use crate::types::{DatabaseType, JsExtension};
+use crate::common::types::{DatabaseType, JsExtension};
 use clap::{ArgEnum, Parser};
 
 impl ToString for JsExtension {
