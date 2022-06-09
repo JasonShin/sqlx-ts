@@ -1,3 +1,5 @@
+mod common;
+mod core;
 mod parser;
 mod scan_folder;
 
@@ -7,9 +9,9 @@ extern crate dotenv;
 
 use clap::{ArgEnum, Args, Parser, Subcommand};
 use dotenv::dotenv;
-use sqlx_ts_common::cli::Cli;
 use sqlx_ts_core::execute::execute;
 
+use crate::common::cli::Cli;
 use crate::{parser::parse_source, scan_folder::scan_folder};
 
 fn main() {
