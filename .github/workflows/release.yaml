@@ -83,8 +83,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@master
 
-      - name: Checkout main
-        run: git checkout main
+      - name: Check git status
+        run: git status
 
       - name: Get release
         id: get_release
