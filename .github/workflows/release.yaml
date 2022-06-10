@@ -113,8 +113,24 @@ jobs:
         env:
           CARGO_TOKEN: ${{ secrets.CRATES_API_TOKEN }}
         run: |
-          cargo release \
-            --tag-name="${{ github.event.release.tag_name }}" \
-            --token="$env:CARGO_TOKEN" \
-            --no-tag \
-            --execute
+          tag="${{ github.event.release.tag_name }}"
+          version=$(echo "$tag" | cut -d '-' -f1)
+          dev_prefix=$(echo "$tag" | cut -d '-' -f2)
+
+          if [ -z $dev_prefix ]; then
+            cargo release \
+              --tag-name="${{ version }}" \
+              --token="$env:CARGO_TOKEN" \
+              --no-tag \
+              --execute \
+              --no-confirm
+          else
+            cargo release \
+              --tag-name="${{ version }}" \
+              --dev-version-ext="${{ dev_prefix }}" \
+              --token="$env:CARGO_TOKEN" \
+              --no-tag \
+              --execute \
+              --no-confirm
+          fi
+
