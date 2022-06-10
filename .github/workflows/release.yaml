@@ -108,6 +108,12 @@ jobs:
       - name: Install cargo-release
         run: cargo install cargo-release
 
+      - name: Git Config
+        shell: bash
+        run: |
+          git config --global user.email "visualbbasic@gmail.com"
+          git config --global user.name "Jason Shin"
+
       - name: Release to crates.io
         shell: bash
         env:
