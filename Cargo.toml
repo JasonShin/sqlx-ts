@@ -9,7 +9,7 @@ description = "A tool for Javascript/Typescript for compile-time safe SQL querie
 readme = "README.md"
 keywords = ["cli", "sql", "sqlx", "typescript", "javascript"]
 categories = ["command-line-utilities"]
-documentation = ""
+documentation = "https://jasonshin.github.io/sqlx-ts/"
 
 [dependencies]
 dotenv = "0.15.0"
