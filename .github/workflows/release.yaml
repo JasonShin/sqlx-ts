@@ -117,7 +117,7 @@ jobs:
       - name: Release to crates.io
         shell: bash
         env:
-          CARGO_TOKEN: ${{ secrets.CRATES_API_TOKEN }}
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
           tag="$github.event.release.tag_name"
           version=$(echo "$tag" | cut -d '-' -f1)
@@ -126,7 +126,6 @@ jobs:
           if [ -z $dev_prefix ]; then
             cargo release \
               --tag-name="$version" \
-              --token="$env:CARGO_TOKEN" \
               --no-tag \
               --execute \
               --no-confirm
@@ -134,7 +133,6 @@ jobs:
             cargo release \
               --tag-name="$version" \
               --dev-version-ext="$dev_prefix" \
-              --token="$env:CARGO_TOKEN" \
               --no-tag \
               --execute \
               --no-confirm
