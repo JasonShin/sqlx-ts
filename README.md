@@ -68,6 +68,16 @@ const query = sql`SELECT * FROM some_table;`
 
 ##### Installing binary
 
+###### Using cargo
+
+To install sqlx-ts using cargo
+
+```bash
+$ cargo install sqlx-ts
+```
+
+###### Using install.sh
+
 The binary name for sqlx-ts is `sqlx-ts`.
 
 [Archives of precompiled binaries of sqlx-ts are available for Windows, macOS and Linux](https://github.com/JasonShin/sqlx-ts/releases). Linux and Windows binaries are static executables. Users of platforms not explicitly mentioned below are advised to download one of these archives.
