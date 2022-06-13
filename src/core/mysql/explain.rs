@@ -1,15 +1,19 @@
-use crate::common::config::DbConnectionConfig;
+use crate::common::config::{DbConnectionConfig, Config};
 use crate::common::SQL;
+use crate::ts_generator::generator::{ generate_ts_interface };
 use mysql::prelude::*;
 use mysql::*;
 use std::borrow::Borrow;
 use swc_common::errors::Handler;
 
-pub fn explain(sql: &SQL, connection: &DbConnectionConfig, handler: &Handler) -> bool {
+pub fn explain(sql: &SQL, config: &Config, handler: &Handler) -> bool {
+    let connection = &config.get_correct_connection(&sql.query);
     let mut failed = false;
 
     let span = sql.span.to_owned();
     let explain_query = format!("EXPLAIN {}", sql.query);
+
+    generate_ts_interface(&sql, &config);
 
     let db_pass = &connection.db_pass;
     let db_name = &connection.db_name;

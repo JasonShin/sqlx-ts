@@ -15,8 +15,8 @@ pub fn execute(queries: &Vec<SQL>, handler: &Handler, cli_args: &Cli) -> bool {
         let connection = &config.get_correct_connection(&sql.query);
 
         failed = match connection.db_type {
-            DatabaseType::Postgres => postgres_explain::explain(&sql, &connection, &handler),
-            DatabaseType::Mysql => mysql_explain::explain(&sql, &connection, &handler),
+            DatabaseType::Postgres => postgres_explain::explain(&sql, &config, &handler),
+            DatabaseType::Mysql => mysql_explain::explain(&sql, &config, &handler),
         }
     }
 

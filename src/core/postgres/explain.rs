@@ -1,4 +1,4 @@
-use crate::common::config::DbConnectionConfig;
+use crate::common::config::{DbConnectionConfig, Config};
 use crate::common::SQL;
 use postgres::{Client, NoTls};
 use swc_common::errors::Handler;
@@ -13,7 +13,9 @@ fn get_postgres_cred(conn: &DbConnectionConfig) -> String {
     )
 }
 
-pub fn explain<'a>(sql: &SQL, connection: &DbConnectionConfig, handler: &Handler) -> bool {
+pub fn explain<'a>(sql: &SQL, config: &Config, handler: &Handler) -> bool {
+    let connection = &config.get_correct_connection(&sql.query);
+
     let mut failed = false;
 
     let span = sql.span.to_owned();
