@@ -1,8 +1,8 @@
 mod common;
 mod core;
-mod ts_generator;
 mod parser;
 mod scan_folder;
+mod ts_generator;
 
 extern crate clap;
 extern crate dotenv;

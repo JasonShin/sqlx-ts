@@ -1,7 +1,7 @@
+use sqlparser::ast::{SetExpr, Statement};
 use sqlparser::{dialect::GenericDialect, parser::Parser};
-use sqlparser::ast::{ Statement, SetExpr };
 
-use crate::common::{SQL, config::Config};
+use crate::common::{config::Config, SQL};
 
 pub fn generate_ts_interface(sql: &SQL, config: &Config) {
     let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
@@ -18,11 +18,11 @@ pub fn generate_ts_interface(sql: &SQL, config: &Config) {
                         for select_item in projection {
                             println!("checking each select item {:#?}", select_item);
                         }
-                    },
-                    _ => println!("hmm")
+                    }
+                    _ => println!("hmm"),
                 }
-            },
-            _ => println!("not sure")
+            }
+            _ => println!("not sure"),
         }
     }
 }

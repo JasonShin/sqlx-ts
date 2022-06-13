@@ -1,4 +1,4 @@
-use crate::common::config::{DbConnectionConfig, Config};
+use crate::common::config::{Config, DbConnectionConfig};
 use crate::common::SQL;
 use postgres::{Client, NoTls};
 use swc_common::errors::Handler;

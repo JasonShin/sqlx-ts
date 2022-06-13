@@ -1,6 +1,6 @@
-use crate::common::config::{Config};
+use crate::common::config::Config;
 use crate::common::SQL;
-use crate::ts_generator::generator::{ generate_ts_interface };
+use crate::ts_generator::generator::generate_ts_interface;
 use mysql::prelude::*;
 use mysql::*;
 use swc_common::errors::Handler;
