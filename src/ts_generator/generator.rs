@@ -15,6 +15,9 @@ pub fn generate_ts_interface(sql: &SQL, config: &Config) {
                 match body {
                     SetExpr::Select(select) => {
                         let projection = select.clone().projection;
+                        let from = select.clone().from;
+
+                        println!("checking from {:?}", from);
                         for select_item in projection {
                             println!("checking each select item {:#?}", select_item);
                         }
