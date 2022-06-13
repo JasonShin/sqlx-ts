@@ -31,16 +31,9 @@ pub struct DbConnectionConfig {
 /// 2. any dotenv configured options
 #[derive(Clone, Debug)]
 pub struct Config {
-    cli_args: Cli,
-    dotenv: Dotenv,
+    pub cli_args: Cli,
+    pub dotenv: Dotenv,
     pub connections: HashMap<String, DbConnectionConfig>,
-}
-
-fn required_var_msg(key: &str) -> String {
-    format!(
-        "{} is not provided neither by an environment variable or CLI argument",
-        key
-    )
 }
 
 impl Config {

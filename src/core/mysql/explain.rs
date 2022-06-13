@@ -1,9 +1,8 @@
-use crate::common::config::{DbConnectionConfig, Config};
+use crate::common::config::{Config};
 use crate::common::SQL;
 use crate::ts_generator::generator::{ generate_ts_interface };
 use mysql::prelude::*;
 use mysql::*;
-use std::borrow::Borrow;
 use swc_common::errors::Handler;
 
 pub fn explain(sql: &SQL, config: &Config, handler: &Handler) -> bool {
