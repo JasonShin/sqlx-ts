@@ -1,6 +1,10 @@
 import { sql } from 'sqlx-ts'
 
 const test = sql`
+/**
+ *  @name: someQuery
+ *  @db: default
+ **/
 SELECT
     id,
     EXISTS(SELECT 1 FROM items WHERE points > 0) AS hmm

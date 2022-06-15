@@ -1,5 +1,5 @@
 use crate::common::types::{DatabaseType, JsExtension};
-use clap::{ArgEnum, Parser};
+use clap::Parser;
 
 impl ToString for JsExtension {
     fn to_string(&self) -> String {
