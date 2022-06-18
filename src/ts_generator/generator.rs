@@ -55,7 +55,6 @@ pub fn generate_ts_interface(sql: &SQL, config: &Config) -> Result<(), TsGenerat
 
     let mut result: HashMap<String, TsDataType> = HashMap::new();
     let mut params: HashMap<String, TsDataType> = HashMap::new();
-    println!("query name? {:?}", query_name);
 
     for sql in &sql_ast {
         match sql {
