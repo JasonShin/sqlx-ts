@@ -1,8 +1,6 @@
 use crate::common::string_cases::ConvertCase;
 use crate::common::{config::Config, SQL};
-use crate::ts_generator::types::TsDataType;
-use core::fmt;
-use mysql::prelude::Queryable;
+use crate::ts_generator::types::{TsDataType, TsQuery};
 use regex::Regex;
 use sqlparser::ast::{
     SelectItem::{ExprWithAlias, QualifiedWildcard, UnnamedExpr, Wildcard},
@@ -11,26 +9,9 @@ use sqlparser::ast::{
 use sqlparser::{dialect::GenericDialect, parser::Parser};
 use std::collections::HashMap;
 
-#[derive(Debug)]
-pub enum GetQueryNameError {
-    EmptyQueryNameFromAnnotation(String),
-    EmptyQueryNameFromVarDecl,
-}
+use super::errors::TsGeneratorError;
 
-impl fmt::Display for GetQueryNameError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            GetQueryNameError::EmptyQueryNameFromAnnotation(query) => writeln!(
-                f,
-                "Failed to fetch query name from DB name annotation - query: {}",
-                query
-            ),
-            GetQueryNameError::EmptyQueryNameFromVarDecl => todo!(),
-        }
-    }
-}
-
-fn get_query_name(sql: &SQL) -> Result<String, GetQueryNameError> {
+fn get_query_name(sql: &SQL) -> Result<String, TsGeneratorError> {
     let re = Regex::new(r"@name:(.+)").unwrap();
     let var_decl_name = &sql.var_decl_name;
     let captures = re.captures(&sql.query.as_str());
@@ -46,7 +27,7 @@ fn get_query_name(sql: &SQL) -> Result<String, GetQueryNameError> {
             .to_string();
 
         if query_name.is_empty() {
-            return Err(GetQueryNameError::EmptyQueryNameFromAnnotation(
+            return Err(TsGeneratorError::EmptyQueryNameFromAnnotation(
                 sql.query.to_string(),
             ));
         }
@@ -59,16 +40,22 @@ fn get_query_name(sql: &SQL) -> Result<String, GetQueryNameError> {
         return Ok(var_decl_name.to_pascal_case());
     }
 
-    Err(GetQueryNameError::EmptyQueryNameFromVarDecl)
+    Err(TsGeneratorError::EmptyQueryNameFromVarDecl)
 }
 
-pub fn generate_ts_interface(sql: &SQL, config: &Config) {
+pub fn generate_ts_interface(sql: &SQL, config: &Config) -> Result<(), TsGeneratorError> {
     let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
     let sql_ast = Parser::parse_sql(&dialect, &sql.query).unwrap();
+    let mut ts_query = TsQuery {
+        name: get_query_name(&sql)?,
+        params: HashMap::new(),
+        result: HashMap::new(),
+    };
     let query_name = get_query_name(&sql);
 
     let mut result: HashMap<String, TsDataType> = HashMap::new();
     let mut params: HashMap<String, TsDataType> = HashMap::new();
+    println!("query name? {:?}", query_name);
 
     for sql in &sql_ast {
         match sql {
@@ -81,7 +68,6 @@ pub fn generate_ts_interface(sql: &SQL, config: &Config) {
                         for select_item in projection {
                             match select_item {
                                 UnnamedExpr(unnamed_expr) => {
-                                    println!("query name? {:?}", query_name);
                                     println!("unmapped expr {:?}", unnamed_expr);
                                 }
                                 ExprWithAlias { expr, alias } => todo!(),
@@ -96,4 +82,6 @@ pub fn generate_ts_interface(sql: &SQL, config: &Config) {
             _ => println!("not sure"),
         }
     }
+
+    Ok(())
 }
