@@ -1,8 +1,8 @@
 import { sql } from 'sqlx-ts'
 
-const test = sql`
+const test_world = sql`
 /**
- *  @name: someQuery
+ *  @name: some query
  *  @db: default
  **/
 SELECT
