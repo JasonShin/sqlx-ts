@@ -2,6 +2,7 @@ use crate::common::string_cases::ConvertCase;
 use crate::common::{config::Config, SQL};
 use crate::ts_generator::types::{TsDataType, TsQuery};
 use regex::Regex;
+use sqlparser::ast::TableWithJoins;
 use sqlparser::ast::{
     SelectItem::{ExprWithAlias, QualifiedWildcard, UnnamedExpr, Wildcard},
     SetExpr, Statement,
@@ -10,6 +11,8 @@ use sqlparser::{dialect::GenericDialect, parser::Parser};
 use std::collections::HashMap;
 
 use super::errors::TsGeneratorError;
+use super::information_schema::{MySQLSchema, DBSchema};
+use super::types::DBConn;
 
 fn get_query_name(sql: &SQL) -> Result<String, TsGeneratorError> {
     let re = Regex::new(r"@name:(.+)").unwrap();
@@ -43,7 +46,11 @@ fn get_query_name(sql: &SQL) -> Result<String, TsGeneratorError> {
     Err(TsGeneratorError::EmptyQueryNameFromVarDecl)
 }
 
-pub fn generate_ts_interface(sql: &SQL, config: &Config) -> Result<(), TsGeneratorError> {
+fn get_table_name_for_field(tables: Vec<&TableWithJoins>) {
+
+}
+
+pub fn generate_ts_interface(sql: &SQL, config: &Config, db_conn: &DBConn) -> Result<(), TsGeneratorError> {
     let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
     let sql_ast = Parser::parse_sql(&dialect, &sql.query).unwrap();
     let mut ts_query = TsQuery {
@@ -56,6 +63,10 @@ pub fn generate_ts_interface(sql: &SQL, config: &Config) -> Result<(), TsGenerat
     let mut result: HashMap<String, TsDataType> = HashMap::new();
     let mut params: HashMap<String, TsDataType> = HashMap::new();
 
+    let db_schema = match db_conn {
+        DBConn::MySQLPooledConn(_) => MySQLSchema::new(),
+    };
+
     for sql in &sql_ast {
         match sql {
             Statement::Query(query) => {
@@ -64,10 +75,13 @@ pub fn generate_ts_interface(sql: &SQL, config: &Config) -> Result<(), TsGenerat
                     SetExpr::Select(select) => {
                         let projection = select.clone().projection;
                         let table_with_joins = select.clone().from;
+                        println!("table with joins {:?}", table_with_joins);
+                        // then fetch information schema to figure out each field's details
                         for select_item in projection {
                             match select_item {
                                 UnnamedExpr(unnamed_expr) => {
                                     println!("unmapped expr {:?}", unnamed_expr);
+                                    
                                 }
                                 ExprWithAlias { expr, alias } => todo!(),
                                 QualifiedWildcard(_) => todo!(),

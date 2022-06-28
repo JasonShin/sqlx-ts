@@ -1,33 +1,9 @@
-use std::borrow::BorrowMut;
 use std::collections::HashMap;
 use mysql::*;
 use mysql::{Row, Result as MySQLResult};
 use mysql::{ PooledConn, prelude::Queryable };
-use crate::common::config::Config;
 
-#[derive(Debug, Clone, Copy)]
-pub enum TsFieldType {
-    String,
-    Number,
-    Boolean,
-    Object,
-    Any,
-}
-
-impl TsFieldType {
-    pub fn get_ts_field_type_from_mysql_field_type(mysql_field_type: String) -> Self {
-        // TODO: Cover all mysql_field_types
-        if mysql_field_type == "varchar" {
-            return Self::String
-        } else if mysql_field_type == "int" {
-            return Self::Number
-        } else if mysql_field_type == "smallint" {
-            return Self::Number
-        }
-        
-        Self::Any
-    }
-}
+use super::types::TsFieldType;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Field {
@@ -44,9 +20,9 @@ struct ColumnsQueryResultRow {
     is_nullable: bool,
 }
 
-trait DBSchema {
+pub trait DBSchema {
     fn new() -> Self;
-    fn fetch_table(&self, database_name: String, table_name: String, conn: &mut PooledConn) -> Option<Fields>;
+    fn fetch_table(&self, database_name: String, tables: String, conn: &mut PooledConn) -> Option<Fields>;
     // fn fetch_field(&self, database_name: String, table_name: String, field_name: String) -> Field;
 }
 
