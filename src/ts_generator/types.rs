@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 use std::fmt::{self};
 
-use mysql::PooledConn;
+use mysql::Conn;
 
 pub enum DBConn<'a> {
-    MySQLPooledConn(&'a mut PooledConn)
+    MySQLPooledConn(&'a mut Conn),
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -20,17 +20,18 @@ impl TsFieldType {
     pub fn get_ts_field_type_from_mysql_field_type(mysql_field_type: String) -> Self {
         // TODO: Cover all mysql_field_types
         if mysql_field_type == "varchar" {
-            return Self::String
+            return Self::String;
         } else if mysql_field_type == "int" {
-            return Self::Number
+            return Self::Number;
         } else if mysql_field_type == "smallint" {
-            return Self::Number
+            return Self::Number;
         }
-        
+
         Self::Any
     }
 }
 
+#[derive(Debug)]
 pub enum TsDataType {
     Boolean,
     Number,

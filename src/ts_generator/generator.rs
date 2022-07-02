@@ -1,17 +1,19 @@
+use crate::common::config::DbConnectionConfig;
 use crate::common::string_cases::ConvertCase;
 use crate::common::{config::Config, SQL};
 use crate::ts_generator::types::{TsDataType, TsQuery};
 use regex::Regex;
-use sqlparser::ast::TableWithJoins;
+use sqlparser::ast::{ObjectName, TableWithJoins};
 use sqlparser::ast::{
     SelectItem::{ExprWithAlias, QualifiedWildcard, UnnamedExpr, Wildcard},
     SetExpr, Statement,
 };
 use sqlparser::{dialect::GenericDialect, parser::Parser};
+use std::borrow::BorrowMut;
 use std::collections::HashMap;
 
 use super::errors::TsGeneratorError;
-use super::information_schema::{MySQLSchema, DBSchema};
+use super::information_schema::{DBSchema, MySQLSchema};
 use super::types::DBConn;
 
 fn get_query_name(sql: &SQL) -> Result<String, TsGeneratorError> {
@@ -46,11 +48,38 @@ fn get_query_name(sql: &SQL) -> Result<String, TsGeneratorError> {
     Err(TsGeneratorError::EmptyQueryNameFromVarDecl)
 }
 
-fn get_table_name_for_field(tables: Vec<&TableWithJoins>) {
+fn get_table_name(table_with_join: &TableWithJoins) -> Option<String> {
+    match &table_with_join.relation {
+        sqlparser::ast::TableFactor::Table {
+            name,
+            alias,
+            args,
+            with_hints,
+        } => match name {
+            ObjectName(val) => {
+                let alias = alias
+                    .clone()
+                    .and_then(|alias| Some(alias.clone().name.to_string()));
+                let name = val.get(0).and_then(|val| Some(val.value.to_string()));
 
+                if alias.is_some() {
+                    return alias;
+                } else if name.is_some() {
+                    return name;
+                }
+                None
+            }
+            _ => None,
+        },
+        _ => None,
+    }
 }
 
-pub fn generate_ts_interface(sql: &SQL, config: &Config, db_conn: &DBConn) -> Result<(), TsGeneratorError> {
+pub fn generate_ts_interface(
+    sql: &SQL,
+    db_connection_config: &DbConnectionConfig,
+    db_conn: &DBConn,
+) -> Result<(), TsGeneratorError> {
     let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
     let sql_ast = Parser::parse_sql(&dialect, &sql.query).unwrap();
     let mut ts_query = TsQuery {
@@ -63,6 +92,10 @@ pub fn generate_ts_interface(sql: &SQL, config: &Config, db_conn: &DBConn) -> Re
     let mut result: HashMap<String, TsDataType> = HashMap::new();
     let mut params: HashMap<String, TsDataType> = HashMap::new();
 
+    let db_name = db_connection_config
+        .db_name
+        .clone()
+        .expect("DB_NAME is required to generate Typescript type definitions");
     let db_schema = match db_conn {
         DBConn::MySQLPooledConn(_) => MySQLSchema::new(),
     };
@@ -75,17 +108,119 @@ pub fn generate_ts_interface(sql: &SQL, config: &Config, db_conn: &DBConn) -> Re
                     SetExpr::Select(select) => {
                         let projection = select.clone().projection;
                         let table_with_joins = select.clone().from;
-                        println!("table with joins {:?}", table_with_joins);
                         // then fetch information schema to figure out each field's details
                         for select_item in projection {
                             match select_item {
                                 UnnamedExpr(unnamed_expr) => {
-                                    println!("unmapped expr {:?}", unnamed_expr);
+                                    let default_table = table_with_joins.get(0)
+                                    .expect(format!("Default FROM table is not found from the query {query}").as_str());
+                                    let table_name = get_table_name(default_table)
+                                    .expect(format!("Default FROM table is not found from the query {query}").as_str());
+                                    println!("UnnamedExpr {:#?}", unnamed_expr);
+                                    println!("TableName {:?}", table_name);
                                     
+                                    match &db_conn {
+                                        DBConn::MySQLPooledConn(&mut conn) => {
+                                            let result = db_schema.fetch_table(&db_name, &table_name, &mut conn);
+                                        },
+                                    }
                                 }
-                                ExprWithAlias { expr, alias } => todo!(),
-                                QualifiedWildcard(_) => todo!(),
-                                Wildcard => todo!(),
+                                ExprWithAlias { expr, alias } => {
+                                    println!("ExprWithAlias {:#?}", expr);
+                                    println!("ExprWithAlias {:?}", alias);
+                                    match expr {
+                                        sqlparser::ast::Expr::Exists(_) => {
+                                            result.insert(alias.value, TsDataType::Boolean);
+                                        }
+                                        sqlparser::ast::Expr::Identifier(_) => todo!(),
+                                        sqlparser::ast::Expr::CompoundIdentifier(_) => todo!(),
+                                        sqlparser::ast::Expr::JsonAccess {
+                                            left,
+                                            operator,
+                                            right,
+                                        } => todo!(),
+                                        sqlparser::ast::Expr::CompositeAccess { expr, key } => {
+                                            todo!()
+                                        }
+                                        sqlparser::ast::Expr::IsFalse(_) => todo!(),
+                                        sqlparser::ast::Expr::IsTrue(_) => todo!(),
+                                        sqlparser::ast::Expr::IsNull(_) => todo!(),
+                                        sqlparser::ast::Expr::IsNotNull(_) => todo!(),
+                                        sqlparser::ast::Expr::IsDistinctFrom(_, _) => todo!(),
+                                        sqlparser::ast::Expr::IsNotDistinctFrom(_, _) => todo!(),
+                                        sqlparser::ast::Expr::InList {
+                                            expr,
+                                            list,
+                                            negated,
+                                        } => todo!(),
+                                        sqlparser::ast::Expr::InSubquery {
+                                            expr,
+                                            subquery,
+                                            negated,
+                                        } => todo!(),
+                                        sqlparser::ast::Expr::InUnnest {
+                                            expr,
+                                            array_expr,
+                                            negated,
+                                        } => todo!(),
+                                        sqlparser::ast::Expr::Between {
+                                            expr,
+                                            negated,
+                                            low,
+                                            high,
+                                        } => todo!(),
+                                        sqlparser::ast::Expr::BinaryOp { left, op, right } => {
+                                            todo!()
+                                        }
+                                        sqlparser::ast::Expr::AnyOp(_) => todo!(),
+                                        sqlparser::ast::Expr::AllOp(_) => todo!(),
+                                        sqlparser::ast::Expr::UnaryOp { op, expr } => todo!(),
+                                        sqlparser::ast::Expr::Cast { expr, data_type } => todo!(),
+                                        sqlparser::ast::Expr::TryCast { expr, data_type } => {
+                                            todo!()
+                                        }
+                                        sqlparser::ast::Expr::Extract { field, expr } => todo!(),
+                                        sqlparser::ast::Expr::Position { expr, r#in } => todo!(),
+                                        sqlparser::ast::Expr::Substring {
+                                            expr,
+                                            substring_from,
+                                            substring_for,
+                                        } => todo!(),
+                                        sqlparser::ast::Expr::Trim { expr, trim_where } => todo!(),
+                                        sqlparser::ast::Expr::Collate { expr, collation } => {
+                                            todo!()
+                                        }
+                                        sqlparser::ast::Expr::Nested(_) => todo!(),
+                                        sqlparser::ast::Expr::Value(_) => todo!(),
+                                        sqlparser::ast::Expr::TypedString { data_type, value } => {
+                                            todo!()
+                                        }
+                                        sqlparser::ast::Expr::MapAccess { column, keys } => todo!(),
+                                        sqlparser::ast::Expr::Function(_) => todo!(),
+                                        sqlparser::ast::Expr::Case {
+                                            operand,
+                                            conditions,
+                                            results,
+                                            else_result,
+                                        } => todo!(),
+                                        sqlparser::ast::Expr::Subquery(_) => todo!(),
+                                        sqlparser::ast::Expr::ListAgg(_) => todo!(),
+                                        sqlparser::ast::Expr::GroupingSets(_) => todo!(),
+                                        sqlparser::ast::Expr::Cube(_) => todo!(),
+                                        sqlparser::ast::Expr::Rollup(_) => todo!(),
+                                        sqlparser::ast::Expr::Tuple(_) => todo!(),
+                                        sqlparser::ast::Expr::ArrayIndex { obj, indexes } => {
+                                            todo!()
+                                        }
+                                        sqlparser::ast::Expr::Array(_) => todo!(),
+                                    }
+                                }
+                                QualifiedWildcard(obj_name) => {
+                                    println!("obj name {}", obj_name);
+                                }
+                                Wildcard => {
+                                    println!("wild card!!!");
+                                }
                             }
                         }
                     }
@@ -95,6 +230,8 @@ pub fn generate_ts_interface(sql: &SQL, config: &Config, db_conn: &DBConn) -> Re
             _ => println!("not sure"),
         }
     }
+
+    println!("Checking results {:?}", result);
 
     Ok(())
 }

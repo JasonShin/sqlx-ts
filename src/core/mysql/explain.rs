@@ -1,10 +1,11 @@
 use crate::common::config::Config;
 use crate::common::SQL;
-use crate::ts_generator::types::{DBConn};
-use crate::ts_generator::generator::{generate_ts_interface};
+use crate::ts_generator::generator::generate_ts_interface;
+use crate::ts_generator::types::DBConn;
 use mysql::prelude::*;
 use mysql::*;
 use swc_common::errors::Handler;
+use swc_ecma_ast::op;
 
 pub fn explain(sql: &SQL, config: &Config, handler: &Handler) -> bool {
     let connection = &config.get_correct_connection(&sql.query);
@@ -21,10 +22,8 @@ pub fn explain(sql: &SQL, config: &Config, handler: &Handler) -> bool {
         .user(Some(&connection.db_user))
         .pass(db_pass.clone())
         .db_name(db_name.clone());
-
-    let pool = Pool::new(opts).unwrap();
-    let mut conn = pool.get_conn().unwrap();
-    generate_ts_interface(&sql, &config, &DBConn::MySQLPooledConn(&mut conn));
+    let mut conn = Conn::new(opts).unwrap();
+    generate_ts_interface(&sql, &connection, &DBConn::MySQLPooledConn(&mut conn));
 
     let result: Result<Vec<Row>> = conn.query(explain_query);
 
