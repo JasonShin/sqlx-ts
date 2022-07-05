@@ -25,7 +25,11 @@ pub fn explain(sql: &SQL, config: &Config, handler: &Handler) -> bool {
         .pass(db_pass.clone())
         .db_name(db_name.clone());
     let mut conn = Conn::new(opts).unwrap();
-    generate_ts_interface(&sql, &connection, &DBConn::MySQLPooledConn(&mut RefCell::new(&mut conn)));
+    generate_ts_interface(
+        &sql,
+        &connection,
+        &DBConn::MySQLPooledConn(&mut RefCell::new(&mut conn)),
+    );
 
     let result: Result<Vec<Row>> = conn.query(explain_query);
 

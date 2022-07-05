@@ -1,10 +1,9 @@
+use mysql::Row;
 use mysql::*;
 use mysql::{prelude::Queryable, Conn};
-use mysql::{Row};
 use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::rc::Rc;
 
 use super::types::TsFieldType;
 
@@ -63,8 +62,8 @@ impl DBSchema for MySQLSchema {
                     DATA_TYPE as data_type,
                     IS_NULLABLE as is_nulalble
                 FROM information_schema.COLUMNS
-                WHERE TABLE_SCHEMA = {}
-                AND TABLE_NAME = {}
+                WHERE TABLE_SCHEMA = '{}'
+                AND TABLE_NAME = '{}'
                         ",
                     database_name, table_name
                 );
@@ -76,12 +75,12 @@ impl DBSchema for MySQLSchema {
                     for row in result {
                         let field_name: String = row.clone().take(0).unwrap();
                         let field_type: String = row.clone().take(1).unwrap();
-                        let is_nullable: bool = row.clone().take(2).unwrap();
+                        let is_nullable: String = row.clone().take(2).unwrap();
                         let field = Field {
                             field_type: TsFieldType::get_ts_field_type_from_mysql_field_type(
                                 field_type.to_owned(),
                             ),
-                            is_nullable: is_nullable.to_owned(),
+                            is_nullable: is_nullable == "YES",
                         };
                         fields.insert(field_name.to_owned(), field);
                     }

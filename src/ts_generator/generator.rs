@@ -116,18 +116,24 @@ pub fn generate_ts_interface(
                                     .expect(format!("Default FROM table is not found from the query {query}").as_str());
                                     let table_name = get_table_name(default_table)
                                     .expect(format!("Default FROM table is not found from the query {query}").as_str());
-                                    println!("UnnamedExpr {:#?}", unnamed_expr);
-                                    println!("TableName {:?}", table_name);
-                                    
+
                                     match &db_conn {
                                         DBConn::MySQLPooledConn(conn) => {
-                                            let result = &db_schema.fetch_table(&db_name, &table_name, &conn);
-                                        },
+                                            // TODO: update the method to use Result
+                                            // TODO: We can also memoize this method
+                                            let result = &db_schema.fetch_table(
+                                                &db_name,
+                                                &table_name,
+                                                &conn,
+                                            );
+                                            println!("unnamed expr {:?}", unnamed_expr);
+                                            println!("result {:?}", result);
+                                        }
                                     }
                                 }
                                 ExprWithAlias { expr, alias } => {
-                                    println!("ExprWithAlias {:#?}", expr);
-                                    println!("ExprWithAlias {:?}", alias);
+                                    // println!("ExprWithAlias {:#?}", expr);
+                                    // println!("ExprWithAlias {:?}", alias);
                                     match expr {
                                         sqlparser::ast::Expr::Exists(_) => {
                                             result.insert(alias.value, TsDataType::Boolean);
