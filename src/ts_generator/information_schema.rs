@@ -1,7 +1,10 @@
 use mysql::*;
 use mysql::{prelude::Queryable, Conn};
 use mysql::{Row};
+use std::borrow::{Borrow, BorrowMut};
+use std::cell::RefCell;
 use std::collections::HashMap;
+use std::rc::Rc;
 
 use super::types::TsFieldType;
 
@@ -26,7 +29,7 @@ pub trait DBSchema {
         &self,
         database_name: &String,
         table_name: &String,
-        conn: &mut Conn,
+        conn: &RefCell<&mut Conn>,
     ) -> Option<Fields>;
     // fn fetch_field(&self, database_name: String, table_name: String, field_name: String) -> Field;
 }
@@ -46,7 +49,7 @@ impl DBSchema for MySQLSchema {
         &self,
         database_name: &String,
         table_name: &String,
-        conn: &mut Conn,
+        conn: &RefCell<&mut Conn>,
     ) -> Option<Fields> {
         let table = self.tables.get(table_name.as_str());
 
@@ -67,7 +70,7 @@ impl DBSchema for MySQLSchema {
                 );
 
                 let mut fields: HashMap<String, Field> = HashMap::new();
-                let result = conn.query::<Row, String>(query);
+                let result = conn.borrow_mut().query::<Row, String>(query);
 
                 if let Ok(result) = result {
                     for row in result {

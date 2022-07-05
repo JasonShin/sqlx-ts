@@ -96,7 +96,7 @@ pub fn generate_ts_interface(
         .db_name
         .clone()
         .expect("DB_NAME is required to generate Typescript type definitions");
-    let db_schema = match db_conn {
+    let db_schema = match *db_conn.clone() {
         DBConn::MySQLPooledConn(_) => MySQLSchema::new(),
     };
 
@@ -120,8 +120,8 @@ pub fn generate_ts_interface(
                                     println!("TableName {:?}", table_name);
                                     
                                     match &db_conn {
-                                        DBConn::MySQLPooledConn(&mut conn) => {
-                                            let result = db_schema.fetch_table(&db_name, &table_name, &mut conn);
+                                        DBConn::MySQLPooledConn(conn) => {
+                                            let result = &db_schema.fetch_table(&db_name, &table_name, &conn);
                                         },
                                     }
                                 }
