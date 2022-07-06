@@ -22,35 +22,24 @@ struct ColumnsQueryResultRow {
     is_nullable: bool,
 }
 
-pub trait DBSchema {
-    fn new() -> Self;
-    fn fetch_table(
-        &self,
-        database_name: &String,
-        table_name: &String,
-        conn: &RefCell<&mut Conn>,
-    ) -> Option<Fields>;
-    // fn fetch_field(&self, database_name: String, table_name: String, field_name: String) -> Field;
-}
-
 pub struct MySQLSchema {
     pub tables: HashMap<String, Fields>,
 }
 
-impl DBSchema for MySQLSchema {
-    fn new() -> MySQLSchema {
+impl MySQLSchema {
+    pub fn new() -> MySQLSchema {
         MySQLSchema {
             tables: HashMap::new(),
         }
     }
 
-    fn fetch_table(
+    pub fn fetch_table(
         &self,
-        database_name: &String,
-        table_name: &String,
+        database_name: &str,
+        table_name: &str,
         conn: &RefCell<&mut Conn>,
     ) -> Option<Fields> {
-        let table = self.tables.get(table_name.as_str());
+        let table = self.tables.get(table_name);
 
         match table {
             Some(fields) => Some(fields.clone()),

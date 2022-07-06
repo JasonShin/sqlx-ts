@@ -3,7 +3,7 @@ use crate::common::string_cases::ConvertCase;
 use crate::common::{config::Config, SQL};
 use crate::ts_generator::types::{TsDataType, TsQuery};
 use regex::Regex;
-use sqlparser::ast::{ObjectName, TableWithJoins};
+use sqlparser::ast::{ObjectName, TableWithJoins, Expr};
 use sqlparser::ast::{
     SelectItem::{ExprWithAlias, QualifiedWildcard, UnnamedExpr, Wildcard},
     SetExpr, Statement,
@@ -75,6 +75,81 @@ fn get_table_name(table_with_join: &TableWithJoins) -> Option<String> {
     }
 }
 
+fn handle_sql_expr(
+    expr: &Expr,
+    db_name: &str,
+    table_name: &str,
+    result: &mut HashMap<String, TsDataType>,
+    db_conn: &DBConn,
+) {
+    let mysql_schema = MySQLSchema::new();
+
+    match expr {
+        Expr::Identifier(ident) => {
+            let column_name = ident.value.to_string();
+
+            match &db_conn {
+                DBConn::MySQLPooledConn(conn) => {
+                    // TODO: update the method to use Result
+                    // TODO: We can also memoize this method
+                    let table_details = &mysql_schema.fetch_table(
+                        &db_name,
+                        &table_name,
+                        &conn,
+                    );
+                    if let Some(table_details) = table_details {
+                        let field = table_details.get(&column_name);
+                        result.insert(column_name, field.unwrap().field_type.clone());
+
+                    }
+                    println!("column_name {:?}", column_name);
+                    println!("result {:?}", result);
+                }
+            }
+        
+        },
+        Expr::CompoundIdentifier(_) => todo!(),
+        Expr::JsonAccess { left, operator, right } => todo!(),
+        Expr::CompositeAccess { expr, key } => todo!(),
+        Expr::IsFalse(_) => todo!(),
+        Expr::IsTrue(_) => todo!(),
+        Expr::IsNull(_) => todo!(),
+        Expr::IsNotNull(_) => todo!(),
+        Expr::IsDistinctFrom(_, _) => todo!(),
+        Expr::IsNotDistinctFrom(_, _) => todo!(),
+        Expr::InList { expr, list, negated } => todo!(),
+        Expr::InSubquery { expr, subquery, negated } => todo!(),
+        Expr::InUnnest { expr, array_expr, negated } => todo!(),
+        Expr::Between { expr, negated, low, high } => todo!(),
+        Expr::BinaryOp { left, op, right } => todo!(),
+        Expr::AnyOp(_) => todo!(),
+        Expr::AllOp(_) => todo!(),
+        Expr::UnaryOp { op, expr } => todo!(),
+        Expr::Cast { expr, data_type } => todo!(),
+        Expr::TryCast { expr, data_type } => todo!(),
+        Expr::Extract { field, expr } => todo!(),
+        Expr::Position { expr, r#in } => todo!(),
+        Expr::Substring { expr, substring_from, substring_for } => todo!(),
+        Expr::Trim { expr, trim_where } => todo!(),
+        Expr::Collate { expr, collation } => todo!(),
+        Expr::Nested(_) => todo!(),
+        Expr::Value(_) => todo!(),
+        Expr::TypedString { data_type, value } => todo!(),
+        Expr::MapAccess { column, keys } => todo!(),
+        Expr::Function(_) => todo!(),
+        Expr::Case { operand, conditions, results, else_result } => todo!(),
+        Expr::Exists(_) => todo!(),
+        Expr::Subquery(_) => todo!(),
+        Expr::ListAgg(_) => todo!(),
+        Expr::GroupingSets(_) => todo!(),
+        Expr::Cube(_) => todo!(),
+        Expr::Rollup(_) => todo!(),
+        Expr::Tuple(_) => todo!(),
+        Expr::ArrayIndex { obj, indexes } => todo!(),
+        Expr::Array(_) => todo!(),
+    }
+}
+
 pub fn generate_ts_interface(
     sql: &SQL,
     db_connection_config: &DbConnectionConfig,
@@ -96,10 +171,7 @@ pub fn generate_ts_interface(
         .db_name
         .clone()
         .expect("DB_NAME is required to generate Typescript type definitions");
-    let db_schema = match *db_conn.clone() {
-        DBConn::MySQLPooledConn(_) => MySQLSchema::new(),
-    };
-
+    
     for sql in &sql_ast {
         match sql {
             Statement::Query(query) => {
@@ -116,12 +188,12 @@ pub fn generate_ts_interface(
                                     .expect(format!("Default FROM table is not found from the query {query}").as_str());
                                     let table_name = get_table_name(default_table)
                                     .expect(format!("Default FROM table is not found from the query {query}").as_str());
-
+                                    
                                     match &db_conn {
                                         DBConn::MySQLPooledConn(conn) => {
                                             // TODO: update the method to use Result
                                             // TODO: We can also memoize this method
-                                            let result = &db_schema.fetch_table(
+                                            let result = &mysql_schema.fetch_table(
                                                 &db_name,
                                                 &table_name,
                                                 &conn,

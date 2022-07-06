@@ -18,6 +18,18 @@ pub enum TsFieldType {
     Any,
 }
 
+impl fmt::Display for TsFieldType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            TsFieldType::Boolean => write!(f, "{}", "boolean".to_string()),
+            TsFieldType::Number => write!(f, "{}", "number".to_string()),
+            TsFieldType::String => write!(f, "{}", "string".to_string()),
+            TsFieldType::Object => write!(f, "{}", "object".to_string()),
+            TsFieldType::Any => write!(f, "{}", "any".to_string()),
+        }
+    }
+}
+
 impl TsFieldType {
     pub fn get_ts_field_type_from_mysql_field_type(mysql_field_type: String) -> Self {
         // TODO: Cover all mysql_field_types
@@ -33,34 +45,17 @@ impl TsFieldType {
     }
 }
 
-#[derive(Debug)]
-pub enum TsDataType {
-    Boolean,
-    Number,
-    String,
-}
-
-impl fmt::Display for TsDataType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            TsDataType::Boolean => write!(f, "{}", "boolean".to_string()),
-            TsDataType::Number => write!(f, "{}", "number".to_string()),
-            TsDataType::String => write!(f, "{}", "string".to_string()),
-        }
-    }
-}
-
 pub struct TsQuery {
     pub name: String,
-    pub params: HashMap<String, TsDataType>,
-    pub result: HashMap<String, TsDataType>,
+    pub params: HashMap<String, TsFieldType>,
+    pub result: HashMap<String, TsFieldType>,
 }
 
 impl TsQuery {
     fn fmt_attributes_map(
         &self,
         f: &mut fmt::Formatter<'_>,
-        attrs_map: &HashMap<String, TsDataType>,
+        attrs_map: &HashMap<String, TsFieldType>,
     ) -> String {
         let result: Vec<String> = attrs_map
             .into_iter()
