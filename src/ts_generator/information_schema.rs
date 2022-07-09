@@ -9,8 +9,8 @@ use super::types::TsFieldType;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Field {
-    field_type: TsFieldType,
-    is_nullable: bool,
+    pub field_type: TsFieldType,
+    pub is_nullable: bool,
 }
 
 pub type Fields = HashMap<String, Field>;
