@@ -79,6 +79,7 @@ fn handle_sql_expr(
     expr: &Expr,
     db_name: &str,
     table_name: &str,
+    alias: Option<&str>,
     result: &mut HashMap<String, TsFieldType>,
     db_conn: &DBConn,
 ) {
@@ -101,13 +102,55 @@ fn handle_sql_expr(
                         let field = table_details.get(&column_name).unwrap();
                         result.insert(column_name.clone(), field.field_type.clone());
                     }
-                    println!("column_name {:?}", column_name);
-                    println!("result {:?}", result);
                 }
             }
         
         },
-        _ => todo!(),
+        Expr::CompoundIdentifier(_) => todo!(),
+        Expr::JsonAccess { left, operator, right } => todo!(),
+        Expr::CompositeAccess { expr, key } => todo!(),
+        Expr::IsFalse(_) => todo!(),
+        Expr::IsTrue(_) => todo!(),
+        Expr::IsNull(_) => todo!(),
+        Expr::IsNotNull(_) => todo!(),
+        Expr::IsDistinctFrom(_, _) => todo!(),
+        Expr::IsNotDistinctFrom(_, _) => todo!(),
+        Expr::InList { expr, list, negated } => todo!(),
+        Expr::InSubquery { expr, subquery, negated } => todo!(),
+        Expr::InUnnest { expr, array_expr, negated } => todo!(),
+        Expr::Between { expr, negated, low, high } => todo!(),
+        Expr::BinaryOp { left, op, right } => todo!(),
+        Expr::AnyOp(_) => todo!(),
+        Expr::AllOp(_) => todo!(),
+        Expr::UnaryOp { op, expr } => todo!(),
+        Expr::Cast { expr, data_type } => todo!(),
+        Expr::TryCast { expr, data_type } => todo!(),
+        Expr::Extract { field, expr } => todo!(),
+        Expr::Position { expr, r#in } => todo!(),
+        Expr::Substring { expr, substring_from, substring_for } => todo!(),
+        Expr::Trim { expr, trim_where } => todo!(),
+        Expr::Collate { expr, collation } => todo!(),
+        Expr::Nested(_) => todo!(),
+        Expr::Value(_) => todo!(),
+        Expr::TypedString { data_type, value } => todo!(),
+        Expr::MapAccess { column, keys } => todo!(),
+        Expr::Function(_) => todo!(),
+        Expr::Case { operand, conditions, results, else_result } => todo!(),
+        Expr::Exists(query) => {
+            if alias.is_none() {
+                // throw error here
+            } else {
+                result.insert(alias.unwrap().to_string(), TsFieldType::Boolean);
+            }
+        },
+        Expr::Subquery(_) => todo!(),
+        Expr::ListAgg(_) => todo!(),
+        Expr::GroupingSets(_) => todo!(),
+        Expr::Cube(_) => todo!(),
+        Expr::Rollup(_) => todo!(),
+        Expr::Tuple(_) => todo!(),
+        Expr::ArrayIndex { obj, indexes } => todo!(),
+        Expr::Array(_) => todo!(),
     }
 }
 
@@ -136,6 +179,7 @@ pub fn generate_ts_interface(
     for sql in &sql_ast {
         match sql {
             Statement::Query(query) => {
+                println!("checking query {:#?}", query);
                 let body = &query.body;
                 match body {
                     SetExpr::Select(select) => {
@@ -151,9 +195,14 @@ pub fn generate_ts_interface(
                                     .expect(format!("Default FROM table is not found from the query {query}").as_str());
                                     
                                     // Handles SQL Expression and appends result
-                                    handle_sql_expr(&unnamed_expr, &db_name, &table_name, &mut result, &db_conn);
-                                }
-                                _ => todo!(),
+                                    handle_sql_expr(&unnamed_expr, &db_name, &table_name, None, &mut result, &db_conn);
+                                },
+                                ExprWithAlias { expr, alias } => {
+                                    let alias = alias.to_string();
+                                    handle_sql_expr(&expr, &db_name, "", Some(alias.as_str()), &mut result, &db_conn);
+                                },
+                                QualifiedWildcard(_) => todo!(),
+                                Wildcard => todo!(),
                             }
                         }
                     }
