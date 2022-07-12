@@ -210,9 +210,6 @@ pub fn generate_ts_interface(
     };
     let query_name = get_query_name(&sql);
 
-    let mut result: HashMap<String, TsFieldType> = HashMap::new();
-    let mut params: HashMap<String, TsFieldType> = HashMap::new();
-
     let db_name = db_connection_config
         .db_name
         .clone()
@@ -241,9 +238,9 @@ pub fn generate_ts_interface(
                                         &db_name,
                                         &table_name,
                                         None,
-                                        &mut result,
+                                        &mut ts_query.result,
                                         &db_conn,
-                                    );
+                                    )?;
                                 }
                                 ExprWithAlias { expr, alias } => {
                                     let alias = alias.to_string();
@@ -252,9 +249,9 @@ pub fn generate_ts_interface(
                                         &db_name,
                                         "",
                                         Some(alias.as_str()),
-                                        &mut result,
+                                        &mut ts_query.result,
                                         &db_conn,
-                                    );
+                                    )?;
                                 }
                                 QualifiedWildcard(_) => todo!(),
                                 Wildcard => todo!(),
