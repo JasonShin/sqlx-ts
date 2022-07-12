@@ -21,7 +21,7 @@ impl fmt::Display for TsGeneratorError {
                 f,
                 "Missing alias when handling functions - query: {}",
                 query,
-            )
+            ),
         }
     }
 }

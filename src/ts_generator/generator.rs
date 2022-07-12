@@ -3,7 +3,7 @@ use crate::common::string_cases::ConvertCase;
 use crate::common::{config::Config, SQL};
 use crate::ts_generator::types::{TsFieldType, TsQuery};
 use regex::Regex;
-use sqlparser::ast::{ObjectName, TableWithJoins, Expr};
+use sqlparser::ast::{Expr, ObjectName, TableWithJoins};
 use sqlparser::ast::{
     SelectItem::{ExprWithAlias, QualifiedWildcard, UnnamedExpr, Wildcard},
     SetExpr, Statement,
@@ -13,7 +13,7 @@ use std::borrow::BorrowMut;
 use std::collections::HashMap;
 
 use super::errors::TsGeneratorError;
-use super::information_schema::{MySQLSchema};
+use super::information_schema::MySQLSchema;
 use super::types::DBConn;
 
 fn get_query_name(sql: &SQL) -> Result<String, TsGeneratorError> {
@@ -93,11 +93,7 @@ fn handle_sql_expr(
                 DBConn::MySQLPooledConn(conn) => {
                     // TODO: update the method to use Result
                     // TODO: We can also memoize this method
-                    let table_details = &mysql_schema.fetch_table(
-                        &db_name,
-                        &table_name,
-                        &conn,
-                    );
+                    let table_details = &mysql_schema.fetch_table(&db_name, &table_name, &conn);
                     if let Some(table_details) = table_details {
                         let field = table_details.get(&column_name).unwrap();
                         result.insert(column_name.clone(), field.field_type.clone());
@@ -105,20 +101,21 @@ fn handle_sql_expr(
                     Ok(())
                 }
             }
-        
-        },
-        Expr::IsTrue(query) |
-        Expr::IsFalse(query) |
-        Expr::IsNull(query) |
-        Expr::IsNotNull(query) => {
+        }
+        Expr::IsTrue(query)
+        | Expr::IsFalse(query)
+        | Expr::IsNull(query)
+        | Expr::IsNotNull(query) => {
             if alias.is_some() {
                 // throw error here
                 result.insert(alias.unwrap().to_string(), TsFieldType::Boolean);
                 Ok(())
             } else {
-                Err(TsGeneratorError::MissingAliasForFunctions(query.to_string()))
+                Err(TsGeneratorError::MissingAliasForFunctions(
+                    query.to_string(),
+                ))
             }
-        },
+        }
         Expr::Exists(query) => {
             // Handles all boolean return type methods
             if alias.is_some() {
@@ -126,18 +123,41 @@ fn handle_sql_expr(
                 result.insert(alias.unwrap().to_string(), TsFieldType::Boolean);
                 Ok(())
             } else {
-                Err(TsGeneratorError::MissingAliasForFunctions(query.to_string()))
+                Err(TsGeneratorError::MissingAliasForFunctions(
+                    query.to_string(),
+                ))
             }
-        },
+        }
         Expr::CompoundIdentifier(_) => todo!(),
-        Expr::JsonAccess { left, operator, right } => todo!(),
+        Expr::JsonAccess {
+            left,
+            operator,
+            right,
+        } => todo!(),
         Expr::CompositeAccess { expr, key } => todo!(),
         Expr::IsDistinctFrom(_, _) => todo!(),
         Expr::IsNotDistinctFrom(_, _) => todo!(),
-        Expr::InList { expr, list, negated } => todo!(),
-        Expr::InSubquery { expr, subquery, negated } => todo!(),
-        Expr::InUnnest { expr, array_expr, negated } => todo!(),
-        Expr::Between { expr, negated, low, high } => todo!(),
+        Expr::InList {
+            expr,
+            list,
+            negated,
+        } => todo!(),
+        Expr::InSubquery {
+            expr,
+            subquery,
+            negated,
+        } => todo!(),
+        Expr::InUnnest {
+            expr,
+            array_expr,
+            negated,
+        } => todo!(),
+        Expr::Between {
+            expr,
+            negated,
+            low,
+            high,
+        } => todo!(),
         Expr::BinaryOp { left, op, right } => todo!(),
         Expr::AnyOp(_) => todo!(),
         Expr::AllOp(_) => todo!(),
@@ -146,7 +166,11 @@ fn handle_sql_expr(
         Expr::TryCast { expr, data_type } => todo!(),
         Expr::Extract { field, expr } => todo!(),
         Expr::Position { expr, r#in } => todo!(),
-        Expr::Substring { expr, substring_from, substring_for } => todo!(),
+        Expr::Substring {
+            expr,
+            substring_from,
+            substring_for,
+        } => todo!(),
         Expr::Trim { expr, trim_where } => todo!(),
         Expr::Collate { expr, collation } => todo!(),
         Expr::Nested(_) => todo!(),
@@ -154,7 +178,12 @@ fn handle_sql_expr(
         Expr::TypedString { data_type, value } => todo!(),
         Expr::MapAccess { column, keys } => todo!(),
         Expr::Function(_) => todo!(),
-        Expr::Case { operand, conditions, results, else_result } => todo!(),
+        Expr::Case {
+            operand,
+            conditions,
+            results,
+            else_result,
+        } => todo!(),
         Expr::Subquery(_) => todo!(),
         Expr::ListAgg(_) => todo!(),
         Expr::GroupingSets(_) => todo!(),
@@ -188,7 +217,7 @@ pub fn generate_ts_interface(
         .db_name
         .clone()
         .expect("DB_NAME is required to generate Typescript type definitions");
-    
+
     for sql in &sql_ast {
         match sql {
             Statement::Query(query) => {
@@ -205,30 +234,47 @@ pub fn generate_ts_interface(
                                     .expect(format!("Default FROM table is not found from the query {query}").as_str());
                                     let table_name = get_table_name(default_table)
                                     .expect(format!("Default FROM table is not found from the query {query}").as_str());
-                                    
+
                                     // Handles SQL Expression and appends result
-                                    handle_sql_expr(&unnamed_expr, &db_name, &table_name, None, &mut result, &db_conn);
-                                },
+                                    handle_sql_expr(
+                                        &unnamed_expr,
+                                        &db_name,
+                                        &table_name,
+                                        None,
+                                        &mut result,
+                                        &db_conn,
+                                    );
+                                }
                                 ExprWithAlias { expr, alias } => {
                                     let alias = alias.to_string();
-                                    handle_sql_expr(&expr, &db_name, "", Some(alias.as_str()), &mut result, &db_conn);
-                                },
+                                    handle_sql_expr(
+                                        &expr,
+                                        &db_name,
+                                        "",
+                                        Some(alias.as_str()),
+                                        &mut result,
+                                        &db_conn,
+                                    );
+                                }
                                 QualifiedWildcard(_) => todo!(),
                                 Wildcard => todo!(),
                             }
                         }
                     }
                     SetExpr::Query(_) => todo!(),
-                    SetExpr::SetOperation { op, all, left, right } => todo!(),
+                    SetExpr::SetOperation {
+                        op,
+                        all,
+                        left,
+                        right,
+                    } => todo!(),
                     SetExpr::Values(_) => todo!(),
                     SetExpr::Insert(_) => todo!(),
                 }
-            },
-            _ => {},
+            }
+            _ => {}
         }
     }
-
-    println!("Checking results {:?}", result);
 
     Ok(())
 }
