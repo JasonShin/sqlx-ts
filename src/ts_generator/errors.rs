@@ -5,6 +5,7 @@ use std::fmt;
 pub enum TsGeneratorError {
     EmptyQueryNameFromAnnotation(String),
     EmptyQueryNameFromVarDecl,
+    MissingAliasForFunctions(String),
 }
 
 impl fmt::Display for TsGeneratorError {
@@ -13,9 +14,14 @@ impl fmt::Display for TsGeneratorError {
             Self::EmptyQueryNameFromAnnotation(query) => writeln!(
                 f,
                 "Failed to fetch query name from DB name annotation - query: {}",
-                query
+                query,
             ),
             Self::EmptyQueryNameFromVarDecl => todo!(),
+            Self::MissingAliasForFunctions(query) => writeln!(
+                f,
+                "Missing alias when handling functions - query: {}",
+                query,
+            )
         }
     }
 }
