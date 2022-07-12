@@ -1,5 +1,7 @@
 extern crate core;
 
+use std::path::PathBuf;
+
 use swc_common::MultiSpan;
 
 pub mod cli;
@@ -15,4 +17,5 @@ pub struct SQL {
     pub var_decl_name: Option<String>,
     pub query: String,
     pub span: MultiSpan,
+    pub file_path: PathBuf,
 }

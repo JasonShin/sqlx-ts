@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::common::SQL;
 use swc_common::MultiSpan;
 use swc_ecma_ast::{Expr, VarDeclarator};
@@ -19,6 +21,7 @@ pub fn get_sql_from_expr<'a>(
     expr: &Expr,
     span: &MultiSpan,
     import_alias: &String,
+    file_path: &PathBuf,
 ) -> Vec<SQL> {
     let mut sqls: Vec<SQL> = vec![];
     match &expr {
@@ -36,6 +39,7 @@ pub fn get_sql_from_expr<'a>(
                             var_decl_name: var_decl_name.to_owned(),
                             query: tpl_element.raw.to_string(),
                             span: span.clone(),
+                            file_path: file_path.clone(),
                         })
                         .collect();
 
@@ -55,13 +59,19 @@ pub fn get_sql_from_var_decl(
     var_declarator: &VarDeclarator,
     span: MultiSpan,
     import_alias: &String,
+    file_path: &PathBuf,
 ) -> Vec<SQL> {
     let mut bag_of_sqls: Vec<SQL> = vec![];
     let var_decl_name = get_var_decl_name(&var_declarator);
 
     if let Some(init) = &var_declarator.init {
-        let mut result =
-            get_sql_from_expr(&Some(var_decl_name), &*init.clone(), &span, import_alias);
+        let mut result = get_sql_from_expr(
+            &Some(var_decl_name),
+            &*init.clone(),
+            &span,
+            &import_alias,
+            &file_path,
+        );
         bag_of_sqls.append(&mut result);
     }
 
