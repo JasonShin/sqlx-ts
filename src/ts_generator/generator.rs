@@ -9,8 +9,8 @@ use sqlparser::ast::{
     SetExpr, Statement,
 };
 use sqlparser::{dialect::GenericDialect, parser::Parser};
-use std::borrow::BorrowMut;
 use std::collections::HashMap;
+use std::path::{Path, PathBuf};
 
 use super::errors::TsGeneratorError;
 use super::information_schema::MySQLSchema;
@@ -196,6 +196,25 @@ fn handle_sql_expr(
     }
 }
 
+pub fn get_generate_ts_file_name(file_path: &PathBuf) -> Result<(), TsGeneratorError> {
+    /*let file_path_str = file_path.to_str().unwrap();
+    let re = Regex::new(r"(./\w+)+(\w+.ts$)").unwrap();
+    let file_name_capture = re.captures(file_path_str);
+    if file_name_capture.is_none() {
+        return Err(TsGeneratorError::InvalidTypescriptFilePath(file_path.clone()));
+    }
+
+    // println!("captured {:?}", &file_name_capture.unwrap()[1]);
+    println!("captures {:?}", file_name_capture);*/
+    let path = file_path.parent().unwrap();
+    let file = file_path.file_name().unwrap();
+    let file_name = file.to_str().unwrap().split(".").next().unwrap();
+
+    let result = path.join(Path::new(format!("{file_name}.queries.ts").as_str()));
+    println!("path {:?}", result);
+    Ok(())
+}
+
 pub fn generate_ts_interface(
     sql: &SQL,
     db_connection_config: &DbConnectionConfig,
@@ -273,5 +292,7 @@ pub fn generate_ts_interface(
         }
     }
 
+    // generate path/file_name.queries.ts
+    get_generate_ts_file_name(&sql.file_path).unwrap();
     Ok(())
 }

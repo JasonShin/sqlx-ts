@@ -1,4 +1,5 @@
 use std::fmt;
+use std::path::PathBuf;
 
 // todo: change it to ts generator error
 #[derive(Debug)]
@@ -6,6 +7,7 @@ pub enum TsGeneratorError {
     EmptyQueryNameFromAnnotation(String),
     EmptyQueryNameFromVarDecl,
     MissingAliasForFunctions(String),
+    InvalidTypescriptFilePath(PathBuf),
 }
 
 impl fmt::Display for TsGeneratorError {
@@ -21,6 +23,11 @@ impl fmt::Display for TsGeneratorError {
                 f,
                 "Missing alias when handling functions - query: {}",
                 query,
+            ),
+            Self::InvalidTypescriptFilePath(path_buf) => writeln!(
+                f,
+                "Invalid Typescript file path - file path: {:?}",
+                path_buf,
             ),
         }
     }

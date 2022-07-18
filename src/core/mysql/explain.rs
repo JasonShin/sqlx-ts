@@ -10,24 +10,25 @@ use swc_common::errors::Handler;
 use swc_ecma_ast::op;
 
 pub fn explain(sql: &SQL, config: &Config, handler: &Handler) -> bool {
-    let connection = &config.get_correct_connection(&sql.query);
+    let connection_config = &config.get_correct_connection(&sql.query);
     let mut failed = false;
 
     let span = sql.span.to_owned();
     let explain_query = format!("EXPLAIN {}", sql.query);
 
-    let db_pass = &connection.db_pass;
-    let db_name = &connection.db_name;
+    let db_pass = &connection_config.db_pass;
+    let db_name = &connection_config.db_name;
     let opts = OptsBuilder::new()
-        .ip_or_hostname(Some(&connection.db_host))
-        .tcp_port(connection.db_port.clone())
-        .user(Some(&connection.db_user))
+        .ip_or_hostname(Some(&connection_config.db_host))
+        .tcp_port(connection_config.db_port.clone())
+        .user(Some(&connection_config.db_user))
         .pass(db_pass.clone())
         .db_name(db_name.clone());
     let mut conn = Conn::new(opts).unwrap();
+
     generate_ts_interface(
         &sql,
-        &connection,
+        &connection_config,
         &DBConn::MySQLPooledConn(&mut RefCell::new(&mut conn)),
     );
 
