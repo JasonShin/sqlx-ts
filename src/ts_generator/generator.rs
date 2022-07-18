@@ -1,3 +1,8 @@
+use std::fs::File;
+use std::collections::HashMap;
+use std::io::Write;
+use std::path::{Path, PathBuf};
+
 use crate::common::config::DbConnectionConfig;
 use crate::common::string_cases::ConvertCase;
 use crate::common::SQL;
@@ -5,8 +10,6 @@ use crate::ts_generator::sql_parser::handle_sql_statement;
 use crate::ts_generator::types::TsQuery;
 use regex::Regex;
 use sqlparser::{dialect::GenericDialect, parser::Parser};
-use std::collections::HashMap;
-use std::path::{Path, PathBuf};
 
 use super::errors::TsGeneratorError;
 use super::types::DBConn;
@@ -77,5 +80,7 @@ pub fn generate_ts_interface(
     // generate path/file_name.queries.ts
     let query_ts_file_path = get_query_ts_file_path(&sql.file_path).unwrap();
     // write ts_query to the query_ts_file_path
+    let mut file_to_write = File::create(query_ts_file_path).unwrap();
+    file_to_write.write_all(ts_query.to_string().as_ref()).unwrap();
     Ok(())
 }
