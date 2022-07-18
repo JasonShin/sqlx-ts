@@ -11,7 +11,7 @@ pub mod string_cases;
 pub mod types;
 
 // Source Parser
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SQL {
     /// Note that not all sql`` statements belong to a variable expression, therefore we must store it as an option
     pub var_decl_name: Option<String>,

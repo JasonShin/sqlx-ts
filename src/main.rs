@@ -38,6 +38,7 @@ fn main() {
         .into_iter()
         .map(|file_path| {
             let (sqls, handler) = parse_source(&file_path);
+            // let sqls_by_file_path = sqls.into_iter().reduce(||)
             execute(&sqls, &handler, &cli_args)
         })
         .collect();
