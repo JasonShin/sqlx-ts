@@ -1,12 +1,13 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt::{self};
-use std::rc::Rc;
 
-use mysql::Conn;
+use mysql::Conn as MySQLConn;
+use postgres::Client as PostgresConn;
 
 pub enum DBConn<'a> {
-    MySQLPooledConn(&'a mut RefCell<&'a mut Conn>),
+    MySQLPooledConn(&'a mut RefCell<&'a mut MySQLConn>),
+    PostgresConn(&'a mut RefCell<&'a mut PostgresConn>),
 }
 
 #[derive(Debug, Clone, Copy)]

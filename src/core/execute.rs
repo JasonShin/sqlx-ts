@@ -4,24 +4,41 @@ use crate::common::types::DatabaseType;
 use crate::common::SQL;
 use crate::core::mysql::explain as mysql_explain;
 use crate::core::postgres::explain as postgres_explain;
+use crate::ts_generator::generator::get_query_ts_file_path;
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::Write;
 use std::path::PathBuf;
 use swc_common::errors::Handler;
+
+pub fn execute_mysql() {}
+
+pub fn execute_postgres() {}
 
 pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler, cli_args: &Cli) -> bool {
     // TODO: later we will add mysql_explain, sqlite_explain depending on the database type
     let mut failed = false;
 
-    for (_, sqls) in queries {
+    for (file_path, sqls) in queries {
+        let mut sqls_to_write: Vec<String> = vec![];
         for sql in sqls {
             let config = Config::new(cli_args.to_owned());
             let connection = &config.get_correct_connection(&sql.query);
 
-            failed = match connection.db_type {
+            let (explain_failed, ts_query) = match connection.db_type {
                 DatabaseType::Postgres => postgres_explain::explain(&sql, &config, &handler),
                 DatabaseType::Mysql => mysql_explain::explain(&sql, &config, &handler),
-            }
+            };
+
+            failed = explain_failed;
+            sqls_to_write.push(ts_query.to_string());
         }
+
+        let query_ts_file_path = get_query_ts_file_path(&file_path).unwrap();
+        let mut file_to_write = File::create(query_ts_file_path).unwrap();
+        let mut sqls_to_write = sqls_to_write.join("\n");
+
+        file_to_write.write_all(sqls_to_write.as_ref()).unwrap();
     }
 
     failed

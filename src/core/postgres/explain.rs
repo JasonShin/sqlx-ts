@@ -1,6 +1,9 @@
 use crate::common::config::{Config, DbConnectionConfig};
 use crate::common::SQL;
+use crate::ts_generator::generator::generate_ts_interface;
+use crate::ts_generator::types::{DBConn, TsQuery};
 use postgres::{Client, NoTls};
+use std::cell::RefCell;
 use swc_common::errors::Handler;
 
 fn get_postgres_cred(conn: &DbConnectionConfig) -> String {
@@ -13,7 +16,7 @@ fn get_postgres_cred(conn: &DbConnectionConfig) -> String {
     )
 }
 
-pub fn explain<'a>(sql: &SQL, config: &Config, handler: &Handler) -> bool {
+pub fn explain<'a>(sql: &SQL, config: &Config, handler: &Handler) -> (bool, TsQuery) {
     let connection = &config.get_correct_connection(&sql.query);
 
     let mut failed = false;
@@ -30,5 +33,12 @@ pub fn explain<'a>(sql: &SQL, config: &Config, handler: &Handler) -> bool {
         failed = true;
     }
 
-    failed
+    let ts_query = generate_ts_interface(
+        &sql,
+        &connection,
+        &DBConn::PostgresConn(&mut RefCell::new(&mut conn)),
+    )
+    .unwrap();
+
+    (failed, ts_query)
 }

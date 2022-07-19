@@ -3,13 +3,13 @@ use std::cell::RefCell;
 use crate::common::config::Config;
 use crate::common::SQL;
 use crate::ts_generator::generator::generate_ts_interface;
-use crate::ts_generator::types::DBConn;
+use crate::ts_generator::types::{DBConn, TsQuery};
 use mysql::prelude::*;
 use mysql::*;
 use swc_common::errors::Handler;
 use swc_ecma_ast::op;
 
-pub fn explain(sql: &SQL, config: &Config, handler: &Handler) -> bool {
+pub fn explain(sql: &SQL, config: &Config, handler: &Handler) -> (bool, TsQuery) {
     let connection_config = &config.get_correct_connection(&sql.query);
     let mut failed = false;
 
@@ -26,12 +26,6 @@ pub fn explain(sql: &SQL, config: &Config, handler: &Handler) -> bool {
         .db_name(db_name.clone());
     let mut conn = Conn::new(opts).unwrap();
 
-    generate_ts_interface(
-        &sql,
-        &connection_config,
-        &DBConn::MySQLPooledConn(&mut RefCell::new(&mut conn)),
-    );
-
     let result: Result<Vec<Row>> = conn.query(explain_query);
 
     if let Err(err) = result {
@@ -39,5 +33,12 @@ pub fn explain(sql: &SQL, config: &Config, handler: &Handler) -> bool {
         failed = true;
     }
 
-    failed
+    let ts_query = generate_ts_interface(
+        &sql,
+        &connection_config,
+        &DBConn::MySQLPooledConn(&mut RefCell::new(&mut conn)),
+    )
+    .unwrap();
+
+    (failed, ts_query)
 }

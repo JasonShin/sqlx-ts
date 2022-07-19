@@ -57,6 +57,7 @@ pub fn handle_sql_expr(
                     }
                     Ok(())
                 }
+                _ => todo!(),
             }
         }
         Expr::IsTrue(query)

@@ -17,5 +17,4 @@ pub struct SQL {
     pub var_decl_name: Option<String>,
     pub query: String,
     pub span: MultiSpan,
-    pub file_path: PathBuf,
 }

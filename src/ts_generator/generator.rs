@@ -1,6 +1,4 @@
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use crate::common::config::DbConnectionConfig;
@@ -59,8 +57,9 @@ pub fn generate_ts_interface(
     sql: &SQL,
     db_connection_config: &DbConnectionConfig,
     db_conn: &DBConn,
-) -> Result<(), TsGeneratorError> {
+) -> Result<TsQuery, TsGeneratorError> {
     let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
+
     let sql_ast = Parser::parse_sql(&dialect, &sql.query).unwrap();
     let mut ts_query = TsQuery {
         name: get_query_name(&sql)?,
@@ -77,12 +76,5 @@ pub fn generate_ts_interface(
         handle_sql_statement(&mut ts_query, &sql_statement, db_name.as_str(), &db_conn)?;
     }
 
-    // generate path/file_name.queries.ts
-    let query_ts_file_path = get_query_ts_file_path(&sql.file_path).unwrap();
-    // write ts_query to the query_ts_file_path
-    let mut file_to_write = File::create(query_ts_file_path).unwrap();
-    file_to_write
-        .write_all(ts_query.to_string().as_ref())
-        .unwrap();
-    Ok(())
+    Ok(ts_query)
 }
