@@ -11,10 +11,6 @@ use std::io::Write;
 use std::path::PathBuf;
 use swc_common::errors::Handler;
 
-pub fn execute_mysql() {}
-
-pub fn execute_postgres() {}
-
 pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler, cli_args: &Cli) -> bool {
     // TODO: later we will add mysql_explain, sqlite_explain depending on the database type
     let mut failed = false;

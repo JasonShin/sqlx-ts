@@ -17,7 +17,7 @@ use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 use tag::{get_sql_from_expr, get_sql_from_var_decl};
 
 fn insert_or_append_sqls(
-    mut sqls_container: &mut HashMap<PathBuf, Vec<SQL>>,
+    sqls_container: &mut HashMap<PathBuf, Vec<SQL>>,
     sqls: &Vec<SQL>,
     file_path: &PathBuf,
 ) {
