@@ -12,6 +12,14 @@ FROM items
 WHERE id = $id;
 `
 
+const test_world2 = sql`
+SELECT
+    id,
+    EXISTS(SELECT 1 FROM items WHERE points > 0) AS hmm
+FROM items
+WHERE id = $id;
+`
+
 /*
 const test2 = sql`
     INSERT INTO items (food_type, time_takes_to_cook, table_id, points) VALUES $$items(food_type, time_takes_to_cook, table_id, points);

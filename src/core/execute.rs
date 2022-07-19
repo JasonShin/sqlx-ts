@@ -6,7 +6,7 @@ use crate::core::mysql::explain as mysql_explain;
 use crate::core::postgres::explain as postgres_explain;
 use crate::ts_generator::generator::get_query_ts_file_path;
 use std::collections::HashMap;
-use std::fs::File;
+use std::fs::{remove_file, File};
 use std::io::Write;
 use std::path::PathBuf;
 use swc_common::errors::Handler;
@@ -35,6 +35,9 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler, cli_args
         }
 
         let query_ts_file_path = get_query_ts_file_path(&file_path).unwrap();
+        if query_ts_file_path.exists() {
+            remove_file(&query_ts_file_path).unwrap();
+        }
         let mut file_to_write = File::create(query_ts_file_path).unwrap();
         let mut sqls_to_write = sqls_to_write.join("\n");
 
