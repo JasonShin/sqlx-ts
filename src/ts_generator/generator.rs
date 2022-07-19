@@ -1,5 +1,5 @@
-use std::fs::File;
 use std::collections::HashMap;
+use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
@@ -81,6 +81,8 @@ pub fn generate_ts_interface(
     let query_ts_file_path = get_query_ts_file_path(&sql.file_path).unwrap();
     // write ts_query to the query_ts_file_path
     let mut file_to_write = File::create(query_ts_file_path).unwrap();
-    file_to_write.write_all(ts_query.to_string().as_ref()).unwrap();
+    file_to_write
+        .write_all(ts_query.to_string().as_ref())
+        .unwrap();
     Ok(())
 }

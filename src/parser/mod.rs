@@ -1,8 +1,8 @@
 mod import;
 mod tag;
 
-use std::{borrow::BorrowMut, fs, path::PathBuf};
 use std::collections::HashMap;
+use std::{borrow::BorrowMut, fs, path::PathBuf};
 
 use crate::common::SQL;
 use crate::parser::import::find_sqlx_import_alias;
@@ -51,7 +51,8 @@ fn recurse_and_find_sql(
         Stmt::Return(rtn) => {
             if let Some(expr) = &rtn.arg {
                 let span: MultiSpan = rtn.span.into();
-                let sqls = get_sql_from_expr(&None, &*expr.clone(), &span, &import_alias, &file_path);
+                let sqls =
+                    get_sql_from_expr(&None, &*expr.clone(), &span, &import_alias, &file_path);
                 insert_or_append_sqls(&mut sqls_container, &sqls, &file_path);
             }
             None
