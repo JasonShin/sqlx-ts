@@ -19,19 +19,19 @@ id: number;
 
 
             
-            export interface ITestWorld2Params {
+            export interface ITestquery2Params {
                 
             }
         ;
             
-            export interface ITestWorld2Result {
-                hmm: boolean;
-id: number;
+            export interface ITestquery2Result {
+                id: number;
+hmm: boolean;
             }
         ;
             
-            export interface ITestWorld2Query {
-                params: ITestWorld2Params;
-                result: ITestWorld2Result;
+            export interface ITestquery2Query {
+                params: ITestquery2Params;
+                result: ITestquery2Result;
             }
         ;

@@ -30,6 +30,7 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler, cli_args
             sqls_to_write.push(ts_query.to_string());
         }
 
+        // Finally writes query typing files
         let query_ts_file_path = get_query_ts_file_path(&file_path).unwrap();
         if query_ts_file_path.exists() {
             remove_file(&query_ts_file_path).unwrap();

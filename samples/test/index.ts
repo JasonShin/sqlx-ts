@@ -1,6 +1,7 @@
 import { sql } from 'sqlx-ts'
 
-const test_world = sql`
+// SELECT query with a query name as an annotation
+const testQuery = sql`
 /**
  *  @name: some query
  *  @db: default
@@ -12,7 +13,8 @@ FROM items
 WHERE id = $id;
 `
 
-const test_world2 = sql`
+// SELECT query without a query name as an annotation
+const testQuery2 = sql`
 SELECT
     id,
     EXISTS(SELECT 1 FROM items WHERE points > 0) AS hmm
