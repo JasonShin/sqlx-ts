@@ -23,6 +23,10 @@ WHERE id = $id;
 `
 
 /*
+const testInsert = sql`
+    INSERT INTO items (food_type, time_takes_to_cook, table_id, points) VALUES (?, ?, ?, ?);
+`
+
 const test2 = sql`
     INSERT INTO items (food_type, time_takes_to_cook, table_id, points) VALUES $$items(food_type, time_takes_to_cook, table_id, points);
 `

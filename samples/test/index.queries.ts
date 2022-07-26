@@ -6,8 +6,8 @@
         ;
             
             export interface ISomeQueryResult {
-                hmm: boolean;
-id: number;
+                id: number;
+hmm: boolean;
             }
         ;
             
@@ -33,5 +33,23 @@ hmm: boolean;
             export interface ITestquery2Query {
                 params: ITestquery2Params;
                 result: ITestquery2Result;
+            }
+        ;
+
+
+            
+            export interface ITestinsertParams {
+                
+            }
+        ;
+            
+            export interface ITestinsertResult {
+                
+            }
+        ;
+            
+            export interface ITestinsertQuery {
+                params: ITestinsertParams;
+                result: ITestinsertResult;
             }
         ;
