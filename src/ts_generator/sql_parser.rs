@@ -96,9 +96,11 @@ pub fn handle_sql_expr(
                 result.insert(alias.unwrap().to_string(), TsFieldType::Any);
                 Ok(())
             } else {
-                Err(TsGeneratorError::MissingAliasForFunctions(operator.to_string()))
+                Err(TsGeneratorError::MissingAliasForFunctions(
+                    operator.to_string(),
+                ))
             }
-        },
+        }
         Expr::CompositeAccess { expr, key } => todo!(),
         Expr::IsDistinctFrom(_, _) => todo!(),
         Expr::IsNotDistinctFrom(_, _) => todo!(),
