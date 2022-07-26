@@ -1,4 +1,16 @@
 {
+  "transforms": {
+    "enabled": true,
+    "convertToCamelCaseColumnName": true,
+    "modes": [
+      {
+        "mode": "ts",
+        "failOnError": true,
+        "include": "**/*.ts",
+        "emitTemplate": "{{dir}}/{{name}}.queries.ts"
+      }
+    ]
+  },
   "default": {
     "DB_TYPE": "postgres",
     "DB_HOST": "127.0.0.1",
