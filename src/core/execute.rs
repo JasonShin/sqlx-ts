@@ -19,7 +19,6 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler, cli_args
         let mut sqls_to_write: Vec<String> = vec![];
         for sql in sqls {
             let config = Config::new(cli_args.to_owned());
-            println!("checking config {:?}", config);
             let connection = &config.get_correct_connection(&sql.query);
 
             let (explain_failed, ts_query) = match connection.db_type {
