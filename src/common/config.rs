@@ -10,6 +10,19 @@ use std::path::PathBuf;
 use std::str::FromStr;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SqlxConfig {
+    transforms: Option<TransformConfig>,
+    connections: HashMap<String, DbConnectionConfig>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct TransformConfig {
+    enabled: bool,
+    #[serde(rename = "convertToCamelCaseColumnName")]
+    convert_to_camel_case_column_name: bool,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DbConnectionConfig {
     #[serde(rename = "DB_TYPE")]
     pub db_type: DatabaseType,
@@ -33,6 +46,7 @@ pub struct DbConnectionConfig {
 pub struct Config {
     pub cli_args: Cli,
     pub dotenv: Dotenv,
+    pub transformation_config: Option<TransformConfig>,
     pub connections: HashMap<String, DbConnectionConfig>,
 }
 
@@ -41,34 +55,33 @@ impl Config {
         let cli_args = &cli_args;
         let dotenv = Dotenv::new();
 
+        let (transformation_config, connections) = Self::build_configs(&cli_args, &dotenv);
+
         Config {
             dotenv: dotenv.clone(),
             cli_args: cli_args.to_owned(),
-            connections: Self::build_connection_configs(&cli_args, &dotenv),
+            connections,
+            transformation_config,
         }
     }
 
     /// Build the initial connection config to be used as a HashMap
-    fn build_connection_configs(
+    fn build_configs(
         cli_args: &Cli,
         dotenv: &Dotenv,
-    ) -> HashMap<String, DbConnectionConfig> {
+    ) -> (Option<TransformConfig>, HashMap<String, DbConnectionConfig>) {
         let default_config_path = PathBuf::from_str(".sqlxrc.json").unwrap();
         let file_config_path = &cli_args.config.clone().unwrap_or(default_config_path);
-        let file_based_config = fs::read_to_string(&file_config_path);
+        let file_based_config = fs::read_to_string(&file_config_path).unwrap();
 
-        let mut connections: HashMap<String, DbConnectionConfig> = HashMap::new();
-
-        if let Ok(file_based_config) = file_based_config {
-            connections = serde_json::from_str(&file_based_config).unwrap();
-        }
-
+        let configs = serde_json::from_str::<SqlxConfig>(&file_based_config).unwrap();
+        let mut connections = configs.connections;
         connections.insert(
             "default".to_string(),
             Self::get_default_connection_config(&cli_args, &dotenv, &connections.get("default")),
         );
 
-        connections
+        (configs.transforms, connections)
     }
 
     /// Figures out the default connection, default connection must exist for sqlx-ts to work
