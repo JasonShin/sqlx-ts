@@ -33,10 +33,12 @@ pub fn explain<'a>(sql: &SQL, config: &Config, handler: &Handler) -> (bool, TsQu
         failed = true;
     }
 
+    let transformation_config = &config.transformation_config;
     let ts_query = generate_ts_interface(
         &sql,
         &connection,
         &DBConn::PostgresConn(&mut RefCell::new(&mut conn)),
+        &transformation_config,
     )
     .unwrap();
 

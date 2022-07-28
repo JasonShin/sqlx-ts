@@ -29,7 +29,6 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler, cli_args
 
             failed = explain_failed;
 
-            // TODO: get convertToCamelCase work, it's from transformation_config options
             if transformation_config.is_some() {
                 sqls_to_write.push(ts_query.to_string());
             }

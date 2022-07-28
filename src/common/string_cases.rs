@@ -34,6 +34,12 @@ mod tests {
     use super::*;
 
     #[test]
+    fn words_test() {
+        let test_string = "a b_c D/e+2-123";
+        words(test_string.to_string())
+    }
+
+    #[test]
     fn pascal_case() {
         let test_string = "hello world".to_string();
         assert_eq!(test_string.to_pascal_case(), "HelloWorld");

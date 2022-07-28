@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
-use crate::common::config::DbConnectionConfig;
+use crate::common::config::{DbConnectionConfig, TransformConfig};
 use crate::common::string_cases::ConvertCase;
 use crate::common::SQL;
 use crate::ts_generator::sql_parser::handle_sql_statement;
@@ -57,6 +57,7 @@ pub fn generate_ts_interface(
     sql: &SQL,
     db_connection_config: &DbConnectionConfig,
     db_conn: &DBConn,
+    transformation_config: &Option<TransformConfig>,
 ) -> Result<TsQuery, TsGeneratorError> {
     let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
 
@@ -73,7 +74,13 @@ pub fn generate_ts_interface(
         .expect("DB_NAME is required to generate Typescript type definitions");
 
     for sql_statement in &sql_ast {
-        handle_sql_statement(&mut ts_query, &sql_statement, db_name.as_str(), &db_conn)?;
+        handle_sql_statement(
+            &mut ts_query,
+            &sql_statement,
+            db_name.as_str(),
+            &db_conn,
+            &transformation_config,
+        )?;
     }
 
     Ok(ts_query)

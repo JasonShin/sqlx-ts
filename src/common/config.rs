@@ -56,9 +56,13 @@ impl Config {
         let dotenv = Dotenv::new();
 
         let (transformation_config, connections) = Self::build_configs(&cli_args, &dotenv);
-        let transformation_config = transformation_config
-            .clone()
-            .and_then(|config| if config.enabled { Some(config.clone()) } else { None });
+        let transformation_config = transformation_config.clone().and_then(|config| {
+            if config.enabled {
+                Some(config.clone())
+            } else {
+                None
+            }
+        });
 
         Config {
             dotenv: dotenv.clone(),

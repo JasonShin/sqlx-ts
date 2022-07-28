@@ -1,6 +1,8 @@
+use crate::common::config::TransformConfig;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::information_schema::MySQLSchema;
 use crate::ts_generator::types::{DBConn, TsFieldType, TsQuery};
+use convert_case::{Case, Casing};
 use sqlparser::ast::SelectItem::{ExprWithAlias, QualifiedWildcard, UnnamedExpr};
 use sqlparser::ast::{Expr, ObjectName, SetExpr, Statement, TableWithJoins};
 use std::collections::HashMap;
@@ -32,6 +34,14 @@ pub fn get_table_name(table_with_join: &TableWithJoins) -> Option<String> {
     }
 }
 
+pub fn format_column_name(column_name: String, config: &Option<TransformConfig>) -> String {
+    let config = config.clone();
+    if config.is_some() && config.unwrap().convert_to_camel_case_column_name {
+        return column_name.to_case(Case::Camel);
+    }
+    column_name
+}
+
 pub fn handle_sql_expr(
     expr: &Expr,
     db_name: &str,
@@ -39,12 +49,13 @@ pub fn handle_sql_expr(
     alias: Option<&str>,
     result: &mut HashMap<String, TsFieldType>,
     db_conn: &DBConn,
+    transformation_config: &Option<TransformConfig>,
 ) -> Result<(), TsGeneratorError> {
     let mysql_schema = MySQLSchema::new();
 
     match expr {
         Expr::Identifier(ident) => {
-            let column_name = ident.value.to_string();
+            let column_name = format_column_name(ident.value.to_string(), transformation_config);
 
             match &db_conn {
                 DBConn::MySQLPooledConn(conn) => {
@@ -64,8 +75,9 @@ pub fn handle_sql_expr(
         | Expr::IsNull(query)
         | Expr::IsNotNull(query) => {
             if alias.is_some() {
+                let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
                 // throw error here
-                result.insert(alias.unwrap().to_string(), TsFieldType::Boolean);
+                result.insert(alias, TsFieldType::Boolean);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(
@@ -76,8 +88,9 @@ pub fn handle_sql_expr(
         Expr::Exists(query) => {
             // Handles all boolean return type methods
             if alias.is_some() {
+                let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
                 // throw error here
-                result.insert(alias.unwrap().to_string(), TsFieldType::Boolean);
+                result.insert(alias, TsFieldType::Boolean);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(
@@ -92,7 +105,8 @@ pub fn handle_sql_expr(
             right,
         } => {
             if alias.is_some() {
-                result.insert(alias.unwrap().to_string(), TsFieldType::Any);
+                let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
+                result.insert(alias, TsFieldType::Any);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(
@@ -167,6 +181,7 @@ pub fn handle_sql_statement(
     sql_statement: &Statement,
     db_name: &str,
     db_conn: &DBConn,
+    transformation_config: &Option<TransformConfig>,
 ) -> Result<(), TsGeneratorError> {
     match sql_statement {
         Statement::Query(query) => {
@@ -200,6 +215,7 @@ pub fn handle_sql_statement(
                                     None,
                                     &mut ts_query.result,
                                     &db_conn,
+                                    &transformation_config,
                                 )?;
                             }
                             ExprWithAlias { expr, alias } => {
@@ -211,6 +227,7 @@ pub fn handle_sql_statement(
                                     Some(alias.as_str()),
                                     &mut ts_query.result,
                                     &db_conn,
+                                    &transformation_config,
                                 )?;
                             }
                             QualifiedWildcard(_) => todo!(),
