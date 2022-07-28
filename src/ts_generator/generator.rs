@@ -2,10 +2,10 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 use crate::common::config::{DbConnectionConfig, TransformConfig};
-use crate::common::string_cases::ConvertCase;
 use crate::common::SQL;
 use crate::ts_generator::sql_parser::handle_sql_statement;
 use crate::ts_generator::types::TsQuery;
+use convert_case::{Case, Casing};
 use regex::Regex;
 use sqlparser::{dialect::GenericDialect, parser::Parser};
 
@@ -32,13 +32,13 @@ pub fn get_query_name(sql: &SQL) -> Result<String, TsGeneratorError> {
                 sql.query.to_string(),
             ));
         }
-        return Ok(query_name.to_pascal_case());
+        return Ok(query_name.to_case(Case::Pascal));
     }
 
     let var_decl_name = var_decl_name.clone();
 
     if let Some(var_decl_name) = var_decl_name {
-        return Ok(var_decl_name.to_pascal_case());
+        return Ok(var_decl_name.to_case(Case::Pascal));
     }
 
     Err(TsGeneratorError::EmptyQueryNameFromVarDecl)

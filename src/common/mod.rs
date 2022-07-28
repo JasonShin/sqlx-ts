@@ -7,7 +7,6 @@ use swc_common::MultiSpan;
 pub mod cli;
 pub mod config;
 pub mod dotenv;
-pub mod string_cases;
 pub mod types;
 
 // Source Parser
