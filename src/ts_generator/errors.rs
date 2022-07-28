@@ -1,7 +1,6 @@
 use std::fmt;
 use std::path::PathBuf;
 
-// todo: change it to ts generator error
 #[derive(Debug)]
 pub enum TsGeneratorError {
     EmptyQueryNameFromAnnotation(String),

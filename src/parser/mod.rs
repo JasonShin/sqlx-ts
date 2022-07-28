@@ -233,7 +233,6 @@ pub fn parse_source(path: &PathBuf) -> (HashMap<PathBuf, Vec<SQL>>, Handler) {
     for item in &_module.body {
         match item {
             ModuleItem::Stmt(stmt) => {
-                // TODO: maybe have a main mutable array and pass it to the recurse method
                 recurse_and_find_sql(&mut sqls, &stmt, &import_alias, &path);
             }
             _ => {}

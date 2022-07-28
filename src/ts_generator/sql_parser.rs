@@ -48,7 +48,6 @@ pub fn handle_sql_expr(
 
             match &db_conn {
                 DBConn::MySQLPooledConn(conn) => {
-                    // TODO: update the method to use Result
                     // TODO: We can also memoize this method
                     let table_details = &mysql_schema.fetch_table(&db_name, &table_name, &conn);
                     if let Some(table_details) = table_details {

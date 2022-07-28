@@ -11,15 +11,15 @@ use std::str::FromStr;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct SqlxConfig {
-    transforms: Option<TransformConfig>,
-    connections: HashMap<String, DbConnectionConfig>,
+    pub transforms: Option<TransformConfig>,
+    pub connections: HashMap<String, DbConnectionConfig>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct TransformConfig {
-    enabled: bool,
+    pub enabled: bool,
     #[serde(rename = "convertToCamelCaseColumnName")]
-    convert_to_camel_case_column_name: bool,
+    pub convert_to_camel_case_column_name: bool,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -56,6 +56,9 @@ impl Config {
         let dotenv = Dotenv::new();
 
         let (transformation_config, connections) = Self::build_configs(&cli_args, &dotenv);
+        let transformation_config = transformation_config
+            .clone()
+            .and_then(|config| if config.enabled { Some(config.clone()) } else { None });
 
         Config {
             dotenv: dotenv.clone(),
