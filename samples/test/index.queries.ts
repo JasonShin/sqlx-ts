@@ -6,8 +6,8 @@
         ;
             
             export interface ISomeQueryResult {
-                hmm: boolean;
-id: number;
+                id: number;
+testName: boolean;
             }
         ;
             

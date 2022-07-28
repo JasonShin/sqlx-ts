@@ -8,7 +8,7 @@ const testQuery = sql`
  **/
 SELECT
     id,
-    EXISTS(SELECT 1 FROM items WHERE points > 0) AS hmm
+    EXISTS(SELECT 1 FROM items WHERE points > 0) AS test_name
 FROM items
 WHERE id = $id;
 `
