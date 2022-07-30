@@ -84,35 +84,35 @@ impl fmt::Display for TsQuery {
         let result_str = self.fmt_attributes_map(f, &self.result);
 
         let params = format!(
-            r"
-            export interface I{name}Params {{
-                {params_str}
-            }}
-        "
+r"
+export interface I{name}Params {{
+    {params_str}
+}};
+"
         );
 
         let result = format!(
-            r"
-            export interface I{name}Result {{
-                {result_str}
-            }}
-        "
+r"
+export interface I{name}Result {{
+    {result_str}
+}};
+"
         );
 
         let query = format!(
-            r"
-            export interface I{name}Query {{
-                params: I{name}Params;
-                result: I{name}Result;
-            }}
-        "
+r"
+export interface I{name}Query {{
+    params: I{name}Params;
+    result: I{name}Result;
+}};
+"
         );
 
         let final_code = format!(
-            r"
-            {params};
-            {result};
-            {query};"
+r"
+{params}
+{result}
+{query}"
         );
 
         writeln!(f, "{}", final_code)
