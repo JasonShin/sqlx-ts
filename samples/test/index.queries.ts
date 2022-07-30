@@ -19,19 +19,37 @@ testName: boolean;
 
 
             
-            export interface ITestquery2Params {
+            export interface ITestQuery2Params {
                 
             }
         ;
             
-            export interface ITestquery2Result {
+            export interface ITestQuery2Result {
                 id: number;
 hmm: boolean;
             }
         ;
             
-            export interface ITestquery2Query {
-                params: ITestquery2Params;
-                result: ITestquery2Result;
+            export interface ITestQuery2Query {
+                params: ITestQuery2Params;
+                result: ITestQuery2Result;
+            }
+        ;
+
+
+            
+            export interface ITestQueryInListParams {
+                
+            }
+        ;
+            
+            export interface ITestQueryInListResult {
+                testTest: boolean | null;
+            }
+        ;
+            
+            export interface ITestQueryInListQuery {
+                params: ITestQueryInListParams;
+                result: ITestQueryInListResult;
             }
         ;

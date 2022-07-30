@@ -17,6 +17,7 @@ pub enum TsFieldType {
     Number,
     Boolean,
     Object,
+    Null,
     Any,
 }
 
@@ -28,6 +29,7 @@ impl fmt::Display for TsFieldType {
             TsFieldType::String => write!(f, "{}", "string".to_string()),
             TsFieldType::Object => write!(f, "{}", "object".to_string()),
             TsFieldType::Any => write!(f, "{}", "any".to_string()),
+            TsFieldType::Null => write!(f, "{}", "null".to_string()),
         }
     }
 }
@@ -49,19 +51,26 @@ impl TsFieldType {
 
 pub struct TsQuery {
     pub name: String,
-    pub params: HashMap<String, TsFieldType>,
-    pub result: HashMap<String, TsFieldType>,
+    pub params: HashMap<String, Vec<TsFieldType>>,
+    pub result: HashMap<String, Vec<TsFieldType>>,
 }
 
 impl TsQuery {
     fn fmt_attributes_map(
         &self,
         f: &mut fmt::Formatter<'_>,
-        attrs_map: &HashMap<String, TsFieldType>,
+        attrs_map: &HashMap<String, Vec<TsFieldType>>,
     ) -> String {
         let result: Vec<String> = attrs_map
             .into_iter()
-            .map(|(name, data_type)| format!("{name}: {data_type};"))
+            .map(|(name, data_type)| {
+                let data_types = data_type
+                    .into_iter()
+                    .map(|ts_field_type| ts_field_type.to_string())
+                    .collect::<Vec<String>>()
+                    .join(" | ");
+                format!("{name}: {data_types};")
+            })
             .collect();
 
         format!("{}", result.join("\n").to_string())

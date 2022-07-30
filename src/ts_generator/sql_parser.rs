@@ -47,7 +47,7 @@ pub fn handle_sql_expr(
     db_name: &str,
     table_name: &str,
     alias: Option<&str>,
-    result: &mut HashMap<String, TsFieldType>,
+    result: &mut HashMap<String, Vec<TsFieldType>>,
     db_conn: &DBConn,
     transformation_config: &Option<TransformConfig>,
 ) -> Result<(), TsGeneratorError> {
@@ -63,10 +63,11 @@ pub fn handle_sql_expr(
                     let table_details = &mysql_schema.fetch_table(&db_name, &table_name, &conn);
                     if let Some(table_details) = table_details {
                         let field = table_details.get(&column_name).unwrap();
-                        result.insert(column_name.clone(), field.field_type.clone());
+                        result.insert(column_name.clone(), vec![field.field_type.clone()]);
                     }
                     Ok(())
                 }
+                // TODO: Support postgres
                 _ => todo!(),
             }
         }
@@ -74,10 +75,11 @@ pub fn handle_sql_expr(
         | Expr::IsFalse(query)
         | Expr::IsNull(query)
         | Expr::IsNotNull(query) => {
+            // TODO: we can move if alias exists, use alias otherwise throwing err into TsQuery
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
                 // throw error here
-                result.insert(alias, TsFieldType::Boolean);
+                result.insert(alias, vec![TsFieldType::Boolean]);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(
@@ -90,7 +92,7 @@ pub fn handle_sql_expr(
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
                 // throw error here
-                result.insert(alias, TsFieldType::Boolean);
+                result.insert(alias, vec![TsFieldType::Boolean]);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(
@@ -106,7 +108,7 @@ pub fn handle_sql_expr(
         } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
-                result.insert(alias, TsFieldType::Any);
+                result.insert(alias, vec![TsFieldType::Any]);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(
@@ -121,7 +123,15 @@ pub fn handle_sql_expr(
             expr,
             list,
             negated,
-        } => todo!(),
+        } => {
+            if alias.is_some() {
+                let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
+                result.insert(alias, vec![TsFieldType::Boolean, TsFieldType::Null]);
+                Ok(())
+            } else {
+                Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
+            }
+        }
         Expr::InSubquery {
             expr,
             subquery,

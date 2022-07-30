@@ -22,6 +22,10 @@ FROM items
 WHERE id = $id;
 `
 
+const testQueryInList = sql`
+SELECT 1 IN (1, 2, true) AS test_test;
+`
+
 /*
 const testInsert = sql`
     INSERT INTO items (food_type, time_takes_to_cook, table_id, points) VALUES (?, ?, ?, ?);
