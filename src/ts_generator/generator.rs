@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 
 use crate::common::config::{DbConnectionConfig, TransformConfig};
 use crate::common::SQL;
+use crate::ts_generator::annotations::extract_result_annotations;
 use crate::ts_generator::sql_parser::handle_sql_statement;
 use crate::ts_generator::types::TsQuery;
 use convert_case::{Case, Casing};
@@ -67,6 +68,9 @@ pub fn generate_ts_interface(
         params: HashMap::new(),
         result: HashMap::new(),
     };
+
+    let annotated_result_types = extract_result_annotations(&sql.query);
+    println!("annotated results {:?}", annotated_result_types);
 
     let db_name = db_connection_config
         .db_name

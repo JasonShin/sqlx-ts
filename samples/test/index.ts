@@ -26,6 +26,17 @@ const testQueryInList = sql`
 SELECT 1 IN (1, 2, true) AS test_test;
 `;
 
+const testQueryResultAnnotation = sql`
+/**
+ * @result id -> string | boolean
+ * @result food_type -> number
+ */
+SELECT
+    id,
+    food_type
+FROM items
+`
+
 /*
 const testInsert = sql`
     INSERT INTO items (food_type, time_takes_to_cook, table_id, points) VALUES (?, ?, ?, ?);

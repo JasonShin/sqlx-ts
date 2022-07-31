@@ -75,7 +75,7 @@ pub fn handle_sql_expr(
         | Expr::IsFalse(query)
         | Expr::IsNull(query)
         | Expr::IsNotNull(query) => {
-            // TODO: we can move if alias exists, use alias otherwise throwing err into TsQuery
+            // TODO: we can move the follow logic, if alias exists then use alias otherwise throwing err into TsQuery
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
                 // throw error here
@@ -116,7 +116,16 @@ pub fn handle_sql_expr(
                 ))
             }
         }
-        Expr::CompositeAccess { expr, key } => todo!(),
+        Expr::CompositeAccess { expr, key } => {
+            if alias.is_some() {
+                let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
+                result.insert(alias, vec![TsFieldType::Any]);
+                Ok(())
+            } else {
+                Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
+            }
+        }
+        /* IsDistinctForm and IsNotDistinctFrom are Postgres syntax, maybe only used in WHERE condition */
         Expr::IsDistinctFrom(_, _) => todo!(),
         Expr::IsNotDistinctFrom(_, _) => todo!(),
         Expr::InList {
@@ -136,12 +145,28 @@ pub fn handle_sql_expr(
             expr,
             subquery,
             negated,
-        } => todo!(),
+        } => {
+            if alias.is_some() {
+                let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
+                result.insert(alias, vec![TsFieldType::Any]);
+                Ok(())
+            } else {
+                Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
+            }
+        }
         Expr::InUnnest {
             expr,
             array_expr,
             negated,
-        } => todo!(),
+        } => {
+            if alias.is_some() {
+                let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
+                result.insert(alias, vec![TsFieldType::Any]);
+                Ok(())
+            } else {
+                Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
+            }
+        }
         Expr::Between {
             expr,
             negated,

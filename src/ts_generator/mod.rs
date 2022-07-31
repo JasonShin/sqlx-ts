@@ -1,3 +1,4 @@
+pub mod annotations;
 pub mod errors;
 pub mod generator;
 pub mod information_schema;

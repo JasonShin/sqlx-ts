@@ -47,6 +47,21 @@ impl TsFieldType {
 
         Self::Any
     }
+
+    pub fn get_ts_field_from_annotation(annotated_type: &str) -> Self {
+        if annotated_type == "string" {
+            return Self::String;
+        } else if annotated_type == "number" {
+            return Self::Number;
+        } else if annotated_type == "boolean" {
+            return Self::Boolean;
+        } else if annotated_type == "object" {
+            return Self::Object;
+        } else if annotated_type == "null" {
+            return Self::Null;
+        }
+        return Self::Any;
+    }
 }
 
 pub struct TsQuery {
@@ -84,7 +99,7 @@ impl fmt::Display for TsQuery {
         let result_str = self.fmt_attributes_map(f, &self.result);
 
         let params = format!(
-r"
+            r"
 export interface I{name}Params {{
     {params_str}
 }};
@@ -92,7 +107,7 @@ export interface I{name}Params {{
         );
 
         let result = format!(
-r"
+            r"
 export interface I{name}Result {{
     {result_str}
 }};
@@ -100,7 +115,7 @@ export interface I{name}Result {{
         );
 
         let query = format!(
-r"
+            r"
 export interface I{name}Query {{
     params: I{name}Params;
     result: I{name}Result;
@@ -109,7 +124,7 @@ export interface I{name}Query {{
         );
 
         let final_code = format!(
-r"
+            r"
 {params}
 {result}
 {query}"
