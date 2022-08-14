@@ -7,6 +7,7 @@ use mysql::Conn as MySQLConn;
 use postgres::Client as PostgresConn;
 
 pub enum DBConn<'a> {
+    // TODO: Maybe we can also pass down db_name through DBConn
     MySQLPooledConn(&'a mut RefCell<&'a mut MySQLConn>),
     PostgresConn(&'a mut RefCell<&'a mut PostgresConn>),
 }

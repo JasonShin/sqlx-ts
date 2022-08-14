@@ -1,11 +1,8 @@
 import { sql } from "sqlx-ts";
-
-// SELECT query with a query name as an annotation
+/*
 const testQuery = sql`
-/**
- *  @name: some query
- *  @db: default
- **/
+# @name: some query
+# @db: default
 SELECT
     id,
     EXISTS(SELECT 1 FROM items WHERE points > 0) AS test_name
@@ -13,7 +10,6 @@ FROM items
 WHERE id = $id;
 `;
 
-// SELECT query without a query name as an annotation
 const testQuery2 = sql`
 SELECT
     id,
@@ -27,14 +23,22 @@ SELECT 1 IN (1, 2, true) AS test_test;
 `;
 
 const testQueryResultAnnotation = sql`
-/**
- * @result id -> string | boolean
- * @result food_type -> number
- */
+# @result id -> string | boolean
+# @result food_type -> number
 SELECT
     id,
     food_type
 FROM items
+`
+ */
+
+const testQueryWithAliasAndJoin = sql`
+SELECT
+    items.id as idz,
+    t.id,
+    EXISTS(SELECT 1 FROM items WHERE points > 0) AS test_name
+FROM items
+JOIN tables t on items.table_id = t.id;
 `
 
 /*

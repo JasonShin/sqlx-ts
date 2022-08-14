@@ -82,6 +82,7 @@ pub fn generate_ts_interface(
             &mut ts_query,
             &sql_statement,
             db_name.as_str(),
+            &annotated_result_types,
             &db_conn,
             &transformation_config,
         )?;
