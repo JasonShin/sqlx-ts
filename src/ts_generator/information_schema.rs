@@ -5,7 +5,20 @@ use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-use super::types::TsFieldType;
+use super::types::{DBConn, TsFieldType};
+
+/// Given db_name, table name and column name with a valid DB connection
+/// It returns a (key, Vec<TsFieldType>) pair that can be inserted into the result HashMap
+pub fn get_field_details(db_name: &str, table_name: &str, column_name: &str, db_conn: &DBConn) {
+    let mysql_schema = MySQLSchema::new();
+
+    match &db_conn {
+        DBConn::MySQLPooledConn(conn) => {
+            let table_details = &mysql_schema.fetch_table(&db_name, &table_name, &conn);
+        }
+        DBConn::PostgresConn(_) => todo!(),
+    }
+}
 
 #[derive(Debug, Clone, Copy)]
 pub struct Field {
@@ -23,13 +36,14 @@ struct ColumnsQueryResultRow {
 }
 
 pub struct MySQLSchema {
-    pub tables: HashMap<String, Fields>,
+    /// tables cache
+    tables_cache: HashMap<String, Fields>,
 }
 
 impl MySQLSchema {
     pub fn new() -> MySQLSchema {
         MySQLSchema {
-            tables: HashMap::new(),
+            tables_cache: HashMap::new(),
         }
     }
 
@@ -39,7 +53,7 @@ impl MySQLSchema {
         table_name: &str,
         conn: &RefCell<&mut Conn>,
     ) -> Option<Fields> {
-        let table = self.tables.get(table_name);
+        let table = self.tables_cache.get(table_name);
 
         match table {
             Some(fields) => Some(fields.clone()),

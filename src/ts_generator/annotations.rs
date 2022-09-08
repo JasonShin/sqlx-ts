@@ -1,5 +1,5 @@
 use crate::ts_generator::types::TsFieldType;
-use regex::{Regex};
+use regex::Regex;
 use std::collections::HashMap;
 
 pub fn extract_result_annotations(query: &String) -> HashMap<String, Vec<TsFieldType>> {

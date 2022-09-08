@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use crate::common::config::{DbConnectionConfig, TransformConfig};
 use crate::common::SQL;
 use crate::ts_generator::annotations::extract_result_annotations;
-use crate::ts_generator::sql_parser::handle_sql_statement;
+use crate::ts_generator::sql_parser::handle_sql_statement::handle_sql_statement;
 use crate::ts_generator::types::TsQuery;
 use convert_case::{Case, Casing};
 use regex::Regex;
