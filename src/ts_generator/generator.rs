@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use crate::common::config::{DbConnectionConfig, TransformConfig};
 use crate::common::SQL;
 use crate::ts_generator::annotations::extract_result_annotations;
-use crate::ts_generator::sql_parser::handle_sql_statement::handle_sql_statement;
+use crate::ts_generator::sql_parser::translate_stmt::translate_stmt;
 use crate::ts_generator::types::TsQuery;
 use convert_case::{Case, Casing};
 use regex::Regex;
@@ -78,7 +78,7 @@ pub fn generate_ts_interface(
         .expect("DB_NAME is required to generate Typescript type definitions");
 
     for sql_statement in &sql_ast {
-        handle_sql_statement(
+        translate_stmt(
             &mut ts_query,
             &sql_statement,
             db_name.as_str(),

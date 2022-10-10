@@ -32,11 +32,20 @@ FROM items
 `
  */
 
+/*
 const testQueryWithAliasAndJoin = sql`
 SELECT
     items.id as idz,
     t.id,
     EXISTS(SELECT 1 FROM items WHERE points > 0) AS test_name
+FROM items
+JOIN tables t on items.table_id = t.id;
+`
+*/
+
+const testQueryWithAliasAndJoin = sql`
+SELECT
+    items.id as idz
 FROM items
 JOIN tables t on items.table_id = t.id;
 `

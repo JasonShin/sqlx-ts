@@ -14,7 +14,7 @@ pub fn format_column_name(column_name: String, config: &Option<TransformConfig>)
     column_name
 }
 
-pub fn handle_sql_expression(
+pub fn translate_expr(
     expr: &Expr,
     db_name: &str,
     table_name: &str,
@@ -46,9 +46,14 @@ pub fn handle_sql_expression(
                 _ => todo!(),
             }
         }
-        Expr::CompoundIdentifier(a) => {
+        Expr::CompoundIdentifier(idents) => {
             // let table_name = get_table_name(a, )
-            println!("checking compound identifier {:?} {:?}", a, table_name);
+            (idents.len() == 2)
+                .then(|| {
+                    let alias = idents[0].value.clone();
+                    let ident = idents[1].value.clone();
+                    println!("alias and ident {:?} {:?}", alias, ident);
+                });
             Ok(())
         }
         Expr::IsTrue(query)
