@@ -48,12 +48,11 @@ pub fn translate_expr(
         }
         Expr::CompoundIdentifier(idents) => {
             // let table_name = get_table_name(a, )
-            (idents.len() == 2)
-                .then(|| {
-                    let alias = idents[0].value.clone();
-                    let ident = idents[1].value.clone();
-                    println!("alias and ident {:?} {:?}", alias, ident);
-                });
+            (idents.len() == 2).then(|| {
+                let alias = idents[0].value.clone();
+                let ident = idents[1].value.clone();
+                println!("alias and ident {:?} {:?}", alias, ident);
+            });
             Ok(())
         }
         Expr::IsTrue(query)

@@ -7,7 +7,6 @@ pub enum TsGeneratorError {
     EmptyQueryNameFromVarDecl,
     MissingAliasForFunctions(String),
     InvalidTypescriptFilePath(PathBuf),
-
 }
 
 impl fmt::Display for TsGeneratorError {

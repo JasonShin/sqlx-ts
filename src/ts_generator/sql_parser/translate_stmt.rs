@@ -55,7 +55,7 @@ pub fn get_table_name(
                         let alias = alias
                             .clone()
                             .and_then(|alias| Some(alias.clone().name.to_string()));
-                        
+
                         let name = val.get(0).and_then(|val| Some(val.value.to_string()));
 
                         if alias.is_some() {
@@ -68,7 +68,7 @@ pub fn get_table_name(
                 };
 
                 Some("test".to_string())
-            },    
+            },
             _ => None,
         };
 
