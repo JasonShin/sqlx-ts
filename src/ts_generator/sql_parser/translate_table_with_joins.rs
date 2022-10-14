@@ -1,4 +1,4 @@
-use sqlparser::ast::{SelectItem, TableFactor, TableWithJoins};
+use sqlparser::ast::{Join, SelectItem, TableFactor, TableWithJoins};
 
 /// Translates a select item's target table by looking for TableWithJoins
 /// If the select item uses table alias, it should find the table name using the alias
@@ -61,7 +61,41 @@ pub fn translate_table_with_joins(
                         }
                     }
 
-                    panic!("Cannot reach this point!")
+                    let joins = &table_with_joins
+                        .into_iter()
+                        .map(|tj| tj.joins.clone())
+                        .flatten()
+                        .collect::<Vec<Join>>();
+                    for join in &joins.clone() {
+                        match &join.relation {
+                            TableFactor::Table {
+                                name,
+                                alias,
+                                args,
+                                with_hints,
+                            } => {
+                                let alias = alias.to_owned().map(|x| x.to_string());
+                                let name = name.to_string();
+
+                                if Some(identifier.to_owned()) == alias || identifier == name {
+                                    return Some(name);
+                                }
+                            }
+                            TableFactor::Derived {
+                                lateral,
+                                subquery,
+                                alias,
+                            } => todo!(),
+                            TableFactor::TableFunction { expr, alias } => todo!(),
+                            TableFactor::UNNEST {
+                                alias,
+                                array_expr,
+                                with_offset,
+                            } => todo!(),
+                            TableFactor::NestedJoin(_) => todo!(),
+                        }
+                    }
+                    return None;
                 }
                 _ => Some(default_table_name),
             }
@@ -134,6 +168,38 @@ mod tests {
                         let result = translate_table_with_joins(&table_with_joins, &select_item);
 
                         assert_eq!(Some("items".to_string()), result)
+                    }
+                    _ => (),
+                }
+            }
+            _ => (),
+        }
+    }
+
+    #[test]
+    fn should_select_join_table_for_unnamed_expr_with_table_alias() {
+        let sql = "
+            SELECT x.id, tables.id
+            FROM items AS x
+            JOIN tables ON x.table_id = tables.id;
+        ";
+
+        let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
+
+        let sql_ast = Parser::parse_sql(&dialect, &sql).unwrap();
+        let stmt = sql_ast[0].clone();
+        match stmt {
+            Statement::Query(query) => {
+                let body = query.body;
+                match body {
+                    SetExpr::Select(select) => {
+                        // choosing `tables.id`
+                        let select_item = select.clone().projection[1].clone();
+                        let table_with_joins = select.clone().from;
+
+                        let result = translate_table_with_joins(&table_with_joins, &select_item);
+
+                        assert_eq!(Some("tables".to_string()), result)
                     }
                     _ => (),
                 }
