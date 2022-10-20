@@ -1,4 +1,4 @@
-use sqlparser::ast::{Join, SelectItem, TableFactor, TableWithJoins, Expr};
+use sqlparser::ast::{Expr, Join, SelectItem, TableFactor, TableWithJoins};
 
 fn find_table_name_from_identifier(
     table_with_joins: &Vec<TableWithJoins>,
@@ -19,8 +19,7 @@ fn find_table_name_from_identifier(
                 args,
                 with_hints,
             } => {
-                if Some(identifier.to_owned()) == alias.to_owned().map(|a| a.to_string())
-                {
+                if Some(identifier.to_owned()) == alias.to_owned().map(|a| a.to_string()) {
                     return Some(name.to_string());
                 }
             }
@@ -82,23 +81,24 @@ pub fn translate_table_with_joins(
                     // Assumes that [0] of the compound identifiers is the alias that points to the table
                     let identifier = compound_identifier[0].to_string();
 
-                    find_table_name_from_identifier(table_with_joins, identifier, default_table_name)
+                    find_table_name_from_identifier(
+                        table_with_joins,
+                        identifier,
+                        default_table_name,
+                    )
                 }
                 _ => Some(default_table_name),
             }
         }
         SelectItem::Wildcard => Some(default_table_name),
-        SelectItem::ExprWithAlias { expr, alias } => {
-            match &expr {
-                Expr::Identifier(ident) => todo!(),
-                Expr::CompoundIdentifier(compound_identifier) => {
-                    let identifier = compound_identifier[0].to_string();
+        SelectItem::ExprWithAlias { expr, alias } => match &expr {
+            Expr::Identifier(ident) => todo!(),
+            Expr::CompoundIdentifier(compound_identifier) => {
+                let identifier = compound_identifier[0].to_string();
 
-                    find_table_name_from_identifier(table_with_joins, identifier, default_table_name)
-                },
-                _ => Some(default_table_name),
+                find_table_name_from_identifier(table_with_joins, identifier, default_table_name)
             }
-
+            _ => Some(default_table_name),
         },
         SelectItem::QualifiedWildcard(_) => todo!(),
     }
@@ -198,6 +198,38 @@ mod tests {
                         let result = translate_table_with_joins(&table_with_joins, &select_item);
 
                         assert_eq!(Some("tables".to_string()), result)
+                    }
+                    _ => (),
+                }
+            }
+            _ => (),
+        }
+    }
+
+    #[test]
+    fn should_select_join_table_for_expr_with_alias() {
+        let sql = "
+            SELECT items.id as idz
+            FROM items
+        ";
+
+        let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
+
+        let sql_ast = Parser::parse_sql(&dialect, &sql).unwrap();
+        let stmt = sql_ast[0].clone();
+        println!("stmt {:?}", stmt);
+        match stmt {
+            Statement::Query(query) => {
+                let body = query.body;
+                match body {
+                    SetExpr::Select(select) => {
+                        // choosing `items.id`
+                        let select_item = select.clone().projection[0].clone();
+                        let table_with_joins = select.clone().from;
+
+                        let result = translate_table_with_joins(&table_with_joins, &select_item);
+
+                        assert_eq!(Some("items".to_string()), result)
                     }
                     _ => (),
                 }
