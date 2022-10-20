@@ -1,4 +1,58 @@
-use sqlparser::ast::{Join, SelectItem, TableFactor, TableWithJoins};
+use sqlparser::ast::{Join, SelectItem, TableFactor, TableWithJoins, Expr};
+
+fn find_table_name_from_identifier(
+    table_with_joins: &Vec<TableWithJoins>,
+    identifier: String, // can be the actual identifier or an alias
+    default_table_name: String,
+) -> Option<String> {
+    // if the identifier of a compound identifier is exactly same as the default table name, we just return it
+    if identifier == default_table_name {
+        return Some(default_table_name);
+    }
+
+    println!("default table name {default_table_name}   {identifier}");
+    for relation in table_with_joins.into_iter().map(|tj| tj.relation.clone()) {
+        match &relation {
+            TableFactor::Table {
+                name,
+                alias,
+                args,
+                with_hints,
+            } => {
+                if Some(identifier.to_owned()) == alias.to_owned().map(|a| a.to_string())
+                {
+                    return Some(name.to_string());
+                }
+            }
+            _ => unimplemented!(),
+        }
+    }
+
+    let joins = &table_with_joins
+        .into_iter()
+        .map(|tj| tj.joins.clone())
+        .flatten()
+        .collect::<Vec<Join>>();
+    for join in &joins.clone() {
+        match &join.relation {
+            TableFactor::Table {
+                name,
+                alias,
+                args,
+                with_hints,
+            } => {
+                let alias = alias.to_owned().map(|x| x.to_string());
+                let name = name.to_string();
+
+                if Some(identifier.to_owned()) == alias || identifier == name {
+                    return Some(name);
+                }
+            }
+            _ => unimplemented!(),
+        }
+    }
+    return None;
+}
 
 /// Translates a select item's target table by looking for TableWithJoins
 /// If the select item uses table alias, it should find the table name using the alias
@@ -15,7 +69,7 @@ pub fn translate_table_with_joins(
                 alias,
                 args,
                 with_hints,
-            } => Some(name.to_owned().0[0].to_string()),
+            } => Some(name.to_string()),
             _ => None,
         })
         .flatten()
@@ -24,84 +78,28 @@ pub fn translate_table_with_joins(
     match select_item {
         SelectItem::UnnamedExpr(expr) => {
             match expr {
-                sqlparser::ast::Expr::CompoundIdentifier(compound_identifier) => {
+                Expr::CompoundIdentifier(compound_identifier) => {
                     // Assumes that [0] of the compound identifiers is the alias that points to the table
                     let identifier = compound_identifier[0].to_string();
 
-                    // if the identifier of a compound identifier is exactly same as the default table name, we just return it
-                    if identifier == default_table_name {
-                        return Some(default_table_name);
-                    }
-
-                    for relation in table_with_joins.into_iter().map(|tj| tj.relation.clone()) {
-                        match &relation {
-                            TableFactor::Table {
-                                name,
-                                alias,
-                                args,
-                                with_hints,
-                            } => {
-                                if Some(identifier.clone()) == alias.clone().map(|a| a.to_string())
-                                {
-                                    return Some(name.to_string());
-                                }
-                            }
-                            TableFactor::Derived {
-                                lateral,
-                                subquery,
-                                alias,
-                            } => todo!(),
-                            TableFactor::TableFunction { expr, alias } => todo!(),
-                            TableFactor::UNNEST {
-                                alias,
-                                array_expr,
-                                with_offset,
-                            } => todo!(),
-                            TableFactor::NestedJoin(_) => todo!(),
-                        }
-                    }
-
-                    let joins = &table_with_joins
-                        .into_iter()
-                        .map(|tj| tj.joins.clone())
-                        .flatten()
-                        .collect::<Vec<Join>>();
-                    for join in &joins.clone() {
-                        match &join.relation {
-                            TableFactor::Table {
-                                name,
-                                alias,
-                                args,
-                                with_hints,
-                            } => {
-                                let alias = alias.to_owned().map(|x| x.to_string());
-                                let name = name.to_string();
-
-                                if Some(identifier.to_owned()) == alias || identifier == name {
-                                    return Some(name);
-                                }
-                            }
-                            TableFactor::Derived {
-                                lateral,
-                                subquery,
-                                alias,
-                            } => todo!(),
-                            TableFactor::TableFunction { expr, alias } => todo!(),
-                            TableFactor::UNNEST {
-                                alias,
-                                array_expr,
-                                with_offset,
-                            } => todo!(),
-                            TableFactor::NestedJoin(_) => todo!(),
-                        }
-                    }
-                    return None;
+                    find_table_name_from_identifier(table_with_joins, identifier, default_table_name)
                 }
                 _ => Some(default_table_name),
             }
         }
         SelectItem::Wildcard => Some(default_table_name),
-        SelectItem::ExprWithAlias { expr, alias } => todo!(),
+        SelectItem::ExprWithAlias { expr, alias } => {
+            match &expr {
+                Expr::Identifier(ident) => todo!(),
+                Expr::CompoundIdentifier(compound_identifier) => {
+                    let identifier = compound_identifier[0].to_string();
+
+                    find_table_name_from_identifier(table_with_joins, identifier, default_table_name)
+                },
+                _ => Some(default_table_name),
+            }
+
+        },
         SelectItem::QualifiedWildcard(_) => todo!(),
     }
 }
