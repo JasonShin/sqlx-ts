@@ -29,6 +29,7 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler, cli_args
 
             failed = explain_failed;
 
+            println!("checking ts query {:?}", ts_query);
             if transformation_config.is_some() {
                 sqls_to_write.push(ts_query.to_string());
             }

@@ -48,12 +48,23 @@ pub fn translate_expr(
         }
         Expr::CompoundIdentifier(idents) => {
             // let table_name = get_table_name(a, )
-            (idents.len() == 2).then(|| {
-                let alias = idents[0].value.clone();
+            if idents.len() == 2 {
                 let ident = idents[1].value.clone();
-                println!("alias and ident {:?} {:?}", alias, ident);
-            });
-            Ok(())
+                match &db_conn {
+                    DBConn::MySQLPooledConn(conn) => {
+                        let table_details = &mysql_schema.fetch_table(&db_name, &table_name, &conn);
+                        if let Some(table_details) = table_details {
+                            let field = table_details.get(&ident).unwrap();
+
+                            result
+                                .insert(alias.unwrap().to_string(), vec![field.field_type.clone()]);
+                        }
+                        return Ok(());
+                    }
+                    _ => todo!(),
+                }
+            }
+            unimplemented!()
         }
         Expr::IsTrue(query)
         | Expr::IsFalse(query)

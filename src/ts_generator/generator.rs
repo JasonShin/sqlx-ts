@@ -70,7 +70,6 @@ pub fn generate_ts_interface(
     };
 
     let annotated_result_types = extract_result_annotations(&sql.query);
-    println!("annotated results {:?}", annotated_result_types);
 
     let db_name = db_connection_config
         .db_name

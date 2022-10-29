@@ -65,6 +65,7 @@ impl TsFieldType {
     }
 }
 
+#[derive(Debug)]
 pub struct TsQuery {
     pub name: String,
     pub params: HashMap<String, Vec<TsFieldType>>,

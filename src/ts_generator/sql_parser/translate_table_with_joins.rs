@@ -217,7 +217,6 @@ mod tests {
 
         let sql_ast = Parser::parse_sql(&dialect, &sql).unwrap();
         let stmt = sql_ast[0].clone();
-        println!("stmt {:?}", stmt);
         match stmt {
             Statement::Query(query) => {
                 let body = query.body;
