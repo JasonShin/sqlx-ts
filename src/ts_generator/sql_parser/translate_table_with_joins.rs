@@ -10,7 +10,6 @@ fn find_table_name_from_identifier(
         return Some(default_table_name);
     }
 
-    println!("default table name {default_table_name}   {identifier}");
     for relation in table_with_joins.into_iter().map(|tj| tj.relation.clone()) {
         match &relation {
             TableFactor::Table {

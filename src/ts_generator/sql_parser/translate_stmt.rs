@@ -4,7 +4,7 @@ use crate::ts_generator::sql_parser::translate_expr::translate_expr;
 use crate::ts_generator::sql_parser::translate_table_with_joins::*;
 use crate::ts_generator::types::{DBConn, TsFieldType, TsQuery};
 use sqlparser::ast::SelectItem::{ExprWithAlias, QualifiedWildcard, UnnamedExpr};
-use sqlparser::ast::{SetExpr, Statement, TableWithJoins};
+use sqlparser::ast::{SetExpr, Statement};
 use std::collections::HashMap;
 
 pub fn translate_stmt(
@@ -22,7 +22,6 @@ pub fn translate_stmt(
                 SetExpr::Select(select) => {
                     let projection = select.clone().projection;
                     let table_with_joins = select.clone().from;
-                    println!("checking table with joins {:#?}", table_with_joins);
                     // then fetch information schema to figure out each field's details
                     for select_item in projection {
                         match &select_item {

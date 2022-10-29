@@ -46,7 +46,7 @@ JOIN tables t on items.table_id = t.id;
 const testQueryWithAliasAndJoin = sql`
 SELECT
     items.id as id_aliased,
-    tables.number as number_aliased
+    t.number as number_aliased
 FROM items
 JOIN tables t on items.table_id = t.id;
 `
