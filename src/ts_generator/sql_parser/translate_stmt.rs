@@ -26,14 +26,8 @@ pub fn translate_stmt(
                     for select_item in projection {
                         match &select_item {
                             UnnamedExpr(unnamed_expr) => {
-                                let table_name =
-                                    translate_table_with_joins(&table_with_joins, &select_item)
-                                        .expect(
-                                            format!(
-                                        "Default FROM table is not found from the query {query}"
-                                    )
-                                            .as_str(),
-                                        );
+                                let table_name = translate_table_with_joins(&table_with_joins, &select_item)
+                                    .expect(format!("Default FROM table is not found from the query {query}").as_str());
 
                                 // Handles SQL Expression and appends result
                                 translate_expr(
@@ -49,8 +43,7 @@ pub fn translate_stmt(
                             }
                             ExprWithAlias { expr, alias } => {
                                 let alias = alias.to_string();
-                                let table_name =
-                                    translate_table_with_joins(&table_with_joins, &select_item);
+                                let table_name = translate_table_with_joins(&table_with_joins, &select_item);
 
                                 translate_expr(
                                     &expr,
@@ -69,12 +62,7 @@ pub fn translate_stmt(
                     }
                 }
                 SetExpr::Query(_) => todo!(),
-                SetExpr::SetOperation {
-                    op,
-                    all,
-                    left,
-                    right,
-                } => todo!(),
+                SetExpr::SetOperation { op, all, left, right } => todo!(),
                 SetExpr::Values(_) => todo!(),
                 SetExpr::Insert(_) => todo!(),
             }

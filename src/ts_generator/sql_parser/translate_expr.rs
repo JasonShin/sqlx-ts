@@ -31,6 +31,7 @@ pub fn translate_expr(
             let column_name = format_column_name(ident.value.to_string(), transformation_config);
 
             let table_details = &db_schema.fetch_table(&db_name, &table_name, &db_conn);
+
             // TODO: We can also memoize this method
             if let Some(table_details) = table_details {
                 let field = table_details.get(&column_name).unwrap();
@@ -39,29 +40,23 @@ pub fn translate_expr(
                 result.insert(field_name, vec![field.field_type.clone()]);
             }
             Ok(())
-         
         }
         Expr::CompoundIdentifier(idents) => {
             // let table_name = get_table_name(a, )
             if idents.len() == 2 {
                 let ident = idents[1].value.clone();
-         
+
                 let table_details = &db_schema.fetch_table(&db_name, &table_name, &db_conn);
                 if let Some(table_details) = table_details {
                     let field = table_details.get(&ident).unwrap();
 
-                    result
-                        .insert(alias.unwrap().to_string(), vec![field.field_type.clone()]);
+                    result.insert(alias.unwrap().to_string(), vec![field.field_type.clone()]);
                 }
                 return Ok(());
-  
             }
             unimplemented!()
         }
-        Expr::IsTrue(query)
-        | Expr::IsFalse(query)
-        | Expr::IsNull(query)
-        | Expr::IsNotNull(query) => {
+        Expr::IsTrue(query) | Expr::IsFalse(query) | Expr::IsNull(query) | Expr::IsNotNull(query) => {
             // TODO: we can move the follow logic, if alias exists then use alias otherwise throwing err into TsQuery
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
@@ -69,9 +64,7 @@ pub fn translate_expr(
                 result.insert(alias, vec![TsFieldType::Boolean]);
                 Ok(())
             } else {
-                Err(TsGeneratorError::MissingAliasForFunctions(
-                    query.to_string(),
-                ))
+                Err(TsGeneratorError::MissingAliasForFunctions(query.to_string()))
             }
         }
         Expr::Exists(query) => {
@@ -82,24 +75,16 @@ pub fn translate_expr(
                 result.insert(alias, vec![TsFieldType::Boolean]);
                 Ok(())
             } else {
-                Err(TsGeneratorError::MissingAliasForFunctions(
-                    query.to_string(),
-                ))
+                Err(TsGeneratorError::MissingAliasForFunctions(query.to_string()))
             }
         }
-        Expr::JsonAccess {
-            left,
-            operator,
-            right,
-        } => {
+        Expr::JsonAccess { left, operator, right } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
                 result.insert(alias, vec![TsFieldType::Any]);
                 Ok(())
             } else {
-                Err(TsGeneratorError::MissingAliasForFunctions(
-                    operator.to_string(),
-                ))
+                Err(TsGeneratorError::MissingAliasForFunctions(operator.to_string()))
             }
         }
         Expr::CompositeAccess { expr, key } => {
@@ -114,11 +99,7 @@ pub fn translate_expr(
         /* IsDistinctForm and IsNotDistinctFrom are Postgres syntax, maybe only used in WHERE condition */
         Expr::IsDistinctFrom(_, _) => todo!(),
         Expr::IsNotDistinctFrom(_, _) => todo!(),
-        Expr::InList {
-            expr,
-            list,
-            negated,
-        } => {
+        Expr::InList { expr, list, negated } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
                 result.insert(alias, vec![TsFieldType::Boolean, TsFieldType::Null]);

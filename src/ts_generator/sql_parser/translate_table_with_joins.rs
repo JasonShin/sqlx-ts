@@ -55,10 +55,7 @@ fn find_table_name_from_identifier(
 /// Translates a select item's target table by looking for TableWithJoins
 /// If the select item uses table alias, it should find the table name using the alias
 /// If the select item does not have any alias or table name, it should pick the default table name
-pub fn translate_table_with_joins(
-    table_with_joins: &Vec<TableWithJoins>,
-    select_item: &SelectItem,
-) -> Option<String> {
+pub fn translate_table_with_joins(table_with_joins: &Vec<TableWithJoins>, select_item: &SelectItem) -> Option<String> {
     let default_table_name = table_with_joins
         .get(0)
         .map(|x| match &x.relation {
@@ -80,11 +77,7 @@ pub fn translate_table_with_joins(
                     // Assumes that [0] of the compound identifiers is the alias that points to the table
                     let identifier = compound_identifier[0].to_string();
 
-                    find_table_name_from_identifier(
-                        table_with_joins,
-                        identifier,
-                        default_table_name,
-                    )
+                    find_table_name_from_identifier(table_with_joins, identifier, default_table_name)
                 }
                 _ => Some(default_table_name),
             }

@@ -73,11 +73,7 @@ pub struct TsQuery {
 }
 
 impl TsQuery {
-    fn fmt_attributes_map(
-        &self,
-        f: &mut fmt::Formatter<'_>,
-        attrs_map: &HashMap<String, Vec<TsFieldType>>,
-    ) -> String {
+    fn fmt_attributes_map(&self, f: &mut fmt::Formatter<'_>, attrs_map: &HashMap<String, Vec<TsFieldType>>) -> String {
         let result: Vec<String> = attrs_map
             .into_iter()
             .map(|(name, data_type)| {

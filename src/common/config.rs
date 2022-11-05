@@ -56,13 +56,10 @@ impl Config {
         let dotenv = Dotenv::new();
 
         let (transformation_config, connections) = Self::build_configs(&cli_args, &dotenv);
-        let transformation_config = transformation_config.clone().and_then(|config| {
-            if config.enabled {
-                Some(config.clone())
-            } else {
-                None
-            }
-        });
+        let transformation_config =
+            transformation_config
+                .clone()
+                .and_then(|config| if config.enabled { Some(config.clone()) } else { None });
 
         Config {
             dotenv: dotenv.clone(),
@@ -180,15 +177,24 @@ impl Config {
 
         if let Some(found_match) = &found_matches {
             let detected_conn_name = &found_match[2];
-            return self.connections.get(detected_conn_name)
-                .expect(format!("Failed to find a matching connection type - connection name: {detected_conn_name}").as_str())
+            return self
+                .connections
+                .get(detected_conn_name)
+                .expect(
+                    format!("Failed to find a matching connection type - connection name: {detected_conn_name}")
+                        .as_str(),
+                )
                 .clone();
         }
 
-        self.connections.get("default")
-            .expect(r"Failed to find the default connection configuration - check your configuration
+        self.connections
+            .get("default")
+            .expect(
+                r"Failed to find the default connection configuration - check your configuration
               CLI options: https://jasonshin.github.io/sqlx-ts/user-guide/2.1.cli-options.html
               File based config: https://jasonshin.github.io/sqlx-ts/reference-guide/2.configs-file-based.html
-            ").clone()
+            ",
+            )
+            .clone()
     }
 }

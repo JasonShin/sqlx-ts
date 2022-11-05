@@ -31,8 +31,7 @@ mod mysql_happy_path_tests {
             .env("DB_PORT", "33306")
             .env("DB_USER", "root")
             .env("DB_NAME", "sqlx-ts");
-        cmd.arg("samples/generic/happy-path1")
-            .arg("--db-type=mysql");
+        cmd.arg("samples/generic/happy-path1").arg("--db-type=mysql");
 
         cmd.assert()
             .success()

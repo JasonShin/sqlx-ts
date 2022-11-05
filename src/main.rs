@@ -22,10 +22,7 @@ fn main() {
     let ext = &cli_args.ext;
     let ignore_paths = &cli_args.ignore;
 
-    println!(
-        "Scanning {:?} for sqls with extension {:?}",
-        source_folder, ext
-    );
+    println!("Scanning {:?} for sqls with extension {:?}", source_folder, ext);
 
     let files = scan_folder(&source_folder, ext, ignore_paths);
 

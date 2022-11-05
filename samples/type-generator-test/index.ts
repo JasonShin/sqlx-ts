@@ -1,15 +1,16 @@
 import { sql } from "sqlx-ts";
-/*
+
 const testQuery = sql`
-# @name: some query
-# @db: default
+-- @name: some query
+-- @db: default
 SELECT
     id,
     EXISTS(SELECT 1 FROM items WHERE points > 0) AS test_name
 FROM items
-WHERE id = $id;
+WHERE id = ?;
 `;
 
+/*
 const testQuery2 = sql`
 SELECT
     id,

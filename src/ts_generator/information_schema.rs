@@ -49,24 +49,14 @@ impl DBSchema {
         }
     }
 
-    pub fn fetch_table(
-        &self,
-        database_name: &str,
-        table_name: &str,
-        conn: &DBConn,
-    ) -> Option<Fields> {
+    pub fn fetch_table(&self, database_name: &str, table_name: &str, conn: &DBConn) -> Option<Fields> {
         match &conn {
             DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(&self, &database_name, &table_name, conn),
             DBConn::PostgresConn(_) => todo!(),
         }
     }
 
-    fn mysql_fetch_table(
-        &self,
-        database_name: &str,
-        table_name: &str,
-        conn: &RefCell<&mut Conn>,
-    ) -> Option<Fields> {
+    fn mysql_fetch_table(&self, database_name: &str, table_name: &str, conn: &RefCell<&mut Conn>) -> Option<Fields> {
         let table = self.tables_cache.get(table_name);
 
         match table {
@@ -94,9 +84,7 @@ impl DBSchema {
                         let field_type: String = row.clone().take(1).unwrap();
                         let is_nullable: String = row.clone().take(2).unwrap();
                         let field = Field {
-                            field_type: TsFieldType::get_ts_field_type_from_mysql_field_type(
-                                field_type.to_owned(),
-                            ),
+                            field_type: TsFieldType::get_ts_field_type_from_mysql_field_type(field_type.to_owned()),
                             is_nullable: is_nullable == "YES",
                         };
                         fields.insert(field_name.to_owned(), field);

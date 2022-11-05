@@ -29,9 +29,7 @@ pub fn get_query_name(sql: &SQL) -> Result<String, TsGeneratorError> {
             .to_string();
 
         if query_name.is_empty() {
-            return Err(TsGeneratorError::EmptyQueryNameFromAnnotation(
-                sql.query.to_string(),
-            ));
+            return Err(TsGeneratorError::EmptyQueryNameFromAnnotation(sql.query.to_string()));
         }
         return Ok(query_name.to_case(Case::Pascal));
     }

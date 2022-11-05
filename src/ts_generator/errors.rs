@@ -18,16 +18,12 @@ impl fmt::Display for TsGeneratorError {
                 query,
             ),
             Self::EmptyQueryNameFromVarDecl => todo!(),
-            Self::MissingAliasForFunctions(query) => writeln!(
-                f,
-                "Missing alias when handling functions - query: {}",
-                query,
-            ),
-            Self::InvalidTypescriptFilePath(path_buf) => writeln!(
-                f,
-                "Invalid Typescript file path - file path: {:?}",
-                path_buf,
-            ),
+            Self::MissingAliasForFunctions(query) => {
+                writeln!(f, "Missing alias when handling functions - query: {}", query,)
+            }
+            Self::InvalidTypescriptFilePath(path_buf) => {
+                writeln!(f, "Invalid Typescript file path - file path: {:?}", path_buf,)
+            }
         }
     }
 }

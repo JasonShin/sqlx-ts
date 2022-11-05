@@ -53,17 +53,12 @@ pub fn get_sql_from_expr<'a>(
 
 /// you would normally pass in any var declarator such as
 /// const sql = sql`SELECT * FROM xxx;`
-pub fn get_sql_from_var_decl(
-    var_declarator: &VarDeclarator,
-    span: MultiSpan,
-    import_alias: &String,
-) -> Vec<SQL> {
+pub fn get_sql_from_var_decl(var_declarator: &VarDeclarator, span: MultiSpan, import_alias: &String) -> Vec<SQL> {
     let mut bag_of_sqls: Vec<SQL> = vec![];
     let var_decl_name = get_var_decl_name(&var_declarator);
 
     if let Some(init) = &var_declarator.init {
-        let mut result =
-            get_sql_from_expr(&Some(var_decl_name), &*init.clone(), &span, &import_alias);
+        let mut result = get_sql_from_expr(&Some(var_decl_name), &*init.clone(), &span, &import_alias);
         bag_of_sqls.append(&mut result);
     }
 

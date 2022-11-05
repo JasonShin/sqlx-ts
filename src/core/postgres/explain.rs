@@ -22,6 +22,7 @@ pub fn explain<'a>(sql: &SQL, config: &Config, handler: &Handler) -> (bool, TsQu
     let mut failed = false;
 
     let span = sql.span.to_owned();
+    // todo: update it to use prepare stmt
     let explain_query = format!("EXPLAIN {}", sql.query);
 
     let postgres_cred = &get_postgres_cred(&connection).clone();

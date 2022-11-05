@@ -16,11 +16,7 @@ use swc_ecma_ast::{ClassMember, ModuleDecl, ModuleItem, Stmt};
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 use tag::{get_sql_from_expr, get_sql_from_var_decl};
 
-fn insert_or_append_sqls(
-    sqls_container: &mut HashMap<PathBuf, Vec<SQL>>,
-    sqls: &Vec<SQL>,
-    file_path: &PathBuf,
-) {
+fn insert_or_append_sqls(sqls_container: &mut HashMap<PathBuf, Vec<SQL>>, sqls: &Vec<SQL>, file_path: &PathBuf) {
     if sqls_container.contains_key(&*file_path.clone()) {
         let mut value = sqls_container.get(file_path).unwrap().clone();
         value.extend(sqls.clone());
@@ -124,35 +120,20 @@ fn recurse_and_find_sql(
                         ClassMember::Method(class_method) => {
                             if let Some(body) = &class_method.function.body {
                                 for stmt in &body.stmts {
-                                    recurse_and_find_sql(
-                                        &mut sqls_container,
-                                        &stmt,
-                                        import_alias,
-                                        &file_path,
-                                    );
+                                    recurse_and_find_sql(&mut sqls_container, &stmt, import_alias, &file_path);
                                 }
                             }
                         }
                         ClassMember::PrivateMethod(private_method) => {
                             if let Some(body) = &private_method.function.body {
                                 for stmt in &body.stmts {
-                                    recurse_and_find_sql(
-                                        &mut sqls_container,
-                                        &stmt,
-                                        import_alias,
-                                        &file_path,
-                                    );
+                                    recurse_and_find_sql(&mut sqls_container, &stmt, import_alias, &file_path);
                                 }
                             }
                         }
                         ClassMember::StaticBlock(static_block) => {
                             for stmt in &static_block.body.stmts {
-                                recurse_and_find_sql(
-                                    &mut sqls_container,
-                                    &stmt,
-                                    import_alias,
-                                    &file_path,
-                                );
+                                recurse_and_find_sql(&mut sqls_container, &stmt, import_alias, &file_path);
                             }
                         }
                         _ => {}

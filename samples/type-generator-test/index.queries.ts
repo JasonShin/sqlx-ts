@@ -1,5 +1,24 @@
 
 
+export interface ISomeQueryParams {
+    
+};
+
+
+export interface ISomeQueryResult {
+    id: number;
+testName: boolean;
+};
+
+
+export interface ISomeQueryQuery {
+    params: ISomeQueryParams;
+    result: ISomeQueryResult;
+};
+
+
+
+
 export interface ITestQueryWithAliasAndJoinParams {
     
 };
