@@ -1,6 +1,6 @@
 use crate::common::config::TransformConfig;
 use crate::ts_generator::errors::TsGeneratorError;
-use crate::ts_generator::information_schema::MySQLSchema;
+use crate::ts_generator::information_schema::DBSchema;
 use crate::ts_generator::types::{DBConn, TsFieldType};
 use convert_case::{Case, Casing};
 use sqlparser::ast::Expr;
@@ -24,45 +24,37 @@ pub fn translate_expr(
     db_conn: &DBConn,
     transformation_config: &Option<TransformConfig>,
 ) -> Result<(), TsGeneratorError> {
-    let mysql_schema = MySQLSchema::new();
+    let db_schema = DBSchema::new();
 
     match expr {
         Expr::Identifier(ident) => {
             let column_name = format_column_name(ident.value.to_string(), transformation_config);
 
-            match &db_conn {
-                DBConn::MySQLPooledConn(conn) => {
-                    // TODO: We can also memoize this method
-                    let table_details = &mysql_schema.fetch_table(&db_name, &table_name, &conn);
-                    if let Some(table_details) = table_details {
-                        let field = table_details.get(&column_name).unwrap();
+            let table_details = &db_schema.fetch_table(&db_name, &table_name, &db_conn);
+            // TODO: We can also memoize this method
+            if let Some(table_details) = table_details {
+                let field = table_details.get(&column_name).unwrap();
 
-                        let field_name = alias.unwrap_or(column_name.as_str()).to_string();
-                        result.insert(field_name, vec![field.field_type.clone()]);
-                    }
-                    Ok(())
-                }
-                // TODO: Support postgres
-                _ => todo!(),
+                let field_name = alias.unwrap_or(column_name.as_str()).to_string();
+                result.insert(field_name, vec![field.field_type.clone()]);
             }
+            Ok(())
+         
         }
         Expr::CompoundIdentifier(idents) => {
             // let table_name = get_table_name(a, )
             if idents.len() == 2 {
                 let ident = idents[1].value.clone();
-                match &db_conn {
-                    DBConn::MySQLPooledConn(conn) => {
-                        let table_details = &mysql_schema.fetch_table(&db_name, &table_name, &conn);
-                        if let Some(table_details) = table_details {
-                            let field = table_details.get(&ident).unwrap();
+         
+                let table_details = &db_schema.fetch_table(&db_name, &table_name, &db_conn);
+                if let Some(table_details) = table_details {
+                    let field = table_details.get(&ident).unwrap();
 
-                            result
-                                .insert(alias.unwrap().to_string(), vec![field.field_type.clone()]);
-                        }
-                        return Ok(());
-                    }
-                    _ => todo!(),
+                    result
+                        .insert(alias.unwrap().to_string(), vec![field.field_type.clone()]);
                 }
+                return Ok(());
+  
             }
             unimplemented!()
         }

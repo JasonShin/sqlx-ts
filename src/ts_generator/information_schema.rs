@@ -9,8 +9,9 @@ use super::types::{DBConn, TsFieldType};
 
 /// Given db_name, table name and column name with a valid DB connection
 /// It returns a (key, Vec<TsFieldType>) pair that can be inserted into the result HashMap
+/*
 pub fn get_field_details(db_name: &str, table_name: &str, column_name: &str, db_conn: &DBConn) {
-    let mysql_schema = MySQLSchema::new();
+    let mysql_schema = DBSchema::new();
 
     match &db_conn {
         DBConn::MySQLPooledConn(conn) => {
@@ -19,6 +20,7 @@ pub fn get_field_details(db_name: &str, table_name: &str, column_name: &str, db_
         DBConn::PostgresConn(_) => todo!(),
     }
 }
+*/
 
 #[derive(Debug, Clone, Copy)]
 pub struct Field {
@@ -35,19 +37,31 @@ struct ColumnsQueryResultRow {
     is_nullable: bool,
 }
 
-pub struct MySQLSchema {
+pub struct DBSchema {
     /// tables cache
     tables_cache: HashMap<String, Fields>,
 }
 
-impl MySQLSchema {
-    pub fn new() -> MySQLSchema {
-        MySQLSchema {
+impl DBSchema {
+    pub fn new() -> DBSchema {
+        DBSchema {
             tables_cache: HashMap::new(),
         }
     }
 
     pub fn fetch_table(
+        &self,
+        database_name: &str,
+        table_name: &str,
+        conn: &DBConn,
+    ) -> Option<Fields> {
+        match &conn {
+            DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(&self, &database_name, &table_name, conn),
+            DBConn::PostgresConn(_) => todo!(),
+        }
+    }
+
+    fn mysql_fetch_table(
         &self,
         database_name: &str,
         table_name: &str,
