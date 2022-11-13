@@ -1,37 +1,20 @@
 
 
 export interface ISomeQueryParams {
-    
+    points: any;
+pointz: any;
+id: any;
 };
 
 
 export interface ISomeQueryResult {
-    id: number;
-testName: boolean;
+    testName: boolean;
+id: number;
 };
 
 
 export interface ISomeQueryQuery {
     params: ISomeQueryParams;
     result: ISomeQueryResult;
-};
-
-
-
-
-export interface ITestQueryWithAliasAndJoinParams {
-    
-};
-
-
-export interface ITestQueryWithAliasAndJoinResult {
-    number_aliased: number;
-id_aliased: number;
-};
-
-
-export interface ITestQueryWithAliasAndJoinQuery {
-    params: ITestQueryWithAliasAndJoinParams;
-    result: ITestQueryWithAliasAndJoinResult;
 };
 

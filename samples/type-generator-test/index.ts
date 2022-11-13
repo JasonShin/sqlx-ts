@@ -7,7 +7,9 @@ SELECT
     id,
     EXISTS(SELECT 1 FROM items WHERE points > 0) AS test_name
 FROM items
-WHERE id = ?;
+WHERE id = ?
+AND points > ?
+AND items.points < ?;
 `;
 
 /*
@@ -44,6 +46,7 @@ JOIN tables t on items.table_id = t.id;
 `
 */
 
+/*
 const testQueryWithAliasAndJoin = sql`
 SELECT
     items.id as id_aliased,
@@ -51,6 +54,7 @@ SELECT
 FROM items
 JOIN tables t on items.table_id = t.id;
 `
+*/
 
 /*
 const testInsert = sql`

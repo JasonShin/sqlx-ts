@@ -20,6 +20,7 @@ pub enum TsFieldType {
     Object,
     Null,
     Any,
+    Never,
 }
 
 impl fmt::Display for TsFieldType {
@@ -31,6 +32,7 @@ impl fmt::Display for TsFieldType {
             TsFieldType::Object => write!(f, "{}", "object".to_string()),
             TsFieldType::Any => write!(f, "{}", "any".to_string()),
             TsFieldType::Null => write!(f, "{}", "null".to_string()),
+            TsFieldType::Never => write!(f, "{}", "never".to_string()),
         }
     }
 }

@@ -2,7 +2,9 @@ use crate::common::config::TransformConfig;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::translate_expr::translate_expr;
 use crate::ts_generator::sql_parser::translate_table_with_joins::*;
+use crate::ts_generator::sql_parser::translate_where_stmt::translate_where_stmt;
 use crate::ts_generator::types::{DBConn, TsFieldType, TsQuery};
+use sqlparser::ast::Expr::BinaryOp;
 use sqlparser::ast::SelectItem::{ExprWithAlias, QualifiedWildcard, UnnamedExpr};
 use sqlparser::ast::{SetExpr, Statement};
 use std::collections::HashMap;
@@ -22,7 +24,7 @@ pub fn translate_stmt(
                 SetExpr::Select(select) => {
                     let projection = select.clone().projection;
                     let table_with_joins = select.clone().from;
-                    // then fetch information schema to figure out each field's details
+                    // Handle all select projects and figure out each field's type
                     for select_item in projection {
                         match &select_item {
                             UnnamedExpr(unnamed_expr) => {
@@ -60,6 +62,10 @@ pub fn translate_stmt(
                             Wildcard => todo!(),
                         }
                     }
+
+                    if let Some(selection) = select.clone().selection {
+                        translate_where_stmt(ts_query, &selection)
+                    }
                 }
                 SetExpr::Query(_) => todo!(),
                 SetExpr::SetOperation { op, all, left, right } => todo!(),
@@ -67,7 +73,13 @@ pub fn translate_stmt(
                 SetExpr::Insert(_) => todo!(),
             }
         }
-        _ => {}
+        Statement::Insert { .. } => {}
+        Statement::Directory { .. } => {}
+        Statement::Update { .. } => {}
+        Statement::Delete { .. } => {}
+        _ => {
+            println!("Unsupported SQL syntax detected, skipping the translation");
+        }
     }
     Ok(())
 }
