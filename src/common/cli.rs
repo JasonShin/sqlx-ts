@@ -56,4 +56,11 @@ pub struct Cli {
     /// Path to the file based configuration
     #[clap(long, parse(from_os_str))]
     pub config: Option<std::path::PathBuf>,
+
+    /// generate types of raw SQLs using default configuration
+    #[clap(
+    long,
+    short,
+    )]
+    pub generate_types: bool,
 }

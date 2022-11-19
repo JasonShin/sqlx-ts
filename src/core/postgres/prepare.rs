@@ -4,6 +4,7 @@ use crate::ts_generator::generator::generate_ts_interface;
 use crate::ts_generator::types::{DBConn, TsQuery};
 use postgres::{Client, NoTls};
 use std::cell::RefCell;
+use std::fmt::format;
 use swc_common::errors::Handler;
 
 fn get_postgres_cred(conn: &DbConnectionConfig) -> String {
@@ -23,16 +24,19 @@ pub fn prepare<'a>(sql: &SQL, config: &Config, handler: &Handler) -> (bool, TsQu
 
     let span = sql.span.to_owned();
     // todo: update it to use prepare stmt
-    let explain_query = format!("EXPLAIN {}", sql.query);
+    let prepare_query = format!("PREPARE sqlx_stmt AS {}", sql.query);
 
     let postgres_cred = &get_postgres_cred(&connection).clone();
+    println!("checking postgres cred {:?}", postgres_cred);
     let mut conn = Client::connect(postgres_cred, NoTls).unwrap();
-    let result = conn.query(explain_query.as_str(), &[]);
+    let result = conn.query(prepare_query.as_str(), &[]);
 
     if let Err(e) = result {
         handler.span_bug_no_panic(span, e.as_db_error().unwrap().message());
         failed = true;
     }
+
+    conn.query("DEALLOCATE sqlx_stmt", &[]).unwrap();
 
     let transformation_config = &config.transformation_config;
     let ts_query = generate_ts_interface(

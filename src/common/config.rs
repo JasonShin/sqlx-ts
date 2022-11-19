@@ -172,7 +172,7 @@ impl Config {
     }
 
     pub fn get_correct_connection(&self, raw_sql: &str) -> DbConnectionConfig {
-        let re = Regex::new(r"(/*|//) db: (?P<conn>[\w]+)( */){0,}").unwrap();
+        let re = Regex::new(r"(/*|//|--) @db: (?P<conn>[\w]+)( */){0,}").unwrap();
         let found_matches = re.captures(raw_sql);
 
         if let Some(found_match) = &found_matches {

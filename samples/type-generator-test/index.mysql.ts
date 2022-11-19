@@ -16,7 +16,7 @@ AND items.points < ?;
 
 const testQuery2 = sql`
 -- @name: some query 2
--- @db: default
+-- @db: db_mysql
 SELECT
     id,
     EXISTS(SELECT 1 FROM items WHERE points > 0) AS test_name
