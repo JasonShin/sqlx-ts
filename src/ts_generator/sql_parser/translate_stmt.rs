@@ -64,7 +64,7 @@ pub fn translate_stmt(
                     }
 
                     if let Some(selection) = select.clone().selection {
-                        translate_where_stmt(ts_query, &selection)
+                        translate_where_stmt(ts_query, &selection, &table_with_joins)
                     }
                 }
                 SetExpr::Query(_) => todo!(),

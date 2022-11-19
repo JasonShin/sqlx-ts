@@ -1,20 +1,19 @@
 
 
-export interface ISomeQueryParams {
-    points: any;
-pointz: any;
-id: any;
+export interface ISomeQuery2Params {
+    id: any;
+	points: any;
 };
 
 
-export interface ISomeQueryResult {
+export interface ISomeQuery2Result {
     testName: boolean;
-id: number;
+	id: number;
 };
 
 
-export interface ISomeQueryQuery {
-    params: ISomeQueryParams;
-    result: ISomeQueryResult;
+export interface ISomeQuery2Query {
+    params: ISomeQuery2Params;
+    result: ISomeQuery2Result;
 };
 

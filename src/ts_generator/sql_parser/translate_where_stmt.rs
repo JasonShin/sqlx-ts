@@ -1,13 +1,9 @@
-use sqlparser::ast::Expr;
+use sqlparser::ast::{Expr, TableWithJoins};
 
+use crate::ts_generator::sql_parser::translate_table_with_joins::translate_table_with_joins;
 use crate::ts_generator::types::{TsFieldType, TsQuery};
 
-pub fn translate_where_stmt(
-    ts_query: &mut TsQuery,
-    expr: &Expr,
-    // take in table with joins
-    // process where expression and find all SQL params
-) {
+pub fn translate_where_stmt(ts_query: &mut TsQuery, expr: &Expr, table_with_joins: &Vec<TableWithJoins>) {
     match expr {
         Expr::BinaryOp { left, op, right } => {
             // Loop right expression until there is nothing left
@@ -38,7 +34,7 @@ pub fn translate_where_stmt(
                 }
                 _ => {}
             }
-            translate_where_stmt(ts_query, &*left.clone());
+            translate_where_stmt(ts_query, &*left.clone(), &table_with_joins);
         }
         _ => {
             println!("Skipping");

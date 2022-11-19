@@ -71,6 +71,7 @@ impl TsFieldType {
 pub struct TsQuery {
     pub name: String,
     pub params: HashMap<String, Vec<TsFieldType>>,
+    // TODO: Need a type for List of Params strongly typed in order
     pub result: HashMap<String, Vec<TsFieldType>>,
 }
 
@@ -88,7 +89,7 @@ impl TsQuery {
             })
             .collect();
 
-        format!("{}", result.join("\n").to_string())
+        format!("{}", result.join("\n\t").to_string())
     }
 }
 

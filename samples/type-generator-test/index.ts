@@ -1,5 +1,6 @@
 import { sql } from "sqlx-ts";
 
+/*
 const testQuery = sql`
 -- @name: some query
 -- @db: default
@@ -11,6 +12,19 @@ WHERE id = ?
 AND points > ?
 AND items.points < ?;
 `;
+*/
+
+const testQuery2 = sql`
+-- @name: some query 2
+-- @db: default
+SELECT
+    id,
+    EXISTS(SELECT 1 FROM items WHERE points > 0) AS test_name
+FROM items
+WHERE id = ?
+AND points > ?
+AND points < ?;
+`
 
 /*
 const testQuery2 = sql`

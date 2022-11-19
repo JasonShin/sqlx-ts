@@ -16,7 +16,7 @@ fn get_postgres_cred(conn: &DbConnectionConfig) -> String {
     )
 }
 
-pub fn explain<'a>(sql: &SQL, config: &Config, handler: &Handler) -> (bool, TsQuery) {
+pub fn prepare<'a>(sql: &SQL, config: &Config, handler: &Handler) -> (bool, TsQuery) {
     let connection = &config.get_correct_connection(&sql.query);
 
     let mut failed = false;

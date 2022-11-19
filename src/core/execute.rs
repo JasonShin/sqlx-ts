@@ -2,8 +2,8 @@ use crate::common::cli::Cli;
 use crate::common::config::Config;
 use crate::common::types::DatabaseType;
 use crate::common::SQL;
-use crate::core::mysql::explain as mysql_explain;
-use crate::core::postgres::explain as postgres_explain;
+use crate::core::mysql::prepare as mysql_explain;
+use crate::core::postgres::prepare as postgres_explain;
 use crate::ts_generator::generator::get_query_ts_file_path;
 use std::collections::HashMap;
 use std::fs::{remove_file, File};
@@ -23,8 +23,8 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler, cli_args
             let connection = &config.get_correct_connection(&sql.query);
 
             let (explain_failed, ts_query) = match connection.db_type {
-                DatabaseType::Postgres => postgres_explain::explain(&sql, &config, &handler),
-                DatabaseType::Mysql => mysql_explain::explain(&sql, &config, &handler),
+                DatabaseType::Postgres => postgres_explain::prepare(&sql, &config, &handler),
+                DatabaseType::Mysql => mysql_explain::prepare(&sql, &config, &handler),
             };
 
             failed = explain_failed;

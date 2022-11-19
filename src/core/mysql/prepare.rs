@@ -8,12 +8,12 @@ use mysql::prelude::*;
 use mysql::*;
 use swc_common::errors::Handler;
 
-pub fn explain(sql: &SQL, config: &Config, handler: &Handler) -> (bool, TsQuery) {
+pub fn prepare(sql: &SQL, config: &Config, handler: &Handler) -> (bool, TsQuery) {
     let connection_config = &config.get_correct_connection(&sql.query);
     let mut failed = false;
 
     let span = sql.span.to_owned();
-    let explain_query = format!("PREPARE mysql_stmt_to_check FROM '{}'", sql.query);
+    let explain_query = format!("PREPARE stmt FROM '{}'", sql.query);
 
     let db_pass = &connection_config.db_pass;
     let db_name = &connection_config.db_name;
