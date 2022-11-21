@@ -1,26 +1,11 @@
-use mysql::Row;
-use mysql::*;
+use mysql;
+use postgres;
 use mysql::{prelude::Queryable, Conn};
 use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;
 use std::collections::HashMap;
 
 use super::types::{DBConn, TsFieldType};
-
-/// Given db_name, table name and column name with a valid DB connection
-/// It returns a (key, Vec<TsFieldType>) pair that can be inserted into the result HashMap
-/*
-pub fn get_field_details(db_name: &str, table_name: &str, column_name: &str, db_conn: &DBConn) {
-    let mysql_schema = DBSchema::new();
-
-    match &db_conn {
-        DBConn::MySQLPooledConn(conn) => {
-            let table_details = &mysql_schema.fetch_table(&db_name, &table_name, &conn);
-        }
-        DBConn::PostgresConn(_) => todo!(),
-    }
-}
-*/
 
 #[derive(Debug, Clone, Copy)]
 pub struct Field {
@@ -52,11 +37,11 @@ impl DBSchema {
     pub fn fetch_table(&self, database_name: &str, table_name: &str, conn: &DBConn) -> Option<Fields> {
         match &conn {
             DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(&self, &database_name, &table_name, conn),
-            DBConn::PostgresConn(_) => todo!(),
+            DBConn::PostgresConn(conn) => Self::postgres_fetch_table(&self, &database_name, &table_name, conn),
         }
     }
 
-    fn mysql_fetch_table(&self, database_name: &str, table_name: &str, conn: &RefCell<&mut Conn>) -> Option<Fields> {
+    fn postgres_fetch_table(&self, database_name: &str, table_name: &str, conn: &RefCell<&mut postgres::Client>) -> Option<Fields> {
         let table = self.tables_cache.get(table_name);
 
         match table {
@@ -76,7 +61,49 @@ impl DBSchema {
                 );
 
                 let mut fields: HashMap<String, Field> = HashMap::new();
-                let result = conn.borrow_mut().query::<Row, String>(query);
+                let result = conn.borrow_mut().query(&query, &[]);
+
+                if let Ok(result) = result {
+                    for row in result {
+                        let field_name: String = row.get(0);
+                        let field_type: String = row.get(1);
+                        let is_nullable: String = row.get(2);
+                        let field = Field {
+                            field_type: TsFieldType::get_ts_field_type_from_mysql_field_type(field_type.to_owned()),
+                            is_nullable: is_nullable == "YES",
+                        };
+                        fields.insert(field_name.to_owned(), field);
+                    }
+
+                    return Some(fields);
+                }
+
+                None
+            }
+        }
+    }
+
+    fn mysql_fetch_table(&self, database_name: &str, table_name: &str, conn: &RefCell<&mut mysql::Conn>) -> Option<Fields> {
+        let table = self.tables_cache.get(table_name);
+
+        match table {
+            Some(fields) => Some(fields.clone()),
+            None => {
+                let query = format!(
+                    r"
+                SELECT
+                    COLUMN_NAME as column_name,
+                    DATA_TYPE as data_type,
+                    IS_NULLABLE as is_nulalble
+                FROM information_schema.COLUMNS
+                WHERE TABLE_SCHEMA = '{}'
+                AND TABLE_NAME = '{}'
+                        ",
+                    database_name, table_name
+                );
+
+                let mut fields: HashMap<String, Field> = HashMap::new();
+                let result = conn.borrow_mut().query::<mysql::Row, String>(query);
 
                 if let Ok(result) = result {
                     for row in result {
