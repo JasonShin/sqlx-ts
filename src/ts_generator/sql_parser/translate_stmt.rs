@@ -1,10 +1,9 @@
-use crate::common::config::TransformConfig;
+use crate::common::config::GenerateTypesConfig;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::translate_expr::translate_expr;
 use crate::ts_generator::sql_parser::translate_table_with_joins::*;
 use crate::ts_generator::sql_parser::translate_where_stmt::translate_where_stmt;
 use crate::ts_generator::types::{DBConn, TsFieldType, TsQuery};
-use sqlparser::ast::Expr::BinaryOp;
 use sqlparser::ast::SelectItem::{ExprWithAlias, QualifiedWildcard, UnnamedExpr};
 use sqlparser::ast::{SetExpr, Statement};
 use std::collections::HashMap;
@@ -15,7 +14,7 @@ pub fn translate_stmt(
     db_name: &str,
     annotated_results: &HashMap<String, Vec<TsFieldType>>,
     db_conn: &DBConn,
-    transformation_config: &Option<TransformConfig>,
+    generate_types_config: &Option<GenerateTypesConfig>,
 ) -> Result<(), TsGeneratorError> {
     match sql_statement {
         Statement::Query(query) => {
@@ -40,7 +39,7 @@ pub fn translate_stmt(
                                     &annotated_results,
                                     &mut ts_query.result,
                                     &db_conn,
-                                    &transformation_config,
+                                    &generate_types_config,
                                 )?;
                             }
                             ExprWithAlias { expr, alias } => {
@@ -55,7 +54,7 @@ pub fn translate_stmt(
                                     &annotated_results,
                                     &mut ts_query.result,
                                     &db_conn,
-                                    &transformation_config,
+                                    &generate_types_config,
                                 )?;
                             }
                             QualifiedWildcard(_) => todo!(),

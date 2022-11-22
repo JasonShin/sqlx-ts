@@ -1,4 +1,4 @@
-use crate::common::config::TransformConfig;
+use crate::common::config::GenerateTypesConfig;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::information_schema::DBSchema;
 use crate::ts_generator::types::{DBConn, TsFieldType};
@@ -6,7 +6,7 @@ use convert_case::{Case, Casing};
 use sqlparser::ast::Expr;
 use std::collections::HashMap;
 
-pub fn format_column_name(column_name: String, config: &Option<TransformConfig>) -> String {
+pub fn format_column_name(column_name: String, config: &Option<GenerateTypesConfig>) -> String {
     let config = config.clone();
     if config.is_some() && config.unwrap().convert_to_camel_case_column_name {
         return column_name.to_case(Case::Camel);
@@ -22,17 +22,20 @@ pub fn translate_expr(
     annotated_result: &HashMap<String, Vec<TsFieldType>>,
     result: &mut HashMap<String, Vec<TsFieldType>>,
     db_conn: &DBConn,
-    transformation_config: &Option<TransformConfig>,
+    generate_types_config: &Option<GenerateTypesConfig>,
 ) -> Result<(), TsGeneratorError> {
     let db_schema = DBSchema::new();
 
     match expr {
         Expr::Identifier(ident) => {
-            let column_name = format_column_name(ident.value.to_string(), transformation_config);
+            let column_name = format_column_name(ident.value.to_string(), generate_types_config);
 
             let table_details = &db_schema.fetch_table(&db_name, &table_name, &db_conn);
 
-            println!("table details fetched {:?}   column name {:?}", table_details, column_name);
+            println!(
+                "table details fetched {:?}   column name {:?}",
+                table_details, column_name
+            );
             // TODO: We can also memoize this method
             if let Some(table_details) = table_details {
                 let field = table_details.get(&column_name).unwrap();
@@ -60,7 +63,7 @@ pub fn translate_expr(
         Expr::IsTrue(query) | Expr::IsFalse(query) | Expr::IsNull(query) | Expr::IsNotNull(query) => {
             // TODO: we can move the follow logic, if alias exists then use alias otherwise throwing err into TsQuery
             if alias.is_some() {
-                let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
+                let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
                 // throw error here
                 result.insert(alias, vec![TsFieldType::Boolean]);
                 Ok(())
@@ -71,7 +74,7 @@ pub fn translate_expr(
         Expr::Exists(query) => {
             // Handles all boolean return type methods
             if alias.is_some() {
-                let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
+                let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
                 // throw error here
                 result.insert(alias, vec![TsFieldType::Boolean]);
                 Ok(())
@@ -81,7 +84,7 @@ pub fn translate_expr(
         }
         Expr::JsonAccess { left, operator, right } => {
             if alias.is_some() {
-                let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
+                let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
                 result.insert(alias, vec![TsFieldType::Any]);
                 Ok(())
             } else {
@@ -90,7 +93,7 @@ pub fn translate_expr(
         }
         Expr::CompositeAccess { expr, key } => {
             if alias.is_some() {
-                let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
+                let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
                 result.insert(alias, vec![TsFieldType::Any]);
                 Ok(())
             } else {
@@ -102,7 +105,7 @@ pub fn translate_expr(
         Expr::IsNotDistinctFrom(_, _) => todo!(),
         Expr::InList { expr, list, negated } => {
             if alias.is_some() {
-                let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
+                let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
                 result.insert(alias, vec![TsFieldType::Boolean, TsFieldType::Null]);
                 Ok(())
             } else {
@@ -115,7 +118,7 @@ pub fn translate_expr(
             negated,
         } => {
             if alias.is_some() {
-                let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
+                let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
                 result.insert(alias, vec![TsFieldType::Any]);
                 Ok(())
             } else {
@@ -128,7 +131,7 @@ pub fn translate_expr(
             negated,
         } => {
             if alias.is_some() {
-                let alias = format_column_name(alias.unwrap().to_string(), transformation_config);
+                let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
                 result.insert(alias, vec![TsFieldType::Any]);
                 Ok(())
             } else {

@@ -15,14 +15,15 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler, cli_args
     // TODO: later we will add mysql_explain, sqlite_explain depending on the database type
     let mut failed = false;
     let config = Config::new(cli_args.to_owned());
-    let transformation_config = &config.transformation_config;
+    let generate_types_config = &config.generate_types_config;
+    let should_generate_types =
+        cli_args.generate_types || generate_types_config.to_owned().filter(|x| x.enabled).is_some();
 
     for (file_path, sqls) in queries {
         let mut sqls_to_write: Vec<String> = vec![];
         for sql in sqls {
             let connection = &config.get_correct_connection(&sql.query);
 
-            println!("checking connection {:?}", connection);
             let (explain_failed, ts_query) = match connection.db_type {
                 DatabaseType::Postgres => postgres_explain::prepare(&sql, &config, &handler),
                 DatabaseType::Mysql => mysql_explain::prepare(&sql, &config, &handler),
@@ -30,12 +31,12 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler, cli_args
 
             failed = explain_failed;
 
-            if transformation_config.is_some() {
+            if should_generate_types {
                 sqls_to_write.push(ts_query.to_string());
             }
         }
 
-        if transformation_config.is_some() {
+        if should_generate_types {
             // Finally writes query typing files
             let query_ts_file_path = get_query_ts_file_path(&file_path).unwrap();
             if query_ts_file_path.exists() {

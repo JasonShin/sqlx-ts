@@ -2,7 +2,6 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt::{self};
 
-use crate::common::config::TransformConfig;
 use mysql::Conn as MySQLConn;
 use postgres::Client as PostgresConn;
 

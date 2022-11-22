@@ -1,13 +1,7 @@
 {
   "generateTypes": {
     "enabled": true,
-    "convertToCamelCaseColumnName": true,
-    "modes": [
-      {
-        "mode": "ts",
-        "failOnError": true
-      }
-    ]
+    "convertToCamelCaseColumnName": true
   },
   "connections": {
     "default": {

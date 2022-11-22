@@ -11,12 +11,12 @@ use std::str::FromStr;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct SqlxConfig {
-    pub transforms: Option<TransformConfig>,
+    pub generate_types: Option<GenerateTypesConfig>,
     pub connections: HashMap<String, DbConnectionConfig>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct TransformConfig {
+pub struct GenerateTypesConfig {
     pub enabled: bool,
     #[serde(rename = "convertToCamelCaseColumnName")]
     pub convert_to_camel_case_column_name: bool,
@@ -46,7 +46,7 @@ pub struct DbConnectionConfig {
 pub struct Config {
     pub cli_args: Cli,
     pub dotenv: Dotenv,
-    pub transformation_config: Option<TransformConfig>,
+    pub generate_types_config: Option<GenerateTypesConfig>,
     pub connections: HashMap<String, DbConnectionConfig>,
 }
 
@@ -55,9 +55,9 @@ impl Config {
         let cli_args = &cli_args;
         let dotenv = Dotenv::new();
 
-        let (transformation_config, connections) = Self::build_configs(&cli_args, &dotenv);
-        let transformation_config =
-            transformation_config
+        let (generate_types_config, connections) = Self::build_configs(&cli_args, &dotenv);
+        let generate_types_config =
+            generate_types_config
                 .clone()
                 .and_then(|config| if config.enabled { Some(config.clone()) } else { None });
 
@@ -65,7 +65,7 @@ impl Config {
             dotenv: dotenv.clone(),
             cli_args: cli_args.to_owned(),
             connections,
-            transformation_config,
+            generate_types_config,
         }
     }
 
@@ -73,7 +73,7 @@ impl Config {
     fn build_configs(
         cli_args: &Cli,
         dotenv: &Dotenv,
-    ) -> (Option<TransformConfig>, HashMap<String, DbConnectionConfig>) {
+    ) -> (Option<GenerateTypesConfig>, HashMap<String, DbConnectionConfig>) {
         let default_config_path = PathBuf::from_str(".sqlxrc.json").unwrap();
         let file_config_path = &cli_args.config.clone().unwrap_or(default_config_path);
         let file_based_config = fs::read_to_string(&file_config_path).unwrap();
@@ -85,7 +85,7 @@ impl Config {
             Self::get_default_connection_config(&cli_args, &dotenv, &connections.get("default")),
         );
 
-        (configs.transforms, connections)
+        (configs.generate_types, connections)
     }
 
     /// Figures out the default connection, default connection must exist for sqlx-ts to work

@@ -36,7 +36,7 @@ pub fn prepare(sql: &SQL, config: &Config, handler: &Handler) -> (bool, TsQuery)
         &sql,
         &connection_config,
         &DBConn::MySQLPooledConn(&mut RefCell::new(&mut conn)),
-        &config.transformation_config,
+        &config.generate_types_config,
     )
     .unwrap();
 

@@ -1,6 +1,6 @@
 use mysql;
-use postgres;
 use mysql::{prelude::Queryable, Conn};
+use postgres;
 use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -41,7 +41,12 @@ impl DBSchema {
         }
     }
 
-    fn postgres_fetch_table(&self, database_name: &str, table_name: &str, conn: &RefCell<&mut postgres::Client>) -> Option<Fields> {
+    fn postgres_fetch_table(
+        &self,
+        database_name: &str,
+        table_name: &str,
+        conn: &RefCell<&mut postgres::Client>,
+    ) -> Option<Fields> {
         let table = self.tables_cache.get(table_name);
 
         match table {
@@ -83,7 +88,12 @@ impl DBSchema {
         }
     }
 
-    fn mysql_fetch_table(&self, database_name: &str, table_name: &str, conn: &RefCell<&mut mysql::Conn>) -> Option<Fields> {
+    fn mysql_fetch_table(
+        &self,
+        database_name: &str,
+        table_name: &str,
+        conn: &RefCell<&mut mysql::Conn>,
+    ) -> Option<Fields> {
         let table = self.tables_cache.get(table_name);
 
         match table {

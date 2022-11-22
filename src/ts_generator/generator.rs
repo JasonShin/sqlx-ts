@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
-use crate::common::config::{DbConnectionConfig, TransformConfig};
+use crate::common::config::{DbConnectionConfig, GenerateTypesConfig};
 use crate::common::SQL;
 use crate::ts_generator::annotations::extract_result_annotations;
 use crate::ts_generator::sql_parser::translate_stmt::translate_stmt;
@@ -56,7 +56,7 @@ pub fn generate_ts_interface(
     sql: &SQL,
     db_connection_config: &DbConnectionConfig,
     db_conn: &DBConn,
-    transformation_config: &Option<TransformConfig>,
+    generate_types_config: &Option<GenerateTypesConfig>,
 ) -> Result<TsQuery, TsGeneratorError> {
     let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
 
@@ -81,7 +81,7 @@ pub fn generate_ts_interface(
             db_name.as_str(),
             &annotated_result_types,
             &db_conn,
-            &transformation_config,
+            &generate_types_config,
         )?;
     }
 

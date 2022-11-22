@@ -38,12 +38,12 @@ pub fn prepare<'a>(sql: &SQL, config: &Config, handler: &Handler) -> (bool, TsQu
 
     conn.query("DEALLOCATE sqlx_stmt", &[]).unwrap();
 
-    let transformation_config = &config.transformation_config;
+    let generate_types_config = &config.generate_types_config;
     let ts_query = generate_ts_interface(
         &sql,
         &connection,
         &DBConn::PostgresConn(&mut RefCell::new(&mut conn)),
-        &transformation_config,
+        &generate_types_config,
     )
     .unwrap();
 
