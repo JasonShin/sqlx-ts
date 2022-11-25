@@ -8,7 +8,7 @@ use mysql::prelude::*;
 use mysql::*;
 use swc_common::errors::Handler;
 
-pub fn prepare(sql: &SQL, config: &Config, handler: &Handler) -> (bool, TsQuery) {
+pub fn prepare(sql: &SQL, config: &Config, should_generate_types: &bool, handler: &Handler) -> (bool, Option<TsQuery>) {
     let connection_config = &config.get_correct_connection(&sql.query);
     let mut failed = false;
 
@@ -32,13 +32,19 @@ pub fn prepare(sql: &SQL, config: &Config, handler: &Handler) -> (bool, TsQuery)
         failed = true;
     }
 
-    let ts_query = generate_ts_interface(
-        &sql,
-        &connection_config,
-        &DBConn::MySQLPooledConn(&mut RefCell::new(&mut conn)),
-        &config.generate_types_config,
-    )
-    .unwrap();
+    let mut ts_query = None;
+
+    if should_generate_types == &true {
+        ts_query = Some(
+            generate_ts_interface(
+                &sql,
+                &connection_config,
+                &DBConn::MySQLPooledConn(&mut RefCell::new(&mut conn)),
+                &config.generate_types_config,
+            )
+            .unwrap(),
+        );
+    }
 
     (failed, ts_query)
 }

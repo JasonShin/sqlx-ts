@@ -1,6 +1,6 @@
 {
   "generateTypes": {
-    "enabled": true,
+    "enabled": false,
     "convertToCamelCaseColumnName": true
   },
   "connections": {

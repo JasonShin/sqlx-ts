@@ -25,14 +25,15 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler, cli_args
             let connection = &config.get_correct_connection(&sql.query);
 
             let (explain_failed, ts_query) = match connection.db_type {
-                DatabaseType::Postgres => postgres_explain::prepare(&sql, &config, &handler),
-                DatabaseType::Mysql => mysql_explain::prepare(&sql, &config, &handler),
+                DatabaseType::Postgres => postgres_explain::prepare(&sql, &config, &should_generate_types, &handler),
+                DatabaseType::Mysql => mysql_explain::prepare(&sql, &config, &should_generate_types, &handler),
             };
 
             failed = explain_failed;
 
             if should_generate_types {
-                sqls_to_write.push(ts_query.to_string());
+                let ts_query = ts_query.expect("Failed to generate types from query").to_string();
+                sqls_to_write.push(ts_query);
             }
         }
 

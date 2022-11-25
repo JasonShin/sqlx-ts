@@ -17,7 +17,12 @@ fn get_postgres_cred(conn: &DbConnectionConfig) -> String {
     )
 }
 
-pub fn prepare<'a>(sql: &SQL, config: &Config, handler: &Handler) -> (bool, TsQuery) {
+pub fn prepare<'a>(
+    sql: &SQL,
+    config: &Config,
+    should_generate_types: &bool,
+    handler: &Handler,
+) -> (bool, Option<TsQuery>) {
     let connection = &config.get_correct_connection(&sql.query);
 
     let mut failed = false;
@@ -27,7 +32,6 @@ pub fn prepare<'a>(sql: &SQL, config: &Config, handler: &Handler) -> (bool, TsQu
     let prepare_query = format!("PREPARE sqlx_stmt AS {}", sql.query);
 
     let postgres_cred = &get_postgres_cred(&connection).clone();
-    println!("checking postgres cred {:?}", postgres_cred);
     let mut conn = Client::connect(postgres_cred, NoTls).unwrap();
     let result = conn.query(prepare_query.as_str(), &[]);
 
@@ -38,14 +42,20 @@ pub fn prepare<'a>(sql: &SQL, config: &Config, handler: &Handler) -> (bool, TsQu
 
     conn.query("DEALLOCATE sqlx_stmt", &[]).unwrap();
 
-    let generate_types_config = &config.generate_types_config;
-    let ts_query = generate_ts_interface(
-        &sql,
-        &connection,
-        &DBConn::PostgresConn(&mut RefCell::new(&mut conn)),
-        &generate_types_config,
-    )
-    .unwrap();
+    let mut ts_query = None;
+
+    if should_generate_types == &true {
+        let generate_types_config = &config.generate_types_config;
+        ts_query = Some(
+            generate_ts_interface(
+                &sql,
+                &connection,
+                &DBConn::PostgresConn(&mut RefCell::new(&mut conn)),
+                &generate_types_config,
+            )
+            .unwrap(),
+        );
+    }
 
     (failed, ts_query)
 }
