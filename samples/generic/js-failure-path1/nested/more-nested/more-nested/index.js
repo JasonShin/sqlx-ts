@@ -1,3 +1,4 @@
+/*
 import { sql } from "sqlx-ts";
 
 /////////////////
@@ -22,3 +23,4 @@ function test() {
     VALUES ('sushi', 1, 1, 20);
     `;
 }
+*/

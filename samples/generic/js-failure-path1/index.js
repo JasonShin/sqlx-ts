@@ -1,4 +1,5 @@
-// import { sql } from "sqlx-ts";
+
+import { sql } from "sqlx-ts";
 
 // Querying from an unknown table
 // const someQuery = sql`SELECT * FROM indexjs_unknown`;

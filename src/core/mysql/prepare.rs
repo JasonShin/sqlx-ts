@@ -13,7 +13,7 @@ pub fn prepare(sql: &SQL, config: &Config, should_generate_types: &bool, handler
     let mut failed = false;
 
     let span = sql.span.to_owned();
-    let explain_query = format!("PREPARE stmt FROM '{}'", sql.query);
+    let explain_query = format!("PREPARE stmt FROM \"{}\"", sql.query);
 
     let db_pass = &connection_config.db_pass;
     let db_name = &connection_config.db_name;
