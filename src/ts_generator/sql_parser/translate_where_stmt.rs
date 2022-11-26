@@ -12,7 +12,6 @@ pub fn translate_where_stmt(ts_query: &mut TsQuery, expr: &Expr, table_with_join
                 Expr::BinaryOp { left, op, right } => match *left.clone() {
                     Expr::Identifier(ident) => {
                         let field_name = ident.to_string();
-                        println!("checking fieldname {:?}", field_name);
                         ts_query.params.insert(field_name, vec![TsFieldType::Any]);
                     }
                     Expr::CompoundIdentifier(identifiers) => {
@@ -29,7 +28,6 @@ pub fn translate_where_stmt(ts_query: &mut TsQuery, expr: &Expr, table_with_join
             match *left.clone() {
                 Expr::Identifier(ident) => {
                     let field_name = ident.to_string();
-                    println!("checking fieldname {:?}", field_name);
                     ts_query.params.insert(field_name, vec![TsFieldType::Any]);
                 }
                 _ => {}

@@ -1,4 +1,4 @@
-import { sql as aliased } from "sqlx-ts";
+/*import { sql as aliased } from "sqlx-ts";
 
 /////////////////
 // expressions //
@@ -23,3 +23,4 @@ function test() {
     VALUES ('steak', 1, 1, 20, 1);
     `;
 }
+*/

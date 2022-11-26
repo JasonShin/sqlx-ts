@@ -76,16 +76,29 @@ impl Config {
     ) -> (Option<GenerateTypesConfig>, HashMap<String, DbConnectionConfig>) {
         let default_config_path = PathBuf::from_str(".sqlxrc.json").unwrap();
         let file_config_path = &cli_args.config.clone().unwrap_or(default_config_path);
-        let file_based_config = fs::read_to_string(&file_config_path).unwrap();
+        let file_based_config = fs::read_to_string(&file_config_path);
 
-        let configs = serde_json::from_str::<SqlxConfig>(&file_based_config).unwrap();
-        let mut connections = configs.connections;
+        let file_based_config =
+            &file_based_config.and_then(|f| Ok(serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap()));
+
+        let mut connections = &mut file_based_config
+            .as_ref()
+            .map(|config| config.connections.clone())
+            .unwrap_or(HashMap::new())
+            .clone();
+
+        let generate_types = &file_based_config
+            .as_ref()
+            .map(|config| config.generate_types.clone())
+            .unwrap_or(None.into())
+            .clone();
+
         connections.insert(
             "default".to_string(),
             Self::get_default_connection_config(&cli_args, &dotenv, &connections.get("default")),
         );
 
-        (configs.generate_types, connections)
+        (generate_types.to_owned(), connections.to_owned())
     }
 
     /// Figures out the default connection, default connection must exist for sqlx-ts to work
