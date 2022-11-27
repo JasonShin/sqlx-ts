@@ -2,12 +2,13 @@ mod common;
 mod core;
 mod parser;
 mod scan_folder;
+mod ts_generator;
 
 extern crate clap;
 extern crate dotenv;
 
 use crate::core::execute::execute;
-use clap::{ArgEnum, Args, Parser, Subcommand};
+use clap::Parser;
 use dotenv::dotenv;
 
 use crate::common::cli::Cli;
@@ -21,10 +22,7 @@ fn main() {
     let ext = &cli_args.ext;
     let ignore_paths = &cli_args.ignore;
 
-    println!(
-        "Scanning {:?} for sqls with extension {:?}",
-        source_folder, ext
-    );
+    println!("Scanning {:?} for sqls with extension {:?}", source_folder, ext);
 
     let files = scan_folder(&source_folder, ext, ignore_paths);
 

@@ -1,1 +1,8 @@
-max_width = 100
+edition = "2021"
+max_width = 120
+# https://github.com/rust-lang/rustfmt/blob/master/Configurations.md#chain_width
+chain_width = 70
+# https://github.com/rust-lang/rustfmt/blob/master/Configurations.md#match_arm_leading_pipes
+match_arm_leading_pipes = "Never"
+# https://github.com/rust-lang/rustfmt/blob/master/Configurations.md#merge_derives
+merge_derives = true

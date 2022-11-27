@@ -21,9 +21,7 @@ pub fn scan_folder<'a>(
             }
 
             // 2. any custom ignore paths set by user should be ignored
-            let should_ignore = ignore_paths
-                .iter()
-                .any(|ignore| entry.path().starts_with(ignore));
+            let should_ignore = ignore_paths.iter().any(|ignore| entry.path().starts_with(ignore));
             if should_ignore {
                 return false;
             }

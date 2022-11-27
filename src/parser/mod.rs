@@ -1,6 +1,7 @@
 mod import;
 mod tag;
 
+use std::collections::HashMap;
 use std::{borrow::BorrowMut, fs, path::PathBuf};
 
 use crate::common::SQL;
@@ -15,40 +16,51 @@ use swc_ecma_ast::{ClassMember, ModuleDecl, ModuleItem, Stmt};
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 use tag::{get_sql_from_expr, get_sql_from_var_decl};
 
+fn insert_or_append_sqls(sqls_container: &mut HashMap<PathBuf, Vec<SQL>>, sqls: &Vec<SQL>, file_path: &PathBuf) {
+    if sqls_container.contains_key(&*file_path.clone()) {
+        let mut value = sqls_container.get(file_path).unwrap().clone();
+        value.extend(sqls.clone());
+        sqls_container.insert(file_path.clone(), (*value.to_owned()).to_owned());
+    } else {
+        sqls_container.insert(file_path.clone(), sqls.clone());
+    }
+}
+
 fn recurse_and_find_sql(
-    mut sqls_container: &mut Vec<SQL>,
+    mut sqls_container: &mut HashMap<PathBuf, Vec<SQL>>,
     stmt: &Stmt,
     import_alias: &String,
+    file_path: &PathBuf,
 ) -> Option<String> {
     match stmt {
         Stmt::Block(block) => {
             for stmt in &block.stmts {
-                recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias);
+                recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias, &file_path);
             }
             None
         }
         Stmt::With(with_stmt) => {
             let stmt = *with_stmt.body.clone();
-            recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias);
+            recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias, &file_path);
             None
         }
         Stmt::Return(rtn) => {
             if let Some(expr) = &rtn.arg {
                 let span: MultiSpan = rtn.span.into();
-                let mut sqls = get_sql_from_expr(*expr.clone(), span, import_alias);
-                &sqls_container.append(&mut sqls);
+                let sqls = get_sql_from_expr(&None, &*expr.clone(), &span, &import_alias);
+                insert_or_append_sqls(&mut sqls_container, &sqls, &file_path);
             }
             None
         }
         Stmt::If(if_stmt) => {
             let stmt = *if_stmt.cons.clone();
-            recurse_and_find_sql(&mut sqls_container, &stmt, import_alias);
+            recurse_and_find_sql(&mut sqls_container, &stmt, import_alias, &file_path);
             None
         }
         Stmt::Switch(switch_stmt) => {
             for case in &switch_stmt.cases {
                 for stmt in &case.cons {
-                    recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias);
+                    recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias, &file_path);
                 }
             }
             None
@@ -56,47 +68,47 @@ fn recurse_and_find_sql(
         Stmt::Throw(throw_stmt) => {
             let span: MultiSpan = throw_stmt.span.into();
             let expr = *throw_stmt.arg.clone();
-            let mut result = get_sql_from_expr(expr, span, import_alias);
-            &sqls_container.append(&mut result);
+            let sqls = get_sql_from_expr(&None, &expr, &span, &import_alias);
+            insert_or_append_sqls(&mut sqls_container, &sqls, &file_path);
             None
         }
         Stmt::Try(try_stmt) => {
             // handles statements inside try {}
             for stmt in &try_stmt.block.stmts {
-                recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias);
+                recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias, &file_path);
             }
 
             // handles statements inside catch {}
             if let Some(stmt) = &try_stmt.handler {
                 for stmt in &stmt.body.stmts {
-                    recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias);
+                    recurse_and_find_sql(&mut sqls_container, &stmt, &import_alias, &file_path);
                 }
             }
             None
         }
         Stmt::While(while_stmt) => {
             let body_stmt = *while_stmt.body.clone();
-            recurse_and_find_sql(&mut sqls_container, &body_stmt, &import_alias);
+            recurse_and_find_sql(&mut sqls_container, &body_stmt, &import_alias, &file_path);
             None
         }
         Stmt::DoWhile(do_while_stmt) => {
             let body_stmt = *do_while_stmt.body.clone();
-            recurse_and_find_sql(&mut sqls_container, &body_stmt, &import_alias);
+            recurse_and_find_sql(&mut sqls_container, &body_stmt, &import_alias, &file_path);
             None
         }
         Stmt::For(for_stmt) => {
             let body_stmt = *for_stmt.body.clone();
-            recurse_and_find_sql(&mut sqls_container, &body_stmt, &import_alias);
+            recurse_and_find_sql(&mut sqls_container, &body_stmt, &import_alias, &file_path);
             None
         }
         Stmt::ForIn(for_in_stmt) => {
             let body_stmt = *for_in_stmt.body.clone();
-            recurse_and_find_sql(&mut sqls_container, &body_stmt, &import_alias);
+            recurse_and_find_sql(&mut sqls_container, &body_stmt, &import_alias, &file_path);
             None
         }
         Stmt::ForOf(for_of_stmt) => {
             let body_stmt = *for_of_stmt.body.clone();
-            recurse_and_find_sql(&mut sqls_container, &body_stmt, &import_alias);
+            recurse_and_find_sql(&mut sqls_container, &body_stmt, &import_alias, &file_path);
             None
         }
         Stmt::Decl(decl) => match decl {
@@ -108,20 +120,20 @@ fn recurse_and_find_sql(
                         ClassMember::Method(class_method) => {
                             if let Some(body) = &class_method.function.body {
                                 for stmt in &body.stmts {
-                                    recurse_and_find_sql(&mut sqls_container, &stmt, import_alias);
+                                    recurse_and_find_sql(&mut sqls_container, &stmt, import_alias, &file_path);
                                 }
                             }
                         }
                         ClassMember::PrivateMethod(private_method) => {
                             if let Some(body) = &private_method.function.body {
                                 for stmt in &body.stmts {
-                                    recurse_and_find_sql(&mut sqls_container, &stmt, import_alias);
+                                    recurse_and_find_sql(&mut sqls_container, &stmt, import_alias, &file_path);
                                 }
                             }
                         }
                         ClassMember::StaticBlock(static_block) => {
                             for stmt in &static_block.body.stmts {
-                                recurse_and_find_sql(&mut sqls_container, &stmt, import_alias);
+                                recurse_and_find_sql(&mut sqls_container, &stmt, import_alias, &file_path);
                             }
                         }
                         _ => {}
@@ -132,7 +144,7 @@ fn recurse_and_find_sql(
             swc_ecma_ast::Decl::Fn(fun) => {
                 if let Some(body) = &fun.function.body {
                     for stmt in &body.stmts {
-                        recurse_and_find_sql(&mut sqls_container, &stmt, import_alias);
+                        recurse_and_find_sql(&mut sqls_container, &stmt, import_alias, &file_path);
                     }
                 }
                 None
@@ -140,8 +152,8 @@ fn recurse_and_find_sql(
             swc_ecma_ast::Decl::Var(var) => {
                 for var_decl in &var.decls {
                     let span: MultiSpan = var.span.into();
-                    let mut sqls = get_sql_from_var_decl(var_decl, span, import_alias);
-                    &sqls_container.append(sqls.borrow_mut());
+                    let sqls = get_sql_from_var_decl(var_decl, span, import_alias);
+                    insert_or_append_sqls(&mut sqls_container, &sqls, &file_path);
                 }
 
                 None
@@ -151,15 +163,15 @@ fn recurse_and_find_sql(
         Stmt::Expr(expr) => {
             let span: MultiSpan = expr.span.into();
             let expr = *expr.expr.clone();
-            let mut result = get_sql_from_expr(expr, span, import_alias);
-            &sqls_container.append(&mut result);
+            let sqls = get_sql_from_expr(&None, &expr, &span, import_alias);
+            insert_or_append_sqls(&mut sqls_container, &sqls, &file_path);
             None
         }
         _ => None,
     }
 }
 
-pub fn parse_source(path: &PathBuf) -> (Vec<SQL>, Handler) {
+pub fn parse_source(path: &PathBuf) -> (HashMap<PathBuf, Vec<SQL>>, Handler) {
     let contents = fs::read_to_string(path).unwrap();
 
     let cm: Lrc<SourceMap> = Default::default();
@@ -184,7 +196,7 @@ pub fn parse_source(path: &PathBuf) -> (Vec<SQL>, Handler) {
         })
         .expect("failed to parse module");
 
-    let mut sqls: Vec<SQL> = vec![];
+    let mut sqls: HashMap<PathBuf, Vec<SQL>> = HashMap::new();
 
     let import_alias = _module
         .body
@@ -202,8 +214,7 @@ pub fn parse_source(path: &PathBuf) -> (Vec<SQL>, Handler) {
     for item in &_module.body {
         match item {
             ModuleItem::Stmt(stmt) => {
-                // TODO: maybe have a main mutable array and pass it to the recurse method
-                recurse_and_find_sql(&mut sqls, &stmt, &import_alias);
+                recurse_and_find_sql(&mut sqls, &stmt, &import_alias, &path);
             }
             _ => {}
         }

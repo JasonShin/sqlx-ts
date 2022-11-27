@@ -1,5 +1,5 @@
 use crate::common::types::{DatabaseType, JsExtension};
-use clap::{ArgEnum, Parser};
+use clap::Parser;
 
 impl ToString for JsExtension {
     fn to_string(&self) -> String {
@@ -56,4 +56,8 @@ pub struct Cli {
     /// Path to the file based configuration
     #[clap(long, parse(from_os_str))]
     pub config: Option<std::path::PathBuf>,
+
+    /// generate types of raw SQLs using default configuration
+    #[clap(long, short)]
+    pub generate_types: bool,
 }

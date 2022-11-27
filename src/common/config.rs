@@ -10,6 +10,19 @@ use std::path::PathBuf;
 use std::str::FromStr;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SqlxConfig {
+    pub generate_types: Option<GenerateTypesConfig>,
+    pub connections: HashMap<String, DbConnectionConfig>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct GenerateTypesConfig {
+    pub enabled: bool,
+    #[serde(rename = "convertToCamelCaseColumnName")]
+    pub convert_to_camel_case_column_name: bool,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DbConnectionConfig {
     #[serde(rename = "DB_TYPE")]
     pub db_type: DatabaseType,
@@ -31,16 +44,10 @@ pub struct DbConnectionConfig {
 /// 2. any dotenv configured options
 #[derive(Clone, Debug)]
 pub struct Config {
-    cli_args: Cli,
-    dotenv: Dotenv,
+    pub cli_args: Cli,
+    pub dotenv: Dotenv,
+    pub generate_types_config: Option<GenerateTypesConfig>,
     pub connections: HashMap<String, DbConnectionConfig>,
-}
-
-fn required_var_msg(key: &str) -> String {
-    format!(
-        "{} is not provided neither by an environment variable or CLI argument",
-        key
-    )
 }
 
 impl Config {
@@ -48,34 +55,50 @@ impl Config {
         let cli_args = &cli_args;
         let dotenv = Dotenv::new();
 
+        let (generate_types_config, connections) = Self::build_configs(&cli_args, &dotenv);
+        let generate_types_config =
+            generate_types_config
+                .clone()
+                .and_then(|config| if config.enabled { Some(config.clone()) } else { None });
+
         Config {
             dotenv: dotenv.clone(),
             cli_args: cli_args.to_owned(),
-            connections: Self::build_connection_configs(&cli_args, &dotenv),
+            connections,
+            generate_types_config,
         }
     }
 
     /// Build the initial connection config to be used as a HashMap
-    fn build_connection_configs(
+    fn build_configs(
         cli_args: &Cli,
         dotenv: &Dotenv,
-    ) -> HashMap<String, DbConnectionConfig> {
+    ) -> (Option<GenerateTypesConfig>, HashMap<String, DbConnectionConfig>) {
         let default_config_path = PathBuf::from_str(".sqlxrc.json").unwrap();
         let file_config_path = &cli_args.config.clone().unwrap_or(default_config_path);
         let file_based_config = fs::read_to_string(&file_config_path);
 
-        let mut connections: HashMap<String, DbConnectionConfig> = HashMap::new();
+        let file_based_config =
+            &file_based_config.and_then(|f| Ok(serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap()));
 
-        if let Ok(file_based_config) = file_based_config {
-            connections = serde_json::from_str(&file_based_config).unwrap();
-        }
+        let mut connections = &mut file_based_config
+            .as_ref()
+            .map(|config| config.connections.clone())
+            .unwrap_or(HashMap::new())
+            .clone();
+
+        let generate_types = &file_based_config
+            .as_ref()
+            .map(|config| config.generate_types.clone())
+            .unwrap_or(None.into())
+            .clone();
 
         connections.insert(
             "default".to_string(),
             Self::get_default_connection_config(&cli_args, &dotenv, &connections.get("default")),
         );
 
-        connections
+        (generate_types.to_owned(), connections.to_owned())
     }
 
     /// Figures out the default connection, default connection must exist for sqlx-ts to work
@@ -162,20 +185,29 @@ impl Config {
     }
 
     pub fn get_correct_connection(&self, raw_sql: &str) -> DbConnectionConfig {
-        let re = Regex::new(r"(/*|//) db: (?P<conn>[\w]+)( */){0,}").unwrap();
+        let re = Regex::new(r"(/*|//|--) @db: (?P<conn>[\w]+)( */){0,}").unwrap();
         let found_matches = re.captures(raw_sql);
 
         if let Some(found_match) = &found_matches {
             let detected_conn_name = &found_match[2];
-            return self.connections.get(detected_conn_name)
-                .expect(format!("Failed to find a matching connection type - connection name: {detected_conn_name}").as_str())
+            return self
+                .connections
+                .get(detected_conn_name)
+                .expect(
+                    format!("Failed to find a matching connection type - connection name: {detected_conn_name}")
+                        .as_str(),
+                )
                 .clone();
         }
 
-        self.connections.get("default")
-            .expect(r"Failed to find the default connection configuration - check your configuration
+        self.connections
+            .get("default")
+            .expect(
+                r"Failed to find the default connection configuration - check your configuration
               CLI options: https://jasonshin.github.io/sqlx-ts/user-guide/2.1.cli-options.html
               File based config: https://jasonshin.github.io/sqlx-ts/reference-guide/2.configs-file-based.html
-            ").clone()
+            ",
+            )
+            .clone()
     }
 }
