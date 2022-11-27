@@ -16,7 +16,6 @@
 - [Connection Config](./reference-guide/2.connection-config.md)
   - [File based config for multiple database connections](./reference-guide/2.1.configs-file-based.md)
   - [Environment variables](./reference-guide/2.2.environment-variables.md)
-- [sqlx-ts npm module](./reference-guide/3.npm-module.md)
 - [Type generation](./reference-guide/4.typescript-types-generation.md)
   - [Annotations](./reference-guide/4.1.annotations.md)
 
