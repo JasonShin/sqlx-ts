@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>sqlx-ts npm module - sqlx-ts</title>
+        <title>Annotations - sqlx-ts</title>
         <!-- Custom HTML head -->
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">User Guide</li><li class="chapter-item expanded "><a href="../user-guide/1.installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../user-guide/2.getting-started.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../user-guide/2.1.cli-options.html"><strong aria-hidden="true">2.1.</strong> CLI Options</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Reference Guide</li><li class="chapter-item expanded "><a href="../reference-guide/1.sql-check.html"><strong aria-hidden="true">3.</strong> SQL Check</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../reference-guide/1.1.sql-check-mysql.html"><strong aria-hidden="true">3.1.</strong> MySQL</a></li><li class="chapter-item expanded "><a href="../reference-guide/1.2.sql-check-postgres.html"><strong aria-hidden="true">3.2.</strong> Postgres</a></li></ol></li><li class="chapter-item expanded "><a href="../reference-guide/2.connection-config.html"><strong aria-hidden="true">4.</strong> Connection Config</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../reference-guide/2.1.configs-file-based.html"><strong aria-hidden="true">4.1.</strong> File based config for multiple database connections</a></li><li class="chapter-item expanded "><a href="../reference-guide/2.2.environment-variables.html"><strong aria-hidden="true">4.2.</strong> Environment variables</a></li></ol></li><li class="chapter-item expanded "><a href="../reference-guide/3.npm-module.html" class="active"><strong aria-hidden="true">5.</strong> sqlx-ts npm module</a></li><li class="chapter-item expanded "><a href="../reference-guide/4.typescript-types-generation.html"><strong aria-hidden="true">6.</strong> Typescript type generation based on SQL queries</a></li><li class="chapter-item expanded affix "><li class="part-title">Miscellaneous</li><li class="chapter-item expanded "><a href="../misc/1.troubleshooting.html"><strong aria-hidden="true">7.</strong> Troubleshooting</a></li><li class="chapter-item expanded "><a href="../misc/2.documentation-practices.html"><strong aria-hidden="true">8.</strong> Documentation Best Practices</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">User Guide</li><li class="chapter-item expanded "><a href="../user-guide/1.installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../user-guide/2.getting-started.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../user-guide/2.1.cli-options.html"><strong aria-hidden="true">2.1.</strong> CLI Options</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Reference Guide</li><li class="chapter-item expanded "><a href="../reference-guide/1.sql-check.html"><strong aria-hidden="true">3.</strong> SQL Check</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../reference-guide/1.1.sql-check-mysql.html"><strong aria-hidden="true">3.1.</strong> MySQL</a></li><li class="chapter-item expanded "><a href="../reference-guide/1.2.sql-check-postgres.html"><strong aria-hidden="true">3.2.</strong> Postgres</a></li></ol></li><li class="chapter-item expanded "><a href="../reference-guide/2.connection-config.html"><strong aria-hidden="true">4.</strong> Connection Config</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../reference-guide/2.1.configs-file-based.html"><strong aria-hidden="true">4.1.</strong> File based config for multiple database connections</a></li><li class="chapter-item expanded "><a href="../reference-guide/2.2.environment-variables.html"><strong aria-hidden="true">4.2.</strong> Environment variables</a></li></ol></li><li class="chapter-item expanded "><a href="../reference-guide/4.typescript-types-generation.html"><strong aria-hidden="true">5.</strong> Type generation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../reference-guide/4.1.annotations.html" class="active"><strong aria-hidden="true">5.1.</strong> Annotations</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Miscellaneous</li><li class="chapter-item expanded "><a href="../misc/1.troubleshooting.html"><strong aria-hidden="true">6.</strong> Troubleshooting</a></li><li class="chapter-item expanded "><a href="../misc/2.documentation-practices.html"><strong aria-hidden="true">7.</strong> Documentation Best Practices</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -134,16 +134,141 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="npm-module"><a class="header" href="#npm-module">NPM module</a></h1>
+                        <h1 id="annotations"><a class="header" href="#annotations">Annotations</a></h1>
+<blockquote>
+<p>⚠️ <strong>FEATURE NOT READY</strong>: I am still building this feature and cannot be used yet!</p>
+</blockquote>
+<p>Annotation is a way to configure custom settings for the type generator. Here are the supported annotations</p>
+<div class="table-wrapper"><table><thead><tr><th>Annotation</th><th>Description</th></tr></thead><tbody>
+<tr><td>@name</td><td>name to be used when generating types. It will override the default name (variable name) and it will be formatted in camelcase.</td></tr>
+<tr><td>@db</td><td>name of the database you'd like to use for the query. By default it will use <code>default</code></td></tr>
+</tbody></table>
+</div>
+<pre><code class="language-typescript">// example
+const someQuery = sql`
+-- @name: simpleQuery
+-- @db: mysql
+SELECT *
+FROM items
+WHERE points &gt; ?;
+`
+</code></pre>
+<p>Above example query will generate following types</p>
+<pre><code class="language-typescript">export type ISimpleQueryParams = [number]
+
+export interface ISimpleQueryResult {
+    id: string
+    points: number
+}
+
+export interface ISimpleQueryQuery{
+    params: ISimpleQueryParams;
+    result: ISimpleQueryResult;
+}
+</code></pre>
+<p>Note that types are generated with <code>SimpleQuery</code> namespace instead of the variable name <code>SomeQuery</code>. This is the result of setting <code>@name</code> annotation
+in the query. Also, it will use <code>mysql</code> database connection that you configured in <code>.sqlxrc.json</code> as a result of setting <code>@db</code>.</p>
+<h1 id="overrides"><a class="header" href="#overrides">Overrides</a></h1>
+<p>sqlx-ts cannot generate typing for complex SQL syntax such as JSON functions. In this scenario, sqlx-ts will return <code>any</code> and you can use annotations
+to override the result to a type that you anticipate.</p>
+<h2 id="supported-types"><a class="header" href="#supported-types">Supported types</a></h2>
+<p>Type override supports these types <code>string</code>, <code>number</code>, <code>boolean</code>, <code>object</code>, <code>null</code>, <code>any</code>, and <code>never</code></p>
+<h2 id="overriding-results"><a class="header" href="#overriding-results">Overriding results</a></h2>
+<pre><code class="language-typescript">const someQuery = sql`
+-- @result points: number | null
+SELECT
+    id,
+    JSON_EXTRACT(items.c, &quot;$.points&quot;) as points
+FROM items
+`
+</code></pre>
+<p>would generate</p>
+<pre><code class="language-typescript">export type ISimpleQueryParams = []
+
+export interface ISimpleQueryResult {
+    id: string
+    points: number
+}
+
+export interface ISimpleQueryQuery{
+    params: ISimpleQueryParams;
+    result: ISimpleQueryResult;
+}
+</code></pre>
+<p>It's important that you give it an alias so sqlx-ts can match it with your custom annotation.</p>
+<blockquote>
+<p>Rust provides pattern matching that enforces you to handle all patterns of an enum.
+Based on this, we can exhaustively handle all SQL syntax and narrow down the patterns that sqlx-ts cannot handle.
+If you ever use following SQL syntax, it is encouraged to override the type using @result annotation.</p>
+</blockquote>
+<h2 id="overriding-params"><a class="header" href="#overriding-params">Overriding params</a></h2>
+<p>Overriding generated type for a param works by adding an annotation <code>-- @param &lt;index&gt;: type</code>. </p>
+<ul>
+<li><code>index</code> is the position of the query parameter within your SQL</li>
+<li>type is the type to override</li>
+</ul>
+<h3 id="mysql"><a class="header" href="#mysql">MySQL</a></h3>
+<p>If you have a MySQL query like following, you can override param types like in the example below</p>
+<pre><code class="language-typescript">const someQuery = sql`
+-- @db: mysql
+-- @param 1: number
+-- @param 2: string
+SELECT
+    id, points
+FROM items
+WHERE points &lt; ?
+AND name = ?
+`
+</code></pre>
+<p>it would generate the following type definitions</p>
+<pre><code class="language-typescript">export type ISimpleQueryParams = [number, string]
+
+export interface ISimpleQueryResult {
+    id: string
+    points: number
+}
+
+export interface ISimpleQueryQuery{
+    params: ISimpleQueryParams;
+    result: ISimpleQueryResult;
+}
+</code></pre>
+<h3 id="postgres"><a class="header" href="#postgres">Postgres</a></h3>
+<p>If you have a Postgres query like following, you can override param types like in the example below</p>
+<pre><code class="language-typescript">const someQuery = sql`
+-- @db: postgres
+-- @param 1: number
+-- @param 2: string
+SELECT
+    id, points
+FROM items
+WHERE points &lt; $2
+AND name = $1
+`
+</code></pre>
+<p>it would generate the following type definitions</p>
+<pre><code class="language-typescript">export type ISimpleQueryParams = [string, number]
+
+export interface ISimpleQueryResult {
+    id: string
+    points: number
+}
+
+export interface ISimpleQueryQuery{
+    params: ISimpleQueryParams;
+    result: ISimpleQueryResult;
+}
+</code></pre>
+<p>It will respect the order of query parameters set by you <code>$1</code> and <code>$2</code>, and generate the params in the order that it detects</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../reference-guide/2.2.environment-variables.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../reference-guide/4.typescript-types-generation.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
-                            <a rel="next" href="../reference-guide/4.typescript-types-generation.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="../misc/1.troubleshooting.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         <div style="clear: both"></div>
@@ -152,10 +277,10 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../reference-guide/2.2.environment-variables.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../reference-guide/4.typescript-types-generation.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
-                    <a rel="next" href="../reference-guide/4.typescript-types-generation.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../misc/1.troubleshooting.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
