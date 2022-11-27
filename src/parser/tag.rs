@@ -27,11 +27,6 @@ pub fn get_sql_from_expr<'a>(
     match &expr {
         Expr::TaggedTpl(tagged_tpl) => {
             let tag = &*tagged_tpl.tag;
-            println!("tagged tpl {:#?} import alias {:#?}", tagged_tpl.tpl, import_alias);
-            println!("also checking tag {:#?}", tag);
-
-            if let Expr::Member(member) = tag {}
-
             if let Expr::Ident(ident) = tag {
                 let ident = ident.to_string();
 
