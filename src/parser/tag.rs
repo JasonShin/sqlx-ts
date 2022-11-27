@@ -27,6 +27,11 @@ pub fn get_sql_from_expr<'a>(
     match &expr {
         Expr::TaggedTpl(tagged_tpl) => {
             let tag = &*tagged_tpl.tag;
+            println!("tagged tpl {:#?} import alias {:#?}", tagged_tpl.tpl, import_alias);
+            println!("also checking tag {:#?}", tag);
+
+            if let Expr::Member(member) = tag {}
+
             if let Expr::Ident(ident) = tag {
                 let ident = ident.to_string();
 
@@ -64,6 +69,7 @@ pub fn get_sql_from_var_decl(var_declarator: &VarDeclarator, span: MultiSpan, im
     }
 
     if let Some(init) = &var_declarator.init {
+        // TODO: make it understand `const someQuery = SQLX.sql`SELECT * FROM lazy_unknown2`;` in js_failure_path1/lazy-loaded.js
         let mut result = get_sql_from_expr(&Some(var_decl_name.unwrap()), &*init.clone(), &span, &import_alias);
         bag_of_sqls.append(&mut result);
     }

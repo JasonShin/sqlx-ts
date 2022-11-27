@@ -7,12 +7,12 @@ function test() {
   return someQuery;
 }
 
+// Below syntax is not yet supported
 function test2() {
   const SQLX = require("sqlx-ts");
   const someQuery = SQLX.sql`SELECT * FROM lazy_unknown2`;
 
   return someQuery;
 }
-
 test();
 test2();

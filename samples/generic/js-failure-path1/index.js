@@ -1,9 +1,8 @@
-
 import { sql } from "sqlx-ts";
 
 // Querying from an unknown table
-// const someQuery = sql`SELECT * FROM indexjs_unknown`;
-/*
+const someQuery = sql`SELECT * FROM indexjs_unknown`;
+
 // Inserting more values than expected
 const insertQuery = sql`
     INSERT INTO items (food_type, time_takes_to_cook, table_id, points)
@@ -79,4 +78,3 @@ do {
   const query = sql`SELECT * FROM do_while1`;
   i++;
 } while (i < 5);
-*/

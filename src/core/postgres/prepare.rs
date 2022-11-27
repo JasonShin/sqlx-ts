@@ -40,7 +40,11 @@ pub fn prepare<'a>(
         failed = true;
     }
 
-    conn.query("DEALLOCATE sqlx_stmt", &[]).unwrap();
+    let deallocate_result = conn.query("DEALLOCATE sqlx_stmt", &[]);
+    match deallocate_result {
+        Ok(_) => {}
+        Err(_) => {}
+    }
 
     let mut ts_query = None;
 
