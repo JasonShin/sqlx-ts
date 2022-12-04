@@ -3,11 +3,8 @@ use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::information_schema::DBSchema;
 use crate::ts_generator::types::{DBConn, TsFieldType};
 use sqlparser::ast::{Join, SetExpr, Statement, TableFactor, TableWithJoins};
-use sqlparser::test_utils::join;
-use std::borrow::BorrowMut;
 use std::collections::HashMap;
 
-// should return a result
 pub fn get_all_table_names_from_expr(sql_statement: &Statement) -> Result<Vec<String>, TsGeneratorError> {
     let table_with_joins: TableWithJoins = match sql_statement {
         Statement::Query(query) => match &query.body {
