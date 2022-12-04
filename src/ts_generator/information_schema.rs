@@ -4,6 +4,7 @@ use postgres;
 use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;
 use std::collections::HashMap;
+use swc_common::util::move_map::MoveMap;
 
 use super::types::{DBConn, TsFieldType};
 
@@ -44,9 +45,10 @@ impl DBSchema {
     fn postgres_fetch_table(
         &self,
         database_name: &str,
-        table_name: &Vec<&str>,
+        table_names: &Vec<&str>,
         conn: &RefCell<&mut postgres::Client>,
     ) -> Option<Fields> {
+        let table_names = table_names.into_iter().map(|x| format!("'{x}'")).collect::<Vec<_>>().join(",");
         let query = format!(
             r"
         SELECT
@@ -55,10 +57,10 @@ impl DBSchema {
             IS_NULLABLE as is_nulalble
         FROM information_schema.COLUMNS
         WHERE TABLE_SCHEMA = '{}'
-        AND TABLE_NAME IN '{}'
+        AND TABLE_NAME IN ({})
                 ",
             database_name,
-            table_name.join(",")
+            table_names,
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
@@ -85,9 +87,10 @@ impl DBSchema {
     fn mysql_fetch_table(
         &self,
         database_name: &str,
-        table_name: &Vec<&str>,
+        table_names: &Vec<&str>,
         conn: &RefCell<&mut mysql::Conn>,
     ) -> Option<Fields> {
+        let table_names = table_names.into_iter().map(|x| format!("'{x}'")).collect::<Vec<_>>().join(",");
         let query = format!(
             r"
         SELECT
@@ -99,7 +102,7 @@ impl DBSchema {
         AND TABLE_NAME IN ({})
                 ",
             database_name,
-            table_name.join(",")
+            table_names
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();

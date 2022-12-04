@@ -20,7 +20,6 @@ pub fn get_all_table_names_from_expr(sql_statement: &Statement) -> Result<Vec<St
         },
         _ => Err(TsGeneratorError::WildcardStatementDeadendExpression),
     }?;
-    println!("checking table with joins {:#?}", table_with_joins);
 
     let primary_table_name = match table_with_joins.relation {
         TableFactor::Table { name, .. } => Ok(name.to_string()),
@@ -58,6 +57,18 @@ pub fn translate_wildcard_expr(
 ) -> Result<(), TsGeneratorError> {
     let db_schema = DBSchema::new();
     let table_with_joins = get_all_table_names_from_expr(sql_statement)?;
-    println!("checking table with joins {:#?}", table_with_joins);
+    let table_with_joins = table_with_joins.iter().map(|s| s.as_ref()).collect();
+    let all_fields = db_schema.fetch_table(&db_name, &table_with_joins, &db_conn);
+    if let Some(all_fields) = all_fields {
+        for key in all_fields.keys() {
+            let field = all_fields.get(key).unwrap();
+            let mut field_types = vec![field.field_type];
+            if field.is_nullable {
+                field_types.push(TsFieldType::Null);
+            }
+
+            result.insert(key.to_owned(), field_types);
+        }
+    }
     Ok(())
 }
