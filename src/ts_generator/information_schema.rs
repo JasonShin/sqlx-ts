@@ -48,7 +48,11 @@ impl DBSchema {
         table_names: &Vec<&str>,
         conn: &RefCell<&mut postgres::Client>,
     ) -> Option<Fields> {
-        let table_names = table_names.into_iter().map(|x| format!("'{x}'")).collect::<Vec<_>>().join(",");
+        let table_names = table_names
+            .into_iter()
+            .map(|x| format!("'{x}'"))
+            .collect::<Vec<_>>()
+            .join(",");
         let query = format!(
             r"
         SELECT
@@ -59,8 +63,7 @@ impl DBSchema {
         WHERE TABLE_SCHEMA = '{}'
         AND TABLE_NAME IN ({})
                 ",
-            database_name,
-            table_names,
+            database_name, table_names,
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
@@ -90,7 +93,11 @@ impl DBSchema {
         table_names: &Vec<&str>,
         conn: &RefCell<&mut mysql::Conn>,
     ) -> Option<Fields> {
-        let table_names = table_names.into_iter().map(|x| format!("'{x}'")).collect::<Vec<_>>().join(",");
+        let table_names = table_names
+            .into_iter()
+            .map(|x| format!("'{x}'"))
+            .collect::<Vec<_>>()
+            .join(",");
         let query = format!(
             r"
         SELECT
@@ -101,8 +108,7 @@ impl DBSchema {
         WHERE TABLE_SCHEMA = '{}'
         AND TABLE_NAME IN ({})
                 ",
-            database_name,
-            table_names
+            database_name, table_names
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
