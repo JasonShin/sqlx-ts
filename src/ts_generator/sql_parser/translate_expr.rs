@@ -3,7 +3,7 @@ use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::information_schema::DBSchema;
 use crate::ts_generator::types::{DBConn, TsFieldType};
 use convert_case::{Case, Casing};
-use sqlparser::ast::Expr;
+use sqlparser::ast::{Expr, TableWithJoins};
 use std::collections::HashMap;
 
 pub fn format_column_name(column_name: String, config: &Option<GenerateTypesConfig>) -> String {
@@ -30,7 +30,7 @@ pub fn translate_expr(
         Expr::Identifier(ident) => {
             let column_name = format_column_name(ident.value.to_string(), generate_types_config);
 
-            let table_details = &db_schema.fetch_table(&db_name, &table_name, &db_conn);
+            let table_details = &db_schema.fetch_table(&db_name, &vec![&table_name], &db_conn);
 
             println!(
                 "table details fetched {:?}   column name {:?}",
@@ -50,7 +50,7 @@ pub fn translate_expr(
             if idents.len() == 2 {
                 let ident = idents[1].value.clone();
 
-                let table_details = &db_schema.fetch_table(&db_name, &table_name, &db_conn);
+                let table_details = &db_schema.fetch_table(&db_name, &vec![&table_name], &db_conn);
                 if let Some(table_details) = table_details {
                     let field = table_details.get(&ident).unwrap();
 

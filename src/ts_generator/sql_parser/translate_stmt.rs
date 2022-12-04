@@ -3,6 +3,7 @@ use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::translate_expr::translate_expr;
 use crate::ts_generator::sql_parser::translate_table_with_joins::*;
 use crate::ts_generator::sql_parser::translate_where_stmt::translate_where_stmt;
+use crate::ts_generator::sql_parser::translate_wildcard_expr::translate_wildcard_expr;
 use crate::ts_generator::types::{DBConn, TsFieldType, TsQuery};
 use sqlparser::ast::SelectItem::{ExprWithAlias, QualifiedWildcard, UnnamedExpr};
 use sqlparser::ast::{SetExpr, Statement};
@@ -58,7 +59,15 @@ pub fn translate_stmt(
                                 )?;
                             }
                             QualifiedWildcard(_) => todo!(),
-                            Wildcard => todo!(),
+                            Wildcard => {
+                                translate_wildcard_expr(
+                                    &db_name,
+                                    &sql_statement,
+                                    &mut ts_query.result,
+                                    &db_conn,
+                                    &generate_types_config,
+                                )?;
+                            }
                         }
                     }
 
