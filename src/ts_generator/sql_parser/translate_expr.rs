@@ -32,10 +32,6 @@ pub fn translate_expr(
 
             let table_details = &db_schema.fetch_table(&db_name, &vec![&table_name], &db_conn);
 
-            println!(
-                "table details fetched {:?}   column name {:?}",
-                table_details, column_name
-            );
             // TODO: We can also memoize this method
             if let Some(table_details) = table_details {
                 let field = table_details.get(&column_name).unwrap();
