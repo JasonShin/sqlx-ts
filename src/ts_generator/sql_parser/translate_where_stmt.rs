@@ -1,6 +1,5 @@
 use sqlparser::ast::{Expr, TableWithJoins};
 
-use crate::ts_generator::sql_parser::translate_table_with_joins::translate_table_with_joins;
 use crate::ts_generator::types::{TsFieldType, TsQuery};
 
 pub fn translate_where_stmt(ts_query: &mut TsQuery, expr: &Expr, table_with_joins: &Vec<TableWithJoins>) {
