@@ -69,13 +69,23 @@ impl TsFieldType {
 #[derive(Debug)]
 pub struct TsQuery {
     pub name: String,
-    pub params: HashMap<String, Vec<TsFieldType>>,
+    pub params: Vec<TsFieldType>,
     // TODO: Need a type for List of Params strongly typed in order
     pub result: HashMap<String, Vec<TsFieldType>>,
 }
 
 impl TsQuery {
-    fn fmt_attributes_map(&self, f: &mut fmt::Formatter<'_>, attrs_map: &HashMap<String, Vec<TsFieldType>>) -> String {
+    fn fmt_params(&self, f: &mut fmt::Formatter<'_>, params: &Vec<TsFieldType>) -> String {
+        let result = params
+            .into_iter()
+            .map(|x| x.to_string())
+            .collect::<Vec<String>>()
+            .join(", ");
+
+        format!("{}", result)
+    }
+
+    fn fmt_result(&self, f: &mut fmt::Formatter<'_>, attrs_map: &HashMap<String, Vec<TsFieldType>>) -> String {
         let result: Vec<String> = attrs_map
             .into_iter()
             .map(|(name, data_type)| {
@@ -95,14 +105,12 @@ impl TsQuery {
 impl fmt::Display for TsQuery {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let name = &self.name;
-        let params_str = self.fmt_attributes_map(f, &self.params);
-        let result_str = self.fmt_attributes_map(f, &self.result);
+        let params_str = self.fmt_params(f, &self.params);
+        let result_str = self.fmt_result(f, &self.result);
 
         let params = format!(
             r"
-export interface I{name}Params {{
-    {params_str}
-}};
+export type {name}Params = [{params_str}];
 "
         );
 
@@ -117,7 +125,7 @@ export interface I{name}Result {{
         let query = format!(
             r"
 export interface I{name}Query {{
-    params: I{name}Params;
+    params: {name}Params;
     result: I{name}Result;
 }};
 "

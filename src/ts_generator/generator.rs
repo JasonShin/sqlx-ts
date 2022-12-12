@@ -63,7 +63,7 @@ pub fn generate_ts_interface(
     let sql_ast = Parser::parse_sql(&dialect, &sql.query).unwrap();
     let mut ts_query = TsQuery {
         name: get_query_name(&sql)?,
-        params: HashMap::new(),
+        params: vec![],
         result: HashMap::new(),
     };
 
