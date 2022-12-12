@@ -1,8 +1,6 @@
 
 
-export interface ISampleQueryParams {
-    
-};
+export type SampleQueryParams = [any];
 
 
 export interface ISampleQueryResult {
@@ -12,7 +10,7 @@ export interface ISampleQueryResult {
 
 
 export interface ISampleQueryQuery {
-    params: ISampleQueryParams;
+    params: SampleQueryParams;
     result: ISampleQueryResult;
 };
 

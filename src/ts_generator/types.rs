@@ -76,7 +76,8 @@ pub struct TsQuery {
 
 impl TsQuery {
     fn fmt_params(&self, f: &mut fmt::Formatter<'_>, params: &Vec<TsFieldType>) -> String {
-        let result = params.into_iter()
+        let result = params
+            .into_iter()
             .map(|x| x.to_string())
             .collect::<Vec<String>>()
             .join(", ");
@@ -109,9 +110,7 @@ impl fmt::Display for TsQuery {
 
         let params = format!(
             r"
-export interface I{name}Params {{
-    {params_str}
-}};
+export type {name}Params = [{params_str}];
 "
         );
 
@@ -126,7 +125,7 @@ export interface I{name}Result {{
         let query = format!(
             r"
 export interface I{name}Query {{
-    params: I{name}Params;
+    params: {name}Params;
     result: I{name}Result;
 }};
 "

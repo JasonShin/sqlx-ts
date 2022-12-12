@@ -1,22 +1,20 @@
 
 
-export interface IWildcardQueryParams {
-    
-};
+export type WildcardQueryParams = [];
 
 
 export interface IWildcardQueryResult {
-    number: number;
-	id: number;
-	food_type: string;
-	points: number | null;
-	table_id: number;
+    id: number;
 	time_takes_to_cook: number;
+	food_type: string;
+	table_id: number;
+	number: number;
+	points: number | null;
 };
 
 
 export interface IWildcardQueryQuery {
-    params: IWildcardQueryParams;
+    params: WildcardQueryParams;
     result: IWildcardQueryResult;
 };
 
