@@ -1,6 +1,6 @@
 
 
-export type SampleQueryParams = [any];
+export type SampleQueryParams = [];
 
 
 export interface ISampleQueryResult {

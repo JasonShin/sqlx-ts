@@ -44,7 +44,7 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler, cli_args
                 remove_file(&query_ts_file_path).unwrap();
             }
             let mut file_to_write = File::create(query_ts_file_path).unwrap();
-            let mut sqls_to_write = sqls_to_write.join("\n");
+            let sqls_to_write = sqls_to_write.join("\n");
 
             file_to_write.write_all(sqls_to_write.as_ref()).unwrap();
         }

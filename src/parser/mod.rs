@@ -190,7 +190,7 @@ pub fn parse_source(path: &PathBuf) -> (HashMap<PathBuf, Vec<SQL>>, Handler) {
 
     let _module = parser
         .parse_module()
-        .map_err(|mut e| {
+        .map_err(|e| {
             // Unrecoverable fatal error occurred
             e.into_diagnostic(&handler).emit()
         })

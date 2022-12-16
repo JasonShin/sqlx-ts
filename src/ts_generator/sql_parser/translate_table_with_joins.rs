@@ -1,10 +1,27 @@
 use sqlparser::ast::{Expr, Join, SelectItem, TableFactor, TableWithJoins};
 
-fn find_table_name_from_identifier(
+fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
+    table_with_joins
+        .get(0)
+        .map(|x| match &x.relation {
+            TableFactor::Table {
+                name,
+                alias,
+                args,
+                with_hints,
+            } => Some(name.to_string()),
+            _ => None,
+        })
+        .flatten()
+        .expect("The query does not have a default table, impossible to generate types")
+}
+
+pub fn find_table_name_from_identifier(
     table_with_joins: &Vec<TableWithJoins>,
     identifier: String, // can be the actual identifier or an alias
-    default_table_name: String,
 ) -> Option<String> {
+    let default_table_name = get_default_table(&table_with_joins);
+
     // if the identifier of a compound identifier is exactly same as the default table name, we just return it
     if identifier == default_table_name {
         return Some(default_table_name);
@@ -56,19 +73,7 @@ fn find_table_name_from_identifier(
 /// If the select item uses table alias, it should find the table name using the alias
 /// If the select item does not have any alias or table name, it should pick the default table name
 pub fn translate_table_with_joins(table_with_joins: &Vec<TableWithJoins>, select_item: &SelectItem) -> Option<String> {
-    let default_table_name = table_with_joins
-        .get(0)
-        .map(|x| match &x.relation {
-            TableFactor::Table {
-                name,
-                alias,
-                args,
-                with_hints,
-            } => Some(name.to_string()),
-            _ => None,
-        })
-        .flatten()
-        .unwrap();
+    let default_table_name = get_default_table(&table_with_joins);
 
     match select_item {
         SelectItem::UnnamedExpr(expr) => {
@@ -77,7 +82,7 @@ pub fn translate_table_with_joins(table_with_joins: &Vec<TableWithJoins>, select
                     // Assumes that [0] of the compound identifiers is the alias that points to the table
                     let identifier = compound_identifier[0].to_string();
 
-                    find_table_name_from_identifier(table_with_joins, identifier, default_table_name)
+                    find_table_name_from_identifier(table_with_joins, identifier)
                 }
                 _ => Some(default_table_name),
             }
@@ -88,7 +93,7 @@ pub fn translate_table_with_joins(table_with_joins: &Vec<TableWithJoins>, select
             Expr::CompoundIdentifier(compound_identifier) => {
                 let identifier = compound_identifier[0].to_string();
 
-                find_table_name_from_identifier(table_with_joins, identifier, default_table_name)
+                find_table_name_from_identifier(table_with_joins, identifier)
             }
             _ => Some(default_table_name),
         },
