@@ -3,8 +3,52 @@ use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::information_schema::DBSchema;
 use crate::ts_generator::types::{DBConn, TsFieldType};
 use convert_case::{Case, Casing};
-use sqlparser::ast::{Expr, TableWithJoins};
+use sqlparser::ast::{Expr, Value};
 use std::collections::HashMap;
+
+/// Given an expression
+/// e.g.
+/// WHERE
+///    some_column = ?
+///
+/// or a compound identifier
+///
+/// e.g.
+/// WHERE
+///     some_table.some_column = ?
+///
+/// it should receive `?` or `$1` and determine that it is a placeholder expression
+pub fn is_expr_placeholder(expr: &Expr) -> bool {
+    if let Expr::Value(value) = &expr {
+        if let Value::Placeholder(placeholder) = value {
+            if placeholder == "?" {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/// Given an expression
+/// e.g.
+/// WHERE
+///    some_column = ?
+///
+/// or a compound identifier
+///
+/// e.g.
+/// WHERE
+///     some_table.some_column = ?
+///
+/// it should return the correct column name
+pub fn translate_column_name_expr(expr: &Expr) -> Option<String> {
+    match expr {
+        Expr::Identifier(ident) => Some(ident.to_string()),
+        Expr::CompoundIdentifier(comp) => Some(comp.get(1).unwrap().to_string()),
+        _ => None,
+    }
+}
 
 pub fn format_column_name(column_name: String, config: &Option<GenerateTypesConfig>) -> String {
     let config = config.clone();

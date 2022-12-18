@@ -69,6 +69,25 @@ pub fn find_table_name_from_identifier(
     return None;
 }
 
+/// The function takes in an expression such as
+///
+/// Example 1:
+/// given `SELECT id FROM items`
+/// expression is `id`
+///
+pub fn translate_table_from_expr(table_with_joins: &Vec<TableWithJoins>, expr: &Expr) -> Option<String> {
+    match expr {
+        Expr::Identifier(_) => Some(get_default_table(table_with_joins)),
+        Expr::CompoundIdentifier(compound_identifier) => {
+            // Assumes that [0] of the compound identifiers is the alias that points to the table
+            let identifier = compound_identifier[0].to_string();
+
+            find_table_name_from_identifier(table_with_joins, identifier)
+        }
+        _ => None,
+    }
+}
+
 /// Translates a select item's target table by looking for TableWithJoins
 /// If the select item uses table alias, it should find the table name using the alias
 /// If the select item does not have any alias or table name, it should pick the default table name
