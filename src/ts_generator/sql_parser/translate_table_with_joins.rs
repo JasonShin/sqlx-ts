@@ -107,8 +107,8 @@ pub fn translate_table_with_joins(table_with_joins: &Vec<TableWithJoins>, select
             }
         }
         SelectItem::Wildcard => Some(default_table_name),
-        SelectItem::ExprWithAlias { expr, alias } => match &expr {
-            Expr::Identifier(ident) => todo!(),
+        SelectItem::ExprWithAlias { expr, alias: _ } => match &expr {
+            Expr::Identifier(_) => todo!(),
             Expr::CompoundIdentifier(compound_identifier) => {
                 let identifier = compound_identifier[0].to_string();
 

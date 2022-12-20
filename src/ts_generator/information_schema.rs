@@ -1,10 +1,8 @@
 use mysql;
-use mysql::{prelude::Queryable, Conn};
+use mysql::prelude::Queryable;
 use postgres;
-use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;
 use std::collections::HashMap;
-use swc_common::util::move_map::MoveMap;
 
 use super::types::{DBConn, TsFieldType};
 
@@ -131,8 +129,4 @@ impl DBSchema {
 
         None
     }
-}
-
-pub struct PostgresSchema {
-    pub tables: HashMap<String, Fields>,
 }

@@ -35,7 +35,7 @@ pub fn get_all_table_names_from_expr(sql_statement: &Statement) -> Result<Vec<St
         .collect::<Vec<String>>();
 
     let tables = &mut vec![primary_table_name];
-    &tables.append(&mut join_tables);
+    tables.append(&mut join_tables);
 
     Ok(tables.clone())
 }

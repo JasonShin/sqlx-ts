@@ -75,7 +75,7 @@ pub struct TsQuery {
 }
 
 impl TsQuery {
-    fn fmt_params(&self, f: &mut fmt::Formatter<'_>, params: &Vec<TsFieldType>) -> String {
+    fn fmt_params(&self, _: &mut fmt::Formatter<'_>, params: &Vec<TsFieldType>) -> String {
         let result = params
             .into_iter()
             .map(|x| x.to_string())

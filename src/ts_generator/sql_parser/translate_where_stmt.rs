@@ -74,8 +74,6 @@ pub fn translate_where_stmt(
                 return;
             }
         }
-        _ => {
-            println!("Skipping");
-        }
+        _ => {}
     }
 }
