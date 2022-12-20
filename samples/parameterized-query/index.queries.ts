@@ -1,11 +1,11 @@
 
 
-export type SampleQueryParams = [];
+export type SampleQueryParams = [number, number, number];
 
 
 export interface ISampleQueryResult {
-    id: number;
-	points: number;
+    points: number;
+	id: number;
 };
 
 

@@ -60,4 +60,7 @@ pub struct Cli {
     /// generate types of raw SQLs using default configuration
     #[clap(long, short)]
     pub generate_types: bool,
+
+    #[clap(long, short)]
+    pub message_format: Option<String>,
 }

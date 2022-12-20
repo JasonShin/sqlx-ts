@@ -37,15 +37,19 @@ pub fn get_sql_query_param(
     // If the right side of the expression is a placeholder `?` or `$n`
     // they are valid query parameter to process
     if column_name.is_some() && is_expr_placeholder(&*right) && table_name.is_some() {
-        let table_names = vec![table_name.unwrap().as_str()];
+        let table_name = table_name.unwrap();
+        let table_names = vec![table_name.as_str()];
         let column_name = column_name.unwrap();
         let columns = db_schema
             .fetch_table(db_name, &table_names, db_conn)
             .expect(&format!("Failed to fetch columns for table {:?}", table_name));
 
         // get column and return TsFieldType
-        let column = columns.get(column_name.as_str()).expect(&format!("Failed toe find the column from the table schema of {:?}", table_name));
-        return Some(column.field_type.clone())
+        let column = columns.get(column_name.as_str()).expect(&format!(
+            "Failed toe find the column from the table schema of {:?}",
+            table_name
+        ));
+        return Some(column.field_type.clone());
     }
 
     None
@@ -58,58 +62,17 @@ pub fn translate_where_stmt(
     table_with_joins: &Vec<TableWithJoins>,
     db_conn: &DBConn,
 ) {
-    // todos
-    // if exp is identifier + a placeholder, we should record it
-    // otherwise keep looping
     match expr {
         Expr::BinaryOp { left, op, right } => {
-            /*
-            // let mut table_alias = None;
-            match *left.clone() {
-                Expr::CompoundIdentifier(identifiers) => {
-                    let left = identifiers.get(0);
-                    println!("checking left {:?}", left);
-                }
-                _ => unimplemented!(),
-            }
+            let result = get_sql_query_param(&left, &right, &db_name, &table_with_joins, &db_conn);
 
-            // Loop right expression until there is nothing left
-            let right = *right.clone();
-            println!("checking left {:?} right {:?}", left, right);
-            match right {
-                Expr::BinaryOp { left, op, right } => match *left.clone() {
-                    Expr::Identifier(ident) => {
-                        let field_name = ident.to_string();
-                        println!("checking identifier {:?}", field_name);
-                        ts_query.params.push(TsFieldType::Any);
-                    }
-                    Expr::CompoundIdentifier(identifiers) => {
-                        let table_name = identifiers[0].to_string();
-                        let field_name = identifiers[1].to_string();
-                        println!("checking compound identifier {:?} , {:?}", table_name, field_name);
-                        ts_query.params.push(TsFieldType::Any);
-                    }
-                    _ => unimplemented!(),
-                },
-                Expr::Value(v) => match v {
-                    sqlparser::ast::Value::Placeholder(placeholder) => {
-                        println!("checking placeholder {placeholder}");
-                    }
-                    _ => unimplemented!(),
-                },
-                _ => unimplemented!(),
+            if (result.is_none()) {
+                translate_where_stmt(db_name, ts_query, left, table_with_joins, db_conn);
+                translate_where_stmt(db_name, ts_query, right, table_with_joins, db_conn);
+            } else {
+                ts_query.params.push(result.unwrap());
+                return;
             }
-
-            // Finally if left is just an identifier, translate it as well
-            match *left.clone() {
-                Expr::Identifier(ident) => {
-                    let field_name = ident.to_string();
-                    ts_query.params.push(TsFieldType::Any);
-                }
-                _ => {}
-            }
-             */
-            get_sql_query_param(&left, &right, &db_name, &table_with_joins, &db_conn);
         }
         _ => {
             println!("Skipping");
