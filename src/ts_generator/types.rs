@@ -86,15 +86,19 @@ impl TsQuery {
     }
 
     fn fmt_result(&self, f: &mut fmt::Formatter<'_>, attrs_map: &HashMap<String, Vec<TsFieldType>>) -> String {
-        let result: Vec<String> = attrs_map
-            .into_iter()
-            .map(|(name, data_type)| {
+        let mut keys = Vec::from_iter(attrs_map.keys());
+        keys.sort();
+
+        let result: Vec<String> = keys
+            .iter()
+            .map(|key| {
+                let data_type = attrs_map.get(key.to_owned()).unwrap();
                 let data_types = data_type
                     .into_iter()
                     .map(|ts_field_type| ts_field_type.to_string())
                     .collect::<Vec<String>>()
                     .join(" | ");
-                format!("{name}: {data_types};")
+                format!("{key}: {data_types};")
             })
             .collect();
 

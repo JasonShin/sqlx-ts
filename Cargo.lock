@@ -1881,6 +1881,8 @@ dependencies = [
  "swc_ecma_ast",
  "swc_ecma_parser",
  "swc_ecma_parser_macros",
+ "tempfile",
+ "test_utils",
  "walkdir",
 ]
 
@@ -2146,6 +2148,13 @@ name = "termtree"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "507e9898683b6c43a9aa55b64259b721b52ba226e0f3779137e50ad114a4c90b"
+
+[[package]]
+name = "test_utils"
+version = "0.1.0"
+dependencies = [
+ "regex",
+]
 
 [[package]]
 name = "textwrap"

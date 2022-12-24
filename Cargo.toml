@@ -31,3 +31,5 @@ convert_case = "0.5.0"
 [dev-dependencies]
 assert_cmd = "2.0.4"
 predicates = "2.1.1"
+tempfile = "3.3.0"
+test_utils = { path="test-utils" }

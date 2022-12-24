@@ -1,10 +1,6 @@
-use sqlparser::{
-    ast::{Expr, TableWithJoins, Value},
-    test_utils::table,
-};
+use sqlparser::ast::{Expr, TableWithJoins};
 
 use crate::ts_generator::{
-    errors::TsGeneratorError,
     information_schema::DBSchema,
     types::{DBConn, TsFieldType, TsQuery},
 };
@@ -66,7 +62,7 @@ pub fn translate_where_stmt(
         Expr::BinaryOp { left, op, right } => {
             let result = get_sql_query_param(&left, &right, &db_name, &table_with_joins, &db_conn);
 
-            if (result.is_none()) {
+            if result.is_none() {
                 translate_where_stmt(db_name, ts_query, left, table_with_joins, db_conn);
                 translate_where_stmt(db_name, ts_query, right, table_with_joins, db_conn);
             } else {
@@ -75,5 +71,44 @@ pub fn translate_where_stmt(
             }
         }
         _ => {}
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use sqlparser::{
+        ast::{SetExpr, Statement},
+        dialect::GenericDialect,
+        parser::Parser,
+    };
+
+    // todo: add tests here
+    #[test]
+    fn should_find_query_params_from_flat_binary_ops() {
+        let sql = r#"
+SELECT *
+FROM items
+WHERE points > ?
+AND points < ?
+OR points = ?
+   "#;
+        let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
+
+        let binding = Parser::parse_sql(&dialect, sql).unwrap();
+        let query = binding.get(0).unwrap();
+
+        match query {
+            Statement::Query(query) => {
+                let query = &**query;
+                match query.body.clone() {
+                    SetExpr::Select(select) => {
+                        let select = &*select;
+                        let where_conditions = select.selection.clone();
+                    }
+                    _ => unimplemented!(),
+                }
+            }
+            _ => unimplemented!(),
+        }
     }
 }
