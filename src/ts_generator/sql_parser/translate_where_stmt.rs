@@ -70,45 +70,25 @@ pub fn translate_where_stmt(
                 return;
             }
         }
-        _ => {}
-    }
-}
+        Expr::InList { expr, list, negated } => {
+            // If the list is just a single `(?)`, then we should return the dynamic 
+            // If the list contains multiple `(?, ?...)` then we should return a fixed length array
+            println!("checking IN expr {:?} {:?} {:?}", expr, list, negated);
+            if list.len() == 1 {
+                let right = list.get(0).expect("Failed to find the first list item from the IN query");
+                let result = get_sql_query_param(expr, &Box::new(right.to_owned()), db_name, table_with_joins, db_conn);
+                
+                if result.is_some() {
+                    let array_item = result.unwrap().to_array_item();
 
-#[cfg(test)]
-mod tests {
-    use sqlparser::{
-        ast::{SetExpr, Statement},
-        dialect::GenericDialect,
-        parser::Parser,
-    };
-
-    // todo: add tests here
-    #[test]
-    fn should_find_query_params_from_flat_binary_ops() {
-        let sql = r#"
-SELECT *
-FROM items
-WHERE points > ?
-AND points < ?
-OR points = ?
-   "#;
-        let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
-
-        let binding = Parser::parse_sql(&dialect, sql).unwrap();
-        let query = binding.get(0).unwrap();
-
-        match query {
-            Statement::Query(query) => {
-                let query = &**query;
-                match query.body.clone() {
-                    SetExpr::Select(select) => {
-                        let select = &*select;
-                        let where_conditions = select.selection.clone();
-                    }
-                    _ => unimplemented!(),
+                    ts_query.params.push(array_item);
+                } else {
+                    return;
                 }
+                println!("checking result for IN expr {:?}", result);
+                
             }
-            _ => unimplemented!(),
         }
+        _ => {}
     }
 }
