@@ -13,3 +13,4 @@ documentation = "https://jasonshin.github.io/sqlx-ts/"
 
 [dependencies]
 regex = { version = "1.5" }
+tempfile = "3.3.0"

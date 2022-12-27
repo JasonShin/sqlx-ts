@@ -1,5 +1,6 @@
 pub mod test_utils {
     use regex::Regex;
+
     pub trait TSString {
         fn flatten(&self) -> Self;
     }

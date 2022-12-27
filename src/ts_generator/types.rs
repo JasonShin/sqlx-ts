@@ -43,15 +43,13 @@ impl fmt::Display for TsFieldType {
             TsFieldType::Any => write!(f, "any"),
             TsFieldType::Null => write!(f, "null"),
             TsFieldType::Never => write!(f, "never"),
-            TsFieldType::Array(ts_field_type) => {
-                match ts_field_type {
-                    ArrayItem::String => write!(f, "Array<string>"),
-                    ArrayItem::Number => write!(f, "Array<number>"),
-                    ArrayItem::Boolean => write!(f, "Array<boolean>"),
-                    ArrayItem::Object => write!(f, "Array<object>"),
-                    ArrayItem::Null => write!(f, "Array<null>"),
-                    ArrayItem::Any => write!(f, "Array<any>"),
-                }
+            TsFieldType::Array(ts_field_type) => match ts_field_type {
+                ArrayItem::String => write!(f, "Array<string>"),
+                ArrayItem::Number => write!(f, "Array<number>"),
+                ArrayItem::Boolean => write!(f, "Array<boolean>"),
+                ArrayItem::Object => write!(f, "Array<object>"),
+                ArrayItem::Null => write!(f, "Array<null>"),
+                ArrayItem::Any => write!(f, "Array<any>"),
             },
         }
     }

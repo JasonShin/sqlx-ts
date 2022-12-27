@@ -71,13 +71,15 @@ pub fn translate_where_stmt(
             }
         }
         Expr::InList { expr, list, negated } => {
-            // If the list is just a single `(?)`, then we should return the dynamic 
+            // If the list is just a single `(?)`, then we should return the dynamic
             // If the list contains multiple `(?, ?...)` then we should return a fixed length array
             println!("checking IN expr {:?} {:?} {:?}", expr, list, negated);
             if list.len() == 1 {
-                let right = list.get(0).expect("Failed to find the first list item from the IN query");
+                let right = list
+                    .get(0)
+                    .expect("Failed to find the first list item from the IN query");
                 let result = get_sql_query_param(expr, &Box::new(right.to_owned()), db_name, table_with_joins, db_conn);
-                
+
                 if result.is_some() {
                     let array_item = result.unwrap().to_array_item();
 
@@ -86,7 +88,6 @@ pub fn translate_where_stmt(
                     return;
                 }
                 println!("checking result for IN expr {:?}", result);
-                
             }
         }
         _ => {}
