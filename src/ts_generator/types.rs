@@ -73,9 +73,11 @@ impl TsFieldType {
         // TODO: Cover all mysql_field_types
         if mysql_field_type == "varchar" {
             return Self::String;
-        } else if mysql_field_type == "int" {
+        }
+        if mysql_field_type == "int" {
             return Self::Number;
-        } else if mysql_field_type == "smallint" {
+        }
+        if mysql_field_type == "smallint" {
             return Self::Number;
         }
 
@@ -94,7 +96,7 @@ impl TsFieldType {
         } else if annotated_type == "null" {
             return Self::Null;
         }
-        return Self::Any;
+        Self::Any
     }
 }
 
@@ -126,7 +128,7 @@ impl TsQuery {
             .map(|key| {
                 let data_type = attrs_map.get(key.to_owned()).unwrap();
                 let data_types = data_type
-                    .into_iter()
+                    .iter()
                     .map(|ts_field_type| ts_field_type.to_string())
                     .collect::<Vec<String>>()
                     .join(" | ");
@@ -134,7 +136,7 @@ impl TsQuery {
             })
             .collect();
 
-        format!("{}", result.join("\n\t").to_string())
+        format!("{}", result.join("\n\t"))
     }
 }
 

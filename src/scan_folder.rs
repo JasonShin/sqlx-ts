@@ -27,11 +27,8 @@ pub fn scan_folder<'a>(
             }
 
             let f_name = entry.file_name().to_string_lossy();
-            if f_name.ends_with(js_extension.to_string().as_str()) {
-                true
-            } else {
-                false
-            }
+
+            f_name.ends_with(js_extension.to_string().as_str())
         })
         .map(|entry| entry.path().to_owned())
         .collect();

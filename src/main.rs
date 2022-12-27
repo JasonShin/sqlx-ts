@@ -24,7 +24,7 @@ fn main() {
 
     println!("Scanning {:?} for sqls with extension {:?}", source_folder, ext);
 
-    let files = scan_folder(&source_folder, ext, ignore_paths);
+    let files = scan_folder(source_folder, ext, ignore_paths);
 
     if files.is_empty() {
         println!("No targets detected, is it an empty folder?");
