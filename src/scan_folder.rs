@@ -6,7 +6,7 @@ use walkdir::WalkDir;
 pub fn scan_folder<'a>(
     folder: &'a PathBuf,
     js_extension: &'a JsExtension,
-    ignore_paths: &'a Vec<PathBuf>,
+    ignore_paths: &'a [PathBuf],
 ) -> Vec<PathBuf> {
     let node_modules_path = folder.join(Path::new("node_modules"));
     let path = Path::new(folder);

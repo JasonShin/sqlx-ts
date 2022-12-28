@@ -55,7 +55,7 @@ pub fn translate_wildcard_expr(
     let db_schema = DBSchema::new();
     let table_with_joins = get_all_table_names_from_expr(sql_statement)?;
     let table_with_joins = table_with_joins.iter().map(|s| s.as_ref()).collect();
-    let all_fields = db_schema.fetch_table(&db_name, &table_with_joins, &db_conn);
+    let all_fields = db_schema.fetch_table(db_name, &table_with_joins, db_conn);
     if let Some(all_fields) = all_fields {
         for key in all_fields.keys() {
             let field = all_fields.get(key).unwrap();

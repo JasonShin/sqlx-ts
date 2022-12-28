@@ -60,7 +60,7 @@ pub fn translate_where_stmt(
 ) {
     match expr {
         Expr::BinaryOp { left, op, right } => {
-            let result = get_sql_query_param(&left, &right, &db_name, &table_with_joins, &db_conn);
+            let result = get_sql_query_param(left, right, db_name, table_with_joins, db_conn);
 
             if result.is_none() {
                 translate_where_stmt(db_name, ts_query, left, table_with_joins, db_conn);
