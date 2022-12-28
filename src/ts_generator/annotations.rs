@@ -15,9 +15,9 @@ pub fn extract_result_annotations(query: &String) -> HashMap<String, Vec<TsField
                 let name = name.as_str().to_string();
                 let types = types
                     .as_str()
-                    .split("|")
+                    .split('|')
                     .map(|t| t.trim())
-                    .map(|t| TsFieldType::get_ts_field_from_annotation(t))
+                    .map(TsFieldType::get_ts_field_from_annotation)
                     .collect::<Vec<TsFieldType>>();
 
                 result.insert(name, types);

@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod postgres_test_happy_path_tests {
     use assert_cmd::prelude::*;
-    use predicates::prelude::*;
+    
     use std::process::Command;
 
     /// should be using all CLI args to provide credential for DB connection

@@ -29,18 +29,18 @@ pub fn translate_stmt(
                         match &select_item {
                             UnnamedExpr(unnamed_expr) => {
                                 let table_name = translate_table_with_joins(&table_with_joins, &select_item)
-                                    .expect(format!("Default FROM table is not found from the query {query}").as_str());
+                                    .unwrap_or_else(|| panic!("Default FROM table is not found from the query {query}"));
 
                                 // Handles SQL Expression and appends result
                                 translate_expr(
-                                    &unnamed_expr,
-                                    &db_name,
+                                    unnamed_expr,
+                                    db_name,
                                     &table_name,
                                     None,
-                                    &annotated_results,
+                                    annotated_results,
                                     &mut ts_query.result,
-                                    &db_conn,
-                                    &generate_types_config,
+                                    db_conn,
+                                    generate_types_config,
                                 )?;
                             }
                             ExprWithAlias { expr, alias } => {
@@ -48,35 +48,35 @@ pub fn translate_stmt(
                                 let table_name = translate_table_with_joins(&table_with_joins, &select_item);
 
                                 translate_expr(
-                                    &expr,
-                                    &db_name,
+                                    expr,
+                                    db_name,
                                     table_name.unwrap().as_str(),
                                     Some(alias.as_str()),
-                                    &annotated_results,
+                                    annotated_results,
                                     &mut ts_query.result,
-                                    &db_conn,
-                                    &generate_types_config,
+                                    db_conn,
+                                    generate_types_config,
                                 )?;
                             }
                             QualifiedWildcard(_) => todo!(),
-                            Wildcard => {
+                            _Wildcard => {
                                 translate_wildcard_expr(
-                                    &db_name,
-                                    &sql_statement,
+                                    db_name,
+                                    sql_statement,
                                     &mut ts_query.result,
-                                    &db_conn,
-                                    &generate_types_config,
+                                    db_conn,
+                                    generate_types_config,
                                 )?;
                             }
                         }
                     }
 
                     if let Some(selection) = select.clone().selection {
-                        translate_where_stmt(&db_name, ts_query, &selection, &table_with_joins, &db_conn)
+                        translate_where_stmt(db_name, ts_query, &selection, &table_with_joins, db_conn)
                     }
                 }
                 SetExpr::Query(_) => todo!(),
-                SetExpr::SetOperation { op, all, left, right } => todo!(),
+                SetExpr::SetOperation { op: _, all: _, left: _, right: _ } => todo!(),
                 SetExpr::Values(_) => todo!(),
                 SetExpr::Insert(_) => todo!(),
             }

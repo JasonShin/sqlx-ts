@@ -19,7 +19,7 @@ pub fn prepare(sql: &SQL, config: &Config, should_generate_types: &bool, handler
     let db_name = &connection_config.db_name;
     let opts = OptsBuilder::new()
         .ip_or_hostname(Some(&connection_config.db_host))
-        .tcp_port(connection_config.db_port.clone())
+        .tcp_port(connection_config.db_port)
         .user(Some(&connection_config.db_user))
         .pass(db_pass.clone())
         .db_name(db_name.clone());
@@ -37,8 +37,8 @@ pub fn prepare(sql: &SQL, config: &Config, should_generate_types: &bool, handler
     if should_generate_types == &true {
         ts_query = Some(
             generate_ts_interface(
-                &sql,
-                &connection_config,
+                sql,
+                connection_config,
                 &DBConn::MySQLPooledConn(&mut RefCell::new(&mut conn)),
                 &config.generate_types_config,
             )

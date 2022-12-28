@@ -116,10 +116,10 @@ impl TsQuery {
             .collect::<Vec<String>>()
             .join(", ");
 
-        format!("{}", result.to_string())
+        result
     }
 
-    fn fmt_result(&self, f: &mut fmt::Formatter<'_>, attrs_map: &HashMap<String, Vec<TsFieldType>>) -> String {
+    fn fmt_result(&self, _f: &mut fmt::Formatter<'_>, attrs_map: &HashMap<String, Vec<TsFieldType>>) -> String {
         let mut keys = Vec::from_iter(attrs_map.keys());
         keys.sort();
 
@@ -136,7 +136,7 @@ impl TsQuery {
             })
             .collect();
 
-        format!("{}", result.join("\n\t"))
+        result.join("\n\t")
     }
 }
 

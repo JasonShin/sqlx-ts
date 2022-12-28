@@ -6,7 +6,7 @@ mod query_parameters_tests {
     use std::io::Write;
     use std::process::Command;
     use tempfile::tempdir;
-    use test_utils;
+    
     use test_utils::test_utils::TSString;
 
     #[test]
@@ -28,7 +28,7 @@ OR points = ?
 `;
         "#;
         let mut temp_file = fs::File::create(&file_path)?;
-        writeln!(temp_file, "{}", index_content.to_string())?;
+        writeln!(temp_file, "{}", index_content)?;
 
         // EXECUTE
         let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
@@ -87,7 +87,7 @@ WHERE id IN (?);
 `;
         "#;
         let mut temp_file = fs::File::create(&file_path)?;
-        writeln!(temp_file, "{}", index_content.to_string())?;
+        writeln!(temp_file, "{}", index_content)?;
 
         // EXECUTE
         let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();

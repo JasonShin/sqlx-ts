@@ -4,7 +4,7 @@ use crate::ts_generator::generator::generate_ts_interface;
 use crate::ts_generator::types::{DBConn, TsQuery};
 use postgres::{Client, NoTls};
 use std::cell::RefCell;
-use std::fmt::format;
+
 use swc_common::errors::Handler;
 
 fn get_postgres_cred(conn: &DbConnectionConfig) -> String {
@@ -31,7 +31,7 @@ pub fn prepare<'a>(
     // todo: update it to use prepare stmt
     let prepare_query = format!("PREPARE sqlx_stmt AS {}", sql.query);
 
-    let postgres_cred = &get_postgres_cred(&connection).clone();
+    let postgres_cred = &get_postgres_cred(connection);
     let mut conn = Client::connect(postgres_cred, NoTls).unwrap();
     let result = conn.query(prepare_query.as_str(), &[]);
 
@@ -52,10 +52,10 @@ pub fn prepare<'a>(
         let generate_types_config = &config.generate_types_config;
         ts_query = Some(
             generate_ts_interface(
-                &sql,
-                &connection,
+                sql,
+                connection,
                 &DBConn::PostgresConn(&mut RefCell::new(&mut conn)),
-                &generate_types_config,
+                generate_types_config,
             )
             .unwrap(),
         );

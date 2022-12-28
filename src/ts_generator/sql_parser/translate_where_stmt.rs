@@ -27,25 +27,23 @@ pub fn get_sql_query_param(
     db_conn: &DBConn,
 ) -> Option<TsFieldType> {
     let db_schema = DBSchema::new();
-    let table_name = translate_table_from_expr(&table_with_joins, &*left.clone());
-    let column_name = translate_column_name_expr(&*left);
+    let table_name = translate_table_from_expr(table_with_joins, &*left.clone());
+    let column_name = translate_column_name_expr(left);
 
     // If the right side of the expression is a placeholder `?` or `$n`
     // they are valid query parameter to process
-    if column_name.is_some() && is_expr_placeholder(&*right) && table_name.is_some() {
+    if column_name.is_some() && is_expr_placeholder(right) && table_name.is_some() {
         let table_name = table_name.unwrap();
         let table_names = vec![table_name.as_str()];
         let column_name = column_name.unwrap();
         let columns = db_schema
             .fetch_table(db_name, &table_names, db_conn)
-            .expect(&format!("Failed to fetch columns for table {:?}", table_name));
+            .unwrap_or_else(|| panic!("Failed to fetch columns for table {:?}", table_name));
 
         // get column and return TsFieldType
-        let column = columns.get(column_name.as_str()).expect(&format!(
-            "Failed toe find the column from the table schema of {:?}",
-            table_name
-        ));
-        return Some(column.field_type.clone());
+        let column = columns.get(column_name.as_str()).unwrap_or_else(|| panic!("Failed toe find the column from the table schema of {:?}",
+            table_name));
+        return Some(column.field_type);
     }
 
     None
@@ -59,7 +57,7 @@ pub fn translate_where_stmt(
     db_conn: &DBConn,
 ) {
     match expr {
-        Expr::BinaryOp { left, op, right } => {
+        Expr::BinaryOp { left, op: _, right } => {
             let result = get_sql_query_param(left, right, db_name, table_with_joins, db_conn);
 
             if result.is_none() {
@@ -67,7 +65,7 @@ pub fn translate_where_stmt(
                 translate_where_stmt(db_name, ts_query, right, table_with_joins, db_conn);
             } else {
                 ts_query.params.push(result.unwrap());
-                return;
+                
             }
         }
         Expr::InList { expr, list, negated } => {

@@ -3,16 +3,15 @@ use sqlparser::ast::{Expr, Join, SelectItem, TableFactor, TableWithJoins};
 fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
     table_with_joins
         .get(0)
-        .map(|x| match &x.relation {
+        .and_then(|x| match &x.relation {
             TableFactor::Table {
                 name,
-                alias,
-                args,
-                with_hints,
+                alias: _,
+                args: _,
+                with_hints: _,
             } => Some(name.to_string()),
             _ => None,
         })
-        .flatten()
         .expect("The query does not have a default table, impossible to generate types")
 }
 
@@ -20,20 +19,20 @@ pub fn find_table_name_from_identifier(
     table_with_joins: &Vec<TableWithJoins>,
     identifier: String, // can be the actual identifier or an alias
 ) -> Option<String> {
-    let default_table_name = get_default_table(&table_with_joins);
+    let default_table_name = get_default_table(table_with_joins);
 
     // if the identifier of a compound identifier is exactly same as the default table name, we just return it
     if identifier == default_table_name {
         return Some(default_table_name);
     }
 
-    for relation in table_with_joins.into_iter().map(|tj| tj.relation.clone()) {
+    for relation in table_with_joins.iter().map(|tj| tj.relation.clone()) {
         match &relation {
             TableFactor::Table {
                 name,
                 alias,
-                args,
-                with_hints,
+                args: _,
+                with_hints: _,
             } => {
                 if Some(identifier.to_owned()) == alias.to_owned().map(|a| a.to_string()) {
                     return Some(name.to_string());
@@ -44,17 +43,16 @@ pub fn find_table_name_from_identifier(
     }
 
     let joins = &table_with_joins
-        .into_iter()
-        .map(|tj| tj.joins.clone())
-        .flatten()
+        .iter()
+        .flat_map(|tj| tj.joins.clone())
         .collect::<Vec<Join>>();
     for join in &joins.clone() {
         match &join.relation {
             TableFactor::Table {
                 name,
                 alias,
-                args,
-                with_hints,
+                args: _,
+                with_hints: _,
             } => {
                 let alias = alias.to_owned().map(|x| x.to_string());
                 let name = name.to_string();
@@ -66,7 +64,7 @@ pub fn find_table_name_from_identifier(
             _ => unimplemented!(),
         }
     }
-    return None;
+    None
 }
 
 /// The function takes in an expression such as
@@ -92,7 +90,7 @@ pub fn translate_table_from_expr(table_with_joins: &Vec<TableWithJoins>, expr: &
 /// If the select item uses table alias, it should find the table name using the alias
 /// If the select item does not have any alias or table name, it should pick the default table name
 pub fn translate_table_with_joins(table_with_joins: &Vec<TableWithJoins>, select_item: &SelectItem) -> Option<String> {
-    let default_table_name = get_default_table(&table_with_joins);
+    let default_table_name = get_default_table(table_with_joins);
 
     match select_item {
         SelectItem::UnnamedExpr(expr) => {
@@ -139,15 +137,15 @@ mod tests {
 
         let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
 
-        let sql_ast = Parser::parse_sql(&dialect, &sql).unwrap();
+        let sql_ast = Parser::parse_sql(&dialect, sql).unwrap();
         let stmt = sql_ast[0].clone();
         match stmt {
             Statement::Query(query) => {
                 let body = query.body;
                 match body {
                     SetExpr::Select(select) => {
-                        let select_item = select.clone().projection[0].clone();
-                        let table_with_joins = select.clone().from;
+                        let select_item = select.projection[0].clone();
+                        let table_with_joins = select.from;
 
                         let result = translate_table_with_joins(&table_with_joins, &select_item);
 
@@ -169,15 +167,15 @@ mod tests {
 
         let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
 
-        let sql_ast = Parser::parse_sql(&dialect, &sql).unwrap();
+        let sql_ast = Parser::parse_sql(&dialect, sql).unwrap();
         let stmt = sql_ast[0].clone();
         match stmt {
             Statement::Query(query) => {
                 let body = query.body;
                 match body {
                     SetExpr::Select(select) => {
-                        let select_item = select.clone().projection[0].clone();
-                        let table_with_joins = select.clone().from;
+                        let select_item = select.projection[0].clone();
+                        let table_with_joins = select.from;
 
                         let result = translate_table_with_joins(&table_with_joins, &select_item);
 
@@ -200,7 +198,7 @@ mod tests {
 
         let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
 
-        let sql_ast = Parser::parse_sql(&dialect, &sql).unwrap();
+        let sql_ast = Parser::parse_sql(&dialect, sql).unwrap();
         let stmt = sql_ast[0].clone();
         match stmt {
             Statement::Query(query) => {
@@ -208,8 +206,8 @@ mod tests {
                 match body {
                     SetExpr::Select(select) => {
                         // choosing `tables.id`
-                        let select_item = select.clone().projection[1].clone();
-                        let table_with_joins = select.clone().from;
+                        let select_item = select.projection[1].clone();
+                        let table_with_joins = select.from;
 
                         let result = translate_table_with_joins(&table_with_joins, &select_item);
 
@@ -231,7 +229,7 @@ mod tests {
 
         let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
 
-        let sql_ast = Parser::parse_sql(&dialect, &sql).unwrap();
+        let sql_ast = Parser::parse_sql(&dialect, sql).unwrap();
         let stmt = sql_ast[0].clone();
         match stmt {
             Statement::Query(query) => {
@@ -239,8 +237,8 @@ mod tests {
                 match body {
                     SetExpr::Select(select) => {
                         // choosing `items.id`
-                        let select_item = select.clone().projection[0].clone();
-                        let table_with_joins = select.clone().from;
+                        let select_item = select.projection[0].clone();
+                        let table_with_joins = select.from;
 
                         let result = translate_table_with_joins(&table_with_joins, &select_item);
 

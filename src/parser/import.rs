@@ -21,10 +21,8 @@ pub fn find_sqlx_import_alias(import_decl: &ImportDecl) -> Option<String> {
                         }
                         // for example:
                         // import { sql } from 'sqlx-ts' <<< should satisfy following
-                    } else {
-                        if &import_named_specifier.local.sym.to_string() == "sql" {
-                            name = Some("sql".to_string())
-                        }
+                    } else if &import_named_specifier.local.sym.to_string() == "sql" {
+                        name = Some("sql".to_string())
                     }
                 }
                 _ => {}
