@@ -122,7 +122,11 @@ pub fn translate_expr(
                 Err(TsGeneratorError::MissingAliasForFunctions(query.to_string()))
             }
         }
-        Expr::JsonAccess { left: _, operator, right: _ } => {
+        Expr::JsonAccess {
+            left: _,
+            operator,
+            right: _,
+        } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
                 result.insert(alias, vec![TsFieldType::Any]);
@@ -143,7 +147,11 @@ pub fn translate_expr(
         /* IsDistinctForm and IsNotDistinctFrom are Postgres syntax, maybe only used in WHERE condition */
         Expr::IsDistinctFrom(_, _) => todo!(),
         Expr::IsNotDistinctFrom(_, _) => todo!(),
-        Expr::InList { expr, list: _, negated: _ } => {
+        Expr::InList {
+            expr,
+            list: _,
+            negated: _,
+        } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
                 result.insert(alias, vec![TsFieldType::Boolean, TsFieldType::Null]);

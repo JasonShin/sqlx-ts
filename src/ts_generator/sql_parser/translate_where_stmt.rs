@@ -41,8 +41,9 @@ pub fn get_sql_query_param(
             .unwrap_or_else(|| panic!("Failed to fetch columns for table {:?}", table_name));
 
         // get column and return TsFieldType
-        let column = columns.get(column_name.as_str()).unwrap_or_else(|| panic!("Failed toe find the column from the table schema of {:?}",
-            table_name));
+        let column = columns
+            .get(column_name.as_str())
+            .unwrap_or_else(|| panic!("Failed toe find the column from the table schema of {:?}", table_name));
         return Some(column.field_type);
     }
 
@@ -65,7 +66,6 @@ pub fn translate_where_stmt(
                 translate_where_stmt(db_name, ts_query, right, table_with_joins, db_conn);
             } else {
                 ts_query.params.push(result.unwrap());
-                
             }
         }
         Expr::InList { expr, list, negated } => {

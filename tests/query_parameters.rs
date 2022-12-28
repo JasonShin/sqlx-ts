@@ -6,7 +6,7 @@ mod query_parameters_tests {
     use std::io::Write;
     use std::process::Command;
     use tempfile::tempdir;
-    
+
     use test_utils::test_utils::TSString;
 
     #[test]

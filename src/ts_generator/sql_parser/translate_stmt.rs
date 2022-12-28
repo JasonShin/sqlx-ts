@@ -29,7 +29,9 @@ pub fn translate_stmt(
                         match &select_item {
                             UnnamedExpr(unnamed_expr) => {
                                 let table_name = translate_table_with_joins(&table_with_joins, &select_item)
-                                    .unwrap_or_else(|| panic!("Default FROM table is not found from the query {query}"));
+                                    .unwrap_or_else(|| {
+                                        panic!("Default FROM table is not found from the query {query}")
+                                    });
 
                                 // Handles SQL Expression and appends result
                                 translate_expr(
@@ -76,7 +78,12 @@ pub fn translate_stmt(
                     }
                 }
                 SetExpr::Query(_) => todo!(),
-                SetExpr::SetOperation { op: _, all: _, left: _, right: _ } => todo!(),
+                SetExpr::SetOperation {
+                    op: _,
+                    all: _,
+                    left: _,
+                    right: _,
+                } => todo!(),
                 SetExpr::Values(_) => todo!(),
                 SetExpr::Insert(_) => todo!(),
             }

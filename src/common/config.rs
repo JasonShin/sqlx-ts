@@ -57,9 +57,7 @@ impl Config {
 
         let (generate_types_config, connections) = Self::build_configs(cli_args, &dotenv);
         let generate_types_config =
-            generate_types_config
-                
-                .and_then(|config| if config.enabled { Some(config) } else { None });
+            generate_types_config.and_then(|config| if config.enabled { Some(config) } else { None });
 
         Config {
             dotenv,
@@ -78,20 +76,17 @@ impl Config {
         let file_config_path = &cli_args.config.clone().unwrap_or(default_config_path);
         let file_based_config = fs::read_to_string(&file_config_path);
 
-        let file_based_config =
-            &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
+        let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
 
         let connections = &mut file_based_config
             .as_ref()
             .map(|config| config.connections.clone())
-            .unwrap_or_default()
-            ;
+            .unwrap_or_default();
 
         let generate_types = &file_based_config
             .as_ref()
             .map(|config| config.generate_types.clone())
-            .unwrap_or(None)
-            ;
+            .unwrap_or(None);
 
         connections.insert(
             "default".to_string(),
@@ -193,7 +188,9 @@ impl Config {
             return self
                 .connections
                 .get(detected_conn_name)
-                .unwrap_or_else(|| panic!("Failed to find a matching connection type - connection name: {detected_conn_name}"))
+                .unwrap_or_else(|| {
+                    panic!("Failed to find a matching connection type - connection name: {detected_conn_name}")
+                })
                 .clone();
         }
 

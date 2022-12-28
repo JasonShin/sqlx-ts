@@ -1,7 +1,5 @@
 extern crate core;
 
-
-
 use swc_common::MultiSpan;
 
 pub mod cli;
