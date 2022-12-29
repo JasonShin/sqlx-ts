@@ -16,14 +16,14 @@ use super::types::DBConn;
 pub fn get_query_name(sql: &SQL) -> Result<String, TsGeneratorError> {
     let re = Regex::new(r"@name:(.+)").unwrap();
     let var_decl_name = &sql.var_decl_name;
-    let captures = re.captures(&sql.query.as_str());
+    let captures = re.captures(sql.query.as_str());
 
     if let Some(captures) = captures {
         let query_name = captures
             .get(0)
             .unwrap()
             .as_str()
-            .split(":")
+            .split(':')
             .last()
             .unwrap()
             .to_string();
@@ -46,7 +46,7 @@ pub fn get_query_name(sql: &SQL) -> Result<String, TsGeneratorError> {
 pub fn get_query_ts_file_path(file_path: &PathBuf) -> Result<PathBuf, TsGeneratorError> {
     let path = file_path.parent().unwrap();
     let file = file_path.file_name().unwrap();
-    let file_name = file.to_str().unwrap().split(".").next().unwrap();
+    let file_name = file.to_str().unwrap().split('.').next().unwrap();
 
     let result = path.join(Path::new(format!("{file_name}.queries.ts").as_str()));
     Ok(result)
@@ -62,7 +62,7 @@ pub fn generate_ts_interface(
 
     let sql_ast = Parser::parse_sql(&dialect, &sql.query).unwrap();
     let mut ts_query = TsQuery {
-        name: get_query_name(&sql)?,
+        name: get_query_name(sql)?,
         params: vec![],
         result: HashMap::new(),
     };
@@ -77,11 +77,11 @@ pub fn generate_ts_interface(
     for sql_statement in &sql_ast {
         translate_stmt(
             &mut ts_query,
-            &sql_statement,
+            sql_statement,
             db_name.as_str(),
             &annotated_result_types,
-            &db_conn,
-            &generate_types_config,
+            db_conn,
+            generate_types_config,
         )?;
     }
 

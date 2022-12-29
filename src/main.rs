@@ -24,7 +24,7 @@ fn main() {
 
     println!("Scanning {:?} for sqls with extension {:?}", source_folder, ext);
 
-    let files = scan_folder(&source_folder, ext, ignore_paths);
+    let files = scan_folder(source_folder, ext, ignore_paths);
 
     if files.is_empty() {
         println!("No targets detected, is it an empty folder?");
@@ -41,7 +41,7 @@ fn main() {
 
     let failed_to_compile = explain_results.iter().any(|x| x == &true);
 
-    if failed_to_compile == false {
+    if !failed_to_compile {
         println!("No SQL errors detected!");
         // NOTE: There are different exit code depending on the platform https://doc.rust-lang.org/std/process/fn.exit.html#platform-specific-behavior
         // Make sure to consider exit code all major platforms

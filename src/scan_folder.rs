@@ -6,7 +6,7 @@ use walkdir::WalkDir;
 pub fn scan_folder<'a>(
     folder: &'a PathBuf,
     js_extension: &'a JsExtension,
-    ignore_paths: &'a Vec<PathBuf>,
+    ignore_paths: &'a [PathBuf],
 ) -> Vec<PathBuf> {
     let node_modules_path = folder.join(Path::new("node_modules"));
     let path = Path::new(folder);
@@ -27,11 +27,8 @@ pub fn scan_folder<'a>(
             }
 
             let f_name = entry.file_name().to_string_lossy();
-            if f_name.ends_with(js_extension.to_string().as_str()) {
-                true
-            } else {
-                false
-            }
+
+            f_name.ends_with(js_extension.to_string().as_str())
         })
         .map(|entry| entry.path().to_owned())
         .collect();

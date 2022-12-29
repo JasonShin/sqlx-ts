@@ -11,6 +11,8 @@ pub enum TsGeneratorError {
     WildcardStatementWithoutTargetTables,
     WildcardStatementDeadendExpression,
     WildcardStatementUnsupportedTableExpr,
+    // Expression errors
+    UnknownPlaceholder(String),
 }
 
 impl fmt::Display for TsGeneratorError {
@@ -43,6 +45,10 @@ impl fmt::Display for TsGeneratorError {
             }
             Self::WildcardStatementUnsupportedTableExpr => {
                 writeln!(f, "Unsupported table with joins statement detected")
+            }
+            // Expression errors
+            Self::UnknownPlaceholder(placeholder) => {
+                writeln!(f, "The query contains unknown placeholder {}", placeholder)
             }
         }
     }

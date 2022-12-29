@@ -1,7 +1,5 @@
 extern crate core;
 
-use std::path::PathBuf;
-
 use swc_common::MultiSpan;
 
 pub mod cli;

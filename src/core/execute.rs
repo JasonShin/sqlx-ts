@@ -25,8 +25,8 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler, cli_args
             let connection = &config.get_correct_connection(&sql.query);
 
             let (explain_failed, ts_query) = match connection.db_type {
-                DatabaseType::Postgres => postgres_explain::prepare(&sql, &config, &should_generate_types, &handler),
-                DatabaseType::Mysql => mysql_explain::prepare(&sql, &config, &should_generate_types, &handler),
+                DatabaseType::Postgres => postgres_explain::prepare(sql, &config, &should_generate_types, handler),
+                DatabaseType::Mysql => mysql_explain::prepare(sql, &config, &should_generate_types, handler),
             };
 
             failed = explain_failed;
@@ -39,12 +39,12 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler, cli_args
 
         if should_generate_types {
             // Finally writes query typing files
-            let query_ts_file_path = get_query_ts_file_path(&file_path).unwrap();
+            let query_ts_file_path = get_query_ts_file_path(file_path).unwrap();
             if query_ts_file_path.exists() {
                 remove_file(&query_ts_file_path).unwrap();
             }
             let mut file_to_write = File::create(query_ts_file_path).unwrap();
-            let mut sqls_to_write = sqls_to_write.join("\n");
+            let sqls_to_write = sqls_to_write.join("\n");
 
             file_to_write.write_all(sqls_to_write.as_ref()).unwrap();
         }

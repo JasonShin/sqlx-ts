@@ -1,10 +1,8 @@
 use mysql;
-use mysql::{prelude::Queryable, Conn};
+use mysql::prelude::Queryable;
 use postgres;
-use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;
 use std::collections::HashMap;
-use swc_common::util::move_map::MoveMap;
 
 use super::types::{DBConn, TsFieldType};
 
@@ -37,8 +35,8 @@ impl DBSchema {
 
     pub fn fetch_table(&self, database_name: &str, table_name: &Vec<&str>, conn: &DBConn) -> Option<Fields> {
         match &conn {
-            DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(&self, &database_name, &table_name, conn),
-            DBConn::PostgresConn(conn) => Self::postgres_fetch_table(&self, &database_name, &table_name, conn),
+            DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, database_name, table_name, conn),
+            DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, database_name, table_name, conn),
         }
     }
 
@@ -49,7 +47,7 @@ impl DBSchema {
         conn: &RefCell<&mut postgres::Client>,
     ) -> Option<Fields> {
         let table_names = table_names
-            .into_iter()
+            .iter()
             .map(|x| format!("'{x}'"))
             .collect::<Vec<_>>()
             .join(",");
@@ -94,7 +92,7 @@ impl DBSchema {
         conn: &RefCell<&mut mysql::Conn>,
     ) -> Option<Fields> {
         let table_names = table_names
-            .into_iter()
+            .iter()
             .map(|x| format!("'{x}'"))
             .collect::<Vec<_>>()
             .join(",");
@@ -131,8 +129,4 @@ impl DBSchema {
 
         None
     }
-}
-
-pub struct PostgresSchema {
-    pub tables: HashMap<String, Fields>,
 }

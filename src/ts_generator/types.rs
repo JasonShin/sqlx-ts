@@ -12,6 +12,16 @@ pub enum DBConn<'a> {
 }
 
 #[derive(Debug, Clone, Copy)]
+pub enum ArrayItem {
+    String,
+    Number,
+    Boolean,
+    Object,
+    Null,
+    Any,
+}
+
+#[derive(Debug, Clone, Copy)]
 pub enum TsFieldType {
     String,
     Number,
@@ -20,30 +30,54 @@ pub enum TsFieldType {
     Null,
     Any,
     Never,
+    Array(ArrayItem),
 }
 
 impl fmt::Display for TsFieldType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            TsFieldType::Boolean => write!(f, "{}", "boolean".to_string()),
-            TsFieldType::Number => write!(f, "{}", "number".to_string()),
-            TsFieldType::String => write!(f, "{}", "string".to_string()),
-            TsFieldType::Object => write!(f, "{}", "object".to_string()),
-            TsFieldType::Any => write!(f, "{}", "any".to_string()),
-            TsFieldType::Null => write!(f, "{}", "null".to_string()),
-            TsFieldType::Never => write!(f, "{}", "never".to_string()),
+            TsFieldType::Boolean => write!(f, "boolean"),
+            TsFieldType::Number => write!(f, "number"),
+            TsFieldType::String => write!(f, "string"),
+            TsFieldType::Object => write!(f, "object"),
+            TsFieldType::Any => write!(f, "any"),
+            TsFieldType::Null => write!(f, "null"),
+            TsFieldType::Never => write!(f, "never"),
+            TsFieldType::Array(ts_field_type) => match ts_field_type {
+                ArrayItem::String => write!(f, "Array<string>"),
+                ArrayItem::Number => write!(f, "Array<number>"),
+                ArrayItem::Boolean => write!(f, "Array<boolean>"),
+                ArrayItem::Object => write!(f, "Array<object>"),
+                ArrayItem::Null => write!(f, "Array<null>"),
+                ArrayItem::Any => write!(f, "Array<any>"),
+            },
         }
     }
 }
 
 impl TsFieldType {
+    pub fn to_array_item(self) -> Self {
+        match self {
+            TsFieldType::String => TsFieldType::Array(ArrayItem::String),
+            TsFieldType::Number => TsFieldType::Array(ArrayItem::Number),
+            TsFieldType::Boolean => TsFieldType::Array(ArrayItem::Boolean),
+            TsFieldType::Object => TsFieldType::Array(ArrayItem::Object),
+            TsFieldType::Null => TsFieldType::Array(ArrayItem::Null),
+            TsFieldType::Any => TsFieldType::Array(ArrayItem::Any),
+            TsFieldType::Never => panic!("Cannot convert never to an array of never"),
+            TsFieldType::Array(arr) => TsFieldType::Array(arr),
+        }
+    }
+
     pub fn get_ts_field_type_from_mysql_field_type(mysql_field_type: String) -> Self {
         // TODO: Cover all mysql_field_types
         if mysql_field_type == "varchar" {
             return Self::String;
-        } else if mysql_field_type == "int" {
+        }
+        if mysql_field_type == "int" {
             return Self::Number;
-        } else if mysql_field_type == "smallint" {
+        }
+        if mysql_field_type == "smallint" {
             return Self::Number;
         }
 
@@ -62,7 +96,7 @@ impl TsFieldType {
         } else if annotated_type == "null" {
             return Self::Null;
         }
-        return Self::Any;
+        Self::Any
     }
 }
 
@@ -75,30 +109,34 @@ pub struct TsQuery {
 }
 
 impl TsQuery {
-    fn fmt_params(&self, f: &mut fmt::Formatter<'_>, params: &Vec<TsFieldType>) -> String {
+    fn fmt_params(&self, _: &mut fmt::Formatter<'_>, params: &Vec<TsFieldType>) -> String {
         let result = params
-            .into_iter()
+            .iter()
             .map(|x| x.to_string())
             .collect::<Vec<String>>()
             .join(", ");
 
-        format!("{}", result)
+        result
     }
 
-    fn fmt_result(&self, f: &mut fmt::Formatter<'_>, attrs_map: &HashMap<String, Vec<TsFieldType>>) -> String {
-        let result: Vec<String> = attrs_map
-            .into_iter()
-            .map(|(name, data_type)| {
+    fn fmt_result(&self, _f: &mut fmt::Formatter<'_>, attrs_map: &HashMap<String, Vec<TsFieldType>>) -> String {
+        let mut keys = Vec::from_iter(attrs_map.keys());
+        keys.sort();
+
+        let result: Vec<String> = keys
+            .iter()
+            .map(|key| {
+                let data_type = attrs_map.get(key.to_owned()).unwrap();
                 let data_types = data_type
-                    .into_iter()
+                    .iter()
                     .map(|ts_field_type| ts_field_type.to_string())
                     .collect::<Vec<String>>()
                     .join(" | ");
-                format!("{name}: {data_types};")
+                format!("{key}: {data_types};")
             })
             .collect();
 
-        format!("{}", result.join("\n\t").to_string())
+        result.join("\n\t")
     }
 }
 

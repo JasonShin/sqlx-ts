@@ -17,7 +17,8 @@
   - [File based config for multiple database connections](./reference-guide/2.1.configs-file-based.md)
   - [Environment variables](./reference-guide/2.2.environment-variables.md)
 - [Type generation](./reference-guide/4.typescript-types-generation.md)
-  - [Annotations](./reference-guide/4.1.annotations.md)
+  - [Parameters](./reference-guide/4.1.parameters.md)
+  - [Annotations](./reference-guide/4.2.annotations.md)
 
 # Miscellaneous
 

@@ -1,0 +1,16 @@
+[package]
+name = "test_utils"
+version = "0.1.0"
+edition = "2021"
+homepage = "https://github.com/JasonShin/sqlx-ts"
+authors = ['Jason Shin <visualbbasic@gmail.com>']
+license = "MIT"
+description = "test utils for sqlx-ts"
+readme = "README.md"
+keywords = ["cli", "sql", "sqlx", "typescript", "javascript"]
+categories = ["command-line-utilities"]
+documentation = "https://jasonshin.github.io/sqlx-ts/"
+
+[dependencies]
+regex = { version = "1.5" }
+tempfile = "3.3.0"
