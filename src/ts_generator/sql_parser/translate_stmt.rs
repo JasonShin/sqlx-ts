@@ -29,9 +29,7 @@ pub fn translate_stmt(
                         match &select_item {
                             UnnamedExpr(unnamed_expr) => {
                                 let table_name = translate_table_with_joins(&table_with_joins, &select_item)
-                                    .unwrap_or_else(|| {
-                                        panic!("Default FROM table is not found from the query {query}")
-                                    });
+                                    .expect("Default FROM table is not found from the query {query}");
 
                                 // Handles SQL Expression and appends result
                                 translate_expr(
