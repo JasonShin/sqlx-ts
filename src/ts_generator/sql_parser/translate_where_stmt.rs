@@ -71,7 +71,6 @@ pub fn translate_where_stmt(
         Expr::InList { expr, list, negated } => {
             // If the list is just a single `(?)`, then we should return the dynamic
             // If the list contains multiple `(?, ?...)` then we should return a fixed length array
-            println!("checking IN expr {:?} {:?} {:?}", expr, list, negated);
             if list.len() == 1 {
                 let right = list
                     .get(0)
@@ -85,7 +84,6 @@ pub fn translate_where_stmt(
                 } else {
                     return;
                 }
-                println!("checking result for IN expr {:?}", result);
             }
         }
         _ => {}

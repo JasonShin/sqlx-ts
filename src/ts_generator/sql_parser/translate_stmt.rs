@@ -88,12 +88,17 @@ pub fn translate_stmt(
                 SetExpr::Insert(_) => todo!(),
             }
         }
-        Statement::Insert { .. } => {}
-        Statement::Directory { .. } => {}
-        Statement::Update { .. } => {}
-        Statement::Delete { .. } => {}
+        Statement::Insert { .. } => {
+            println!("INSERT statement is not yet supported by TS type generator")
+        }
+        Statement::Update { .. } => {
+            println!("UPDATE statement is not yet supported by TS type generator")
+        }
+        Statement::Delete { .. } => {
+            println!("DELETE statement is not yet supported by TS type generator")
+        }
         _ => {
-            println!("Unsupported SQL syntax detected, skipping the translation");
+            println!("Unsupported SQL syntax detected, skipping the type generation")
         }
     }
     Ok(())

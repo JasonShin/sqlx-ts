@@ -22,7 +22,7 @@ fn main() {
     let ext = &cli_args.ext;
     let ignore_paths = &cli_args.ignore;
 
-    println!("Scanning {:?} for sqls with extension {:?}", source_folder, ext);
+    println!("Scanning {:?} for SQLs with extension {:?}", source_folder, ext);
 
     let files = scan_folder(source_folder, ext, ignore_paths);
 
@@ -47,7 +47,7 @@ fn main() {
         // Make sure to consider exit code all major platforms
         std::process::exit(0)
     } else {
-        println!("SQLs failed to compile!");
+        eprintln!("SQLs failed to compile!");
         std::process::exit(1)
     }
 }
