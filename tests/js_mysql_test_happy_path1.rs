@@ -152,8 +152,8 @@ module TestModule {
 mod js_mysql_happy_path_tests {
     use assert_cmd::prelude::*;
     use std::fs;
-    use std::process::Command;
     use std::io::Write;
+    use std::process::Command;
     use tempfile::tempdir;
 
     use crate::TEST_INDEX_CONTENT_1;

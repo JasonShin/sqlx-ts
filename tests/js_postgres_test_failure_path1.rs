@@ -2,23 +2,119 @@
 mod js_postgres_failure_path_tests {
     use assert_cmd::prelude::*;
 
+    use std::fs;
+    use std::io::Write;
     use std::process::Command;
+    use tempfile::tempdir;
 
-    /// should be using all CLI args to provide credential for DB connection
     #[test]
     fn failure_with_all_cli_args() -> Result<(), Box<dyn std::error::Error>> {
+        // SETUP
+        let dir = tempdir()?;
+        let parent_path = dir.path();
+        let file_path = parent_path.join("index.js");
+
+        let index_content = r#"
+import { sql } from "sqlx-ts";
+
+// Querying from an unknown table
+const someQuery = sql`SELECT * FROM indexjs_unknown`;
+
+// Inserting more values than expected
+const insertQuery = sql`
+    INSERT INTO items (food_type, time_takes_to_cook, table_id, points)
+    VALUES ('steak', 1, 1, 1, 1);
+`;
+
+///////////////////
+// If statements //
+///////////////////
+if (true) {
+    const query3 = sql`SELECT * FROM if_statement1;`;
+}
+
+function testIfStatement() {
+    if (true) {
+    const query3 = sql`SELECT * FROM if_statement2;`;
+    }
+}
+
+//////////////////////
+// Switch Statement //
+//////////////////////
+
+switch (true) {
+    case true:
+    const query4 = sql`SELECT * FROM switch_statements1`;
+    break;
+    default:
+    const query5 = sql`SELECT * FROM switch_statements2`;
+}
+
+///////////////
+// For loops //
+///////////////
+
+for (let i = 0; i < 10; i++) {
+    const query3 = sql`SELECT * FROM for_loops1`;
+}
+
+const list = [1, 2, 3];
+for (let n in list) {
+    const query3 = sql`SELECT * FROM for_loops2`;
+}
+
+for (let n of list) {
+    const query3 = sql`SELECT * FROM for_loops3`;
+}
+
+///////////////
+// Try/Catch //
+///////////////
+
+try {
+    const query3 = sql`SELECT * FROM try1`;
+} catch {
+    const query3 = sql`SELECT * FROM catch1`;
+
+    throw sql`SELECT * FROM throw1`;
+}
+
+/////////////////////
+// While Statement //
+/////////////////////
+
+let i = 0;
+while (i < 5) {
+    const query = sql`SELECT * FROM while1`;
+    i++;
+}
+
+i = 0;
+do {
+    const query = sql`SELECT * FROM do_while1`;
+    i++;
+} while (i < 5);
+        
+        "#;
+        let mut temp_file = fs::File::create(&file_path)?;
+        writeln!(temp_file, "{}", index_content)?;
+
+        // EXECUTE
         let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
 
-        cmd.arg("samples/generic/js-failure-path1")
+        cmd.arg(parent_path.to_str().unwrap())
             .arg("--ext=js")
             .arg("--db-type=postgres")
             .arg("--db-host=127.0.0.1")
             .arg("--db-port=54321")
             .arg("--db-user=postgres")
-            .arg("--db-pass=postgres");
+            .arg("--db-pass=postgres")
+            .arg("--db-name=postgres");
+
+        // ASSERT
         cmd.assert()
             .failure()
-            // src/index.ts
             .stderr(predicates::str::contains("relation \"indexjs_unknown\" does not exist"))
             .stderr(predicates::str::contains(
                 "INSERT has more expressions than target columns",
@@ -45,14 +141,65 @@ mod js_postgres_failure_path_tests {
             .stderr(predicates::str::contains("relation \"while1\" does not exist"))
             // src/index.ts -> do while statement
             .stderr(predicates::str::contains("relation \"do_while1\" does not exist"))
-            // src/import-alias.ts
-            .stderr(predicates::str::contains("relation \"aliased_unknown\" does not exist"))
-            // src/nested/more-nested/more-nested
-            .stderr(predicates::str::contains("relation \"nested_unknown1\" does not exist"))
-            .stderr(predicates::str::contains("relation \"nested_unknown2\" does not exist"))
-            .stderr(predicates::str::contains("relation \"nested_unknown3\" does not exist"))
-            .stdout(predicates::str::contains("SQLs failed to compile!"));
+            .stderr(predicates::str::contains("SQLs failed to compile!"));
+        Ok(())
+    }
 
+    #[test]
+    fn fails_to_find_an_unknown_table_using_aliased_import() -> Result<(), Box<dyn std::error::Error>> {
+        // SETUP
+        let dir = tempdir()?;
+        let parent_path = dir.path();
+        let file_path = parent_path.join("index.js");
+
+        let index_content = r#"
+import { sql as aliased } from "sqlx-ts";
+
+/////////////////
+// expressions //
+/////////////////
+
+const query1 = aliased`SELECT * FROM aliased_unknown;`;
+
+///////////////
+// functions //
+///////////////
+
+function test() {
+    const name = "sqlx-ts";
+    const query3 = aliased`
+        SELECT * FROM aliased_unknown_function;
+    `;
+
+    // Following query should fail to compile as it gives more values than available fields
+    return aliased`
+        INSERT INTO
+    items (food_type, time_takes_to_cook, table_id, points)
+    VALUES ('steak', 1, 1, 20, 1);
+    `;
+}
+        
+        "#;
+        let mut temp_file = fs::File::create(&file_path)?;
+        writeln!(temp_file, "{}", index_content)?;
+
+        // EXECUTE
+        let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+
+        cmd.arg(parent_path.to_str().unwrap())
+            .arg("--ext=js")
+            .arg("--db-type=postgres")
+            .arg("--db-host=127.0.0.1")
+            .arg("--db-port=54321")
+            .arg("--db-user=postgres")
+            .arg("--db-pass=postgres")
+            .arg("-g");
+
+        // ASSERT
+        cmd.assert()
+            .failure()
+            // src/import-alias.ts
+            .stderr(predicates::str::contains("relation \"aliased_unknown\" does not exist"));
         Ok(())
     }
 }
