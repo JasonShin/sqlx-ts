@@ -150,13 +150,12 @@ module TestModule {
 
 #[cfg(test)]
 mod mysql_happy_path_tests {
+    use crate::TEST_INDEX_CONTENT_1;
     use assert_cmd::prelude::*;
     use std::fs;
     use std::io::Write;
     use std::process::Command;
     use tempfile::tempdir;
-
-    use crate::TEST_INDEX_CONTENT_1;
 
     macro_rules! success_with_all_cli_args {
 ($($name:ident: $value:expr,)*) => {

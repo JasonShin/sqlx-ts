@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod js_postgres_failure_path_tests {
+mod mysql_failure_path_tests {
     use assert_cmd::prelude::*;
 
     use std::fs;
@@ -7,12 +7,18 @@ mod js_postgres_failure_path_tests {
     use std::process::Command;
     use tempfile::tempdir;
 
+    macro_rules! failure_with_all_cli_args {
+($($name:ident: $value:expr,)*) => {
+$(
+// MACRO STARTS
+
     #[test]
-    fn failure_with_all_cli_args() -> Result<(), Box<dyn std::error::Error>> {
+    fn $name() -> Result<(), Box<dyn std::error::Error>> {
+        let ts_type = $value;
         // SETUP
         let dir = tempdir()?;
         let parent_path = dir.path();
-        let file_path = parent_path.join("index.js");
+        let file_path = parent_path.join(format!("index.{ts_type}"));
 
         let index_content = r#"
 import { sql } from "sqlx-ts";
@@ -104,53 +110,69 @@ do {
         let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
 
         cmd.arg(parent_path.to_str().unwrap())
-            .arg("--ext=js")
-            .arg("--db-type=postgres")
+            .arg(format!("--ext={ts_type}"))
+            .arg("--db-type=mysql")
             .arg("--db-host=127.0.0.1")
-            .arg("--db-port=54321")
-            .arg("--db-user=postgres")
-            .arg("--db-pass=postgres")
-            .arg("--db-name=postgres");
+            .arg("--db-port=33306")
+            .arg("--db-user=root")
+            .arg("--db-name=sqlx-ts");
 
         // ASSERT
         cmd.assert()
             .failure()
-            .stderr(predicates::str::contains("relation \"indexjs_unknown\" does not exist"))
             .stderr(predicates::str::contains(
-                "INSERT has more expressions than target columns",
+                "Table 'sqlx-ts.indexjs_unknown' doesn't exist",
+            ))
+            .stderr(predicates::str::contains(
+                "Column count doesn't match value count at row 1",
             ))
             // src/index.ts -> if statements
-            .stderr(predicates::str::contains("relation \"if_statement1\" does not exist"))
-            .stderr(predicates::str::contains("relation \"if_statement2\" does not exist"))
+            .stderr(predicates::str::contains("Table 'sqlx-ts.if_statement1' doesn't exist"))
+            .stderr(predicates::str::contains("Table 'sqlx-ts.if_statement2' doesn't exist"))
             // src/index.ts -> switch statements
             .stderr(predicates::str::contains(
-                "relation \"switch_statements1\" does not exist",
+                "Table 'sqlx-ts.switch_statements1' doesn't exist",
             ))
             .stderr(predicates::str::contains(
-                "relation \"switch_statements2\" does not exist",
+                "Table 'sqlx-ts.switch_statements2' doesn't exist",
             ))
             // src/index.ts -> for loop statements
-            .stderr(predicates::str::contains("relation \"for_loops1\" does not exist"))
-            .stderr(predicates::str::contains("relation \"for_loops2\" does not exist"))
-            .stderr(predicates::str::contains("relation \"for_loops3\" does not exist"))
+            .stderr(predicates::str::contains("Table 'sqlx-ts.for_loops1' doesn't exist"))
+            .stderr(predicates::str::contains("Table 'sqlx-ts.for_loops2' doesn't exist"))
+            .stderr(predicates::str::contains("Table 'sqlx-ts.for_loops3' doesn't exist"))
             // src/index.ts -> try catch statements
-            .stderr(predicates::str::contains("relation \"try1\" does not exist"))
-            .stderr(predicates::str::contains("relation \"catch1\" does not exist"))
-            .stderr(predicates::str::contains("relation \"throw1\" does not exist"))
+            .stderr(predicates::str::contains("Table 'sqlx-ts.try1' doesn't exist"))
+            .stderr(predicates::str::contains("Table 'sqlx-ts.catch1' doesn't exist"))
+            .stderr(predicates::str::contains("Table 'sqlx-ts.throw1' doesn't exist"))
             // src/index.ts -> while statement
-            .stderr(predicates::str::contains("relation \"while1\" does not exist"))
+            .stderr(predicates::str::contains("Table 'sqlx-ts.while1' doesn't exist"))
             // src/index.ts -> do while statement
-            .stderr(predicates::str::contains("relation \"do_while1\" does not exist"))
+            .stderr(predicates::str::contains("Table 'sqlx-ts.do_while1' doesn't exist"))
             .stderr(predicates::str::contains("SQLs failed to compile!"));
         Ok(())
     }
 
+// MACRO ENDS
+)*};}
+
+    failure_with_all_cli_args! {
+        js_failure_with_all_cli_args: "js",
+        ts_failure_with_all_cli_args: "ts",
+    }
+
+    macro_rules! fails_to_find_an_unknown_table_using_aliased_import {
+    ($($name:ident: $value:expr,)*) => {
+    $(
+// MACRO STARTS
+
     #[test]
-    fn fails_to_find_an_unknown_table_using_aliased_import() -> Result<(), Box<dyn std::error::Error>> {
+    fn $name() -> Result<(), Box<dyn std::error::Error>> {
+        let ts_type = $value;
+
         // SETUP
         let dir = tempdir()?;
         let parent_path = dir.path();
-        let file_path = parent_path.join("index.js");
+        let file_path = parent_path.join(format!("index.{ts_type}"));
 
         let index_content = r#"
 import { sql as aliased } from "sqlx-ts";
@@ -187,19 +209,29 @@ function test() {
         let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
 
         cmd.arg(parent_path.to_str().unwrap())
-            .arg("--ext=js")
-            .arg("--db-type=postgres")
+            .arg(format!("--ext={ts_type}"))
+            .arg("--db-type=mysql")
             .arg("--db-host=127.0.0.1")
-            .arg("--db-port=54321")
-            .arg("--db-user=postgres")
-            .arg("--db-pass=postgres")
+            .arg("--db-port=33306")
+            .arg("--db-user=root")
+            .arg("--db-name=sqlx-ts")
             .arg("-g");
 
         // ASSERT
         cmd.assert()
             .failure()
             // src/import-alias.ts
-            .stderr(predicates::str::contains("relation \"aliased_unknown\" does not exist"));
+            .stderr(predicates::str::contains(
+                "Table 'sqlx-ts.aliased_unknown' doesn't exist",
+            ));
         Ok(())
+    }
+
+// MACRO ENDS
+)*};}
+
+    fails_to_find_an_unknown_table_using_aliased_import! {
+        js_fails_to_find_an_unknown_table_using_aliased_import: "js",
+        ts_fails_to_find_an_unknown_table_using_aliased_import: "ts",
     }
 }
