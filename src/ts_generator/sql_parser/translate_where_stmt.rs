@@ -1,6 +1,7 @@
 use sqlparser::ast::{Expr, TableWithJoins};
 
 use crate::ts_generator::{
+    errors::TsGeneratorError,
     information_schema::DBSchema,
     types::{DBConn, TsFieldType, TsQuery},
 };
@@ -56,17 +57,18 @@ pub fn translate_where_stmt(
     expr: &Expr,
     table_with_joins: &Vec<TableWithJoins>,
     db_conn: &DBConn,
-) {
+) -> Result<(), TsGeneratorError> {
     match expr {
         Expr::BinaryOp { left, op: _, right } => {
             let result = get_sql_query_param(left, right, db_name, table_with_joins, db_conn);
 
             if result.is_none() {
-                translate_where_stmt(db_name, ts_query, left, table_with_joins, db_conn);
-                translate_where_stmt(db_name, ts_query, right, table_with_joins, db_conn);
+                translate_where_stmt(db_name, ts_query, left, table_with_joins, db_conn)?;
+                translate_where_stmt(db_name, ts_query, right, table_with_joins, db_conn)?;
             } else {
                 ts_query.params.push(result.unwrap());
             }
+            Ok(())
         }
         Expr::InList { expr, list, negated } => {
             // If the list is just a single `(?)`, then we should return the dynamic
@@ -81,11 +83,22 @@ pub fn translate_where_stmt(
                     let array_item = result.unwrap().to_array_item();
 
                     ts_query.params.push(array_item);
+                    return Ok(());
                 } else {
-                    return;
+                    return Ok(());
                 }
             }
+            Ok(())
         }
-        _ => {}
+        Expr::InSubquery {
+            expr,
+            subquery,
+            negated,
+        } => todo!(),
+        Expr::Subquery(subquery) => {
+            // translate query here as well
+            Ok(())
+        }
+        _ => Ok(()),
     }
 }
