@@ -109,7 +109,7 @@ pub fn translate_query(
             if let Some(selection) = select.clone().selection {
                 translate_where_stmt(db_name, ts_query, &selection, &table_with_joins, db_conn)?
             }
-            return Ok(());
+            Ok(())
         }
         SetExpr::Query(_) => todo!(),
         SetExpr::SetOperation {

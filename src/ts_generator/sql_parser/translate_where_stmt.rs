@@ -70,7 +70,7 @@ pub fn translate_where_stmt(
             }
             Ok(())
         }
-        Expr::InList { expr, list, negated } => {
+        Expr::InList { expr, list, negated: _ } => {
             // If the list is just a single `(?)`, then we should return the dynamic
             // If the list contains multiple `(?, ?...)` then we should return a fixed length array
             if list.len() == 1 {
@@ -91,11 +91,11 @@ pub fn translate_where_stmt(
             Ok(())
         }
         Expr::InSubquery {
-            expr,
-            subquery,
-            negated,
+            expr: _,
+            subquery: _,
+            negated: _,
         } => todo!(),
-        Expr::Subquery(subquery) => {
+        Expr::Subquery(_subquery) => {
             // translate query here as well
             Ok(())
         }
