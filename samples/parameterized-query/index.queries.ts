@@ -1,33 +1,16 @@
 
 
-export type SampleQueryParams = [number, number, number];
+export type SubQuery1Params = [number];
 
 
-export interface ISampleQueryResult {
+export interface ISubQuery1Result {
     id: number;
 	points: number;
 };
 
 
-export interface ISampleQueryQuery {
-    params: SampleQueryParams;
-    result: ISampleQueryResult;
-};
-
-
-
-
-export type SampleQuery2Params = [Array<number>];
-
-
-export interface ISampleQuery2Result {
-    id: number;
-	points: number;
-};
-
-
-export interface ISampleQuery2Query {
-    params: SampleQuery2Params;
-    result: ISampleQuery2Result;
+export interface ISubQuery1Query {
+    params: SubQuery1Params;
+    result: ISubQuery1Result;
 };
 

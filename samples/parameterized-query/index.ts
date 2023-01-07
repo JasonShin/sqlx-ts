@@ -1,5 +1,5 @@
 import { sql } from "sqlx-ts";
-
+/*
 const sampleQuery = sql`
 SELECT id, points
 FROM items
@@ -12,4 +12,11 @@ const sampleQuery2 = sql`
 SELECT id, points
 FROM items
 WHERE id IN (?);
+`
+*/
+
+const subQuery1 = sql`
+SELECT id, points
+FROM items
+WHERE id IN (SELECT id FROM items WHERE points > ?);
 `

@@ -107,7 +107,16 @@ pub fn translate_query(
             }
 
             if let Some(selection) = select.clone().selection {
-                translate_where_stmt(db_name, ts_query, &selection, &table_with_joins, db_conn)?
+                translate_where_stmt(
+                    db_name,
+                    ts_query,
+                    sql_statement,
+                    &selection,
+                    &table_with_joins,
+                    annotated_results,
+                    db_conn,
+                    generate_types_config,
+                )?
             }
             Ok(())
         }

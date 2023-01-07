@@ -1,13 +1,19 @@
-use sqlparser::ast::{Expr, TableWithJoins};
+use std::collections::HashMap;
 
-use crate::ts_generator::{
-    errors::TsGeneratorError,
-    information_schema::DBSchema,
-    types::{DBConn, TsFieldType, TsQuery},
+use sqlparser::ast::{Expr, Statement, TableWithJoins};
+
+use crate::{
+    common::config::GenerateTypesConfig,
+    ts_generator::{
+        errors::TsGeneratorError,
+        information_schema::DBSchema,
+        types::{DBConn, TsFieldType, TsQuery},
+    },
 };
 
 use super::{
     translate_expr::{is_expr_placeholder, translate_column_name_expr},
+    translate_stmt::translate_query,
     translate_table_with_joins::translate_table_from_expr,
 };
 
@@ -54,17 +60,38 @@ pub fn get_sql_query_param(
 pub fn translate_where_stmt(
     db_name: &str,
     ts_query: &mut TsQuery,
+    sql_statement: &Statement,
     expr: &Expr,
     table_with_joins: &Vec<TableWithJoins>,
+    annotated_results: &HashMap<String, Vec<TsFieldType>>,
     db_conn: &DBConn,
+    generate_types_config: &Option<GenerateTypesConfig>,
 ) -> Result<(), TsGeneratorError> {
     match expr {
         Expr::BinaryOp { left, op: _, right } => {
             let result = get_sql_query_param(left, right, db_name, table_with_joins, db_conn);
 
             if result.is_none() {
-                translate_where_stmt(db_name, ts_query, left, table_with_joins, db_conn)?;
-                translate_where_stmt(db_name, ts_query, right, table_with_joins, db_conn)?;
+                translate_where_stmt(
+                    db_name,
+                    ts_query,
+                    sql_statement,
+                    left,
+                    table_with_joins,
+                    annotated_results,
+                    db_conn,
+                    generate_types_config,
+                )?;
+                translate_where_stmt(
+                    db_name,
+                    ts_query,
+                    sql_statement,
+                    right,
+                    table_with_joins,
+                    annotated_results,
+                    db_conn,
+                    generate_types_config,
+                )?;
             } else {
                 ts_query.params.push(result.unwrap());
             }
@@ -91,12 +118,24 @@ pub fn translate_where_stmt(
             Ok(())
         }
         Expr::InSubquery {
-            expr: _,
-            subquery: _,
-            negated: _,
-        } => todo!(),
-        Expr::Subquery(_subquery) => {
+            expr,
+            subquery,
+            negated,
+        } => {
+            translate_query(
+                ts_query,
+                sql_statement,
+                subquery,
+                db_name,
+                annotated_results,
+                db_conn,
+                generate_types_config,
+            );
+            Ok(())
+        }
+        Expr::Subquery(subquery) => {
             // translate query here as well
+            println!("checking sub query {:?}", subquery);
             Ok(())
         }
         _ => Ok(()),
