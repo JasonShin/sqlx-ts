@@ -20,3 +20,15 @@ SELECT id, points
 FROM items
 WHERE id IN (SELECT id FROM items WHERE points > ?);
 `
+
+const subQuery2 = sql`
+SELECT id, points
+FROM items
+WHERE id IN (
+    SELECT id FROM items
+    WHERE
+        points > ?
+        AND id IN (SELECT id FROM items WHERE points = ?)
+)
+AND points < ?
+`
