@@ -27,6 +27,7 @@ pub fn translate_stmt(
                 annotated_results,
                 db_conn,
                 generate_types_config,
+                false,
             );
         }
         Statement::Insert { .. } => {
@@ -53,6 +54,7 @@ pub fn translate_query(
     annotated_results: &HashMap<String, Vec<TsFieldType>>,
     db_conn: &DBConn,
     generate_types_config: &Option<GenerateTypesConfig>,
+    is_subquery: bool,
 ) -> Result<(), TsGeneratorError> {
     let body = &query.body;
     match body {
@@ -73,9 +75,10 @@ pub fn translate_query(
                             &table_name,
                             None,
                             annotated_results,
-                            &mut ts_query.result,
+                            ts_query,
                             db_conn,
                             generate_types_config,
+                            false,
                         )?;
                     }
                     ExprWithAlias { expr, alias } => {
@@ -88,9 +91,10 @@ pub fn translate_query(
                             table_name.unwrap().as_str(),
                             Some(alias.as_str()),
                             annotated_results,
-                            &mut ts_query.result,
+                            ts_query,
                             db_conn,
                             generate_types_config,
+                            false,
                         )?;
                     }
                     QualifiedWildcard(_) => todo!(),

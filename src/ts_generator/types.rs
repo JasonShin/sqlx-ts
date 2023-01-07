@@ -109,6 +109,18 @@ pub struct TsQuery {
 }
 
 impl TsQuery {
+    /// inserts a value into the result hashmap
+    /// it should only insert a value if you are working with a non-subquery queries
+    pub fn insert_result(&mut self, key: String, value: &Vec<TsFieldType>, is_subquery: bool) {
+        if !is_subquery {
+            &self.result.insert(key, value.clone());
+        }
+    }
+
+    pub fn insert_param(&mut self, value: &TsFieldType) {
+        self.params.push(value.clone())
+    }
+
     fn fmt_params(&self, _: &mut fmt::Formatter<'_>, params: &Vec<TsFieldType>) -> String {
         let result = params
             .iter()

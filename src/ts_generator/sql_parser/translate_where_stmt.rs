@@ -130,6 +130,7 @@ pub fn translate_where_stmt(
                 annotated_results,
                 db_conn,
                 generate_types_config,
+                true,
             );
             Ok(())
         }

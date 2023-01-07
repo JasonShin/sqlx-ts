@@ -1,7 +1,7 @@
 use crate::common::config::GenerateTypesConfig;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::information_schema::DBSchema;
-use crate::ts_generator::types::{DBConn, TsFieldType};
+use crate::ts_generator::types::{DBConn, TsFieldType, TsQuery};
 use convert_case::{Case, Casing};
 use sqlparser::ast::{Expr, Value};
 use std::collections::HashMap;
@@ -64,9 +64,10 @@ pub fn translate_expr(
     table_name: &str,
     alias: Option<&str>,
     _annotated_result: &HashMap<String, Vec<TsFieldType>>,
-    result: &mut HashMap<String, Vec<TsFieldType>>,
+    ts_query: &mut TsQuery,
     db_conn: &DBConn,
     generate_types_config: &Option<GenerateTypesConfig>,
+    is_subquery: bool,
 ) -> Result<(), TsGeneratorError> {
     let db_schema = DBSchema::new();
 
@@ -81,7 +82,7 @@ pub fn translate_expr(
                 let field = table_details.get(&column_name).unwrap();
 
                 let field_name = alias.unwrap_or(column_name.as_str()).to_string();
-                result.insert(field_name, vec![field.field_type]);
+                ts_query.insert_result(field_name, &vec![field.field_type], is_subquery);
             }
             Ok(())
         }
@@ -94,7 +95,7 @@ pub fn translate_expr(
                 if let Some(table_details) = table_details {
                     let field = table_details.get(&ident).unwrap();
 
-                    result.insert(alias.unwrap().to_string(), vec![field.field_type]);
+                    ts_query.insert_result(alias.unwrap().to_string(), &vec![field.field_type], is_subquery);
                 }
                 return Ok(());
             }
@@ -105,7 +106,7 @@ pub fn translate_expr(
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
                 // throw error here
-                result.insert(alias, vec![TsFieldType::Boolean]);
+                ts_query.insert_result(alias, &vec![TsFieldType::Boolean], is_subquery);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(query.to_string()))
@@ -116,7 +117,7 @@ pub fn translate_expr(
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
                 // throw error here
-                result.insert(alias, vec![TsFieldType::Boolean]);
+                ts_query.insert_result(alias, &vec![TsFieldType::Boolean], is_subquery);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(query.to_string()))
@@ -129,7 +130,7 @@ pub fn translate_expr(
         } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
-                result.insert(alias, vec![TsFieldType::Any]);
+                ts_query.insert_result(alias, &vec![TsFieldType::Any], is_subquery);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(operator.to_string()))
@@ -138,7 +139,7 @@ pub fn translate_expr(
         Expr::CompositeAccess { expr, key: _ } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
-                result.insert(alias, vec![TsFieldType::Any]);
+                ts_query.insert_result(alias, &vec![TsFieldType::Any], is_subquery);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
@@ -154,7 +155,7 @@ pub fn translate_expr(
         } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
-                result.insert(alias, vec![TsFieldType::Boolean, TsFieldType::Null]);
+                ts_query.insert_result(alias, &vec![TsFieldType::Boolean, TsFieldType::Null], is_subquery);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
@@ -167,7 +168,7 @@ pub fn translate_expr(
         } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
-                result.insert(alias, vec![TsFieldType::Any]);
+                ts_query.insert_result(alias, &vec![TsFieldType::Any], is_subquery);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
@@ -180,7 +181,7 @@ pub fn translate_expr(
         } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
-                result.insert(alias, vec![TsFieldType::Any]);
+                ts_query.insert_result(alias, &vec![TsFieldType::Any], is_subquery);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
