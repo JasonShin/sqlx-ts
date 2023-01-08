@@ -17,7 +17,7 @@ export interface ISubQuery1Query {
 
 
 
-export type SubQuery2Params = [number, number, number];
+export type SubQuery2Params = [number, string, number];
 
 
 export interface ISubQuery2Result {
