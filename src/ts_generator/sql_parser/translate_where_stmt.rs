@@ -135,8 +135,16 @@ pub fn translate_where_stmt(
             Ok(())
         }
         Expr::Subquery(subquery) => {
-            // translate query here as well
-            println!("checking sub query {:?}", subquery);
+            translate_query(
+                ts_query,
+                sql_statement,
+                subquery,
+                db_name,
+                annotated_results,
+                db_conn,
+                generate_types_config,
+                true,
+            );
             Ok(())
         }
         _ => Ok(()),

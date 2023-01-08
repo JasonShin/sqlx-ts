@@ -24,11 +24,5 @@ WHERE id IN (SELECT id FROM items WHERE points > ?);
 const subQuery2 = sql`
 SELECT id, points
 FROM items
-WHERE id IN (
-    SELECT id FROM items
-    WHERE
-        points > ?
-        AND id IN (SELECT id FROM items WHERE food_type = ?)
-)
-AND points < ?
+WHERE id = (SELECT id FROM items WHERE id = ?)
 `
