@@ -118,9 +118,9 @@ pub fn translate_where_stmt(
             Ok(())
         }
         Expr::InSubquery {
-            expr,
+            expr: _,
             subquery,
-            negated,
+            negated: _,
         } => {
             translate_query(
                 ts_query,

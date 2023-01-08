@@ -54,7 +54,7 @@ pub fn translate_query(
     annotated_results: &HashMap<String, Vec<TsFieldType>>,
     db_conn: &DBConn,
     generate_types_config: &Option<GenerateTypesConfig>,
-    is_subquery: bool,
+    _is_subquery: bool,
 ) -> Result<(), TsGeneratorError> {
     let body = &query.body;
     match body {
