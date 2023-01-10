@@ -54,7 +54,7 @@ pub fn translate_query(
     annotated_results: &HashMap<String, Vec<TsFieldType>>,
     db_conn: &DBConn,
     generate_types_config: &Option<GenerateTypesConfig>,
-    _is_subquery: bool,
+    is_subquery: bool,
 ) -> Result<(), TsGeneratorError> {
     let body = &query.body;
     match body {
@@ -78,7 +78,7 @@ pub fn translate_query(
                             ts_query,
                             db_conn,
                             generate_types_config,
-                            false,
+                            is_subquery,
                         )?;
                     }
                     ExprWithAlias { expr, alias } => {
@@ -94,7 +94,7 @@ pub fn translate_query(
                             ts_query,
                             db_conn,
                             generate_types_config,
-                            false,
+                            is_subquery,
                         )?;
                     }
                     QualifiedWildcard(_) => todo!(),
