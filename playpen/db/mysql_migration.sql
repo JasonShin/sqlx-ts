@@ -14,6 +14,16 @@ CREATE TABLE items (
    PRIMARY KEY (id)
 );
 
-INSERT INTO tables (number) VALUES
+INSERT INTO tables (number)
+VALUES
     (1), (2), (3), (4), (5), (6), (7), (8), (9), (10);
+
+INSERT INTO items (id, food_type, time_takes_to_cook, table_id, points)
+VALUES
+  (1, 'korean', 10, 1, 2),
+  (2, 'chinese', 10, 1, 2),
+  (3, 'japanese', 10, 1, 2),
+  (4, 'italian', 10, 1, 2),
+  (5, 'french', 10, 1, 2);
+
 
