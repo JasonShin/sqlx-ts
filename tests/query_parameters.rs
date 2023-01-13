@@ -197,7 +197,6 @@ export interface ISomeQueryQuery {
         Ok(())
     }
 
-
     #[test]
     fn should_pick_query_params_from_subqueries() -> Result<(), Box<dyn std::error::Error>> {
         // SETUP

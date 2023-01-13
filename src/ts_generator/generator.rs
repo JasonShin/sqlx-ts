@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::path::{Path, PathBuf};
 
 use crate::common::config::{DbConnectionConfig, GenerateTypesConfig};
@@ -61,11 +61,7 @@ pub fn generate_ts_interface(
     let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
 
     let sql_ast = Parser::parse_sql(&dialect, &sql.query).unwrap();
-    let mut ts_query = TsQuery {
-        name: get_query_name(sql)?,
-        params: vec![],
-        result: HashMap::new(),
-    };
+    let mut ts_query = TsQuery::new(get_query_name(sql)?);
 
     let annotated_result_types = extract_result_annotations(&sql.query);
 

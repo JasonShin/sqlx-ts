@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::fmt::{self};
 
 use mysql::Conn as MySQLConn;
@@ -103,12 +103,23 @@ impl TsFieldType {
 #[derive(Debug)]
 pub struct TsQuery {
     pub name: String,
-    pub params: Vec<TsFieldType>,
+    param_order: i32,
+    // We use BTreeMap here as it's a collection that's already sorted
+    pub params: BTreeMap<i32, TsFieldType>,
     // TODO: Need a type for List of Params strongly typed in order
     pub result: HashMap<String, Vec<TsFieldType>>,
 }
 
 impl TsQuery {
+    pub fn new(name: String) -> TsQuery {
+        TsQuery {
+            name,
+            param_order: 0,
+            params: BTreeMap::new(),
+            result: HashMap::new(),
+        }
+    }
+
     /// inserts a value into the result hashmap
     /// it should only insert a value if you are working with a non-subquery queries
     pub fn insert_result(&mut self, key: String, value: &Vec<TsFieldType>, is_subquery: bool) {
@@ -117,13 +128,16 @@ impl TsQuery {
         }
     }
 
-    pub fn insert_param(&mut self, value: &TsFieldType) {
-        self.params.push(*value)
+    pub fn insert_param(&mut self, value: &TsFieldType, order: &Option<i32>) {
+        if let Some(order) = order {
+            self.params.insert(*order, *value);
+        } else {
+        }
     }
 
-    fn fmt_params(&self, _: &mut fmt::Formatter<'_>, params: &Vec<TsFieldType>) -> String {
+    fn fmt_params(&self, _: &mut fmt::Formatter<'_>, params: &BTreeMap<i32, TsFieldType>) -> String {
         let result = params
-            .iter()
+            .into_values()
             .map(|x| x.to_string())
             .collect::<Vec<String>>()
             .join(", ");
