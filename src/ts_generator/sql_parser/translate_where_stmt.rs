@@ -69,9 +69,9 @@ pub fn translate_where_stmt(
 ) -> Result<(), TsGeneratorError> {
     match expr {
         Expr::BinaryOp { left, op: _, right } => {
-            let result = get_sql_query_param(left, right, db_name, table_with_joins, db_conn);
+            let param = get_sql_query_param(left, right, db_name, table_with_joins, db_conn);
 
-            if result.is_none() {
+            if param.is_none() {
                 translate_where_stmt(
                     db_name,
                     ts_query,
@@ -93,7 +93,7 @@ pub fn translate_where_stmt(
                     generate_types_config,
                 )?;
             } else {
-                ts_query.params.push(result.unwrap());
+                ts_query.insert_param(&param.unwrap(), &None);
             }
             Ok(())
         }
@@ -109,7 +109,7 @@ pub fn translate_where_stmt(
                 if result.is_some() {
                     let array_item = result.unwrap().to_array_item();
 
-                    ts_query.params.push(array_item);
+                    ts_query.insert_param(&array_item, &None);
                     return Ok(());
                 } else {
                     return Ok(());

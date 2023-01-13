@@ -135,13 +135,14 @@ impl TsQuery {
     }
 
     fn fmt_params(&self, _: &mut fmt::Formatter<'_>, params: &BTreeMap<i32, TsFieldType>) -> String {
-        let result = params
+        let result = &params
+            .to_owned()
             .into_values()
             .map(|x| x.to_string())
             .collect::<Vec<String>>()
             .join(", ");
 
-        result
+        result.to_owned()
     }
 
     fn fmt_result(&self, _f: &mut fmt::Formatter<'_>, attrs_map: &HashMap<String, Vec<TsFieldType>>) -> String {
