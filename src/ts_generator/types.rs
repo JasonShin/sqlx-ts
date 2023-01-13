@@ -106,7 +106,6 @@ pub struct TsQuery {
     param_order: i32,
     // We use BTreeMap here as it's a collection that's already sorted
     pub params: BTreeMap<i32, TsFieldType>,
-    // TODO: Need a type for List of Params strongly typed in order
     pub result: HashMap<String, Vec<TsFieldType>>,
 }
 
