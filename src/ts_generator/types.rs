@@ -56,6 +56,12 @@ impl fmt::Display for TsFieldType {
 }
 
 impl TsFieldType {
+    /// Converts TsFieldType to an ArrayItem type
+    /// This is needed to declare type of each items within an array and it was introduced to avoid
+    /// recursive typing if we were to use Array<TsFieldType>
+    ///
+    /// # Panic
+    /// It would panic if you try to insert a never type as an array item
     pub fn to_array_item(self) -> Self {
         match self {
             TsFieldType::String => TsFieldType::Array(ArrayItem::String),
@@ -127,14 +133,23 @@ impl TsQuery {
         }
     }
 
+    /// Inserts a parameter into TsQuery for type definition generation
+    /// If you pass in the order argument, it will use the manually passed in order
+    /// It's important to make sure that you are not mixing up the usage
+    /// You can only sequentially use `insert_param` with manual order or automatic order parameter
+    ///
+    /// This method was specifically designed with an assumption that 1 TsQuery is connected to 1 type of DB
     pub fn insert_param(&mut self, value: &TsFieldType, order: &Option<i32>) {
         if let Some(order) = order {
             self.params.insert(*order, *value);
         } else {
+            self.params.insert(self.param_order, *value);
+            self.param_order += 1;
         }
     }
 
     fn fmt_params(&self, _: &mut fmt::Formatter<'_>, params: &BTreeMap<i32, TsFieldType>) -> String {
+        println!("checking params before fmt {:?}", params);
         let result = &params
             .to_owned()
             .into_values()
