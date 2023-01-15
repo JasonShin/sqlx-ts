@@ -9,11 +9,15 @@ use swc_common::errors::Handler;
 
 fn get_postgres_cred(conn: &DbConnectionConfig) -> String {
     format!(
-        "host={} user={} password={} port={:?}",
-        &conn.db_host,
-        &conn.db_user,
-        &conn.db_pass.as_ref().unwrap_or(&"".to_string()),
-        &conn.db_port,
+        "postgresql://{user}:{pass}@{host}:{port}/{db_name}",
+        user = &conn.db_user,
+        pass = &conn.db_pass.as_ref().unwrap_or(&"".to_string()),
+        host = &conn.db_host,
+        port = &conn.db_port,
+        // This is to follow the spec of Rust Postgres
+        // `db_user` name gets used if `db_name` is not provided
+        // https://docs.rs/postgres/latest/postgres/config/struct.Config.html#keys
+        db_name = &conn.db_name.clone().unwrap_or((&conn.db_user).to_owned()),
     )
 }
 
@@ -32,6 +36,7 @@ pub fn prepare<'a>(
     let prepare_query = format!("PREPARE sqlx_stmt AS {}", sql.query);
 
     let postgres_cred = &get_postgres_cred(connection);
+    println!("checking postgres cred {:?}", postgres_cred);
     let mut conn = Client::connect(postgres_cred, NoTls).unwrap();
     let result = conn.query(prepare_query.as_str(), &[]);
 

@@ -149,7 +149,6 @@ impl TsQuery {
     }
 
     fn fmt_params(&self, _: &mut fmt::Formatter<'_>, params: &BTreeMap<i32, TsFieldType>) -> String {
-        println!("checking params before fmt {:?}", params);
         let result = &params
             .to_owned()
             .into_values()

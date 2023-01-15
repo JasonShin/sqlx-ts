@@ -146,6 +146,29 @@ enum TestEnum {
 
 module TestModule {
 }
+
+// Query Params
+const queryPamaras = sql`
+SELECT *
+FROM items
+WHERE points > $1
+AND points < $2;
+`;
+
+const queryPamaras = sql`
+SELECT *
+FROM items
+WHERE points > $2
+AND points < $1;
+`;
+
+const queryPamaras = sql`
+SELECT *
+FROM items
+WHERE points > $2
+AND points < $1
+AND id = (SELECT id FROM items WHERE points = $3);
+`;
 "#;
 
 #[cfg(test)]

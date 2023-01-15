@@ -4,7 +4,7 @@ export type SubQuery1Params = [number];
 
 
 export interface ISubQuery1Result {
-    id: number;
+    id: any;
 	points: number;
 };
 
@@ -17,11 +17,11 @@ export interface ISubQuery1Query {
 
 
 
-export type SubQuery2Params = [];
+export type SubQuery2Params = [any];
 
 
 export interface ISubQuery2Result {
-    id: number;
+    id: any;
 	points: number;
 };
 

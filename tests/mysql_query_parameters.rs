@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod query_parameters_tests {
+mod mysql_query_parameters_tests {
     use assert_cmd::prelude::*;
     use predicates::prelude::*;
     use std::fs;

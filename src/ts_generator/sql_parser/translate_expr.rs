@@ -79,7 +79,14 @@ pub fn translate_expr(
 
             // TODO: We can also memoize this method
             if let Some(table_details) = table_details {
-                let field = table_details.get(&column_name).unwrap();
+                let field = table_details.get(&column_name).unwrap_or_else(|| {
+                    match db_conn {
+                        DBConn::MySQLPooledConn(_) => println!("is a mysql conn"),
+                        DBConn::PostgresConn(_) => println!("is a postgres conn"),
+                    }
+                    println!("checking column name table details {:#?} - db_name: {:?} - column_name: {:?} - is_subquery: {:?}", table_details, db_name, column_name, is_subquery);
+                    panic!("failed to unwrap")
+                });
 
                 let field_name = alias.unwrap_or(column_name.as_str()).to_string();
                 ts_query.insert_result(field_name, &vec![field.field_type], is_subquery);
