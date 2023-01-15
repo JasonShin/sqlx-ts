@@ -12,7 +12,7 @@ use crate::{
 };
 
 use super::{
-    translate_expr::{is_expr_placeholder, translate_column_name_expr},
+    translate_expr::{get_expr_placeholder, translate_column_name_expr},
     translate_stmt::translate_query,
     translate_table_with_joins::translate_table_from_expr,
 };
@@ -32,14 +32,15 @@ pub fn get_sql_query_param(
     db_name: &str,
     table_with_joins: &Vec<TableWithJoins>,
     db_conn: &DBConn,
-) -> Option<TsFieldType> {
+) -> Option<(TsFieldType, Option<i32>)> {
     let db_schema = DBSchema::new();
     let table_name = translate_table_from_expr(table_with_joins, &*left.clone());
     let column_name = translate_column_name_expr(left);
 
     // If the right side of the expression is a placeholder `?` or `$n`
     // they are valid query parameter to process
-    if column_name.is_some() && is_expr_placeholder(right) && table_name.is_some() {
+    let expr_placeholder = get_expr_placeholder(right);
+    if column_name.is_some() && expr_placeholder.is_some() && table_name.is_some() {
         let table_name = table_name.unwrap();
         let table_names = vec![table_name.as_str()];
         let column_name = column_name.unwrap();
@@ -51,7 +52,7 @@ pub fn get_sql_query_param(
         let column = columns
             .get(column_name.as_str())
             .unwrap_or_else(|| panic!("Failed toe find the column from the table schema of {:?}", table_name));
-        return Some(column.field_type);
+        return Some((column.field_type, expr_placeholder));
     }
 
     None
@@ -93,7 +94,8 @@ pub fn translate_where_stmt(
                     generate_types_config,
                 )?;
             } else {
-                ts_query.insert_param(&param.unwrap(), &None);
+                let (value, index) = param.unwrap();
+                ts_query.insert_param(&value, &index);
             }
             Ok(())
         }
@@ -107,9 +109,10 @@ pub fn translate_where_stmt(
                 let result = get_sql_query_param(expr, &Box::new(right.to_owned()), db_name, table_with_joins, db_conn);
 
                 if result.is_some() {
-                    let array_item = result.unwrap().to_array_item();
+                    let (value, index) = result.unwrap();
+                    let array_item = value.to_array_item();
 
-                    ts_query.insert_param(&array_item, &None);
+                    ts_query.insert_param(&array_item, &index);
                     return Ok(());
                 } else {
                     return Ok(());
@@ -131,7 +134,7 @@ pub fn translate_where_stmt(
                 db_conn,
                 generate_types_config,
                 true,
-            );
+            )?;
             Ok(())
         }
         Expr::Subquery(subquery) => {
@@ -144,7 +147,7 @@ pub fn translate_where_stmt(
                 db_conn,
                 generate_types_config,
                 true,
-            );
+            )?;
             Ok(())
         }
         _ => Ok(()),

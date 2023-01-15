@@ -3,6 +3,7 @@ use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::information_schema::DBSchema;
 use crate::ts_generator::types::{DBConn, TsFieldType, TsQuery};
 use convert_case::{Case, Casing};
+use regex::Regex;
 use sqlparser::ast::{Expr, Value};
 use std::collections::HashMap;
 
@@ -11,23 +12,44 @@ use std::collections::HashMap;
 /// WHERE
 ///    some_column = ?
 ///
-/// or a compound identifier
-///
 /// e.g.
 /// WHERE
 ///     some_table.some_column = ?
 ///
 /// it should receive `?` or `$1` and determine that it is a placeholder expression
-pub fn is_expr_placeholder(expr: &Expr) -> bool {
+///
+/// also it should be able to process Postgres binding parameter expressions
+///
+/// e.g.
+/// WHERE
+///   some_table.some_column = $1
+///
+/// For binding parameters with index requirements such as PostgreSQL queries, it should return
+/// the proper index value (e.g. 1, 2, 3). If the query is a query without indexed binding parameters
+/// it should return None
+pub fn get_expr_placeholder(expr: &Expr) -> Option<i32> {
+    let re = Regex::new(r"\$(\d+)").unwrap();
     if let Expr::Value(value) = &expr {
         if let Value::Placeholder(placeholder) = value {
+            let indexed_binding_params = re.captures(placeholder);
             if placeholder == "?" {
-                return true;
+                return None;
+            } else if indexed_binding_params.is_some() {
+                // Rarely we will get an unwrap issue at this point because invalid syntax should be caught
+                // during `prepare` step
+                let index = indexed_binding_params.unwrap()
+                    .get(1)
+                    .unwrap()
+                    .as_str()
+                    .parse::<i32>()
+                    .unwrap();
+
+                return Some(index);
             }
         }
     }
 
-    false
+    None
 }
 
 /// Given an expression
