@@ -1,6 +1,6 @@
 
 
-export type SubQuery1Params = [number];
+export type SubQuery1Params = [];
 
 
 export interface ISubQuery1Result {
@@ -17,7 +17,7 @@ export interface ISubQuery1Query {
 
 
 
-export type SubQuery2Params = [any];
+export type SubQuery2Params = [];
 
 
 export interface ISubQuery2Result {

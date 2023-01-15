@@ -36,7 +36,6 @@ pub fn prepare<'a>(
     let prepare_query = format!("PREPARE sqlx_stmt AS {}", sql.query);
 
     let postgres_cred = &get_postgres_cred(connection);
-    println!("checking postgres cred {:?}", postgres_cred);
     let mut conn = Client::connect(postgres_cred, NoTls).unwrap();
     let result = conn.query(prepare_query.as_str(), &[]);
 
@@ -45,11 +44,7 @@ pub fn prepare<'a>(
         failed = true;
     }
 
-    let deallocate_result = conn.query("DEALLOCATE sqlx_stmt", &[]);
-    match deallocate_result {
-        Ok(_) => {}
-        Err(_) => {}
-    }
+    conn.query("DEALLOCATE sqlx_stmt", &[]).unwrap();
 
     let mut ts_query = None;
 
