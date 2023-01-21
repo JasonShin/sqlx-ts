@@ -138,6 +138,7 @@ pub fn translate_where_stmt(
             Ok(())
         }
         Expr::Subquery(subquery) => {
+            println!("checking subquery {:#?}", subquery);
             translate_query(
                 ts_query,
                 sql_statement,

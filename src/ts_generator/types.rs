@@ -75,6 +75,28 @@ impl TsFieldType {
         }
     }
 
+    /// The method is to convert the data_type field that you get from PostgreSQL as strings into TsFieldType
+    /// so when we stringify TsFieldType, we can correctly translate the data_type into the corresponding TypeScript
+    /// data type
+    ///
+    /// @specs
+    /// get_ts_field_type_from_postgres_field_type("integer") -> TsFieldType::Number
+    /// get_ts_field_type_from_postgres_field_type("smallint") -> TsFieldType::Number
+    ///
+    pub fn get_ts_field_type_from_postgres_field_type(field_type: String) -> Self {
+        match field_type.as_str() {
+            "smallint" | "integer" | "real" | "double precision" | "numeric" => return Self::Number,
+            "character" | "character varying" | "bytea" | "uuid" | "text" => Self::String,
+            "boolean" => Self::Boolean,
+            "json" | "jsonb" => Self::Object,
+            "ARRAY" | "array" => {
+                println!("Currently we cannot figure out the type information for an array, the feature will be added in the future");
+                Self::Any
+            }
+            _ => Self::Any,
+        }
+    }
+
     pub fn get_ts_field_type_from_mysql_field_type(mysql_field_type: String) -> Self {
         // TODO: Cover all mysql_field_types
         if mysql_field_type == "varchar" {
