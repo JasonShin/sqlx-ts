@@ -188,6 +188,7 @@ pub fn translate_expr(
         }
         Expr::Subquery(sub_query) => {
             if alias.is_some() {
+                // TODO: We need to be able to use alias when processing subquery
                 let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
                 translate_query(
                     ts_query,
