@@ -28,7 +28,7 @@ pub fn translate_stmt(
                 db_conn,
                 generate_types_config,
                 false,
-            );
+            )?;
         }
         Statement::Insert { .. } => {
             println!("INSERT statement is not yet supported by TS type generator")
@@ -68,9 +68,6 @@ pub fn translate_query(
                         let table_name = translate_table_with_joins(&table_with_joins, &select_item)
                             .expect("Default FROM table is not found from the query {query}");
 
-                        if is_subquery {
-                            println!("checking unnamed expr {:?}", unnamed_expr);
-                        }
                         // Handles SQL Expression and appends result
                         translate_expr(
                             unnamed_expr,
@@ -79,6 +76,7 @@ pub fn translate_query(
                             None,
                             annotated_results,
                             ts_query,
+                            sql_statement,
                             db_conn,
                             generate_types_config,
                             is_subquery,
@@ -95,6 +93,7 @@ pub fn translate_query(
                             Some(alias.as_str()),
                             annotated_results,
                             ts_query,
+                            sql_statement,
                             db_conn,
                             generate_types_config,
                             is_subquery,

@@ -2,9 +2,10 @@ use crate::common::config::GenerateTypesConfig;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::information_schema::DBSchema;
 use crate::ts_generator::types::{DBConn, TsFieldType, TsQuery};
+use crate::ts_generator::sql_parser::translate_stmt::translate_query;
 use convert_case::{Case, Casing};
 use regex::Regex;
-use sqlparser::ast::{Expr, Value};
+use sqlparser::ast::{Expr, Value, Statement};
 use std::collections::HashMap;
 
 /// Given an expression
@@ -88,6 +89,7 @@ pub fn translate_expr(
     alias: Option<&str>,
     _annotated_result: &HashMap<String, Vec<TsFieldType>>,
     ts_query: &mut TsQuery,
+    sql_statement: &Statement,
     db_conn: &DBConn,
     generate_types_config: &Option<GenerateTypesConfig>,
     is_subquery: bool,
@@ -179,6 +181,24 @@ pub fn translate_expr(
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
                 ts_query.insert_result(alias, &vec![TsFieldType::Boolean, TsFieldType::Null], is_subquery);
+                Ok(())
+            } else {
+                Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
+            }
+        }
+        Expr::Subquery(sub_query) => {
+            if alias.is_some() {
+                let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
+                translate_query(
+                    ts_query,
+                    sql_statement,
+                    sub_query, 
+                    db_name,
+                    _annotated_result,
+                    db_conn,
+                    generate_types_config,
+                    is_subquery
+                )?;
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))

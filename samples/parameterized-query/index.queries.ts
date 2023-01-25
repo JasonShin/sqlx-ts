@@ -1,16 +1,16 @@
 
 
-export type SubQuery2Params = [number];
+export type Subquery3Params = [number];
 
 
-export interface ISubQuery2Result {
+export interface ISubquery3Result {
     id: number;
-	points: number;
+	number: number;
 };
 
 
-export interface ISubQuery2Query {
-    params: SubQuery2Params;
-    result: ISubQuery2Result;
+export interface ISubquery3Query {
+    params: Subquery3Params;
+    result: ISubquery3Result;
 };
 
