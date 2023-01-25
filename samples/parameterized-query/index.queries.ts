@@ -1,10 +1,10 @@
 
 
-export type SubQuery2Params = [any];
+export type SubQuery2Params = [number];
 
 
 export interface ISubQuery2Result {
-    id: any;
+    id: number;
 	points: number;
 };
 
