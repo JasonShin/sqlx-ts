@@ -17,6 +17,7 @@ pub enum ArrayItem {
     Number,
     Boolean,
     Object,
+    Date,
     Null,
     Any,
 }
@@ -27,6 +28,7 @@ pub enum TsFieldType {
     Number,
     Boolean,
     Object,
+    Date,
     Null,
     Any,
     Never,
@@ -40,6 +42,7 @@ impl fmt::Display for TsFieldType {
             TsFieldType::Number => write!(f, "number"),
             TsFieldType::String => write!(f, "string"),
             TsFieldType::Object => write!(f, "object"),
+            TsFieldType::Date => write!(f, "Date"),
             TsFieldType::Any => write!(f, "any"),
             TsFieldType::Null => write!(f, "null"),
             TsFieldType::Never => write!(f, "never"),
@@ -48,6 +51,7 @@ impl fmt::Display for TsFieldType {
                 ArrayItem::Number => write!(f, "Array<number>"),
                 ArrayItem::Boolean => write!(f, "Array<boolean>"),
                 ArrayItem::Object => write!(f, "Array<object>"),
+                ArrayItem::Date => write!(f, "Array<Date>"),
                 ArrayItem::Null => write!(f, "Array<null>"),
                 ArrayItem::Any => write!(f, "Array<any>"),
             },
@@ -68,6 +72,7 @@ impl TsFieldType {
             TsFieldType::Number => TsFieldType::Array(ArrayItem::Number),
             TsFieldType::Boolean => TsFieldType::Array(ArrayItem::Boolean),
             TsFieldType::Object => TsFieldType::Array(ArrayItem::Object),
+            TsFieldType::Date => TsFieldType::Date,
             TsFieldType::Null => TsFieldType::Array(ArrayItem::Null),
             TsFieldType::Any => TsFieldType::Array(ArrayItem::Any),
             TsFieldType::Never => panic!("Cannot convert never to an array of never"),
@@ -79,7 +84,7 @@ impl TsFieldType {
     /// so when we stringify TsFieldType, we can correctly translate the data_type into the corresponding TypeScript
     /// data type
     ///
-    /// @specs
+    /// @examples
     /// get_ts_field_type_from_postgres_field_type("integer") -> TsFieldType::Number
     /// get_ts_field_type_from_postgres_field_type("smallint") -> TsFieldType::Number
     ///
@@ -93,23 +98,19 @@ impl TsFieldType {
                 println!("Currently we cannot figure out the type information for an array, the feature will be added in the future");
                 Self::Any
             }
+            "date" => Self::Date,
             _ => Self::Any,
         }
     }
 
     pub fn get_ts_field_type_from_mysql_field_type(mysql_field_type: String) -> Self {
-        // TODO: Cover all mysql_field_types
-        if mysql_field_type == "varchar" {
-            return Self::String;
+        match mysql_field_type.as_str() {
+            "bigint" | "decimal" | "double" | "float" | "int" | "mediumint" | "year" => Self::Number,
+            "binary" | "bit" | "blob" | "char" | "text" | "varbinary" | "varchar" => Self::String,
+            "tinyint" => Self::Boolean,
+            "date" | "datetime" | "timestamp" => Self::Date,
+            _ => Self::Any,
         }
-        if mysql_field_type == "int" {
-            return Self::Number;
-        }
-        if mysql_field_type == "smallint" {
-            return Self::Number;
-        }
-
-        Self::Any
     }
 
     pub fn get_ts_field_from_annotation(annotated_type: &str) -> Self {

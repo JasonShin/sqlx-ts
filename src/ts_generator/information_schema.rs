@@ -76,7 +76,7 @@ impl DBSchema {
                 let field_type: String = row.get(1);
                 let is_nullable: String = row.get(2);
                 let field = Field {
-                    field_type: TsFieldType::get_ts_field_type_from_mysql_field_type(field_type.to_owned()),
+                    field_type: TsFieldType::get_ts_field_type_from_postgres_field_type(field_type.to_owned()),
                     is_nullable: is_nullable == "YES",
                 };
                 fields.insert(field_name.to_owned(), field);
