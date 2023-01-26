@@ -4,6 +4,7 @@ use std::fmt::{self};
 
 use mysql::Conn as MySQLConn;
 use postgres::Client as PostgresConn;
+use regex::Regex;
 
 pub enum DBConn<'a> {
     // TODO: Maybe we can also pass down db_name through DBConn
@@ -105,7 +106,7 @@ impl TsFieldType {
 
     pub fn get_ts_field_type_from_mysql_field_type(mysql_field_type: String) -> Self {
         match mysql_field_type.as_str() {
-            "bigint" | "decimal" | "double" | "float" | "int" | "mediumint" | "year" => Self::Number,
+            "bigint" | "decimal" | "double" | "float" | "int" | "mediumint" | "smallint" | "year" => Self::Number,
             "binary" | "bit" | "blob" | "char" | "text" | "varbinary" | "varchar" => Self::String,
             "tinyint" => Self::Boolean,
             "date" | "datetime" | "timestamp" => Self::Date,
@@ -162,12 +163,24 @@ impl TsQuery {
     /// You can only sequentially use `insert_param` with manual order or automatic order parameter
     ///
     /// This method was specifically designed with an assumption that 1 TsQuery is connected to 1 type of DB
-    pub fn insert_param(&mut self, value: &TsFieldType, order: &Option<i32>) {
-        if let Some(order) = order {
-            self.params.insert(*order, *value);
-        } else {
-            self.params.insert(self.param_order, *value);
-            self.param_order += 1;
+    pub fn insert_param(&mut self, value: &TsFieldType, placeholder: &Option<String>) {
+        if let Some(placeholder) = placeholder {
+            if placeholder == "?" {
+                self.params.insert(self.param_order, *value);
+                self.param_order += 1;
+            } else {
+                let re = Regex::new(r"\$(\d+)").unwrap();
+                let indexed_binding_params = re.captures(placeholder);
+                let order = indexed_binding_params
+                    .unwrap()
+                    .get(1)
+                    .unwrap()
+                    .as_str()
+                    .parse::<i32>()
+                    .unwrap();
+
+                self.params.insert(order, *value);
+            }
         }
     }
 

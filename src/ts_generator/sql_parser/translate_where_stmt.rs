@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use sqlparser::ast::{Expr, Statement, TableWithJoins};
+use sqlparser::{
+    ast::{Expr, Statement, TableWithJoins},
+    keywords::NO,
+};
 
 use crate::{
     common::config::GenerateTypesConfig,
@@ -32,7 +35,7 @@ pub fn get_sql_query_param(
     db_name: &str,
     table_with_joins: &Vec<TableWithJoins>,
     db_conn: &DBConn,
-) -> Option<(TsFieldType, Option<i32>)> {
+) -> Option<(TsFieldType, Option<String>)> {
     let db_schema = DBSchema::new();
     let table_name = translate_table_from_expr(table_with_joins, &*left.clone());
     let column_name = translate_column_name_expr(left);
@@ -40,6 +43,7 @@ pub fn get_sql_query_param(
     // If the right side of the expression is a placeholder `?` or `$n`
     // they are valid query parameter to process
     let expr_placeholder = get_expr_placeholder(right);
+
     if column_name.is_some() && expr_placeholder.is_some() && table_name.is_some() {
         let table_name = table_name.unwrap();
         let table_names = vec![table_name.as_str()];
@@ -127,6 +131,7 @@ pub fn translate_where_stmt(
         } => {
             translate_query(
                 ts_query,
+                None,
                 sql_statement,
                 subquery,
                 db_name,
@@ -138,9 +143,9 @@ pub fn translate_where_stmt(
             Ok(())
         }
         Expr::Subquery(subquery) => {
-            println!("checking subquery {:#?}", subquery);
             translate_query(
                 ts_query,
+                None,
                 sql_statement,
                 subquery,
                 db_name,

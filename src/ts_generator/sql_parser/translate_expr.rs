@@ -1,11 +1,11 @@
 use crate::common::config::GenerateTypesConfig;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::information_schema::DBSchema;
-use crate::ts_generator::types::{DBConn, TsFieldType, TsQuery};
 use crate::ts_generator::sql_parser::translate_stmt::translate_query;
+use crate::ts_generator::types::{DBConn, TsFieldType, TsQuery};
 use convert_case::{Case, Casing};
 use regex::Regex;
-use sqlparser::ast::{Expr, Value, Statement};
+use sqlparser::ast::{Expr, Statement, Value};
 use std::collections::HashMap;
 
 /// Given an expression
@@ -28,25 +28,19 @@ use std::collections::HashMap;
 /// For binding parameters with index requirements such as PostgreSQL queries, it should return
 /// the proper index value (e.g. 1, 2, 3). If the query is a query without indexed binding parameters
 /// it should return None
-pub fn get_expr_placeholder(expr: &Expr) -> Option<i32> {
-    let re = Regex::new(r"\$(\d+)").unwrap();
+pub fn get_expr_placeholder(expr: &Expr) -> Option<String> {
+    let re = Regex::new(r"(\$\d+)").unwrap();
     if let Expr::Value(value) = &expr {
         if let Value::Placeholder(placeholder) = value {
             let indexed_binding_params = re.captures(placeholder);
             if placeholder == "?" {
-                return None;
+                return Some("?".to_string());
             } else if indexed_binding_params.is_some() {
                 // Rarely we will get an unwrap issue at this point because invalid syntax should be caught
                 // during `prepare` step
-                let index = indexed_binding_params
-                    .unwrap()
-                    .get(1)
-                    .unwrap()
-                    .as_str()
-                    .parse::<i32>()
-                    .unwrap();
+                let placeholder = indexed_binding_params.unwrap().get(1).unwrap().as_str().to_string();
 
-                return Some(index);
+                return Some(placeholder);
             }
         }
     }
@@ -192,8 +186,9 @@ pub fn translate_expr(
                 let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
                 translate_query(
                     ts_query,
+                    None,
                     sql_statement,
-                    sub_query, 
+                    sub_query,
                     db_name,
                     _annotated_result,
                     db_conn,

@@ -21,6 +21,7 @@ pub fn translate_stmt(
         Statement::Query(query) => {
             translate_query(
                 ts_query,
+                None,
                 sql_statement,
                 query,
                 db_name,
@@ -82,7 +83,8 @@ pub fn translate_query(
                             db_conn,
                             generate_types_config,
                             is_subquery,
-                        )?;
+                        )
+                        .unwrap();
                     }
                     ExprWithAlias { expr, alias } => {
                         let alias = alias.to_string();
@@ -99,7 +101,8 @@ pub fn translate_query(
                             db_conn,
                             generate_types_config,
                             is_subquery,
-                        )?;
+                        )
+                        .unwrap();
                     }
                     QualifiedWildcard(_) => todo!(),
                     _Wildcard => {
@@ -109,11 +112,13 @@ pub fn translate_query(
                             &mut ts_query.result,
                             db_conn,
                             generate_types_config,
-                        )?;
+                        )
+                        .unwrap();
                     }
                 }
             }
 
+            // If there's any WHERE statements, process it
             if let Some(selection) = select.clone().selection {
                 translate_where_stmt(
                     db_name,
@@ -124,7 +129,7 @@ pub fn translate_query(
                     annotated_results,
                     db_conn,
                     generate_types_config,
-                )?
+                )?;
             }
             Ok(())
         }

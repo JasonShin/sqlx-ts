@@ -1,15 +1,19 @@
 
 
-export type Subquery3Params = [number];
+export type SomeQueryParams = [number, number, number];
 
 
-export interface ISubquery3Result {
-    id: number;
+export interface ISomeQueryResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
 };
 
 
-export interface ISubquery3Query {
-    params: Subquery3Params;
-    result: ISubquery3Result;
+export interface ISomeQueryQuery {
+    params: SomeQueryParams;
+    result: ISomeQueryResult;
 };
 
