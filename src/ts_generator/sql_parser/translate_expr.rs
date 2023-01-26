@@ -198,7 +198,7 @@ pub fn translate_expr(
                     _annotated_result,
                     db_conn,
                     generate_types_config,
-                    is_subquery
+                    false,
                 )?;
                 Ok(())
             } else {

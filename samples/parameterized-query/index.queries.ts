@@ -5,7 +5,6 @@ export type Subquery3Params = [number];
 
 export interface ISubquery3Result {
     id: number;
-	number: number;
 };
 
 
