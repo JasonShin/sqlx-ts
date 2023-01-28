@@ -1,19 +1,47 @@
 
 
-export type SomeQueryParams = [number, number, number];
+export type SomeQueryParams = [];
 
 
 export interface ISomeQueryResult {
-    food_type: string;
-	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+    
 };
 
 
 export interface ISomeQueryQuery {
     params: SomeQueryParams;
     result: ISomeQueryResult;
+};
+
+
+
+
+export type InsertQueryParams = [];
+
+
+export interface IInsertQueryResult {
+    
+};
+
+
+export interface IInsertQueryQuery {
+    params: InsertQueryParams;
+    result: IInsertQueryResult;
+};
+
+
+
+
+export type Query3Params = [];
+
+
+export interface IQuery3Result {
+    
+};
+
+
+export interface IQuery3Query {
+    params: Query3Params;
+    result: IQuery3Result;
 };
 

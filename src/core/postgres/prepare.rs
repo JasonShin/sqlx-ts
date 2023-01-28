@@ -42,9 +42,10 @@ pub fn prepare<'a>(
     if let Err(e) = result {
         handler.span_bug_no_panic(span, e.as_db_error().unwrap().message());
         failed = true;
+    } else {
+        // We should only deallocate if the prepare statement was executed successfully
+        conn.query("DEALLOCATE sqlx_stmt", &[]).unwrap();
     }
-
-    conn.query("DEALLOCATE sqlx_stmt", &[]).unwrap();
 
     let mut ts_query = None;
 

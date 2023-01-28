@@ -1,5 +1,6 @@
 import { sql } from "sqlx-ts";
 
+/*
 const someQuery = sql`
 SELECT *
 FROM items
@@ -7,7 +8,7 @@ WHERE points > ?
 AND points < ?
 OR points = ?
 `
-
+*/
 
 /*
 const subQuery1 = sql`
@@ -36,3 +37,20 @@ SELECT
 FROM items
 `
 */
+
+
+// Querying from an unknown table
+const someQuery = sql`SELECT * FROM indexjs_unknown`;
+
+// Inserting more values than expected
+const insertQuery = sql`
+INSERT INTO items (food_type, time_takes_to_cook, table_id, points)
+VALUES ('steak', 1, 1, 1, 1);
+`;
+
+///////////////////
+// If statements //
+///////////////////
+if (true) {
+const query3 = sql`SELECT * FROM if_statement1;`;
+}
