@@ -5,8 +5,10 @@
         <meta charset="UTF-8">
         <title>sqlx-ts</title>
         <meta name="robots" content="noindex" />
+
+
         <!-- Custom HTML head -->
-        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
@@ -17,25 +19,28 @@
         <link rel="stylesheet" href="css/general.css">
         <link rel="stylesheet" href="css/chrome.css">
         <link rel="stylesheet" href="css/print.css" media="print">
+
         <!-- Fonts -->
         <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
         <link rel="stylesheet" href="fonts/fonts.css">
+
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="highlight.css">
         <link rel="stylesheet" href="tomorrow-night.css">
         <link rel="stylesheet" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
+
     </head>
     <body>
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">
+        <script>
             var path_to_root = "";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
-        <script type="text/javascript">
+        <script>
             try {
                 var theme = localStorage.getItem('mdbook-theme');
                 var sidebar = localStorage.getItem('mdbook-sidebar');
@@ -51,7 +56,7 @@
         </script>
 
         <!-- Set the theme before any content is loaded, prevents flash -->
-        <script type="text/javascript">
+        <script>
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
@@ -63,7 +68,7 @@
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
-        <script type="text/javascript">
+        <script>
             var html = document.querySelector('html');
             var sidebar = 'hidden';
             if (document.body.clientWidth >= 1080) {
@@ -76,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">User Guide</li><li class="chapter-item expanded "><a href="user-guide/1.installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="user-guide/2.getting-started.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="user-guide/2.1.cli-options.html"><strong aria-hidden="true">2.1.</strong> CLI Options</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Reference Guide</li><li class="chapter-item expanded "><a href="reference-guide/1.sql-check.html"><strong aria-hidden="true">3.</strong> SQL Check</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="reference-guide/1.1.sql-check-mysql.html"><strong aria-hidden="true">3.1.</strong> MySQL</a></li><li class="chapter-item expanded "><a href="reference-guide/1.2.sql-check-postgres.html"><strong aria-hidden="true">3.2.</strong> Postgres</a></li></ol></li><li class="chapter-item expanded "><a href="reference-guide/2.connection-config.html"><strong aria-hidden="true">4.</strong> Connection Config</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="reference-guide/2.1.configs-file-based.html"><strong aria-hidden="true">4.1.</strong> File based config for multiple database connections</a></li><li class="chapter-item expanded "><a href="reference-guide/2.2.environment-variables.html"><strong aria-hidden="true">4.2.</strong> Environment variables</a></li></ol></li><li class="chapter-item expanded "><a href="reference-guide/4.typescript-types-generation.html"><strong aria-hidden="true">5.</strong> Type generation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="reference-guide/4.1.annotations.html"><strong aria-hidden="true">5.1.</strong> Annotations</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Miscellaneous</li><li class="chapter-item expanded "><a href="misc/1.troubleshooting.html"><strong aria-hidden="true">6.</strong> Troubleshooting</a></li><li class="chapter-item expanded "><a href="misc/2.documentation-practices.html"><strong aria-hidden="true">7.</strong> Documentation Best Practices</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">User Guide</li><li class="chapter-item expanded "><a href="user-guide/1.installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="user-guide/2.getting-started.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="user-guide/2.1.cli-options.html"><strong aria-hidden="true">2.1.</strong> CLI Options</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Reference Guide</li><li class="chapter-item expanded "><a href="reference-guide/1.sql-check.html"><strong aria-hidden="true">3.</strong> SQL Check</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="reference-guide/1.1.sql-check-mysql.html"><strong aria-hidden="true">3.1.</strong> MySQL</a></li><li class="chapter-item expanded "><a href="reference-guide/1.2.sql-check-postgres.html"><strong aria-hidden="true">3.2.</strong> Postgres</a></li></ol></li><li class="chapter-item expanded "><a href="reference-guide/2.connection-config.html"><strong aria-hidden="true">4.</strong> Connection Config</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="reference-guide/2.1.configs-file-based.html"><strong aria-hidden="true">4.1.</strong> File based config for multiple database connections</a></li><li class="chapter-item expanded "><a href="reference-guide/2.2.environment-variables.html"><strong aria-hidden="true">4.2.</strong> Environment variables</a></li></ol></li><li class="chapter-item expanded "><a href="reference-guide/4.typescript-types-generation.html"><strong aria-hidden="true">5.</strong> Type generation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="reference-guide/4.1.parameters.html"><strong aria-hidden="true">5.1.</strong> Parameters</a></li><li class="chapter-item expanded "><a href="reference-guide/4.2.annotations.html"><strong aria-hidden="true">5.2.</strong> Annotations</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Miscellaneous</li><li class="chapter-item expanded "><a href="misc/1.troubleshooting.html"><strong aria-hidden="true">6.</strong> Troubleshooting</a></li><li class="chapter-item expanded "><a href="misc/2.documentation-practices.html"><strong aria-hidden="true">7.</strong> Documentation Best Practices</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -84,7 +89,7 @@
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                <div id="menu-bar-hover-placeholder"></div>
+                                <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky bordered">
                     <div class="left-buttons">
                         <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
@@ -94,7 +99,7 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
@@ -111,6 +116,7 @@
                         <a href="print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
+
                     </div>
                 </div>
 
@@ -124,8 +130,9 @@
                         </ul>
                     </div>
                 </div>
+
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
-                <script type="text/javascript">
+                <script>
                     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
                     document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
                     Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
@@ -348,7 +355,7 @@ supportive comment in your raw SQL, indicate which database the query should poi
 
 const defaultDbSQL = sql`SELECT * FROM test;`
 const postgresSQL = sql`
- /* db: postgres */
+ -- @db: postgres
  SELECT * FROM other_table;
 `
 </code></pre>
@@ -433,6 +440,87 @@ the true type safetiness that we are trying to achieve. Furthermore, name parame
 they are an additional syntax supported by popular ORM libraries such as Sequelize.</p>
 <p>The closest type safety that exists in TypeScript world is by emulating Opaque type e.g. https://github.com/sindresorhus/type-fest/blob/main/source/opaque.d.ts.
 In the future, sqlx-ts will support Opaque type overrides natively to solve this matter.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="parameters-in-sqls"><a class="header" href="#parameters-in-sqls">Parameters in SQLs</a></h1>
+<blockquote>
+<p>⚠️ <strong>FEATURE NOT READY</strong>: I am still building this feature and cannot be used yet!</p>
+</blockquote>
+<p>Parameters is a way to denote value replacements in a SQL query. Each database uses
+different placeholder symbol:</p>
+<div class="table-wrapper"><table><thead><tr><th>database</th><th>placeholder symbol</th><th>Example</th></tr></thead><tbody>
+<tr><td>MySQL</td><td><code>?</code></td><td><code>SELECT * FROM items WHERE points &gt; ?</code></td></tr>
+<tr><td>PostgreSQL</td><td><code>$1</code> <code>$2</code> <code>$3</code> ... <code>$n</code></td><td><code>SELECT * FROM items WHERE points &gt; $1</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="binary-operations"><a class="header" href="#binary-operations">Binary operations</a></h2>
+<p>If you have the follow MySQL query in typescript</p>
+<pre><code class="language-typescript">// example
+const someQuery = sql`
+SELECT *
+FROM items
+WHERE points &gt; ?;
+</code></pre>
+<p>would generate</p>
+<pre><code class="language-typescript">export type SomeQueryParams = []
+
+export interface ISomeQueryResult {
+    id: string
+    points: number
+}
+
+export interface ISomeQueryQuery {
+    params: SomeQueryParams;
+    result: ISomeQueryResult;
+}
+</code></pre>
+<h2 id="in-list-query"><a class="header" href="#in-list-query">IN list query</a></h2>
+<p>If you have the following MySQL query</p>
+<pre><code class="language-typescript">// example
+const someQuery = sql`
+SELECT *
+FROM items
+WHERE id IN (?);
+</code></pre>
+<p>would generate following typescript types</p>
+<pre><code class="language-typescript">export type SomeQueryParams = [Array&lt;number&gt;]
+
+export interface ISomeQueryResult {
+    id: string
+    points: number
+}
+
+export interface ISomeQueryQuery {
+    params: SomeQueryParams;
+    result: ISomeQueryResult;
+}
+</code></pre>
+<h2 id="subqueries"><a class="header" href="#subqueries">Subqueries</a></h2>
+<p>Query params within subqueries are interpreted as well. If you have the following MySQL query</p>
+<pre><code class="language-typescript">const someQuery = sql`
+SELECT id, points
+FROM items
+WHERE id IN (
+    SELECT id FROM items
+    WHERE
+        points &gt; ?
+        AND id IN (SELECT id FROM items WHERE food_type = ?)
+)
+AND points &lt; ?
+`
+</code></pre>
+<p>would generate following type definitions</p>
+<pre><code class="language-typescript">export type SomeQueryParams = [number, string, number]
+
+export interface ISomeQueryResult {
+    id: string
+    points: number
+}
+
+export interface ISomeQueryQuery {
+    params: SomeQueryParams;
+    result: ISomeQueryResult;
+}
+</code></pre>
+<p>Note that <code>QueryParams</code> array respects the order of params present in the query above</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="annotations"><a class="header" href="#annotations">Annotations</a></h1>
 <blockquote>
 <p>⚠️ <strong>FEATURE NOT READY</strong>: I am still building this feature and cannot be used yet!</p>
@@ -448,12 +536,11 @@ const someQuery = sql`
 -- @name: simpleQuery
 -- @db: mysql
 SELECT *
-FROM items
-WHERE points &gt; ?;
+FROM items;
 `
 </code></pre>
 <p>Above example query will generate following types</p>
-<pre><code class="language-typescript">export type ISimpleQueryParams = [number]
+<pre><code class="language-typescript">export type SimpleQueryParams = []
 
 export interface ISimpleQueryResult {
     id: string
@@ -461,7 +548,7 @@ export interface ISimpleQueryResult {
 }
 
 export interface ISimpleQueryQuery{
-    params: ISimpleQueryParams;
+    params: SimpleQueryParams;
     result: ISimpleQueryResult;
 }
 </code></pre>
@@ -482,7 +569,7 @@ FROM items
 `
 </code></pre>
 <p>would generate</p>
-<pre><code class="language-typescript">export type ISimpleQueryParams = []
+<pre><code class="language-typescript">export type SimpleQueryParams = []
 
 export interface ISimpleQueryResult {
     id: string
@@ -490,7 +577,7 @@ export interface ISimpleQueryResult {
 }
 
 export interface ISimpleQueryQuery{
-    params: ISimpleQueryParams;
+    params: SimpleQueryParams;
     result: ISimpleQueryResult;
 }
 </code></pre>
@@ -520,7 +607,7 @@ AND name = ?
 `
 </code></pre>
 <p>it would generate the following type definitions</p>
-<pre><code class="language-typescript">export type ISimpleQueryParams = [number, string]
+<pre><code class="language-typescript">export type SimpleQueryParams = [number, string]
 
 export interface ISimpleQueryResult {
     id: string
@@ -528,7 +615,7 @@ export interface ISimpleQueryResult {
 }
 
 export interface ISimpleQueryQuery{
-    params: ISimpleQueryParams;
+    params: SimpleQueryParams;
     result: ISimpleQueryResult;
 }
 </code></pre>
@@ -546,7 +633,7 @@ AND name = $1
 `
 </code></pre>
 <p>it would generate the following type definitions</p>
-<pre><code class="language-typescript">export type ISimpleQueryParams = [string, number]
+<pre><code class="language-typescript">export type SimpleQueryParams = [string, number]
 
 export interface ISimpleQueryResult {
     id: string
@@ -554,7 +641,7 @@ export interface ISimpleQueryResult {
 }
 
 export interface ISimpleQueryQuery{
-    params: ISimpleQueryParams;
+    params: SimpleQueryParams;
     result: ISimpleQueryResult;
 }
 </code></pre>
@@ -616,31 +703,42 @@ Donec ligula dolor, placerat quis erat vitae</p>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+
+
                         <div style="clear: both"></div>
                     </nav>
                 </div>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
             </nav>
 
         </div>
 
-        <script type="text/javascript">
+
+
+
+        <script>
             window.playground_copyable = true;
         </script>
-        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
-        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
 
         <!-- Custom JS scripts -->
-        <script type="text/javascript">
+
+        <script>
         window.addEventListener('load', function() {
             window.setTimeout(window.print, 100);
         });
         </script>
+
     </body>
 </html>
