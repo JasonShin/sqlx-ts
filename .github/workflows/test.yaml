@@ -15,9 +15,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Wait / Sleep
-        uses: jakejarvis/wait-action@v0.1.1
-
       - name: Checkout sources
         uses: actions/checkout@v2
 
@@ -31,9 +28,9 @@ jobs:
       - name: build docker-compose services for integration tests
         run: docker-compose -f docker-compose.yml up -d
 
-      - name: Sleep for 10 seconds
-        run: sleep 10s
-        shell: bash
+      - uses: GuillaumeFalourd/wait-sleep-action@v1
+        with:
+          time: '10' # for 10 seconds
 
       - name: Check the docker-compose services running
         run: docker ps -a

@@ -33,24 +33,27 @@ impl DBSchema {
         }
     }
 
+    /// fetch table's column details from information_schema of each database type
+    ///
+    /// # MySQL Notes
+    /// - TABLE_SCHEMA in MySQL is basically the `database_name`, so it requires passing in database name as an argument
+    ///
+    /// # PostgreSQL Notes
+    /// - TABLE_SCHEMA is PostgreSQL is basically 'public' by default. `database_name` is the name of the database itself
     pub fn fetch_table(&self, database_name: &str, table_name: &Vec<&str>, conn: &DBConn) -> Option<Fields> {
         match &conn {
             DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, database_name, table_name, conn),
-            DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, database_name, table_name, conn),
+            DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, table_name, conn),
         }
     }
 
-    fn postgres_fetch_table(
-        &self,
-        database_name: &str,
-        table_names: &Vec<&str>,
-        conn: &RefCell<&mut postgres::Client>,
-    ) -> Option<Fields> {
+    fn postgres_fetch_table(&self, table_names: &Vec<&str>, conn: &RefCell<&mut postgres::Client>) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))
             .collect::<Vec<_>>()
             .join(",");
+
         let query = format!(
             r"
         SELECT
@@ -58,10 +61,10 @@ impl DBSchema {
             DATA_TYPE as data_type,
             IS_NULLABLE as is_nulalble
         FROM information_schema.COLUMNS
-        WHERE TABLE_SCHEMA = '{}'
+        WHERE TABLE_SCHEMA = 'public'
         AND TABLE_NAME IN ({})
                 ",
-            database_name, table_names,
+            table_names,
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
@@ -73,7 +76,7 @@ impl DBSchema {
                 let field_type: String = row.get(1);
                 let is_nullable: String = row.get(2);
                 let field = Field {
-                    field_type: TsFieldType::get_ts_field_type_from_mysql_field_type(field_type.to_owned()),
+                    field_type: TsFieldType::get_ts_field_type_from_postgres_field_type(field_type.to_owned()),
                     is_nullable: is_nullable == "YES",
                 };
                 fields.insert(field_name.to_owned(), field);

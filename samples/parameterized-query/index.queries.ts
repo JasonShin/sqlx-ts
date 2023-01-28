@@ -1,33 +1,47 @@
 
 
-export type SampleQueryParams = [number, number, number];
+export type SomeQueryParams = [];
 
 
-export interface ISampleQueryResult {
-    id: number;
-	points: number;
+export interface ISomeQueryResult {
+    
 };
 
 
-export interface ISampleQueryQuery {
-    params: SampleQueryParams;
-    result: ISampleQueryResult;
+export interface ISomeQueryQuery {
+    params: SomeQueryParams;
+    result: ISomeQueryResult;
 };
 
 
 
 
-export type SampleQuery2Params = [Array<number>];
+export type InsertQueryParams = [];
 
 
-export interface ISampleQuery2Result {
-    id: number;
-	points: number;
+export interface IInsertQueryResult {
+    
 };
 
 
-export interface ISampleQuery2Query {
-    params: SampleQuery2Params;
-    result: ISampleQuery2Result;
+export interface IInsertQueryQuery {
+    params: InsertQueryParams;
+    result: IInsertQueryResult;
+};
+
+
+
+
+export type Query3Params = [];
+
+
+export interface IQuery3Result {
+    
+};
+
+
+export interface IQuery3Query {
+    params: Query3Params;
+    result: IQuery3Result;
 };
 

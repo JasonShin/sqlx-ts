@@ -1,12 +1,22 @@
-use sqlparser::ast::{Expr, TableWithJoins};
+use std::collections::HashMap;
 
-use crate::ts_generator::{
-    information_schema::DBSchema,
-    types::{DBConn, TsFieldType, TsQuery},
+use sqlparser::{
+    ast::{Expr, Statement, TableWithJoins},
+    keywords::NO,
+};
+
+use crate::{
+    common::config::GenerateTypesConfig,
+    ts_generator::{
+        errors::TsGeneratorError,
+        information_schema::DBSchema,
+        types::{DBConn, TsFieldType, TsQuery},
+    },
 };
 
 use super::{
-    translate_expr::{is_expr_placeholder, translate_column_name_expr},
+    translate_expr::{get_expr_placeholder, translate_column_name_expr},
+    translate_stmt::translate_query,
     translate_table_with_joins::translate_table_from_expr,
 };
 
@@ -25,14 +35,16 @@ pub fn get_sql_query_param(
     db_name: &str,
     table_with_joins: &Vec<TableWithJoins>,
     db_conn: &DBConn,
-) -> Option<TsFieldType> {
+) -> Option<(TsFieldType, Option<String>)> {
     let db_schema = DBSchema::new();
     let table_name = translate_table_from_expr(table_with_joins, &*left.clone());
     let column_name = translate_column_name_expr(left);
 
     // If the right side of the expression is a placeholder `?` or `$n`
     // they are valid query parameter to process
-    if column_name.is_some() && is_expr_placeholder(right) && table_name.is_some() {
+    let expr_placeholder = get_expr_placeholder(right);
+
+    if column_name.is_some() && expr_placeholder.is_some() && table_name.is_some() {
         let table_name = table_name.unwrap();
         let table_names = vec![table_name.as_str()];
         let column_name = column_name.unwrap();
@@ -44,7 +56,7 @@ pub fn get_sql_query_param(
         let column = columns
             .get(column_name.as_str())
             .unwrap_or_else(|| panic!("Failed toe find the column from the table schema of {:?}", table_name));
-        return Some(column.field_type);
+        return Some((column.field_type, expr_placeholder));
     }
 
     None
@@ -53,22 +65,45 @@ pub fn get_sql_query_param(
 pub fn translate_where_stmt(
     db_name: &str,
     ts_query: &mut TsQuery,
+    sql_statement: &Statement,
     expr: &Expr,
     table_with_joins: &Vec<TableWithJoins>,
+    annotated_results: &HashMap<String, Vec<TsFieldType>>,
     db_conn: &DBConn,
-) {
+    generate_types_config: &Option<GenerateTypesConfig>,
+) -> Result<(), TsGeneratorError> {
     match expr {
         Expr::BinaryOp { left, op: _, right } => {
-            let result = get_sql_query_param(left, right, db_name, table_with_joins, db_conn);
+            let param = get_sql_query_param(left, right, db_name, table_with_joins, db_conn);
 
-            if result.is_none() {
-                translate_where_stmt(db_name, ts_query, left, table_with_joins, db_conn);
-                translate_where_stmt(db_name, ts_query, right, table_with_joins, db_conn);
+            if param.is_none() {
+                translate_where_stmt(
+                    db_name,
+                    ts_query,
+                    sql_statement,
+                    left,
+                    table_with_joins,
+                    annotated_results,
+                    db_conn,
+                    generate_types_config,
+                )?;
+                translate_where_stmt(
+                    db_name,
+                    ts_query,
+                    sql_statement,
+                    right,
+                    table_with_joins,
+                    annotated_results,
+                    db_conn,
+                    generate_types_config,
+                )?;
             } else {
-                ts_query.params.push(result.unwrap());
+                let (value, index) = param.unwrap();
+                ts_query.insert_param(&value, &index);
             }
+            Ok(())
         }
-        Expr::InList { expr, list, negated } => {
+        Expr::InList { expr, list, negated: _ } => {
             // If the list is just a single `(?)`, then we should return the dynamic
             // If the list contains multiple `(?, ?...)` then we should return a fixed length array
             if list.len() == 1 {
@@ -78,14 +113,49 @@ pub fn translate_where_stmt(
                 let result = get_sql_query_param(expr, &Box::new(right.to_owned()), db_name, table_with_joins, db_conn);
 
                 if result.is_some() {
-                    let array_item = result.unwrap().to_array_item();
+                    let (value, index) = result.unwrap();
+                    let array_item = value.to_array_item();
 
-                    ts_query.params.push(array_item);
+                    ts_query.insert_param(&array_item, &index);
+                    return Ok(());
                 } else {
-                    return;
+                    return Ok(());
                 }
             }
+            Ok(())
         }
-        _ => {}
+        Expr::InSubquery {
+            expr: _,
+            subquery,
+            negated: _,
+        } => {
+            translate_query(
+                ts_query,
+                None,
+                sql_statement,
+                subquery,
+                db_name,
+                annotated_results,
+                db_conn,
+                generate_types_config,
+                true,
+            )?;
+            Ok(())
+        }
+        Expr::Subquery(subquery) => {
+            translate_query(
+                ts_query,
+                None,
+                sql_statement,
+                subquery,
+                db_name,
+                annotated_results,
+                db_conn,
+                generate_types_config,
+                true,
+            )?;
+            Ok(())
+        }
+        _ => Ok(()),
     }
 }

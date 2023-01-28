@@ -9,11 +9,15 @@ use swc_common::errors::Handler;
 
 fn get_postgres_cred(conn: &DbConnectionConfig) -> String {
     format!(
-        "host={} user={} password={} port={:?}",
-        &conn.db_host,
-        &conn.db_user,
-        &conn.db_pass.as_ref().unwrap_or(&"".to_string()),
-        &conn.db_port,
+        "postgresql://{user}:{pass}@{host}:{port}/{db_name}",
+        user = &conn.db_user,
+        pass = &conn.db_pass.as_ref().unwrap_or(&"".to_string()),
+        host = &conn.db_host,
+        port = &conn.db_port,
+        // This is to follow the spec of Rust Postgres
+        // `db_user` name gets used if `db_name` is not provided
+        // https://docs.rs/postgres/latest/postgres/config/struct.Config.html#keys
+        db_name = &conn.db_name.clone().unwrap_or((&conn.db_user).to_owned()),
     )
 }
 
@@ -38,12 +42,9 @@ pub fn prepare<'a>(
     if let Err(e) = result {
         handler.span_bug_no_panic(span, e.as_db_error().unwrap().message());
         failed = true;
-    }
-
-    let deallocate_result = conn.query("DEALLOCATE sqlx_stmt", &[]);
-    match deallocate_result {
-        Ok(_) => {}
-        Err(_) => {}
+    } else {
+        // We should only deallocate if the prepare statement was executed successfully
+        conn.query("DEALLOCATE sqlx_stmt", &[]).unwrap();
     }
 
     let mut ts_query = None;

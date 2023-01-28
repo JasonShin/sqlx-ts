@@ -1,9 +1,10 @@
 use std::cell::RefCell;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::fmt::{self};
 
 use mysql::Conn as MySQLConn;
 use postgres::Client as PostgresConn;
+use regex::Regex;
 
 pub enum DBConn<'a> {
     // TODO: Maybe we can also pass down db_name through DBConn
@@ -17,6 +18,7 @@ pub enum ArrayItem {
     Number,
     Boolean,
     Object,
+    Date,
     Null,
     Any,
 }
@@ -27,6 +29,7 @@ pub enum TsFieldType {
     Number,
     Boolean,
     Object,
+    Date,
     Null,
     Any,
     Never,
@@ -40,6 +43,7 @@ impl fmt::Display for TsFieldType {
             TsFieldType::Number => write!(f, "number"),
             TsFieldType::String => write!(f, "string"),
             TsFieldType::Object => write!(f, "object"),
+            TsFieldType::Date => write!(f, "Date"),
             TsFieldType::Any => write!(f, "any"),
             TsFieldType::Null => write!(f, "null"),
             TsFieldType::Never => write!(f, "never"),
@@ -48,6 +52,7 @@ impl fmt::Display for TsFieldType {
                 ArrayItem::Number => write!(f, "Array<number>"),
                 ArrayItem::Boolean => write!(f, "Array<boolean>"),
                 ArrayItem::Object => write!(f, "Array<object>"),
+                ArrayItem::Date => write!(f, "Array<Date>"),
                 ArrayItem::Null => write!(f, "Array<null>"),
                 ArrayItem::Any => write!(f, "Array<any>"),
             },
@@ -56,12 +61,19 @@ impl fmt::Display for TsFieldType {
 }
 
 impl TsFieldType {
+    /// Converts TsFieldType to an ArrayItem type
+    /// This is needed to declare type of each items within an array and it was introduced to avoid
+    /// recursive typing if we were to use Array<TsFieldType>
+    ///
+    /// # Panic
+    /// It would panic if you try to insert a never type as an array item
     pub fn to_array_item(self) -> Self {
         match self {
             TsFieldType::String => TsFieldType::Array(ArrayItem::String),
             TsFieldType::Number => TsFieldType::Array(ArrayItem::Number),
             TsFieldType::Boolean => TsFieldType::Array(ArrayItem::Boolean),
             TsFieldType::Object => TsFieldType::Array(ArrayItem::Object),
+            TsFieldType::Date => TsFieldType::Date,
             TsFieldType::Null => TsFieldType::Array(ArrayItem::Null),
             TsFieldType::Any => TsFieldType::Array(ArrayItem::Any),
             TsFieldType::Never => panic!("Cannot convert never to an array of never"),
@@ -69,19 +81,37 @@ impl TsFieldType {
         }
     }
 
-    pub fn get_ts_field_type_from_mysql_field_type(mysql_field_type: String) -> Self {
-        // TODO: Cover all mysql_field_types
-        if mysql_field_type == "varchar" {
-            return Self::String;
+    /// The method is to convert the data_type field that you get from PostgreSQL as strings into TsFieldType
+    /// so when we stringify TsFieldType, we can correctly translate the data_type into the corresponding TypeScript
+    /// data type
+    ///
+    /// @examples
+    /// get_ts_field_type_from_postgres_field_type("integer") -> TsFieldType::Number
+    /// get_ts_field_type_from_postgres_field_type("smallint") -> TsFieldType::Number
+    ///
+    pub fn get_ts_field_type_from_postgres_field_type(field_type: String) -> Self {
+        match field_type.as_str() {
+            "smallint" | "integer" | "real" | "double precision" | "numeric" => return Self::Number,
+            "character" | "character varying" | "bytea" | "uuid" | "text" => Self::String,
+            "boolean" => Self::Boolean,
+            "json" | "jsonb" => Self::Object,
+            "ARRAY" | "array" => {
+                println!("Currently we cannot figure out the type information for an array, the feature will be added in the future");
+                Self::Any
+            }
+            "date" => Self::Date,
+            _ => Self::Any,
         }
-        if mysql_field_type == "int" {
-            return Self::Number;
-        }
-        if mysql_field_type == "smallint" {
-            return Self::Number;
-        }
+    }
 
-        Self::Any
+    pub fn get_ts_field_type_from_mysql_field_type(mysql_field_type: String) -> Self {
+        match mysql_field_type.as_str() {
+            "bigint" | "decimal" | "double" | "float" | "int" | "mediumint" | "smallint" | "year" => Self::Number,
+            "binary" | "bit" | "blob" | "char" | "text" | "varbinary" | "varchar" => Self::String,
+            "tinyint" => Self::Boolean,
+            "date" | "datetime" | "timestamp" => Self::Date,
+            _ => Self::Any,
+        }
     }
 
     pub fn get_ts_field_from_annotation(annotated_type: &str) -> Self {
@@ -103,20 +133,66 @@ impl TsFieldType {
 #[derive(Debug)]
 pub struct TsQuery {
     pub name: String,
-    pub params: Vec<TsFieldType>,
-    // TODO: Need a type for List of Params strongly typed in order
+    param_order: i32,
+    // We use BTreeMap here as it's a collection that's already sorted
+    pub params: BTreeMap<i32, TsFieldType>,
     pub result: HashMap<String, Vec<TsFieldType>>,
 }
 
 impl TsQuery {
-    fn fmt_params(&self, _: &mut fmt::Formatter<'_>, params: &Vec<TsFieldType>) -> String {
-        let result = params
-            .iter()
+    pub fn new(name: String) -> TsQuery {
+        TsQuery {
+            name,
+            param_order: 0,
+            params: BTreeMap::new(),
+            result: HashMap::new(),
+        }
+    }
+
+    /// inserts a value into the result hashmap
+    /// it should only insert a value if you are working with a non-subquery queries
+    pub fn insert_result(&mut self, key: String, value: &Vec<TsFieldType>, is_subquery: bool) {
+        if !is_subquery {
+            let _ = self.result.insert(key, value.clone());
+        }
+    }
+
+    /// Inserts a parameter into TsQuery for type definition generation
+    /// If you pass in the order argument, it will use the manually passed in order
+    /// It's important to make sure that you are not mixing up the usage
+    /// You can only sequentially use `insert_param` with manual order or automatic order parameter
+    ///
+    /// This method was specifically designed with an assumption that 1 TsQuery is connected to 1 type of DB
+    pub fn insert_param(&mut self, value: &TsFieldType, placeholder: &Option<String>) {
+        if let Some(placeholder) = placeholder {
+            if placeholder == "?" {
+                self.params.insert(self.param_order, *value);
+                self.param_order += 1;
+            } else {
+                let re = Regex::new(r"\$(\d+)").unwrap();
+                let indexed_binding_params = re.captures(placeholder);
+                let order = indexed_binding_params
+                    .unwrap()
+                    .get(1)
+                    .unwrap()
+                    .as_str()
+                    .parse::<i32>()
+                    .unwrap();
+
+                self.params.insert(order, *value);
+            }
+        }
+    }
+
+    fn fmt_params(&self, _: &mut fmt::Formatter<'_>, params: &BTreeMap<i32, TsFieldType>) -> String {
+        let result = &params
+            .to_owned()
+            .into_values()
             .map(|x| x.to_string())
             .collect::<Vec<String>>()
             .join(", ");
 
-        result
+        result.to_owned()
     }
 
     fn fmt_result(&self, _f: &mut fmt::Formatter<'_>, attrs_map: &HashMap<String, Vec<TsFieldType>>) -> String {
