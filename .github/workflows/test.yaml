@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Wait / Sleep
-        uses: jakejarvis/wait-action@v0.1.1
+        uses: jakejarvis/wait-action@master
 
       - name: Checkout sources
         uses: actions/checkout@v2
