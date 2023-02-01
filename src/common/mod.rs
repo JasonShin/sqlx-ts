@@ -6,6 +6,7 @@ pub mod cli;
 pub mod config;
 pub mod dotenv;
 pub mod types;
+pub mod lazy;
 
 // Source Parser
 #[derive(Debug, Clone)]

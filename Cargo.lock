@@ -1869,6 +1869,7 @@ dependencies = [
  "clap",
  "convert_case",
  "dotenv",
+ "lazy_static",
  "mysql",
  "postgres",
  "predicates",
