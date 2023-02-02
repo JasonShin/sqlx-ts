@@ -1,7 +1,7 @@
 use crate::common::cli::Cli;
 use crate::common::dotenv::Dotenv;
-use crate::common::types::DatabaseType;
 use crate::common::lazy::CLI_ARGS;
+use crate::common::types::DatabaseType;
 use regex::Regex;
 use serde;
 use serde::{Deserialize, Serialize};
@@ -16,7 +16,7 @@ pub struct SqlxConfig {
     pub connections: HashMap<String, DbConnectionConfig>,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 pub struct GenerateTypesConfig {
     pub enabled: bool,
     #[serde(rename = "convertToCamelCaseColumnName")]

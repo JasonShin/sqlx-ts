@@ -1,8 +1,6 @@
-use crate::common::cli::Cli;
-use crate::common::config::Config;
+use crate::common::lazy::{CLI_ARGS, CONFIG};
 use crate::common::types::DatabaseType;
 use crate::common::SQL;
-use crate::common::lazy::{CONFIG, CLI_ARGS};
 use crate::core::mysql::prepare as mysql_explain;
 use crate::core::postgres::prepare as postgres_explain;
 use crate::ts_generator::generator::get_query_ts_file_path;

@@ -70,7 +70,6 @@ pub fn translate_where_stmt(
     table_with_joins: &Vec<TableWithJoins>,
     annotated_results: &HashMap<String, Vec<TsFieldType>>,
     db_conn: &DBConn,
-    generate_types_config: &Option<GenerateTypesConfig>,
 ) -> Result<(), TsGeneratorError> {
     match expr {
         Expr::BinaryOp { left, op: _, right } => {
@@ -85,7 +84,6 @@ pub fn translate_where_stmt(
                     table_with_joins,
                     annotated_results,
                     db_conn,
-                    generate_types_config,
                 )?;
                 translate_where_stmt(
                     db_name,
@@ -95,7 +93,6 @@ pub fn translate_where_stmt(
                     table_with_joins,
                     annotated_results,
                     db_conn,
-                    generate_types_config,
                 )?;
             } else {
                 let (value, index) = param.unwrap();
@@ -137,7 +134,6 @@ pub fn translate_where_stmt(
                 db_name,
                 annotated_results,
                 db_conn,
-                generate_types_config,
                 true,
             )?;
             Ok(())
@@ -151,7 +147,6 @@ pub fn translate_where_stmt(
                 db_name,
                 annotated_results,
                 db_conn,
-                generate_types_config,
                 true,
             )?;
             Ok(())

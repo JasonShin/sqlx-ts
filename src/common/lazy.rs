@@ -1,9 +1,9 @@
-use std::collections::HashMap;
+use crate::common::cli::Cli;
+use crate::common::config::Config;
+use crate::ts_generator::types::DBConn;
 use clap::Parser;
 use lazy_static::lazy_static;
-use crate::common::config::Config;
-use crate::common::cli::Cli;
-use crate::ts_generator::types::{DBConn};
+use std::collections::HashMap;
 
 /// The file contains all implicitly dependent variables or state that files need for the logic
 /// We have a lot of states that we need to drill down into each methods
@@ -16,5 +16,3 @@ lazy_static! {
     // Establish DB connections
     // pub static ref DB_CONNS: HashMap<String, DbConn>;
 }
-
-

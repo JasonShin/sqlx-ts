@@ -172,7 +172,6 @@ fn recurse_and_find_sql(
 }
 
 pub fn parse_source(path: &PathBuf) -> (HashMap<PathBuf, Vec<SQL>>, Handler) {
-
     let contents = fs::read_to_string(path).unwrap();
 
     let cm: Lrc<SourceMap> = Default::default();

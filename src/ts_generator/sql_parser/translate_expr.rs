@@ -1,4 +1,5 @@
 use crate::common::config::GenerateTypesConfig;
+use crate::common::lazy::CONFIG;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::information_schema::DBSchema;
 use crate::ts_generator::sql_parser::translate_stmt::translate_query;
@@ -68,12 +69,15 @@ pub fn translate_column_name_expr(expr: &Expr) -> Option<String> {
     }
 }
 
-pub fn format_column_name(column_name: String, config: &Option<GenerateTypesConfig>) -> String {
-    let config = config.clone();
-    if config.is_some() && config.unwrap().convert_to_camel_case_column_name {
-        return column_name.to_case(Case::Camel);
+pub fn format_column_name(column_name: String) -> String {
+    let convert_to_camel_case_column_name = &CONFIG
+        .generate_types_config
+        .and_then(|x| Some(x.convert_to_camel_case_column_name));
+
+    match convert_to_camel_case_column_name {
+        Some(true) => column_name.to_case(Case::Camel),
+        Some(false) | None => column_name,
     }
-    column_name
 }
 
 pub fn translate_expr(
@@ -85,14 +89,13 @@ pub fn translate_expr(
     ts_query: &mut TsQuery,
     sql_statement: &Statement,
     db_conn: &DBConn,
-    generate_types_config: &Option<GenerateTypesConfig>,
     is_subquery: bool,
 ) -> Result<(), TsGeneratorError> {
     let db_schema = DBSchema::new();
 
     match expr {
         Expr::Identifier(ident) => {
-            let column_name = format_column_name(ident.value.to_string(), generate_types_config);
+            let column_name = format_column_name(ident.value.to_string());
 
             let table_details = &db_schema.fetch_table(db_name, &vec![table_name], db_conn);
 
@@ -123,7 +126,7 @@ pub fn translate_expr(
         Expr::IsTrue(query) | Expr::IsFalse(query) | Expr::IsNull(query) | Expr::IsNotNull(query) => {
             // TODO: we can move the follow logic, if alias exists then use alias otherwise throwing err into TsQuery
             if alias.is_some() {
-                let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
+                let alias = format_column_name(alias.unwrap().to_string());
                 // throw error here
                 ts_query.insert_result(alias, &vec![TsFieldType::Boolean], is_subquery);
                 Ok(())
@@ -134,7 +137,7 @@ pub fn translate_expr(
         Expr::Exists(query) => {
             // Handles all boolean return type methods
             if alias.is_some() {
-                let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
+                let alias = format_column_name(alias.unwrap().to_string());
                 // throw error here
                 ts_query.insert_result(alias, &vec![TsFieldType::Boolean], is_subquery);
                 Ok(())
@@ -148,7 +151,7 @@ pub fn translate_expr(
             right: _,
         } => {
             if alias.is_some() {
-                let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
+                let alias = format_column_name(alias.unwrap().to_string());
                 ts_query.insert_result(alias, &vec![TsFieldType::Any], is_subquery);
                 Ok(())
             } else {
@@ -157,7 +160,7 @@ pub fn translate_expr(
         }
         Expr::CompositeAccess { expr, key: _ } => {
             if alias.is_some() {
-                let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
+                let alias = format_column_name(alias.unwrap().to_string());
                 ts_query.insert_result(alias, &vec![TsFieldType::Any], is_subquery);
                 Ok(())
             } else {
@@ -173,7 +176,7 @@ pub fn translate_expr(
             negated: _,
         } => {
             if alias.is_some() {
-                let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
+                let alias = format_column_name(alias.unwrap().to_string());
                 ts_query.insert_result(alias, &vec![TsFieldType::Boolean, TsFieldType::Null], is_subquery);
                 Ok(())
             } else {
@@ -183,7 +186,7 @@ pub fn translate_expr(
         Expr::Subquery(sub_query) => {
             if alias.is_some() {
                 // TODO: We need to be able to use alias when processing subquery
-                let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
+                let alias = format_column_name(alias.unwrap().to_string());
                 translate_query(
                     ts_query,
                     None,
@@ -192,7 +195,6 @@ pub fn translate_expr(
                     db_name,
                     _annotated_result,
                     db_conn,
-                    generate_types_config,
                     false,
                 )?;
                 Ok(())
@@ -206,7 +208,7 @@ pub fn translate_expr(
             negated: _,
         } => {
             if alias.is_some() {
-                let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
+                let alias = format_column_name(alias.unwrap().to_string());
                 ts_query.insert_result(alias, &vec![TsFieldType::Any], is_subquery);
                 Ok(())
             } else {
@@ -219,7 +221,7 @@ pub fn translate_expr(
             negated: _,
         } => {
             if alias.is_some() {
-                let alias = format_column_name(alias.unwrap().to_string(), generate_types_config);
+                let alias = format_column_name(alias.unwrap().to_string());
                 ts_query.insert_result(alias, &vec![TsFieldType::Any], is_subquery);
                 Ok(())
             } else {

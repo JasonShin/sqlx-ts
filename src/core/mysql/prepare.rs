@@ -40,7 +40,6 @@ pub fn prepare(sql: &SQL, config: &Config, should_generate_types: &bool, handler
                 sql,
                 connection_config,
                 &DBConn::MySQLPooledConn(&mut RefCell::new(&mut conn)),
-                &config.generate_types_config,
             )
             .unwrap(),
         );

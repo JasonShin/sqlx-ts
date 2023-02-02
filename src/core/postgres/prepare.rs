@@ -1,10 +1,10 @@
 use crate::common::config::{Config, DbConnectionConfig};
+use crate::common::lazy::CONFIG;
 use crate::common::SQL;
 use crate::ts_generator::generator::generate_ts_interface;
 use crate::ts_generator::types::{DBConn, TsQuery};
 use postgres::{Client, NoTls};
 use std::cell::RefCell;
-use crate::common::lazy::{CONFIG};
 
 use swc_common::errors::Handler;
 
@@ -22,11 +22,7 @@ fn get_postgres_cred(conn: &DbConnectionConfig) -> String {
     )
 }
 
-pub fn prepare<'a>(
-    sql: &SQL,
-    should_generate_types: &bool,
-    handler: &Handler,
-) -> (bool, Option<TsQuery>) {
+pub fn prepare<'a>(sql: &SQL, should_generate_types: &bool, handler: &Handler) -> (bool, Option<TsQuery>) {
     let connection = &CONFIG.get_correct_connection(&sql.query);
 
     let mut failed = false;
@@ -50,16 +46,8 @@ pub fn prepare<'a>(
     let mut ts_query = None;
 
     if should_generate_types == &true {
-        let generate_types_config = &CONFIG.generate_types_config;
-        ts_query = Some(
-            generate_ts_interface(
-                sql,
-                connection,
-                &DBConn::PostgresConn(&mut RefCell::new(&mut conn)),
-                generate_types_config,
-            )
-            .unwrap(),
-        );
+        ts_query =
+            Some(generate_ts_interface(sql, connection, &DBConn::PostgresConn(&mut RefCell::new(&mut conn))).unwrap());
     }
 
     (failed, ts_query)

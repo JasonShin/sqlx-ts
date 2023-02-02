@@ -50,7 +50,6 @@ pub fn translate_wildcard_expr(
     sql_statement: &Statement,
     result: &mut HashMap<String, Vec<TsFieldType>>,
     db_conn: &DBConn,
-    _generate_types_config: &Option<GenerateTypesConfig>,
 ) -> Result<(), TsGeneratorError> {
     let db_schema = DBSchema::new();
     let table_with_joins = get_all_table_names_from_expr(sql_statement)?;
