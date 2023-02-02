@@ -25,7 +25,7 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> bool 
             let connection = &CONFIG.get_correct_connection(&sql.query);
 
             let (explain_failed, ts_query) = match connection.db_type {
-                DatabaseType::Postgres => postgres_explain::prepare(sql, &CONFIG, &should_generate_types, handler),
+                DatabaseType::Postgres => postgres_explain::prepare(sql, &should_generate_types, handler),
                 DatabaseType::Mysql => mysql_explain::prepare(sql, &CONFIG, &should_generate_types, handler),
             };
 

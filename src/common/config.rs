@@ -1,6 +1,7 @@
 use crate::common::cli::Cli;
 use crate::common::dotenv::Dotenv;
 use crate::common::types::DatabaseType;
+use crate::common::lazy::CLI_ARGS;
 use regex::Regex;
 use serde;
 use serde::{Deserialize, Serialize};
@@ -44,36 +45,30 @@ pub struct DbConnectionConfig {
 /// 2. any dotenv configured options
 #[derive(Clone, Debug)]
 pub struct Config {
-    pub cli_args: Cli,
     pub dotenv: Dotenv,
     pub generate_types_config: Option<GenerateTypesConfig>,
     pub connections: HashMap<String, DbConnectionConfig>,
 }
 
 impl Config {
-    pub fn new(cli_args: Cli) -> Config {
-        let cli_args = &cli_args;
+    pub fn new() -> Config {
         let dotenv = Dotenv::new();
 
-        let (generate_types_config, connections) = Self::build_configs(cli_args, &dotenv);
+        let (generate_types_config, connections) = Self::build_configs(&dotenv);
         let generate_types_config =
             generate_types_config.and_then(|config| if config.enabled { Some(config) } else { None });
 
         Config {
             dotenv,
-            cli_args: cli_args.to_owned(),
             connections,
             generate_types_config,
         }
     }
 
     /// Build the initial connection config to be used as a HashMap
-    fn build_configs(
-        cli_args: &Cli,
-        dotenv: &Dotenv,
-    ) -> (Option<GenerateTypesConfig>, HashMap<String, DbConnectionConfig>) {
+    fn build_configs(dotenv: &Dotenv) -> (Option<GenerateTypesConfig>, HashMap<String, DbConnectionConfig>) {
         let default_config_path = PathBuf::from_str(".sqlxrc.json").unwrap();
-        let file_config_path = &cli_args.config.clone().unwrap_or(default_config_path);
+        let file_config_path = &CLI_ARGS.config.clone().unwrap_or(default_config_path);
         let file_based_config = fs::read_to_string(&file_config_path);
 
         let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
@@ -90,7 +85,7 @@ impl Config {
 
         connections.insert(
             "default".to_string(),
-            Self::get_default_connection_config(cli_args, dotenv, &connections.get("default")),
+            Self::get_default_connection_config(dotenv, &connections.get("default")),
         );
 
         (generate_types.to_owned(), connections.to_owned())
@@ -102,11 +97,10 @@ impl Config {
     /// 2. Environment variables
     /// 3. .sqlxrc.json configuration file
     fn get_default_connection_config(
-        cli_args: &Cli,
         dotenv: &Dotenv,
         default_config: &Option<&DbConnectionConfig>,
     ) -> DbConnectionConfig {
-        let db_type = &cli_args
+        let db_type = &CLI_ARGS
             .db_type
             .clone()
             .or_else(|| dotenv.db_type.clone())
@@ -119,7 +113,7 @@ impl Config {
              ",
             );
 
-        let db_host = &cli_args
+        let db_host = &CLI_ARGS
             .db_host
             .clone()
             .or_else(|| dotenv.db_host.clone())
@@ -132,7 +126,7 @@ impl Config {
              ",
             );
 
-        let db_port = &cli_args
+        let db_port = &CLI_ARGS
             .db_port
             .or(dotenv.db_port)
             .or_else(|| default_config.map(|x| x.db_port))
@@ -144,7 +138,7 @@ impl Config {
              ",
             );
 
-        let db_user = &cli_args
+        let db_user = &CLI_ARGS
             .db_user
             .clone()
             .or_else(|| dotenv.db_user.clone())
@@ -157,13 +151,13 @@ impl Config {
              ",
             );
 
-        let db_pass = &cli_args
+        let db_pass = &CLI_ARGS
             .db_pass
             .clone()
             .or_else(|| dotenv.db_pass.clone())
             .or_else(|| default_config.map(|x| x.db_pass.clone()).flatten());
 
-        let db_name = &cli_args
+        let db_name = &CLI_ARGS
             .db_name
             .clone()
             .or_else(|| dotenv.db_name.clone())
