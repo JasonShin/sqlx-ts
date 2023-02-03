@@ -1,10 +1,10 @@
-use crate::common::cli::Cli;
 use crate::common::dotenv::Dotenv;
 use crate::common::lazy::CLI_ARGS;
 use crate::common::types::DatabaseType;
 use regex::Regex;
 use serde;
 use serde::{Deserialize, Serialize};
+use serde_json;
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
@@ -54,7 +54,10 @@ impl Config {
     pub fn new() -> Config {
         let dotenv = Dotenv::new();
 
-        let (generate_types_config, connections) = Self::build_configs(&dotenv);
+        let default_config_path = PathBuf::from_str(".sqlxrc.json").unwrap();
+        let file_config_path = &CLI_ARGS.config.clone().unwrap_or(default_config_path);
+        let connections = Self::build_configs(&dotenv, &file_config_path);
+        let generate_types_config = Self::generate_types(&file_config_path);
         let generate_types_config =
             generate_types_config.and_then(|config| if config.enabled { Some(config) } else { None });
 
@@ -65,12 +68,28 @@ impl Config {
         }
     }
 
-    /// Build the initial connection config to be used as a HashMap
-    fn build_configs(dotenv: &Dotenv) -> (Option<GenerateTypesConfig>, HashMap<String, DbConnectionConfig>) {
-        let default_config_path = PathBuf::from_str(".sqlxrc.json").unwrap();
-        let file_config_path = &CLI_ARGS.config.clone().unwrap_or(default_config_path);
+    /// Retrieves the configuration required for generating typescript interface
+    /// If there is CLI_ARGS.generate_types set already, it would prioritise using CLI_ARGS
+    fn generate_types(file_config_path: &PathBuf) -> Option<GenerateTypesConfig> {
         let file_based_config = fs::read_to_string(&file_config_path);
+        let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
 
+        let generate_types = &file_based_config
+            .as_ref()
+            .map(|config| {
+                config.generate_types.clone().map(|x| GenerateTypesConfig {
+                    enabled: CLI_ARGS.generate_types || x.enabled,
+                    convert_to_camel_case_column_name: x.convert_to_camel_case_column_name,
+                })
+            })
+            .unwrap_or(None);
+
+        generate_types.to_owned()
+    }
+
+    /// Build the initial connection config to be used as a HashMap
+    fn build_configs(dotenv: &Dotenv, file_config_path: &PathBuf) -> HashMap<String, DbConnectionConfig> {
+        let file_based_config = fs::read_to_string(&file_config_path);
         let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
 
         let connections = &mut file_based_config
@@ -78,17 +97,12 @@ impl Config {
             .map(|config| config.connections.clone())
             .unwrap_or_default();
 
-        let generate_types = &file_based_config
-            .as_ref()
-            .map(|config| config.generate_types.clone())
-            .unwrap_or(None);
-
         connections.insert(
             "default".to_string(),
             Self::get_default_connection_config(dotenv, &connections.get("default")),
         );
 
-        (generate_types.to_owned(), connections.to_owned())
+        connections.to_owned()
     }
 
     /// Figures out the default connection, default connection must exist for sqlx-ts to work

@@ -1,17 +1,11 @@
 use std::collections::HashMap;
 
-use sqlparser::{
-    ast::{Expr, Statement, TableWithJoins},
-    keywords::NO,
-};
+use sqlparser::ast::{Expr, Statement, TableWithJoins};
 
-use crate::{
-    common::config::GenerateTypesConfig,
-    ts_generator::{
-        errors::TsGeneratorError,
-        information_schema::DBSchema,
-        types::{DBConn, TsFieldType, TsQuery},
-    },
+use crate::ts_generator::{
+    errors::TsGeneratorError,
+    information_schema::DBSchema,
+    types::{DBConn, TsFieldType, TsQuery},
 };
 
 use super::{

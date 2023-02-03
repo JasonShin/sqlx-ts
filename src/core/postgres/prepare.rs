@@ -1,4 +1,4 @@
-use crate::common::config::{Config, DbConnectionConfig};
+use crate::common::config::DbConnectionConfig;
 use crate::common::lazy::CONFIG;
 use crate::common::SQL;
 use crate::ts_generator::generator::generate_ts_interface;
@@ -22,17 +22,17 @@ fn get_postgres_cred(conn: &DbConnectionConfig) -> String {
     )
 }
 
+/// Runs the prepare statement on the input SQL. Validates the query is right by directly connecting to the configured database.
+/// It also processes ts interfaces if the configuration is set to `generate_types = true`
 pub fn prepare<'a>(sql: &SQL, should_generate_types: &bool, handler: &Handler) -> (bool, Option<TsQuery>) {
     let connection = &CONFIG.get_correct_connection(&sql.query);
+    let postgres_cred = &get_postgres_cred(connection);
+    let mut conn = Client::connect(postgres_cred, NoTls).unwrap();
 
     let mut failed = false;
 
     let span = sql.span.to_owned();
-    // todo: update it to use prepare stmt
     let prepare_query = format!("PREPARE sqlx_stmt AS {}", sql.query);
-
-    let postgres_cred = &get_postgres_cred(connection);
-    let mut conn = Client::connect(postgres_cred, NoTls).unwrap();
     let result = conn.query(prepare_query.as_str(), &[]);
 
     if let Err(e) = result {
@@ -46,8 +46,7 @@ pub fn prepare<'a>(sql: &SQL, should_generate_types: &bool, handler: &Handler) -
     let mut ts_query = None;
 
     if should_generate_types == &true {
-        ts_query =
-            Some(generate_ts_interface(sql, connection, &DBConn::PostgresConn(&mut RefCell::new(&mut conn))).unwrap());
+        ts_query = Some(generate_ts_interface(sql, &DBConn::PostgresConn(&mut RefCell::new(&mut conn))).unwrap());
     }
 
     (failed, ts_query)

@@ -1,4 +1,3 @@
-use crate::common::config::GenerateTypesConfig;
 use crate::common::lazy::CONFIG;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::information_schema::DBSchema;

@@ -1,4 +1,3 @@
-use crate::common::config::GenerateTypesConfig;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::translate_expr::translate_expr;
 use crate::ts_generator::sql_parser::translate_table_with_joins::*;

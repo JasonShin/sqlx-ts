@@ -1,4 +1,4 @@
-use crate::common::lazy::{CLI_ARGS, CONFIG};
+use crate::common::lazy::CONFIG;
 use crate::common::types::DatabaseType;
 use crate::common::SQL;
 use crate::core::mysql::prepare as mysql_explain;
@@ -13,9 +13,11 @@ use swc_common::errors::Handler;
 pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> bool {
     // TODO: later we will add mysql_explain, sqlite_explain depending on the database type
     let mut failed = false;
-    let generate_types_config = &CONFIG.generate_types_config;
-    let should_generate_types =
-        CLI_ARGS.generate_types || generate_types_config.to_owned().filter(|x| x.enabled).is_some();
+    let should_generate_types = &CONFIG
+        .generate_types_config
+        .to_owned()
+        .filter(|x| x.enabled)
+        .is_some();
 
     for (file_path, sqls) in queries {
         let mut sqls_to_write: Vec<String> = vec![];
@@ -24,18 +26,19 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> bool 
 
             let (explain_failed, ts_query) = match connection.db_type {
                 DatabaseType::Postgres => postgres_explain::prepare(sql, &should_generate_types, handler),
-                DatabaseType::Mysql => mysql_explain::prepare(sql, &CONFIG, &should_generate_types, handler),
+                DatabaseType::Mysql => mysql_explain::prepare(sql, &should_generate_types, handler),
             };
 
+            // If any prepare statement fails, we should set the failed flag as true
             failed = explain_failed;
 
-            if should_generate_types {
+            if *should_generate_types {
                 let ts_query = ts_query.expect("Failed to generate types from query").to_string();
                 sqls_to_write.push(ts_query);
             }
         }
 
-        if should_generate_types {
+        if *should_generate_types {
             // Finally writes query typing files
             let query_ts_file_path = get_query_ts_file_path(file_path).unwrap();
             if query_ts_file_path.exists() {
