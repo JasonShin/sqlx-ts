@@ -1,5 +1,6 @@
 use crate::common::cli::Cli;
 use crate::common::config::Config;
+use crate::ts_generator::information_schema::DBSchema;
 use clap::Parser;
 use lazy_static::lazy_static;
 
@@ -11,6 +12,7 @@ lazy_static! {
     pub static ref CLI_ARGS: Cli = Cli::parse();
     pub static ref CONFIG: Config =  Config::new();
 
-    // Establish DB connections
-    // pub static ref DB_CONNS: HashMap<String, DbConn>;
+    /// This is a holder for shared DBSChema used to fetch information for information_schema table
+    /// By having a singleton, we can think about caching the result if we are fetching a query too many times
+    pub static ref DB_SCHEMA: DBSchema = DBSchema::new();
 }

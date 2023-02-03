@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use sqlparser::ast::{Expr, Statement, TableWithJoins};
 
+use crate::common::lazy::DB_SCHEMA;
 use crate::ts_generator::{
     errors::TsGeneratorError,
     information_schema::DBSchema,
@@ -30,7 +31,6 @@ pub fn get_sql_query_param(
     table_with_joins: &Vec<TableWithJoins>,
     db_conn: &DBConn,
 ) -> Option<(TsFieldType, Option<String>)> {
-    let db_schema = DBSchema::new();
     let table_name = translate_table_from_expr(table_with_joins, &*left.clone());
     let column_name = translate_column_name_expr(left);
 
@@ -42,7 +42,7 @@ pub fn get_sql_query_param(
         let table_name = table_name.unwrap();
         let table_names = vec![table_name.as_str()];
         let column_name = column_name.unwrap();
-        let columns = db_schema
+        let columns = DB_SCHEMA
             .fetch_table(db_name, &table_names, db_conn)
             .unwrap_or_else(|| panic!("Failed to fetch columns for table {:?}", table_name));
 

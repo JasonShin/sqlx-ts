@@ -1,6 +1,5 @@
-use crate::common::lazy::CONFIG;
+use crate::common::lazy::{CONFIG, DB_SCHEMA};
 use crate::ts_generator::errors::TsGeneratorError;
-use crate::ts_generator::information_schema::DBSchema;
 use crate::ts_generator::sql_parser::translate_stmt::translate_query;
 use crate::ts_generator::types::{DBConn, TsFieldType, TsQuery};
 use convert_case::{Case, Casing};
@@ -90,13 +89,11 @@ pub fn translate_expr(
     db_conn: &DBConn,
     is_subquery: bool,
 ) -> Result<(), TsGeneratorError> {
-    let db_schema = DBSchema::new();
-
     match expr {
         Expr::Identifier(ident) => {
             let column_name = format_column_name(ident.value.to_string());
 
-            let table_details = &db_schema.fetch_table(db_name, &vec![table_name], db_conn);
+            let table_details = &DB_SCHEMA.fetch_table(db_name, &vec![table_name], db_conn);
 
             // TODO: We can also memoize this method
             if let Some(table_details) = table_details {
@@ -112,7 +109,7 @@ pub fn translate_expr(
             if idents.len() == 2 {
                 let ident = idents[1].value.clone();
 
-                let table_details = &db_schema.fetch_table(db_name, &vec![table_name], db_conn);
+                let table_details = &DB_SCHEMA.fetch_table(db_name, &vec![table_name], db_conn);
                 if let Some(table_details) = table_details {
                     let field = table_details.get(&ident).unwrap();
 
