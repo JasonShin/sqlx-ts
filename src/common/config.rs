@@ -75,6 +75,10 @@ impl Config {
         let file_based_config = fs::read_to_string(&file_config_path);
         let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
 
+        println!(
+            "CLI Args {:?} env enabled {:?}",
+            CLI_ARGS.generate_types, file_based_config
+        );
         let generate_types = &file_based_config
             .as_ref()
             .map(|config| {
@@ -83,7 +87,11 @@ impl Config {
                     convert_to_camel_case_column_name: x.convert_to_camel_case_column_name,
                 })
             })
-            .unwrap_or(None);
+            // If the file config is not provided, we will return the CLI arg's default values
+            .unwrap_or(Some(GenerateTypesConfig {
+                enabled: CLI_ARGS.generate_types,
+                convert_to_camel_case_column_name: false,
+            }));
 
         generate_types.to_owned()
     }

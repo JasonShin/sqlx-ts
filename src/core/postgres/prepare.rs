@@ -1,4 +1,3 @@
-
 use crate::common::lazy::CONFIG;
 use crate::common::SQL;
 use crate::ts_generator::generator::generate_ts_interface;

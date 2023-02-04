@@ -5,7 +5,6 @@ use crate::core::mysql::prepare as mysql_explain;
 use crate::core::postgres::prepare as postgres_explain;
 use crate::ts_generator::generator::get_query_ts_file_path;
 
-
 use std::collections::HashMap;
 use std::fs::{remove_file, File};
 use std::io::Write;
@@ -40,6 +39,8 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> bool 
                 sqls_to_write.push(ts_query);
             }
         }
+
+        println!("should generate types? {:?}", should_generate_types);
 
         if *should_generate_types {
             // Finally writes query typing files

@@ -69,7 +69,8 @@ pub fn translate_column_name_expr(expr: &Expr) -> Option<String> {
 
 pub fn format_column_name(column_name: String) -> String {
     let convert_to_camel_case_column_name = &CONFIG
-        .generate_types_config.map(|x| x.convert_to_camel_case_column_name);
+        .generate_types_config
+        .map(|x| x.convert_to_camel_case_column_name);
 
     match convert_to_camel_case_column_name {
         Some(true) => column_name.to_case(Case::Camel),
