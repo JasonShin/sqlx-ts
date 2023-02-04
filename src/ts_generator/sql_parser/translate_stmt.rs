@@ -1,8 +1,8 @@
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::translate_query::translate_query;
 use crate::ts_generator::types::{DBConn, TsFieldType, TsQuery};
-use sqlparser::ast::SelectItem::{ExprWithAlias, QualifiedWildcard, UnnamedExpr};
-use sqlparser::ast::{Ident, Query, SetExpr, Statement};
+
+use sqlparser::ast::{Statement};
 use std::collections::HashMap;
 
 pub fn translate_stmt(
@@ -32,16 +32,16 @@ pub fn translate_stmt(
             println!("DELETE statement is not yet supported by TS type generator")
         }
         Statement::Insert {
-            or,
-            into,
-            table_name,
+            or: _,
+            into: _,
+            table_name: _,
             columns,
-            overwrite,
+            overwrite: _,
             source,
-            partitioned,
-            after_columns,
-            table,
-            on,
+            partitioned: _,
+            after_columns: _,
+            table: _,
+            on: _,
         } => {
             println!("columns {:?}", columns);
             println!("checking the insert query {:?}", source);
