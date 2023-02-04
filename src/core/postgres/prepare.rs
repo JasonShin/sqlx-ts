@@ -1,4 +1,4 @@
-use crate::common::config::{Config, DbConnectionConfig};
+use crate::common::lazy::CONFIG;
 use crate::common::SQL;
 use crate::ts_generator::generator::generate_ts_interface;
 use crate::ts_generator::types::{DBConn, TsQuery};
@@ -7,36 +7,17 @@ use std::cell::RefCell;
 
 use swc_common::errors::Handler;
 
-fn get_postgres_cred(conn: &DbConnectionConfig) -> String {
-    format!(
-        "postgresql://{user}:{pass}@{host}:{port}/{db_name}",
-        user = &conn.db_user,
-        pass = &conn.db_pass.as_ref().unwrap_or(&"".to_string()),
-        host = &conn.db_host,
-        port = &conn.db_port,
-        // This is to follow the spec of Rust Postgres
-        // `db_user` name gets used if `db_name` is not provided
-        // https://docs.rs/postgres/latest/postgres/config/struct.Config.html#keys
-        db_name = &conn.db_name.clone().unwrap_or((&conn.db_user).to_owned()),
-    )
-}
-
-pub fn prepare<'a>(
-    sql: &SQL,
-    config: &Config,
-    should_generate_types: &bool,
-    handler: &Handler,
-) -> (bool, Option<TsQuery>) {
-    let connection = &config.get_correct_connection(&sql.query);
+/// Runs the prepare statement on the input SQL. Validates the query is right by directly connecting to the configured database.
+/// It also processes ts interfaces if the configuration is set to `generate_types = true`
+pub fn prepare<'a>(sql: &SQL, should_generate_types: &bool, handler: &Handler) -> (bool, Option<TsQuery>) {
+    let connection = &CONFIG.get_correct_db_connection(&sql.query);
+    let postgres_cred = &CONFIG.get_postgres_cred(connection);
+    let mut conn = Client::connect(postgres_cred, NoTls).unwrap();
 
     let mut failed = false;
 
     let span = sql.span.to_owned();
-    // todo: update it to use prepare stmt
     let prepare_query = format!("PREPARE sqlx_stmt AS {}", sql.query);
-
-    let postgres_cred = &get_postgres_cred(connection);
-    let mut conn = Client::connect(postgres_cred, NoTls).unwrap();
     let result = conn.query(prepare_query.as_str(), &[]);
 
     if let Err(e) = result {
@@ -50,16 +31,7 @@ pub fn prepare<'a>(
     let mut ts_query = None;
 
     if should_generate_types == &true {
-        let generate_types_config = &config.generate_types_config;
-        ts_query = Some(
-            generate_ts_interface(
-                sql,
-                connection,
-                &DBConn::PostgresConn(&mut RefCell::new(&mut conn)),
-                generate_types_config,
-            )
-            .unwrap(),
-        );
+        ts_query = Some(generate_ts_interface(sql, &DBConn::PostgresConn(&mut RefCell::new(&mut conn))).unwrap());
     }
 
     (failed, ts_query)

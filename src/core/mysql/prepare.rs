@@ -1,29 +1,24 @@
-use std::cell::RefCell;
-
-use crate::common::config::Config;
+use crate::common::lazy::CONFIG;
 use crate::common::SQL;
 use crate::ts_generator::generator::generate_ts_interface;
 use crate::ts_generator::types::{DBConn, TsQuery};
 use mysql::prelude::*;
 use mysql::*;
+use std::cell::RefCell;
 use swc_common::errors::Handler;
 
-pub fn prepare(sql: &SQL, config: &Config, should_generate_types: &bool, handler: &Handler) -> (bool, Option<TsQuery>) {
-    let connection_config = &config.get_correct_connection(&sql.query);
+/// Runs the prepare statement on the input SQL.
+/// Validates the query is right by directly connecting to the configured database.
+/// It also processes ts interfaces if the configuration is set to generate_types = true
+pub fn prepare(sql: &SQL, should_generate_types: &bool, handler: &Handler) -> (bool, Option<TsQuery>) {
+    let connection_config = CONFIG.get_correct_db_connection(&sql.query);
+    let opts = CONFIG.get_mysql_cred(&connection_config);
+    let mut conn = Conn::new(opts).unwrap();
+
     let mut failed = false;
 
     let span = sql.span.to_owned();
     let explain_query = format!("PREPARE stmt FROM \"{}\"", sql.query);
-
-    let db_pass = &connection_config.db_pass;
-    let db_name = &connection_config.db_name;
-    let opts = OptsBuilder::new()
-        .ip_or_hostname(Some(&connection_config.db_host))
-        .tcp_port(connection_config.db_port)
-        .user(Some(&connection_config.db_user))
-        .pass(db_pass.clone())
-        .db_name(db_name.clone());
-    let mut conn = Conn::new(opts).unwrap();
 
     let result: Result<Vec<Row>> = conn.query(explain_query);
 
@@ -35,15 +30,7 @@ pub fn prepare(sql: &SQL, config: &Config, should_generate_types: &bool, handler
     let mut ts_query = None;
 
     if should_generate_types == &true {
-        ts_query = Some(
-            generate_ts_interface(
-                sql,
-                connection_config,
-                &DBConn::MySQLPooledConn(&mut RefCell::new(&mut conn)),
-                &config.generate_types_config,
-            )
-            .unwrap(),
-        );
+        ts_query = Some(generate_ts_interface(sql, &DBConn::MySQLPooledConn(&mut RefCell::new(&mut conn))).unwrap());
     }
 
     (failed, ts_query)

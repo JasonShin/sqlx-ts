@@ -8,19 +8,18 @@ extern crate clap;
 extern crate dotenv;
 
 use crate::core::execute::execute;
-use clap::Parser;
+
 use dotenv::dotenv;
 
-use crate::common::cli::Cli;
+use crate::common::lazy::CLI_ARGS;
 use crate::{parser::parse_source, scan_folder::scan_folder};
 
 fn main() {
     dotenv().ok();
 
-    let cli_args = Cli::parse();
-    let source_folder = &cli_args.path;
-    let ext = &cli_args.ext;
-    let ignore_paths = &cli_args.ignore;
+    let source_folder = &CLI_ARGS.path;
+    let ext = &CLI_ARGS.ext;
+    let ignore_paths = &CLI_ARGS.ignore;
 
     println!("Scanning {:?} for SQLs with extension {:?}", source_folder, ext);
 
@@ -35,7 +34,7 @@ fn main() {
         .into_iter()
         .map(|file_path| {
             let (sqls, handler) = parse_source(&file_path);
-            execute(&sqls, &handler, &cli_args)
+            execute(&sqls, &handler)
         })
         .collect();
 

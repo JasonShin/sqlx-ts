@@ -5,6 +5,7 @@ use swc_common::MultiSpan;
 pub mod cli;
 pub mod config;
 pub mod dotenv;
+pub mod lazy;
 pub mod types;
 
 // Source Parser

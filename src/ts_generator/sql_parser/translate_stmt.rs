@@ -1,4 +1,3 @@
-use crate::common::config::GenerateTypesConfig;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::translate_expr::translate_expr;
 use crate::ts_generator::sql_parser::translate_table_with_joins::*;
@@ -15,7 +14,6 @@ pub fn translate_stmt(
     db_name: &str,
     annotated_results: &HashMap<String, Vec<TsFieldType>>,
     db_conn: &DBConn,
-    generate_types_config: &Option<GenerateTypesConfig>,
 ) -> Result<(), TsGeneratorError> {
     match sql_statement {
         Statement::Query(query) => {
@@ -27,7 +25,6 @@ pub fn translate_stmt(
                 db_name,
                 annotated_results,
                 db_conn,
-                generate_types_config,
                 false,
             )?;
         }
@@ -50,13 +47,12 @@ pub fn translate_stmt(
 /// translates query
 pub fn translate_query(
     ts_query: &mut TsQuery,
-    alias: Option<&str>,
+    _alias: Option<&str>,
     sql_statement: &Statement,
     query: &Box<Query>,
     db_name: &str,
     annotated_results: &HashMap<String, Vec<TsFieldType>>,
     db_conn: &DBConn,
-    generate_types_config: &Option<GenerateTypesConfig>,
     is_subquery: bool,
 ) -> Result<(), TsGeneratorError> {
     let body = &query.body;
@@ -81,7 +77,6 @@ pub fn translate_query(
                             ts_query,
                             sql_statement,
                             db_conn,
-                            generate_types_config,
                             is_subquery,
                         )
                         .unwrap();
@@ -99,21 +94,13 @@ pub fn translate_query(
                             ts_query,
                             sql_statement,
                             db_conn,
-                            generate_types_config,
                             is_subquery,
                         )
                         .unwrap();
                     }
                     QualifiedWildcard(_) => todo!(),
                     _Wildcard => {
-                        translate_wildcard_expr(
-                            db_name,
-                            sql_statement,
-                            &mut ts_query.result,
-                            db_conn,
-                            generate_types_config,
-                        )
-                        .unwrap();
+                        translate_wildcard_expr(db_name, sql_statement, &mut ts_query.result, db_conn).unwrap();
                     }
                 }
             }
@@ -128,7 +115,6 @@ pub fn translate_query(
                     &table_with_joins,
                     annotated_results,
                     db_conn,
-                    generate_types_config,
                 )?;
             }
             Ok(())

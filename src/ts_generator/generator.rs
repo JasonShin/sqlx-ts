@@ -1,7 +1,6 @@
-use std::collections::{BTreeMap, HashMap};
 use std::path::{Path, PathBuf};
 
-use crate::common::config::{DbConnectionConfig, GenerateTypesConfig};
+use crate::common::lazy::CONFIG;
 use crate::common::SQL;
 use crate::ts_generator::annotations::extract_result_annotations;
 use crate::ts_generator::sql_parser::translate_stmt::translate_stmt;
@@ -52,12 +51,7 @@ pub fn get_query_ts_file_path(file_path: &PathBuf) -> Result<PathBuf, TsGenerato
     Ok(result)
 }
 
-pub fn generate_ts_interface(
-    sql: &SQL,
-    db_connection_config: &DbConnectionConfig,
-    db_conn: &DBConn,
-    generate_types_config: &Option<GenerateTypesConfig>,
-) -> Result<TsQuery, TsGeneratorError> {
+pub fn generate_ts_interface(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery, TsGeneratorError> {
     let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
 
     let sql_ast = Parser::parse_sql(&dialect, &sql.query).unwrap();
@@ -65,9 +59,9 @@ pub fn generate_ts_interface(
 
     let annotated_result_types = extract_result_annotations(&sql.query);
 
-    let db_name = db_connection_config
+    let db_name = &CONFIG
+        .get_correct_db_connection(&sql.query)
         .db_name
-        .clone()
         .expect("DB_NAME is required to generate Typescript type definitions");
 
     for sql_statement in &sql_ast {
@@ -77,7 +71,6 @@ pub fn generate_ts_interface(
             db_name.as_str(),
             &annotated_result_types,
             db_conn,
-            generate_types_config,
         )?;
     }
 
