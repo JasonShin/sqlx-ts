@@ -8,25 +8,11 @@ use std::cell::RefCell;
 
 use swc_common::errors::Handler;
 
-fn get_postgres_cred(conn: &DbConnectionConfig) -> String {
-    format!(
-        "postgresql://{user}:{pass}@{host}:{port}/{db_name}",
-        user = &conn.db_user,
-        pass = &conn.db_pass.as_ref().unwrap_or(&"".to_string()),
-        host = &conn.db_host,
-        port = &conn.db_port,
-        // This is to follow the spec of Rust Postgres
-        // `db_user` name gets used if `db_name` is not provided
-        // https://docs.rs/postgres/latest/postgres/config/struct.Config.html#keys
-        db_name = &conn.db_name.clone().unwrap_or((&conn.db_user).to_owned()),
-    )
-}
-
 /// Runs the prepare statement on the input SQL. Validates the query is right by directly connecting to the configured database.
 /// It also processes ts interfaces if the configuration is set to `generate_types = true`
 pub fn prepare<'a>(sql: &SQL, should_generate_types: &bool, handler: &Handler) -> (bool, Option<TsQuery>) {
-    let connection = &CONFIG.get_correct_connection(&sql.query);
-    let postgres_cred = &get_postgres_cred(connection);
+    let connection = &CONFIG.get_correct_db_connection(&sql.query);
+    let postgres_cred = &CONFIG.get_postgres_cred(connection);
     let mut conn = Client::connect(postgres_cred, NoTls).unwrap();
 
     let mut failed = false;

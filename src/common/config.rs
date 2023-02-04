@@ -1,6 +1,7 @@
 use crate::common::dotenv::Dotenv;
 use crate::common::lazy::CLI_ARGS;
 use crate::common::types::DatabaseType;
+use mysql::OptsBuilder;
 use regex::Regex;
 use serde;
 use serde::{Deserialize, Serialize};
@@ -57,7 +58,7 @@ impl Config {
         let default_config_path = PathBuf::from_str(".sqlxrc.json").unwrap();
         let file_config_path = &CLI_ARGS.config.clone().unwrap_or(default_config_path);
         let connections = Self::build_configs(&dotenv, &file_config_path);
-        let generate_types_config = Self::generate_types(&file_config_path);
+        let generate_types_config = Self::generate_types_config(&file_config_path);
         let generate_types_config =
             generate_types_config.and_then(|config| if config.enabled { Some(config) } else { None });
 
@@ -70,7 +71,7 @@ impl Config {
 
     /// Retrieves the configuration required for generating typescript interface
     /// If there is CLI_ARGS.generate_types set already, it would prioritise using CLI_ARGS
-    fn generate_types(file_config_path: &PathBuf) -> Option<GenerateTypesConfig> {
+    fn generate_types_config(file_config_path: &PathBuf) -> Option<GenerateTypesConfig> {
         let file_based_config = fs::read_to_string(&file_config_path);
         let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
 
@@ -187,7 +188,26 @@ impl Config {
         }
     }
 
-    pub fn get_correct_connection(&self, raw_sql: &str) -> DbConnectionConfig {
+    /// By passing in a SQL query, for example
+    /// e.g.
+    ///     -- @db: postgres
+    ///     SELECT * FROM some_table;
+    ///
+    /// The method figures out the correct database to connect in order to validate the SQL query
+    ///
+    /// If you pass down a query with a annotation to specify a DB
+    /// e.g.
+    ///     -- @db: postgres
+    ///     SELECT * FROM some_table;
+    ///
+    /// It should return the connection for postgres.
+    ///
+    /// If you pass down a query without an annotation
+    /// e.g.
+    ///     SELECT * FROM some_table;
+    ///
+    /// It should return the default connection configured by your configuration settings
+    pub fn get_correct_db_connection(&self, raw_sql: &str) -> DbConnectionConfig {
         let re = Regex::new(r"(/*|//|--) @db: (?P<conn>[\w]+)( */){0,}").unwrap();
         let found_matches = re.captures(raw_sql);
 
@@ -211,5 +231,30 @@ impl Config {
             ",
             )
             .clone()
+    }
+
+    pub fn get_postgres_cred(&self, conn: &DbConnectionConfig) -> String {
+        format!(
+            "postgresql://{user}:{pass}@{host}:{port}/{db_name}",
+            user = &conn.db_user,
+            pass = &conn.db_pass.as_ref().unwrap_or(&"".to_string()),
+            host = &conn.db_host,
+            port = &conn.db_port,
+            // This is to follow the spec of Rust Postgres
+            // `db_user` name gets used if `db_name` is not provided
+            // https://docs.rs/postgres/latest/postgres/config/struct.Config.html#keys
+            db_name = &conn.db_name.clone().unwrap_or((&conn.db_user).to_owned()),
+        )
+    }
+
+    pub fn get_mysql_cred(&self, conn: &DbConnectionConfig) -> OptsBuilder {
+        let db_pass = &conn.db_pass;
+        let db_name = &conn.db_name;
+        OptsBuilder::new()
+            .ip_or_hostname(Some(&conn.db_host))
+            .tcp_port(conn.db_port)
+            .user(Some(&conn.db_user))
+            .pass(db_pass.clone())
+            .db_name(db_name.clone())
     }
 }

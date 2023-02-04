@@ -60,7 +60,7 @@ pub fn generate_ts_interface(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery, TsG
     let annotated_result_types = extract_result_annotations(&sql.query);
 
     let db_name = &CONFIG
-        .get_correct_connection(&sql.query)
+        .get_correct_db_connection(&sql.query)
         .db_name
         .clone()
         .expect("DB_NAME is required to generate Typescript type definitions");
