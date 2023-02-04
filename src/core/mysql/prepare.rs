@@ -11,9 +11,9 @@ use swc_common::errors::Handler;
 /// Validates the query is right by directly connecting to the configured database.
 /// It also processes ts interfaces if the configuration is set to generate_types = true
 pub fn prepare(sql: &SQL, should_generate_types: &bool, handler: &Handler) -> (bool, Option<TsQuery>) {
-    let connection_config = &CONFIG.get_correct_db_connection(&sql.query);
-    let opts = &CONFIG.get_mysql_cred(&connection_config);
-    let mut conn = Conn::new(*opts).unwrap();
+    let connection_config = CONFIG.get_correct_db_connection(&sql.query);
+    let opts = CONFIG.get_mysql_cred(&connection_config);
+    let mut conn = Conn::new(opts).unwrap();
 
     let mut failed = false;
 

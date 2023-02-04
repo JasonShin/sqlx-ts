@@ -5,21 +5,13 @@ use crate::core::mysql::prepare as mysql_explain;
 use crate::core::postgres::prepare as postgres_explain;
 use crate::ts_generator::generator::get_query_ts_file_path;
 use crate::ts_generator::types::DBConn;
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fs::{remove_file, File};
 use std::io::Write;
 use std::path::PathBuf;
+use postgres::{Client, NoTls};
 use swc_common::errors::Handler;
-
-pub fn get_db_conn_from_sql(sql: &SQL) -> DBConn {
-    let connection = &CONFIG.get_correct_connection(&sql.query);
-    match &connection.db_type {
-        DatabaseType::Postgres => {
-            let postgres_cred = &get_postgres_cred(connection);
-        }
-        DatabaseType::Mysql => todo!(),
-    }
-}
 
 pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> bool {
     // TODO: later we will add mysql_explain, sqlite_explain depending on the database type
@@ -33,7 +25,7 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> bool 
     for (file_path, sqls) in queries {
         let mut sqls_to_write: Vec<String> = vec![];
         for sql in sqls {
-            let connection = &CONFIG.get_correct_connection(&sql.query);
+            let connection = &CONFIG.get_correct_db_connection(&sql.query);
 
             let (explain_failed, ts_query) = match connection.db_type {
                 DatabaseType::Postgres => postgres_explain::prepare(sql, &should_generate_types, handler),
