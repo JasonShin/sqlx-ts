@@ -69,8 +69,7 @@ pub fn translate_column_name_expr(expr: &Expr) -> Option<String> {
 
 pub fn format_column_name(column_name: String) -> String {
     let convert_to_camel_case_column_name = &CONFIG
-        .generate_types_config
-        .and_then(|x| Some(x.convert_to_camel_case_column_name));
+        .generate_types_config.map(|x| x.convert_to_camel_case_column_name);
 
     match convert_to_camel_case_column_name {
         Some(true) => column_name.to_case(Case::Camel),
@@ -182,7 +181,7 @@ pub fn translate_expr(
         Expr::Subquery(sub_query) => {
             if alias.is_some() {
                 // TODO: We need to be able to use alias when processing subquery
-                let alias = format_column_name(alias.unwrap().to_string());
+                let _alias = format_column_name(alias.unwrap().to_string());
                 translate_query(
                     ts_query,
                     None,

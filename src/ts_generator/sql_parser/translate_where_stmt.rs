@@ -5,7 +5,6 @@ use sqlparser::ast::{Expr, Statement, TableWithJoins};
 use crate::common::lazy::DB_SCHEMA;
 use crate::ts_generator::{
     errors::TsGeneratorError,
-    information_schema::DBSchema,
     types::{DBConn, TsFieldType, TsQuery},
 };
 

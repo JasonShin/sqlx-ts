@@ -47,7 +47,7 @@ pub fn translate_stmt(
 /// translates query
 pub fn translate_query(
     ts_query: &mut TsQuery,
-    alias: Option<&str>,
+    _alias: Option<&str>,
     sql_statement: &Statement,
     query: &Box<Query>,
     db_name: &str,

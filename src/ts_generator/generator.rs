@@ -62,7 +62,7 @@ pub fn generate_ts_interface(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery, TsG
     let db_name = &CONFIG
         .get_correct_db_connection(&sql.query)
         .db_name
-        .clone()
+        
         .expect("DB_NAME is required to generate Typescript type definitions");
 
     for sql_statement in &sql_ast {

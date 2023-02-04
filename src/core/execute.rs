@@ -4,13 +4,13 @@ use crate::common::SQL;
 use crate::core::mysql::prepare as mysql_explain;
 use crate::core::postgres::prepare as postgres_explain;
 use crate::ts_generator::generator::get_query_ts_file_path;
-use crate::ts_generator::types::DBConn;
-use std::cell::RefCell;
+
+
 use std::collections::HashMap;
 use std::fs::{remove_file, File};
 use std::io::Write;
 use std::path::PathBuf;
-use postgres::{Client, NoTls};
+
 use swc_common::errors::Handler;
 
 pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> bool {
@@ -28,8 +28,8 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> bool 
             let connection = &CONFIG.get_correct_db_connection(&sql.query);
 
             let (explain_failed, ts_query) = match connection.db_type {
-                DatabaseType::Postgres => postgres_explain::prepare(sql, &should_generate_types, handler),
-                DatabaseType::Mysql => mysql_explain::prepare(sql, &should_generate_types, handler),
+                DatabaseType::Postgres => postgres_explain::prepare(sql, should_generate_types, handler),
+                DatabaseType::Mysql => mysql_explain::prepare(sql, should_generate_types, handler),
             };
 
             // If any prepare statement fails, we should set the failed flag as true

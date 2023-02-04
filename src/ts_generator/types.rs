@@ -91,7 +91,7 @@ impl TsFieldType {
     ///
     pub fn get_ts_field_type_from_postgres_field_type(field_type: String) -> Self {
         match field_type.as_str() {
-            "smallint" | "integer" | "real" | "double precision" | "numeric" => return Self::Number,
+            "smallint" | "integer" | "real" | "double precision" | "numeric" => Self::Number,
             "character" | "character varying" | "bytea" | "uuid" | "text" => Self::String,
             "boolean" => Self::Boolean,
             "json" | "jsonb" => Self::Object,

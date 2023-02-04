@@ -8,7 +8,7 @@ extern crate clap;
 extern crate dotenv;
 
 use crate::core::execute::execute;
-use clap::Parser;
+
 use dotenv::dotenv;
 
 use crate::common::lazy::CLI_ARGS;

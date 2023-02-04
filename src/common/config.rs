@@ -57,8 +57,8 @@ impl Config {
 
         let default_config_path = PathBuf::from_str(".sqlxrc.json").unwrap();
         let file_config_path = &CLI_ARGS.config.clone().unwrap_or(default_config_path);
-        let connections = Self::build_configs(&dotenv, &file_config_path);
-        let generate_types_config = Self::generate_types_config(&file_config_path);
+        let connections = Self::build_configs(&dotenv, file_config_path);
+        let generate_types_config = Self::generate_types_config(file_config_path);
         let generate_types_config =
             generate_types_config.and_then(|config| if config.enabled { Some(config) } else { None });
 
@@ -78,7 +78,7 @@ impl Config {
         let generate_types = &file_based_config
             .as_ref()
             .map(|config| {
-                config.generate_types.clone().map(|x| GenerateTypesConfig {
+                config.generate_types.map(|x| GenerateTypesConfig {
                     enabled: CLI_ARGS.generate_types || x.enabled,
                     convert_to_camel_case_column_name: x.convert_to_camel_case_column_name,
                 })
@@ -243,7 +243,7 @@ impl Config {
             // This is to follow the spec of Rust Postgres
             // `db_user` name gets used if `db_name` is not provided
             // https://docs.rs/postgres/latest/postgres/config/struct.Config.html#keys
-            db_name = &conn.db_name.clone().unwrap_or((&conn.db_user).to_owned()),
+            db_name = &conn.db_name.clone().unwrap_or(conn.db_user.to_owned()),
         )
     }
 
