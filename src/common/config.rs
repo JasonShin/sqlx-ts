@@ -75,10 +75,6 @@ impl Config {
         let file_based_config = fs::read_to_string(&file_config_path);
         let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
 
-        println!(
-            "CLI Args {:?} env enabled {:?}",
-            CLI_ARGS.generate_types, file_based_config
-        );
         let generate_types = &file_based_config
             .as_ref()
             .map(|config| {

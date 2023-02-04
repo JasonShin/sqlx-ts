@@ -5,12 +5,12 @@ use sqlparser::ast::{Expr, Statement, TableWithJoins};
 use crate::common::lazy::DB_SCHEMA;
 use crate::ts_generator::{
     errors::TsGeneratorError,
+    sql_parser::translate_query::translate_query,
     types::{DBConn, TsFieldType, TsQuery},
 };
 
 use super::{
     translate_expr::{get_expr_placeholder, translate_column_name_expr},
-    translate_stmt::translate_query,
     translate_table_with_joins::translate_table_from_expr,
 };
 

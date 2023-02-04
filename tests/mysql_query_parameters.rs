@@ -45,7 +45,6 @@ OR points = ?
         // ASSERT
         cmd.assert().success();
 
-        println!("checking parent path {:?}", parent_path);
         let type_file = fs::read_to_string(parent_path.join("index.queries.ts"))?;
         let type_file = type_file.trim();
         let gen_query_types = r#"

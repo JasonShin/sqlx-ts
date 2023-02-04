@@ -1,6 +1,6 @@
 use crate::common::lazy::{CONFIG, DB_SCHEMA};
 use crate::ts_generator::errors::TsGeneratorError;
-use crate::ts_generator::sql_parser::translate_stmt::translate_query;
+use crate::ts_generator::sql_parser::translate_query::translate_query;
 use crate::ts_generator::types::{DBConn, TsFieldType, TsQuery};
 use convert_case::{Case, Casing};
 use regex::Regex;
