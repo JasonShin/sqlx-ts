@@ -35,16 +35,18 @@ pub fn translate_stmt(
         Statement::Insert {
             or: _,
             into: _,
-            table_name: _,
+            table_name,
             columns,
             overwrite: _,
             source,
             partitioned: _,
             after_columns: _,
-            table: _,
+            table,
             on: _,
         } => {
-            translate_insert(&mut ts_query, columns, source)?;
+            let table_name = table_name.to_string();
+            let table_name = table_name.as_str();
+            translate_insert(ts_query, columns, source, db_name, table_name, db_conn)?;
         }
         _ => {
             println!("Unsupported SQL syntax detected, skipping the type generation")
