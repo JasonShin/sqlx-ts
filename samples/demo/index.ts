@@ -3,8 +3,7 @@ import { sql } from "sqlx-ts";
 const someInputQuery = sql`
 INSERT INTO items (id, food_type, time_takes_to_cook, table_id, points)
 VALUES
-(?, 'australian', 2, 1, 2),
-(?, 'test', 2, 1, 2);
+(?, 'australian', 2, 1, 2);
 `
 
 /*

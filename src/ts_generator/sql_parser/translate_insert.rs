@@ -1,4 +1,4 @@
-use sqlparser::ast::{Ident, Query};
+use sqlparser::ast::{Ident, Query, Values, SetExpr};
 
 use crate::common::lazy::DB_SCHEMA;
 use crate::ts_generator::{errors::TsGeneratorError, types::{TsQuery, DBConn}};
@@ -17,6 +17,24 @@ pub fn translate_insert(
         .unwrap();
 
     println!("fetched table {:?}", fetched_table);
+    println!("source {:#?}", source);
+    let values = &source.body;
+    
+    // c1, c2, c3, c4, c5
+    // [$1, $2, $4,  ?,  ?]
+    // [ ?,  1,  2,  ?,  ?]
+    // ->
+    // 
+    for col in columns {
+        match values {
+            SetExpr::Values(values) => {
+    
+            },
+            _ => unimplemented!("This SetExpr of INSERT statement is not yet implemented")
+        }
+    }
+        
+
 
     // println!("translating columns and source {:#?} - {:#?} - {}", columns, source, db_name);
     Ok(())
