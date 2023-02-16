@@ -23,7 +23,9 @@ pub enum ArrayItem {
     Any,
 }
 
-#[derive(Debug, Clone, Copy)]
+type Array2DContent = Vec<Vec<TsFieldType>>;
+
+#[derive(Debug, Clone)]
 pub enum TsFieldType {
     String,
     Number,
@@ -33,6 +35,7 @@ pub enum TsFieldType {
     Null,
     Any,
     Never,
+    Array2D(Array2DContent),
     Array(ArrayItem),
 }
 
@@ -56,6 +59,7 @@ impl fmt::Display for TsFieldType {
                 ArrayItem::Null => write!(f, "Array<null>"),
                 ArrayItem::Any => write!(f, "Array<any>"),
             },
+            TsFieldType::Array2D(_) => todo!(),
         }
     }
 }
@@ -78,6 +82,7 @@ impl TsFieldType {
             TsFieldType::Any => TsFieldType::Array(ArrayItem::Any),
             TsFieldType::Never => panic!("Cannot convert never to an array of never"),
             TsFieldType::Array(arr) => TsFieldType::Array(arr),
+            TsFieldType::Array2D(_) => todo!(),
         }
     }
 
@@ -136,6 +141,7 @@ pub struct TsQuery {
     param_order: i32,
     // We use BTreeMap here as it's a collection that's already sorted
     pub params: BTreeMap<i32, TsFieldType>,
+    pub temp_insert_row_vals: Vec<ArrayItem>,
     pub result: HashMap<String, Vec<TsFieldType>>,
 }
 
@@ -146,6 +152,7 @@ impl TsQuery {
             param_order: 0,
             params: BTreeMap::new(),
             result: HashMap::new(),
+            temp_insert_row_vals: vec![],
         }
     }
 
@@ -157,16 +164,36 @@ impl TsQuery {
         }
     }
 
+    pub fn insert_value_params(&mut self, value: &ArrayItem, size: (&i32, &i32), placeholder: &Option<String>) {
+        // 0 = row size
+        // 1 = column size
+        let i = self.param_order & size.1;
+
+        // Each time it's process the new row, we want to reset the temp_param_row_values
+        if i == 0 {
+            self.temp_insert_row_vals = vec![]
+        }
+
+        if placeholder.eq(&Some("?".to_string())) {
+            self.temp_insert_row_vals.push(*value);
+        }
+
+        // Each time it's process the last column of the row
+        if i == size.1 - 1 {
+            // self.params.insert(*size.0, );
+        }
+    }
+
     /// Inserts a parameter into TsQuery for type definition generation
     /// If you pass in the order argument, it will use the manually passed in order
     /// It's important to make sure that you are not mixing up the usage
     /// You can only sequentially use `insert_param` with manual order or automatic order parameter
     ///
     /// This method was specifically designed with an assumption that 1 TsQuery is connected to 1 type of DB
-    pub fn insert_param(&mut self, value: &TsFieldType, placeholder: &Option<String>) {
+    pub fn insert_param(&mut self, value: TsFieldType, placeholder: &Option<String>) {
         if let Some(placeholder) = placeholder {
             if placeholder == "?" {
-                self.params.insert(self.param_order, *value);
+                self.params.insert(self.param_order, value.clone());
                 self.param_order += 1;
             } else {
                 let re = Regex::new(r"\$(\d+)").unwrap();
@@ -179,7 +206,7 @@ impl TsQuery {
                     .parse::<i32>()
                     .unwrap();
 
-                self.params.insert(order, *value);
+                self.params.insert(order, value.clone());
             }
         }
     }

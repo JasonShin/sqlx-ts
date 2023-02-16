@@ -49,15 +49,15 @@ pub fn get_sql_query_param(
         let column = columns
             .get(column_name.as_str())
             .unwrap_or_else(|| panic!("Failed toe find the column from the table schema of {:?}", table_name));
-        return Some((column.field_type, expr_placeholder));
+        return Some((column.field_type.to_owned(), expr_placeholder));
     }
 
     None
 }
 
-pub fn translate_where_stmt(
-    db_name: &str,
-    ts_query: &mut TsQuery,
+pub fn translate_where_stmt<'a>(
+    db_name: &'a str,
+    ts_query: &'a mut TsQuery,
     sql_statement: &Statement,
     expr: &Expr,
     table_with_joins: &Vec<TableWithJoins>,
@@ -89,7 +89,7 @@ pub fn translate_where_stmt(
                 )?;
             } else {
                 let (value, index) = param.unwrap();
-                ts_query.insert_param(&value, &index);
+                ts_query.insert_param(value, &index);
             }
             Ok(())
         }
@@ -106,7 +106,7 @@ pub fn translate_where_stmt(
                     let (value, index) = result.unwrap();
                     let array_item = value.to_array_item();
 
-                    ts_query.insert_param(&array_item, &index);
+                    ts_query.insert_param(array_item, &index);
                     return Ok(());
                 } else {
                     return Ok(());
