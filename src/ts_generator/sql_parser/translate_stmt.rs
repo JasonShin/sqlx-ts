@@ -41,7 +41,7 @@ pub fn translate_stmt(
             source,
             partitioned: _,
             after_columns: _,
-            table,
+            table: _,
             on: _,
         } => {
             let table_name = table_name.to_string();

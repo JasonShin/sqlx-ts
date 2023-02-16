@@ -193,7 +193,7 @@ impl TsQuery {
     pub fn insert_param(&mut self, value: TsFieldType, placeholder: &Option<String>) {
         if let Some(placeholder) = placeholder {
             if placeholder == "?" {
-                self.params.insert(self.param_order, value.clone());
+                self.params.insert(self.param_order, value);
                 self.param_order += 1;
             } else {
                 let re = Regex::new(r"\$(\d+)").unwrap();
@@ -206,7 +206,7 @@ impl TsQuery {
                     .parse::<i32>()
                     .unwrap();
 
-                self.params.insert(order, value.clone());
+                self.params.insert(order, value);
             }
         }
     }
