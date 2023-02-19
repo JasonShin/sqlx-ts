@@ -60,20 +60,22 @@ impl fmt::Display for TsFieldType {
                 ArrayItem::Any => write!(f, "Array<any>"),
             },
             TsFieldType::Array2D(nested_array) => {
-                let result = nested_array.into_iter().map(|items| {
-                    let items = items
-                        .iter()
-                        .map(|x| x.to_string())
-                        .collect::<Vec<String>>()
-                        .join(", ");
+                let result = nested_array
+                    .into_iter()
+                    .map(|items| {
+                        let items = items
+                            .iter()
+                            .map(|x| x.to_string())
+                            .collect::<Vec<String>>()
+                            .join(", ");
 
-                    return format!("[{items}]")
-                })
-                .collect::<Vec<String>>()
-                .join(", ");
+                        return format!("[{items}]");
+                    })
+                    .collect::<Vec<String>>()
+                    .join(", ");
 
                 write!(f, "{result}")
-            },
+            }
         }
     }
 }
@@ -154,8 +156,10 @@ pub struct TsQuery {
     pub name: String,
     param_order: i32,
     // We use BTreeMap here as it's a collection that's already sorted
+    // TODO: use usize instead
     pub params: BTreeMap<i32, TsFieldType>,
-    pub insert_params: Vec<Vec<TsFieldType>>,
+    // We use BTreeMap here as it's a collection that's already sorted
+    pub insert_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
     pub result: HashMap<String, Vec<TsFieldType>>,
 }
 
@@ -166,7 +170,7 @@ impl TsQuery {
             param_order: 0,
             params: BTreeMap::new(),
             result: HashMap::new(),
-            insert_params: vec![],
+            insert_params: BTreeMap::new(),
         }
     }
 
@@ -178,26 +182,36 @@ impl TsQuery {
         }
     }
 
-    pub fn insert_value_params(&mut self, value: &TsFieldType, size: (&i32, &i32), placeholder: &Option<String>) {
-        /*
-        // 0 = row size
-        // 1 = column size
-        let i = self.param_order & size.1;
+    /// This is used to insert value params required for INSERT statements
+    /// For example if you are given
+    ///
+    /// e.g.
+    /// INSERT INTO table (id, name, address) VALUES (?, 'TEST', ?)
+    ///
+    /// If you process above MySQL query, it should generate
+    ///
+    /// e.g.
+    /// [ [number, string] ]
+    ///
+    /// If you are given a query with multiple input values
+    ///
+    /// e.g.
+    /// INSERT INTO table (id, name, address) VALUES (?, 'test', ?), (?, ?, 'address')
+    ///
+    /// e.g.
+    /// [ [number, string], [number, string] ]
+    pub fn insert_value_params(&mut self, value: &TsFieldType, point: &(usize, usize), placeholder: &Option<String>) {
+        println!("insert value check {:?} - {:?} - {:?}", value, point, placeholder);
+        let (row, column) = point;
+        let mut row_params = self.insert_params.get(row);
 
-        // Each time it's processing the new row, we want to reset the temp_param_row_values
-        if i == 0 {
-            self.insert_row_vals = vec![]
+        // If the row of the insert params is not found, create a new BTreeMap and insert it
+        if row_params.is_none() {
+            let _ = &self.insert_params.insert(*row, BTreeMap::new().to_owned());
+            row_params = self.insert_params.get(row);
         }
 
-        if placeholder.eq(&Some("?".to_string())) {
-            self.insert_row_vals.push(*value);
-        }
-
-        // Each time it's process the last column of the row
-        if i == size.1 - 1 {
-            // self.params.insert(*size.0, );
-        }
-         */
+        row_params.unwrap().to_owned().insert(*column, value.to_owned());
     }
 
     /// Inserts a parameter into TsQuery for type definition generation

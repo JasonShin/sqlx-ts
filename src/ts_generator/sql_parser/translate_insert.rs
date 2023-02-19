@@ -7,7 +7,7 @@ use crate::ts_generator::{
 };
 
 pub fn translate_insert(
-    _ts_query: &mut TsQuery,
+    ts_query: &mut TsQuery,
     columns: &Vec<Ident>,
     source: &Box<Query>,
     db_name: &str,
@@ -25,12 +25,11 @@ pub fn translate_insert(
     // [$1, $2, $4,  ?,  ?]
     // [ ?,  1,  2,  ?,  ?]
     // ->
-    
+
     match values {
         SetExpr::Values(values) => {
             // Process the list of values list
             for (row, values) in values.0.iter().enumerate() {
-
                 // Given a list of values
                 // [ [?, 1, ?], [?, ?, ?] ]
                 // Loop each value placeholder / actual values, if it finds the placeholder either `?` or `$n`
@@ -39,21 +38,23 @@ pub fn translate_insert(
                     if value.to_string() == "?" {
                         let match_col = columns
                             .get(column)
-                            .expect(&format!("Matching column of idx {column} is not found while processing insert params"))
+                            .expect(&format!(
+                                "Matching column of idx {column} is not found while processing insert params"
+                            ))
                             .to_string();
-                        
-                        let found_col = table_details
-                            .get(match_col.as_str())
-                            .expect(&format!("Column {match_col} is not found while processing insert params"));
 
-                        println!("checking match cols {:?} of {:?} of {:?}", found_col, value.to_string(), match_col);
+                        let field = table_details.get(match_col.as_str()).expect(&format!(
+                            "Column {match_col} is not found while processing insert params"
+                        ));
+
+                        &ts_query.insert_value_params(&field.field_type, &(row, column), &Some(value.to_string()));
                     }
                 }
                 println!("checking the list of values {:?}", values);
                 println!("checking the fields {:?}", columns);
             }
         }
-        _ => unimplemented!()
+        _ => unimplemented!(),
     }
 
     Ok(())
