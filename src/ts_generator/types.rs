@@ -201,17 +201,16 @@ impl TsQuery {
     /// e.g.
     /// [ [number, string], [number, string] ]
     pub fn insert_value_params(&mut self, value: &TsFieldType, point: &(usize, usize), placeholder: &Option<String>) {
-        println!("insert value check {:?} - {:?} - {:?}", value, point, placeholder);
         let (row, column) = point;
-        let mut row_params = self.insert_params.get(row);
+        let mut row_params = self.insert_params.get_mut(row);
 
         // If the row of the insert params is not found, create a new BTreeMap and insert it
         if row_params.is_none() {
             let _ = &self.insert_params.insert(*row, BTreeMap::new().to_owned());
-            row_params = self.insert_params.get(row);
+            row_params = self.insert_params.get_mut(row);
         }
 
-        row_params.unwrap().to_owned().insert(*column, value.to_owned());
+        row_params.unwrap().insert(*column, value.to_owned());
     }
 
     /// Inserts a parameter into TsQuery for type definition generation

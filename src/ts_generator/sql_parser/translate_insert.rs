@@ -47,15 +47,14 @@ pub fn translate_insert(
                             "Column {match_col} is not found while processing insert params"
                         ));
 
-                        &ts_query.insert_value_params(&field.field_type, &(row, column), &Some(value.to_string()));
+                        let _ = &ts_query.insert_value_params(&field.field_type, &(row, column), &Some(value.to_string()));
                     }
                 }
-                println!("checking the list of values {:?}", values);
-                println!("checking the fields {:?}", columns);
             }
         }
         _ => unimplemented!(),
     }
 
+    println!("insert params {:?}", ts_query.insert_params);
     Ok(())
 }
