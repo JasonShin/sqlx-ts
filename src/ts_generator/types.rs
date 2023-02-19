@@ -34,9 +34,9 @@ pub enum TsFieldType {
     Date,
     Null,
     Any,
-    Never,
     Array2D(Array2DContent),
     Array(ArrayItem),
+    Never,
 }
 
 impl fmt::Display for TsFieldType {
@@ -59,7 +59,21 @@ impl fmt::Display for TsFieldType {
                 ArrayItem::Null => write!(f, "Array<null>"),
                 ArrayItem::Any => write!(f, "Array<any>"),
             },
-            TsFieldType::Array2D(_) => todo!(),
+            TsFieldType::Array2D(nested_array) => {
+                let result = nested_array.into_iter().map(|items| {
+                    let items = items
+                        .iter()
+                        .map(|x| x.to_string())
+                        .collect::<Vec<String>>()
+                        .join(", ");
+
+                    return format!("[{items}]")
+                })
+                .collect::<Vec<String>>()
+                .join(", ");
+
+                write!(f, "{result}")
+            },
         }
     }
 }
@@ -141,7 +155,7 @@ pub struct TsQuery {
     param_order: i32,
     // We use BTreeMap here as it's a collection that's already sorted
     pub params: BTreeMap<i32, TsFieldType>,
-    pub temp_insert_row_vals: Vec<ArrayItem>,
+    pub insert_params: Vec<Vec<TsFieldType>>,
     pub result: HashMap<String, Vec<TsFieldType>>,
 }
 
@@ -152,7 +166,7 @@ impl TsQuery {
             param_order: 0,
             params: BTreeMap::new(),
             result: HashMap::new(),
-            temp_insert_row_vals: vec![],
+            insert_params: vec![],
         }
     }
 
@@ -164,24 +178,26 @@ impl TsQuery {
         }
     }
 
-    pub fn insert_value_params(&mut self, value: &ArrayItem, size: (&i32, &i32), placeholder: &Option<String>) {
+    pub fn insert_value_params(&mut self, value: &TsFieldType, size: (&i32, &i32), placeholder: &Option<String>) {
+        /*
         // 0 = row size
         // 1 = column size
         let i = self.param_order & size.1;
 
-        // Each time it's process the new row, we want to reset the temp_param_row_values
+        // Each time it's processing the new row, we want to reset the temp_param_row_values
         if i == 0 {
-            self.temp_insert_row_vals = vec![]
+            self.insert_row_vals = vec![]
         }
 
         if placeholder.eq(&Some("?".to_string())) {
-            self.temp_insert_row_vals.push(*value);
+            self.insert_row_vals.push(*value);
         }
 
         // Each time it's process the last column of the row
         if i == size.1 - 1 {
             // self.params.insert(*size.0, );
         }
+         */
     }
 
     /// Inserts a parameter into TsQuery for type definition generation
