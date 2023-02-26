@@ -219,10 +219,10 @@ impl TsQuery {
     /// You can only sequentially use `insert_param` with manual order or automatic order parameter
     ///
     /// This method was specifically designed with an assumption that 1 TsQuery is connected to 1 type of DB
-    pub fn insert_param(&mut self, value: TsFieldType, placeholder: &Option<String>) {
+    pub fn insert_param(&mut self, value: &TsFieldType, placeholder: &Option<String>) {
         if let Some(placeholder) = placeholder {
             if placeholder == "?" {
-                self.params.insert(self.param_order, value);
+                self.params.insert(self.param_order, value.clone());
                 self.param_order += 1;
             } else {
                 let re = Regex::new(r"\$(\d+)").unwrap();
@@ -235,7 +235,7 @@ impl TsQuery {
                     .parse::<i32>()
                     .unwrap();
 
-                self.params.insert(order, value);
+                self.params.insert(order, value.clone());
             }
         }
     }
@@ -243,7 +243,6 @@ impl TsQuery {
     /// The method is to format SQL params extracted via translate methods
     /// It can work for SELECT, INSERT, DELETE and UPDATE queries
     fn fmt_params(&self, _: &mut fmt::Formatter<'_>) -> String {
-        println!("formatting params {:?} {:?}", self.insert_params, &self.params);
         let is_insert_query = &self.insert_params.keys().len() > &0;
 
         if is_insert_query {

@@ -1,3 +1,4 @@
+use crate::ts_generator::sql_parser::expressions::translate_expr::get_expr_placeholder;
 use sqlparser::ast::{Ident, Query, SetExpr};
 
 use crate::common::lazy::DB_SCHEMA;
@@ -35,7 +36,9 @@ pub fn translate_insert(
                 // Loop each value placeholder / actual values, if it finds the placeholder either `?` or `$n`
                 // build the insert param in `types.rs`
                 for (column, value) in values.iter().enumerate() {
-                    if value.to_string() == "?" {
+                    let placeholder = get_expr_placeholder(value);
+
+                    if placeholder.is_some() {
                         let match_col = columns
                             .get(column)
                             .expect(&format!(
@@ -47,9 +50,13 @@ pub fn translate_insert(
                             "Column {match_col} is not found while processing insert params"
                         ));
 
-                        &ts_query.insert_value_params(&field.field_type, &(row, column), &Some(value.to_string()));
+                        if value.to_string() == "?" {
+                            // If the placeholder is `'?'`, we can process it using insert_value_params and generate nested params type
+                            &ts_query.insert_value_params(&field.field_type, &(row, column), &placeholder);
+                        } else {
+                            &ts_query.insert_param(&field.field_type, &placeholder);
+                        }
                     }
-                    // TODO: work on postgres insert params handling logic
                 }
             }
         }

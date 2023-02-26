@@ -89,7 +89,7 @@ pub fn translate_where_stmt<'a>(
                 )?;
             } else {
                 let (value, index) = param.unwrap();
-                ts_query.insert_param(value, &index);
+                ts_query.insert_param(&value, &index);
             }
             Ok(())
         }
@@ -106,7 +106,7 @@ pub fn translate_where_stmt<'a>(
                     let (value, index) = result.unwrap();
                     let array_item = value.to_array_item();
 
-                    ts_query.insert_param(array_item, &index);
+                    ts_query.insert_param(&array_item, &index);
                     return Ok(());
                 } else {
                     return Ok(());

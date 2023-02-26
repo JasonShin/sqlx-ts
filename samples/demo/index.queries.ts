@@ -1,15 +1,15 @@
 
 
-export type SomeInputQueryParams = [[number, string], [number, number, number]];
+export type SomePostgresInputQueryParams = [string, number, number, number, number, number, number];
 
 
-export interface ISomeInputQueryResult {
+export interface ISomePostgresInputQueryResult {
     
 };
 
 
-export interface ISomeInputQueryQuery {
-    params: SomeInputQueryParams;
-    result: ISomeInputQueryResult;
+export interface ISomePostgresInputQueryQuery {
+    params: SomePostgresInputQueryParams;
+    result: ISomePostgresInputQueryResult;
 };
 
