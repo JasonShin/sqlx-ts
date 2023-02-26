@@ -7,8 +7,8 @@ mod postgres_query_paramters_tests {
     use std::process::Command;
     use tempfile::tempdir;
 
+    use pretty_assertions::assert_eq;
     use test_utils::test_utils::TSString;
-    use pretty_assertions::{assert_eq};
 
     #[test]
     fn should_pick_query_params_from_flat_list_of_binary_ops() -> Result<(), Box<dyn std::error::Error>> {
