@@ -240,8 +240,33 @@ impl TsQuery {
         }
     }
 
-    fn fmt_params(&self, _: &mut fmt::Formatter<'_>, params: &BTreeMap<i32, TsFieldType>) -> String {
-        let result = &params
+    /// The method is to format SQL params extracted via translate methods
+    /// It can work for SELECT, INSERT, DELETE and UPDATE queries
+    fn fmt_params(&self, _: &mut fmt::Formatter<'_>) -> String {
+        println!("formatting params {:?} {:?}", self.insert_params, &self.params);
+        let is_insert_query = &self.insert_params.keys().len() > &0;
+
+        if is_insert_query {
+            return self
+                .insert_params
+                .iter()
+                .map(|(i, row)| {
+                    // Process each row and produce Number, String, Boolean
+                    row.iter()
+                        .map(|(j, col)| col.to_string())
+                        .collect::<Vec<String>>()
+                        .join(", ")
+                })
+                // Wrap the result of row .to_string in `[]`
+                .map(|row| format!("[{}]", row))
+                .collect::<Vec<String>>()
+                .join(", ")
+                .to_owned();
+        }
+
+        // Otherwise we should be processing non-insert query params
+        let result = &self
+            .params
             .to_owned()
             .into_values()
             .map(|x| x.to_string())
@@ -251,14 +276,14 @@ impl TsQuery {
         result.to_owned()
     }
 
-    fn fmt_result(&self, _f: &mut fmt::Formatter<'_>, attrs_map: &HashMap<String, Vec<TsFieldType>>) -> String {
-        let mut keys = Vec::from_iter(attrs_map.keys());
+    fn fmt_result(&self, _f: &mut fmt::Formatter<'_>) -> String {
+        let mut keys = Vec::from_iter(self.result.keys());
         keys.sort();
 
         let result: Vec<String> = keys
             .iter()
             .map(|key| {
-                let data_type = attrs_map.get(key.to_owned()).unwrap();
+                let data_type = self.result.get(key.to_owned()).unwrap();
                 let data_types = data_type
                     .iter()
                     .map(|ts_field_type| ts_field_type.to_string())
@@ -275,8 +300,8 @@ impl TsQuery {
 impl fmt::Display for TsQuery {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let name = &self.name;
-        let params_str = self.fmt_params(f, &self.params);
-        let result_str = self.fmt_result(f, &self.result);
+        let params_str = self.fmt_params(f);
+        let result_str = self.fmt_result(f);
 
         let params = format!(
             r"

@@ -1,6 +1,6 @@
 
 
-export type SomeInputQueryParams = [];
+export type SomeInputQueryParams = [[number, string], [number, number, number]];
 
 
 export interface ISomeInputQueryResult {
