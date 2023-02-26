@@ -6,6 +6,8 @@ mod js_postgres_failure_path_tests {
     use std::io::Write;
     use std::process::Command;
     use tempfile::tempdir;
+    use pretty_assertions::{assert_eq};
+
     macro_rules! failure_with_all_cli_args {
 ($($name:ident: $value:expr,)*) => {
 $(
