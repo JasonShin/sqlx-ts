@@ -61,7 +61,7 @@ impl fmt::Display for TsFieldType {
             },
             TsFieldType::Array2D(nested_array) => {
                 let result = nested_array
-                    .into_iter()
+                    .iter()
                     .map(|items| {
                         let items = items
                             .iter()
@@ -69,7 +69,7 @@ impl fmt::Display for TsFieldType {
                             .collect::<Vec<String>>()
                             .join(", ");
 
-                        return format!("[{items}]");
+                        format!("[{items}]")
                     })
                     .collect::<Vec<String>>()
                     .join(", ");
@@ -200,13 +200,13 @@ impl TsQuery {
     ///
     /// e.g.
     /// [ [number, string], [number, string] ]
-    pub fn insert_value_params(&mut self, value: &TsFieldType, point: &(usize, usize), placeholder: &Option<String>) {
+    pub fn insert_value_params(&mut self, value: &TsFieldType, point: &(usize, usize), _placeholder: &Option<String>) {
         let (row, column) = point;
         let mut row_params = self.insert_params.get_mut(row);
 
         // If the row of the insert params is not found, create a new BTreeMap and insert it
         if row_params.is_none() {
-            let _ = &self.insert_params.insert(*row, BTreeMap::new().to_owned());
+            let _ = &self.insert_params.insert(*row, BTreeMap::new());
             row_params = self.insert_params.get_mut(row);
         }
 
@@ -249,10 +249,10 @@ impl TsQuery {
             return self
                 .insert_params
                 .iter()
-                .map(|(i, row)| {
+                .map(|(_i, row)| {
                     // Process each row and produce Number, String, Boolean
                     row.iter()
-                        .map(|(j, col)| col.to_string())
+                        .map(|(_j, col)| col.to_string())
                         .collect::<Vec<String>>()
                         .join(", ")
                 })
@@ -260,7 +260,7 @@ impl TsQuery {
                 .map(|row| format!("[{}]", row))
                 .collect::<Vec<String>>()
                 .join(", ")
-                .to_owned();
+                ;
         }
 
         // Otherwise we should be processing non-insert query params
