@@ -2,6 +2,7 @@
 mod mysql_query_parameters_tests {
     use assert_cmd::prelude::*;
     use predicates::prelude::*;
+    use pretty_assertions::assert_eq;
     use std::fs;
     use std::io::Write;
     use std::process::Command;
@@ -45,7 +46,6 @@ OR points = ?
         // ASSERT
         cmd.assert().success();
 
-        println!("checking parent path {:?}", parent_path);
         let type_file = fs::read_to_string(parent_path.join("index.queries.ts"))?;
         let type_file = type_file.trim();
         let gen_query_types = r#"

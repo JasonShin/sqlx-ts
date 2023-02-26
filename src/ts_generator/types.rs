@@ -23,7 +23,9 @@ pub enum ArrayItem {
     Any,
 }
 
-#[derive(Debug, Clone, Copy)]
+type Array2DContent = Vec<Vec<TsFieldType>>;
+
+#[derive(Debug, Clone)]
 pub enum TsFieldType {
     String,
     Number,
@@ -32,8 +34,9 @@ pub enum TsFieldType {
     Date,
     Null,
     Any,
-    Never,
+    Array2D(Array2DContent),
     Array(ArrayItem),
+    Never,
 }
 
 impl fmt::Display for TsFieldType {
@@ -56,6 +59,23 @@ impl fmt::Display for TsFieldType {
                 ArrayItem::Null => write!(f, "Array<null>"),
                 ArrayItem::Any => write!(f, "Array<any>"),
             },
+            TsFieldType::Array2D(nested_array) => {
+                let result = nested_array
+                    .iter()
+                    .map(|items| {
+                        let items = items
+                            .iter()
+                            .map(|x| x.to_string())
+                            .collect::<Vec<String>>()
+                            .join(", ");
+
+                        format!("[{items}]")
+                    })
+                    .collect::<Vec<String>>()
+                    .join(", ");
+
+                write!(f, "{result}")
+            }
         }
     }
 }
@@ -78,6 +98,7 @@ impl TsFieldType {
             TsFieldType::Any => TsFieldType::Array(ArrayItem::Any),
             TsFieldType::Never => panic!("Cannot convert never to an array of never"),
             TsFieldType::Array(arr) => TsFieldType::Array(arr),
+            TsFieldType::Array2D(_) => todo!(),
         }
     }
 
@@ -135,7 +156,10 @@ pub struct TsQuery {
     pub name: String,
     param_order: i32,
     // We use BTreeMap here as it's a collection that's already sorted
+    // TODO: use usize instead
     pub params: BTreeMap<i32, TsFieldType>,
+    // We use BTreeMap here as it's a collection that's already sorted
+    pub insert_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
     pub result: HashMap<String, Vec<TsFieldType>>,
 }
 
@@ -146,6 +170,7 @@ impl TsQuery {
             param_order: 0,
             params: BTreeMap::new(),
             result: HashMap::new(),
+            insert_params: BTreeMap::new(),
         }
     }
 
@@ -157,6 +182,37 @@ impl TsQuery {
         }
     }
 
+    /// This is used to insert value params required for INSERT statements
+    /// For example if you are given
+    ///
+    /// e.g.
+    /// INSERT INTO table (id, name, address) VALUES (?, 'TEST', ?)
+    ///
+    /// If you process above MySQL query, it should generate
+    ///
+    /// e.g.
+    /// [ [number, string] ]
+    ///
+    /// If you are given a query with multiple input values
+    ///
+    /// e.g.
+    /// INSERT INTO table (id, name, address) VALUES (?, 'test', ?), (?, ?, 'address')
+    ///
+    /// e.g.
+    /// [ [number, string], [number, string] ]
+    pub fn insert_value_params(&mut self, value: &TsFieldType, point: &(usize, usize), _placeholder: &Option<String>) {
+        let (row, column) = point;
+        let mut row_params = self.insert_params.get_mut(row);
+
+        // If the row of the insert params is not found, create a new BTreeMap and insert it
+        if row_params.is_none() {
+            let _ = &self.insert_params.insert(*row, BTreeMap::new());
+            row_params = self.insert_params.get_mut(row);
+        }
+
+        row_params.unwrap().insert(*column, value.to_owned());
+    }
+
     /// Inserts a parameter into TsQuery for type definition generation
     /// If you pass in the order argument, it will use the manually passed in order
     /// It's important to make sure that you are not mixing up the usage
@@ -166,7 +222,7 @@ impl TsQuery {
     pub fn insert_param(&mut self, value: &TsFieldType, placeholder: &Option<String>) {
         if let Some(placeholder) = placeholder {
             if placeholder == "?" {
-                self.params.insert(self.param_order, *value);
+                self.params.insert(self.param_order, value.clone());
                 self.param_order += 1;
             } else {
                 let re = Regex::new(r"\$(\d+)").unwrap();
@@ -179,13 +235,36 @@ impl TsQuery {
                     .parse::<i32>()
                     .unwrap();
 
-                self.params.insert(order, *value);
+                self.params.insert(order, value.clone());
             }
         }
     }
 
-    fn fmt_params(&self, _: &mut fmt::Formatter<'_>, params: &BTreeMap<i32, TsFieldType>) -> String {
-        let result = &params
+    /// The method is to format SQL params extracted via translate methods
+    /// It can work for SELECT, INSERT, DELETE and UPDATE queries
+    fn fmt_params(&self, _: &mut fmt::Formatter<'_>) -> String {
+        let is_insert_query = &self.insert_params.keys().len() > &0;
+
+        if is_insert_query {
+            return self
+                .insert_params
+                .iter()
+                .map(|(_i, row)| {
+                    // Process each row and produce Number, String, Boolean
+                    row.iter()
+                        .map(|(_j, col)| col.to_string())
+                        .collect::<Vec<String>>()
+                        .join(", ")
+                })
+                // Wrap the result of row .to_string in `[]`
+                .map(|row| format!("[{}]", row))
+                .collect::<Vec<String>>()
+                .join(", ");
+        }
+
+        // Otherwise we should be processing non-insert query params
+        let result = &self
+            .params
             .to_owned()
             .into_values()
             .map(|x| x.to_string())
@@ -195,14 +274,14 @@ impl TsQuery {
         result.to_owned()
     }
 
-    fn fmt_result(&self, _f: &mut fmt::Formatter<'_>, attrs_map: &HashMap<String, Vec<TsFieldType>>) -> String {
-        let mut keys = Vec::from_iter(attrs_map.keys());
+    fn fmt_result(&self, _f: &mut fmt::Formatter<'_>) -> String {
+        let mut keys = Vec::from_iter(self.result.keys());
         keys.sort();
 
         let result: Vec<String> = keys
             .iter()
             .map(|key| {
-                let data_type = attrs_map.get(key.to_owned()).unwrap();
+                let data_type = self.result.get(key.to_owned()).unwrap();
                 let data_types = data_type
                     .iter()
                     .map(|ts_field_type| ts_field_type.to_string())
@@ -219,8 +298,8 @@ impl TsQuery {
 impl fmt::Display for TsQuery {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let name = &self.name;
-        let params_str = self.fmt_params(f, &self.params);
-        let result_str = self.fmt_result(f, &self.result);
+        let params_str = self.fmt_params(f);
+        let result_str = self.fmt_result(f);
 
         let params = format!(
             r"

@@ -7,6 +7,7 @@ mod postgres_query_paramters_tests {
     use std::process::Command;
     use tempfile::tempdir;
 
+    use pretty_assertions::assert_eq;
     use test_utils::test_utils::TSString;
 
     #[test]

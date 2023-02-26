@@ -6,7 +6,7 @@ use std::collections::HashMap;
 
 use super::types::{DBConn, TsFieldType};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct Field {
     pub field_type: TsFieldType,
     pub is_nullable: bool,

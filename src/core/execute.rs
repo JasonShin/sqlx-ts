@@ -40,8 +40,6 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> bool 
             }
         }
 
-        println!("should generate types? {:?}", should_generate_types);
-
         if *should_generate_types {
             // Finally writes query typing files
             let query_ts_file_path = get_query_ts_file_path(file_path).unwrap();

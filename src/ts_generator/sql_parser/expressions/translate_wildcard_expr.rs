@@ -56,7 +56,7 @@ pub fn translate_wildcard_expr(
     if let Some(all_fields) = all_fields {
         for key in all_fields.keys() {
             let field = all_fields.get(key).unwrap();
-            let mut field_types = vec![field.field_type];
+            let mut field_types = vec![field.field_type.clone()];
             if field.is_nullable {
                 field_types.push(TsFieldType::Null);
             }

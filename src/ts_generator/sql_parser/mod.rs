@@ -1,5 +1,4 @@
-mod translate_expr;
+pub mod expressions;
+pub mod translate_insert;
+pub mod translate_query;
 pub mod translate_stmt;
-pub mod translate_table_with_joins;
-pub mod translate_where_stmt;
-pub mod translate_wildcard_expr;

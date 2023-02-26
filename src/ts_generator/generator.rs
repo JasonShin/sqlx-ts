@@ -51,7 +51,7 @@ pub fn get_query_ts_file_path(file_path: &PathBuf) -> Result<PathBuf, TsGenerato
     Ok(result)
 }
 
-pub fn generate_ts_interface(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery, TsGeneratorError> {
+pub fn generate_ts_interface<'a>(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery, TsGeneratorError> {
     let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
 
     let sql_ast = Parser::parse_sql(&dialect, &sql.query).unwrap();

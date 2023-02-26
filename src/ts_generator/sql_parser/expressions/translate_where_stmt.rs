@@ -5,12 +5,12 @@ use sqlparser::ast::{Expr, Statement, TableWithJoins};
 use crate::common::lazy::DB_SCHEMA;
 use crate::ts_generator::{
     errors::TsGeneratorError,
+    sql_parser::translate_query::translate_query,
     types::{DBConn, TsFieldType, TsQuery},
 };
 
 use super::{
     translate_expr::{get_expr_placeholder, translate_column_name_expr},
-    translate_stmt::translate_query,
     translate_table_with_joins::translate_table_from_expr,
 };
 
@@ -49,15 +49,15 @@ pub fn get_sql_query_param(
         let column = columns
             .get(column_name.as_str())
             .unwrap_or_else(|| panic!("Failed toe find the column from the table schema of {:?}", table_name));
-        return Some((column.field_type, expr_placeholder));
+        return Some((column.field_type.to_owned(), expr_placeholder));
     }
 
     None
 }
 
-pub fn translate_where_stmt(
-    db_name: &str,
-    ts_query: &mut TsQuery,
+pub fn translate_where_stmt<'a>(
+    db_name: &'a str,
+    ts_query: &'a mut TsQuery,
     sql_statement: &Statement,
     expr: &Expr,
     table_with_joins: &Vec<TableWithJoins>,

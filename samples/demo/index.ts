@@ -1,6 +1,22 @@
 import { sql } from "sqlx-ts";
 
 /*
+const someInputQuery = sql`
+INSERT INTO items (id, food_type, time_takes_to_cook, table_id, points)
+VALUES
+(?, ?, 2, 1, 2),
+(1, 'test', ?, ?, ?);
+`
+*/
+
+const somePostgresInputQuery = sql`
+INSERT INTO items (id, food_type, time_takes_to_cook, table_id, points)
+VALUES
+($2, $1, 2, $3, 2),
+($5, 'test', $4, $7, $6);
+`
+
+/*
 const someQuery = sql`
 SELECT *
 FROM items
@@ -38,7 +54,7 @@ FROM items
 `
 */
 
-
+/*
 // Querying from an unknown table
 const someQuery = sql`SELECT * FROM indexjs_unknown`;
 
@@ -54,3 +70,5 @@ VALUES ('steak', 1, 1, 1, 1);
 if (true) {
 const query3 = sql`SELECT * FROM if_statement1;`;
 }
+*/
+
