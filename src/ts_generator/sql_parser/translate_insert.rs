@@ -22,14 +22,9 @@ pub fn translate_insert(
 
     let values = &source.body;
 
-    // c1, c2, c3, c4, c5
-    // [$1, $2, $4,  ?,  ?]
-    // [ ?,  1,  2,  ?,  ?]
-    // ->
-
     match values {
         SetExpr::Values(values) => {
-            // Process the list of values list
+            // Process the rows
             for (row, values) in values.0.iter().enumerate() {
                 // Given a list of values
                 // [ [?, 1, ?], [?, ?, ?] ]
