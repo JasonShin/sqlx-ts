@@ -259,8 +259,7 @@ impl TsQuery {
                 // Wrap the result of row .to_string in `[]`
                 .map(|row| format!("[{}]", row))
                 .collect::<Vec<String>>()
-                .join(", ")
-                ;
+                .join(", ");
         }
 
         // Otherwise we should be processing non-insert query params

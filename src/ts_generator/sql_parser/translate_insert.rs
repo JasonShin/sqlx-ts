@@ -36,10 +36,14 @@ pub fn translate_insert(
                     if placeholder.is_some() {
                         let match_col = columns
                             .get(column)
-                            .unwrap_or_else(|| panic!("Matching column of idx {column} is not found while processing insert params"))
+                            .unwrap_or_else(|| {
+                                panic!("Matching column of idx {column} is not found while processing insert params")
+                            })
                             .to_string();
 
-                        let field = table_details.get(match_col.as_str()).unwrap_or_else(|| panic!("Column {match_col} is not found while processing insert params"));
+                        let field = table_details.get(match_col.as_str()).unwrap_or_else(|| {
+                            panic!("Column {match_col} is not found while processing insert params")
+                        });
 
                         if value.to_string() == "?" {
                             // If the placeholder is `'?'`, we can process it using insert_value_params and generate nested params type
