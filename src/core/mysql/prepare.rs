@@ -1,7 +1,8 @@
 use crate::common::lazy::CONFIG;
 use crate::common::SQL;
 use crate::ts_generator::generator::generate_ts_interface;
-use crate::ts_generator::types::{DBConn, TsQuery};
+use crate::ts_generator::types::db_conn::DBConn;
+use crate::ts_generator::types::ts_query::TsQuery;
 use mysql::prelude::*;
 use mysql::*;
 use std::cell::RefCell;

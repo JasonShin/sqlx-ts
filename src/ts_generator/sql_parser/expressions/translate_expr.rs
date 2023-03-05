@@ -1,7 +1,8 @@
 use crate::common::lazy::{CONFIG, DB_SCHEMA};
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::translate_query::translate_query;
-use crate::ts_generator::types::{DBConn, TsFieldType, TsQuery};
+use crate::ts_generator::types::db_conn::DBConn;
+use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
 use convert_case::{Case, Casing};
 use regex::Regex;
 use sqlparser::ast::{Expr, Statement, Value};
@@ -85,7 +86,6 @@ pub fn translate_expr(
     alias: Option<&str>,
     _annotated_result: &HashMap<String, Vec<TsFieldType>>,
     ts_query: &mut TsQuery,
-    sql_statement: &Statement,
     db_conn: &DBConn,
     is_subquery: bool,
 ) -> Result<(), TsGeneratorError> {
@@ -187,16 +187,7 @@ pub fn translate_expr(
             if alias.is_some() {
                 // TODO: We need to be able to use alias when processing subquery
                 let _alias = format_column_name(alias.unwrap().to_string());
-                translate_query(
-                    ts_query,
-                    None,
-                    sql_statement,
-                    sub_query,
-                    db_name,
-                    _annotated_result,
-                    db_conn,
-                    false,
-                )?;
+                translate_query(ts_query, None, sub_query, db_name, _annotated_result, db_conn, false)?;
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))

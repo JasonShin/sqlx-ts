@@ -1,10 +1,14 @@
 use std::collections::HashMap;
 
-use sqlparser::ast::{Query, SelectItem, SetExpr, Statement};
+use sqlparser::{
+    ast::{Query, SelectItem, SetExpr, Statement},
+    parser::WildcardExpr,
+};
 
 use crate::ts_generator::{
     errors::TsGeneratorError,
-    types::{DBConn, TsFieldType, TsQuery},
+    types::db_conn::DBConn,
+    types::ts_query::{TsFieldType, TsQuery},
 };
 
 use super::expressions::{
@@ -16,7 +20,6 @@ use super::expressions::{
 pub fn translate_query(
     ts_query: &mut TsQuery,
     _alias: Option<&str>,
-    sql_statement: &Statement,
     query: &Box<Query>,
     db_name: &str,
     annotated_results: &HashMap<String, Vec<TsFieldType>>,
@@ -43,7 +46,6 @@ pub fn translate_query(
                             None,
                             annotated_results,
                             ts_query,
-                            sql_statement,
                             db_conn,
                             is_subquery,
                         )
@@ -60,15 +62,14 @@ pub fn translate_query(
                             Some(alias.as_str()),
                             annotated_results,
                             ts_query,
-                            sql_statement,
                             db_conn,
                             is_subquery,
                         )
                         .unwrap();
                     }
                     SelectItem::QualifiedWildcard(_) => todo!(),
-                    _Wildcard => {
-                        translate_wildcard_expr(db_name, sql_statement, &mut ts_query.result, db_conn).unwrap();
+                    SelectItem::Wildcard => {
+                        translate_wildcard_expr(db_name, query, ts_query, db_conn).unwrap();
                     }
                 }
             }
@@ -78,9 +79,9 @@ pub fn translate_query(
                 translate_where_stmt(
                     db_name,
                     ts_query,
-                    sql_statement,
                     &selection,
-                    &table_with_joins,
+                    &None,
+                    &Some(&table_with_joins),
                     annotated_results,
                     db_conn,
                 )?;

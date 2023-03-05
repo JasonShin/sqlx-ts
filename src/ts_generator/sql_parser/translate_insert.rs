@@ -2,10 +2,7 @@ use crate::ts_generator::sql_parser::expressions::translate_expr::get_expr_place
 use sqlparser::ast::{Ident, Query, SetExpr};
 
 use crate::common::lazy::DB_SCHEMA;
-use crate::ts_generator::{
-    errors::TsGeneratorError,
-    types::{DBConn, TsQuery},
-};
+use crate::ts_generator::{errors::TsGeneratorError, types::db_conn::DBConn, types::ts_query::TsQuery};
 
 pub fn translate_insert(
     ts_query: &mut TsQuery,

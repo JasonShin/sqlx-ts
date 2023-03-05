@@ -4,7 +4,8 @@ use postgres;
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-use super::types::{DBConn, TsFieldType};
+use super::types::db_conn::DBConn;
+use super::types::ts_query::TsFieldType;
 
 #[derive(Debug, Clone)]
 pub struct Field {

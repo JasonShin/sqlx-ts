@@ -1,16 +1,17 @@
 use std::path::{Path, PathBuf};
 
+use super::types::db_conn::DBConn;
 use crate::common::lazy::CONFIG;
 use crate::common::SQL;
 use crate::ts_generator::annotations::extract_result_annotations;
 use crate::ts_generator::sql_parser::translate_stmt::translate_stmt;
-use crate::ts_generator::types::TsQuery;
+use crate::ts_generator::types::ts_query::TsQuery;
+
 use convert_case::{Case, Casing};
 use regex::Regex;
 use sqlparser::{dialect::GenericDialect, parser::Parser};
 
 use super::errors::TsGeneratorError;
-use super::types::DBConn;
 
 pub fn get_query_name(sql: &SQL) -> Result<String, TsGeneratorError> {
     let re = Regex::new(r"@name:(.+)").unwrap();
@@ -67,7 +68,7 @@ pub fn generate_ts_interface<'a>(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery,
     for sql_statement in &sql_ast {
         translate_stmt(
             &mut ts_query,
-            sql_statement,
+            &sql_statement,
             db_name.as_str(),
             &annotated_result_types,
             db_conn,

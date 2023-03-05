@@ -17,12 +17,12 @@ VALUES
 ($5, 'test', $4, $7, $6);
 `
 */
-
+/*
 const someDeleteQuery = sql`
 DELETE FROM items WHERE id = ?;
-`
+`*/
 
-/*
+
 const someQuery = sql`
 SELECT *
 FROM items
@@ -30,7 +30,7 @@ WHERE points > ?
 AND points < ?
 OR points = ?
 `
-*/
+
 
 /*
 const subQuery1 = sql`

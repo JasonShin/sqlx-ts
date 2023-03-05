@@ -1,19 +1,16 @@
 use crate::common::lazy::DB_SCHEMA;
 use crate::ts_generator::errors::TsGeneratorError;
-use crate::ts_generator::types::{DBConn, TsFieldType};
-use sqlparser::ast::{Join, SetExpr, Statement, TableFactor, TableWithJoins};
-use std::collections::HashMap;
+use crate::ts_generator::types::ts_query::TsQuery;
+use crate::ts_generator::types::{db_conn::DBConn, ts_query::TsFieldType};
+use sqlparser::ast::{Join, Query, SetExpr, TableFactor, TableWithJoins};
 
-pub fn get_all_table_names_from_expr(sql_statement: &Statement) -> Result<Vec<String>, TsGeneratorError> {
-    let table_with_joins: TableWithJoins = match sql_statement {
-        Statement::Query(query) => match &query.body {
-            SetExpr::Select(select) => Ok(select
-                .from
-                .get(0)
-                .ok_or(TsGeneratorError::WildcardStatementWithoutTargetTables)?
-                .to_owned()),
-            _ => Err(TsGeneratorError::WildcardStatementDeadendExpression),
-        },
+pub fn get_all_table_names_from_expr(query: &Query) -> Result<Vec<String>, TsGeneratorError> {
+    let table_with_joins: TableWithJoins = match &query.body {
+        SetExpr::Select(select) => Ok(select
+            .from
+            .get(0)
+            .ok_or(TsGeneratorError::WildcardStatementWithoutTargetTables)?
+            .to_owned()),
         _ => Err(TsGeneratorError::WildcardStatementDeadendExpression),
     }?;
 
@@ -46,11 +43,11 @@ pub fn get_all_table_names_from_expr(sql_statement: &Statement) -> Result<Vec<St
 /// and it appends result into the hashmap for type generation
 pub fn translate_wildcard_expr(
     db_name: &str,
-    sql_statement: &Statement,
-    result: &mut HashMap<String, Vec<TsFieldType>>,
+    query: &Query,
+    ts_query: &mut TsQuery,
     db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
-    let table_with_joins = get_all_table_names_from_expr(sql_statement)?;
+    let table_with_joins = get_all_table_names_from_expr(query)?;
     let table_with_joins = table_with_joins.iter().map(|s| s.as_ref()).collect();
     let all_fields = DB_SCHEMA.fetch_table(db_name, &table_with_joins, db_conn);
     if let Some(all_fields) = all_fields {
@@ -61,7 +58,7 @@ pub fn translate_wildcard_expr(
                 field_types.push(TsFieldType::Null);
             }
 
-            result.insert(key.to_owned(), field_types);
+            ts_query.result.insert(key.to_owned(), field_types);
         }
     }
     Ok(())

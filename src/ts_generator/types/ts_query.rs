@@ -1,16 +1,6 @@
-use std::cell::RefCell;
+use regex::Regex;
 use std::collections::{BTreeMap, HashMap};
 use std::fmt::{self};
-
-use mysql::Conn as MySQLConn;
-use postgres::Client as PostgresConn;
-use regex::Regex;
-
-pub enum DBConn<'a> {
-    // TODO: Maybe we can also pass down db_name through DBConn
-    MySQLPooledConn(&'a mut RefCell<&'a mut MySQLConn>),
-    PostgresConn(&'a mut RefCell<&'a mut PostgresConn>),
-}
 
 #[derive(Debug, Clone, Copy)]
 pub enum ArrayItem {
@@ -151,6 +141,11 @@ impl TsFieldType {
     }
 }
 
+/// TsQuery holds information required to generate typescript type definition
+/// of the target SQL query
+///
+/// There are tests under `tests` folder that checks TsQuery generates the
+/// correct type definitions
 #[derive(Debug)]
 pub struct TsQuery {
     pub name: String,
