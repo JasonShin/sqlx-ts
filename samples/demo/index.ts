@@ -9,11 +9,17 @@ VALUES
 `
 */
 
+/*
 const somePostgresInputQuery = sql`
 INSERT INTO items (id, food_type, time_takes_to_cook, table_id, points)
 VALUES
 ($2, $1, 2, $3, 2),
 ($5, 'test', $4, $7, $6);
+`
+*/
+
+const someDeleteQuery = sql`
+DELETE FROM items WHERE id = ?;
 `
 
 /*

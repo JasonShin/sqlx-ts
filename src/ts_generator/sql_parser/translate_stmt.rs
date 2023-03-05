@@ -29,9 +29,6 @@ pub fn translate_stmt(
         Statement::Update { .. } => {
             println!("UPDATE statement is not yet supported by TS type generator")
         }
-        Statement::Delete { .. } => {
-            println!("DELETE statement is not yet supported by TS type generator")
-        }
         Statement::Insert {
             or: _,
             into: _,
@@ -48,9 +45,10 @@ pub fn translate_stmt(
             let table_name = table_name.as_str();
             translate_insert(ts_query, columns, source, db_name, table_name, db_conn)?;
         }
-        _ => {
-            println!("Unsupported SQL syntax detected, skipping the type generation")
+        Statement::Delete { table_name, selection } => {
+            println!("table name {:?} - {:?}", table_name, selection);
         }
+        _ => {}
     }
     Ok(())
 }
