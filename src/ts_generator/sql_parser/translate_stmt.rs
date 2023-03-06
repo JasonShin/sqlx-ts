@@ -11,13 +11,12 @@ use std::collections::HashMap;
 pub fn translate_stmt(
     ts_query: &mut TsQuery,
     sql_statement: &Statement,
-    db_name: &str,
     annotated_results: &HashMap<String, Vec<TsFieldType>>,
     db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
     match sql_statement {
         Statement::Query(query) => {
-            translate_query(ts_query, None, &query, db_name, annotated_results, db_conn, false)?;
+            translate_query(ts_query, None, &query, db_conn, false)?;
         }
         Statement::Update { .. } => {
             println!("UPDATE statement is not yet supported by TS type generator")
@@ -36,7 +35,7 @@ pub fn translate_stmt(
         } => {
             let table_name = table_name.to_string();
             let table_name = table_name.as_str();
-            translate_insert(ts_query, &columns, &source, db_name, table_name, db_conn)?;
+            translate_insert(ts_query, &columns, &source, table_name, db_conn)?;
         }
         Statement::Delete { table_name, selection } => {
             let table_name = table_name.to_string();

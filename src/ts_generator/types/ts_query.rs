@@ -156,6 +156,8 @@ pub struct TsQuery {
     // We use BTreeMap here as it's a collection that's already sorted
     pub insert_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
     pub result: HashMap<String, Vec<TsFieldType>>,
+    // Holds any annotated @Result and perform replacement when generating TS types
+    pub annotated_results: HashMap<String, Vec<TsFieldType>>,
 }
 
 impl TsQuery {
@@ -166,6 +168,7 @@ impl TsQuery {
             params: BTreeMap::new(),
             result: HashMap::new(),
             insert_params: BTreeMap::new(),
+            annotated_results: HashMap::new(),
         }
     }
 

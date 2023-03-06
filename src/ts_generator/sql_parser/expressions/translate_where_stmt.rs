@@ -27,7 +27,6 @@ use super::{
 pub fn get_sql_query_param(
     left: &Box<Expr>,
     right: &Box<Expr>,
-    db_name: &str,
     single_table_name: &Option<&str>,
     table_with_joins: &Option<&Vec<TableWithJoins>>,
     db_conn: &DBConn,
@@ -53,7 +52,7 @@ pub fn get_sql_query_param(
         let table_names = vec![table_name.as_str()];
         let column_name = column_name.unwrap();
         let columns = DB_SCHEMA
-            .fetch_table(db_name, &table_names, db_conn)
+            .fetch_table(&table_names, db_conn)
             .unwrap_or_else(|| panic!("Failed to fetch columns for table {:?}", table_name));
 
         // get column and return TsFieldType
@@ -67,7 +66,6 @@ pub fn get_sql_query_param(
 }
 
 pub fn translate_where_stmt<'a>(
-    db_name: &'a str,
     ts_query: &'a mut TsQuery,
     // sql_statement is required
     expr: &Expr,
@@ -75,32 +73,15 @@ pub fn translate_where_stmt<'a>(
     single_table_name: &Option<&str>,
     // queries like SELECT or INSERT might have table_with_joins and we need this explicitly
     table_with_joins: &Option<&Vec<TableWithJoins>>,
-    annotated_results: &HashMap<String, Vec<TsFieldType>>,
     db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
     match expr {
         Expr::BinaryOp { left, op: _, right } => {
-            let param = get_sql_query_param(left, right, db_name, single_table_name, table_with_joins, db_conn);
+            let param = get_sql_query_param(left, right, single_table_name, table_with_joins, db_conn);
 
             if param.is_none() {
-                translate_where_stmt(
-                    db_name,
-                    ts_query,
-                    left,
-                    single_table_name,
-                    table_with_joins,
-                    annotated_results,
-                    db_conn,
-                )?;
-                translate_where_stmt(
-                    db_name,
-                    ts_query,
-                    right,
-                    single_table_name,
-                    table_with_joins,
-                    annotated_results,
-                    db_conn,
-                )?;
+                translate_where_stmt(ts_query, left, single_table_name, table_with_joins, db_conn)?;
+                translate_where_stmt(ts_query, right, single_table_name, table_with_joins, db_conn)?;
             } else {
                 let (value, index) = param.unwrap();
                 ts_query.insert_param(&value, &index);
@@ -117,7 +98,6 @@ pub fn translate_where_stmt<'a>(
                 let result = get_sql_query_param(
                     expr,
                     &Box::new(right.to_owned()),
-                    db_name,
                     single_table_name,
                     table_with_joins,
                     db_conn,
@@ -140,11 +120,11 @@ pub fn translate_where_stmt<'a>(
             subquery,
             negated: _,
         } => {
-            translate_query(ts_query, None, subquery, db_name, annotated_results, db_conn, true)?;
+            translate_query(ts_query, None, subquery, db_conn, true)?;
             Ok(())
         }
         Expr::Subquery(subquery) => {
-            translate_query(ts_query, None, subquery, db_name, annotated_results, db_conn, true)?;
+            translate_query(ts_query, None, subquery, db_conn, true)?;
             Ok(())
         }
         _ => Ok(()),

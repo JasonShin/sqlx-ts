@@ -41,9 +41,9 @@ impl DBSchema {
     ///
     /// # PostgreSQL Notes
     /// - TABLE_SCHEMA is PostgreSQL is basically 'public' by default. `database_name` is the name of the database itself
-    pub fn fetch_table(&self, database_name: &str, table_name: &Vec<&str>, conn: &DBConn) -> Option<Fields> {
+    pub fn fetch_table(&self, table_name: &Vec<&str>, conn: &DBConn) -> Option<Fields> {
         match &conn {
-            DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, database_name, table_name, conn),
+            DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, table_name, conn),
             DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, table_name, conn),
         }
     }
@@ -89,12 +89,7 @@ impl DBSchema {
         None
     }
 
-    fn mysql_fetch_table(
-        &self,
-        database_name: &str,
-        table_names: &Vec<&str>,
-        conn: &RefCell<&mut mysql::Conn>,
-    ) -> Option<Fields> {
+    fn mysql_fetch_table(&self, table_names: &Vec<&str>, conn: &RefCell<&mut mysql::Conn>) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))
@@ -107,10 +102,10 @@ impl DBSchema {
             DATA_TYPE as data_type,
             IS_NULLABLE as is_nulalble
         FROM information_schema.COLUMNS
-        WHERE TABLE_SCHEMA = '{}'
+        WHERE TABLE_SCHEMA = (SELECT DATABASE())
         AND TABLE_NAME IN ({})
                 ",
-            database_name, table_names
+            table_names
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();

@@ -60,19 +60,8 @@ pub fn generate_ts_interface<'a>(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery,
 
     let annotated_result_types = extract_result_annotations(&sql.query);
 
-    let db_name = &CONFIG
-        .get_correct_db_connection(&sql.query)
-        .db_name
-        .expect("DB_NAME is required to generate Typescript type definitions");
-
     for sql_statement in &sql_ast {
-        translate_stmt(
-            &mut ts_query,
-            &sql_statement,
-            db_name.as_str(),
-            &annotated_result_types,
-            db_conn,
-        )?;
+        translate_stmt(&mut ts_query, &sql_statement, &annotated_result_types, db_conn)?;
     }
 
     Ok(ts_query)

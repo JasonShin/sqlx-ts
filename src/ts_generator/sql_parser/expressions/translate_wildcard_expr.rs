@@ -42,14 +42,13 @@ pub fn get_all_table_names_from_expr(query: &Query) -> Result<Vec<String>, TsGen
 ///
 /// and it appends result into the hashmap for type generation
 pub fn translate_wildcard_expr(
-    db_name: &str,
     query: &Query,
     ts_query: &mut TsQuery,
     db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
     let table_with_joins = get_all_table_names_from_expr(query)?;
     let table_with_joins = table_with_joins.iter().map(|s| s.as_ref()).collect();
-    let all_fields = DB_SCHEMA.fetch_table(db_name, &table_with_joins, db_conn);
+    let all_fields = DB_SCHEMA.fetch_table(&table_with_joins, db_conn);
     if let Some(all_fields) = all_fields {
         for key in all_fields.keys() {
             let field = all_fields.get(key).unwrap();

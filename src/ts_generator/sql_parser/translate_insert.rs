@@ -8,12 +8,11 @@ pub fn translate_insert(
     ts_query: &mut TsQuery,
     columns: &Vec<Ident>,
     source: &Box<Query>,
-    db_name: &str,
     table_name: &str,
     conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
     let table_details = DB_SCHEMA
-        .fetch_table(db_name, &vec![table_name], conn)
+        .fetch_table(&vec![table_name], conn)
         // Nearly impossible to panic at this point as we've already validated queries with prepare statements
         .unwrap();
 
