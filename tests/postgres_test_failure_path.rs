@@ -2,7 +2,6 @@
 mod js_postgres_failure_path_tests {
     use assert_cmd::prelude::*;
 
-    use pretty_assertions::assert_eq;
     use std::fs;
     use std::io::Write;
     use std::process::Command;

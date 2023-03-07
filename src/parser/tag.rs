@@ -65,7 +65,7 @@ pub fn get_sql_from_var_decl(var_declarator: &VarDeclarator, span: MultiSpan, im
 
     if let Some(init) = &var_declarator.init {
         // TODO: make it understand `const someQuery = SQLX.sql`SELECT * FROM lazy_unknown2`;` in js_failure_path1/lazy-loaded.js
-        let mut result = get_sql_from_expr(&Some(var_decl_name.unwrap()), &*init.clone(), &span, import_alias);
+        let mut result = get_sql_from_expr(&Some(var_decl_name.unwrap()), &init.clone(), &span, import_alias);
         bag_of_sqls.append(&mut result);
     }
 

@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use super::types::db_conn::DBConn;
-use crate::common::lazy::CONFIG;
+
 use crate::common::SQL;
 use crate::ts_generator::annotations::extract_result_annotations;
 use crate::ts_generator::sql_parser::translate_stmt::translate_stmt;
@@ -62,7 +62,7 @@ pub fn generate_ts_interface<'a>(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery,
     ts_query.set_annotated_results(annotated_result_types);
 
     for sql_statement in &sql_ast {
-        translate_stmt(&mut ts_query, &sql_statement, db_conn)?;
+        translate_stmt(&mut ts_query, sql_statement, db_conn)?;
     }
 
     Ok(ts_query)

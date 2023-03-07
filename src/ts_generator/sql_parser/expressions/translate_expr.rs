@@ -5,8 +5,7 @@ use crate::ts_generator::types::db_conn::DBConn;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
 use convert_case::{Case, Casing};
 use regex::Regex;
-use sqlparser::ast::{Expr, Statement, Value};
-use std::collections::HashMap;
+use sqlparser::ast::{Expr, Value};
 
 /// Given an expression
 /// e.g.

@@ -1,6 +1,4 @@
-use std::collections::HashMap;
-
-use sqlparser::ast::{Expr, Statement, TableWithJoins};
+use sqlparser::ast::{Expr, TableWithJoins};
 
 use crate::common::lazy::DB_SCHEMA;
 use crate::ts_generator::{
@@ -34,7 +32,7 @@ pub fn get_sql_query_param(
     let table_name: Option<String>;
 
     if table_with_joins.is_some() {
-        table_name = translate_table_from_expr(table_with_joins.unwrap(), &*left.clone());
+        table_name = translate_table_from_expr(table_with_joins.unwrap(), &left.clone());
     } else if single_table_name.is_some() {
         table_name = single_table_name.map(|x| x.to_string());
     } else {

@@ -4,7 +4,7 @@ use crate::ts_generator::generator::generate_ts_interface;
 use crate::ts_generator::types::db_conn::DBConn;
 use crate::ts_generator::types::ts_query::TsQuery;
 use postgres::{Client, NoTls};
-use std::{borrow::BorrowMut, cell::RefCell};
+use std::cell::RefCell;
 
 use swc_common::errors::Handler;
 

@@ -250,8 +250,8 @@ impl TsQuery {
         if is_insert_query {
             return self
                 .insert_params
-                .iter()
-                .map(|(_i, row)| {
+                .values()
+                .map(|row| {
                     // Process each row and produce Number, String, Boolean
                     row.iter()
                         .map(|(_j, col)| col.to_string())

@@ -1,15 +1,6 @@
-use std::collections::HashMap;
+use sqlparser::ast::{Query, SelectItem, SetExpr};
 
-use sqlparser::{
-    ast::{Query, SelectItem, SetExpr, Statement},
-    parser::WildcardExpr,
-};
-
-use crate::ts_generator::{
-    errors::TsGeneratorError,
-    types::db_conn::DBConn,
-    types::ts_query::{TsFieldType, TsQuery},
-};
+use crate::ts_generator::{errors::TsGeneratorError, types::db_conn::DBConn, types::ts_query::TsQuery};
 
 use super::expressions::{
     translate_expr::translate_expr, translate_table_with_joins::translate_table_with_joins,
