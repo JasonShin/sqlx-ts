@@ -172,6 +172,7 @@ impl TsQuery {
         }
     }
 
+    /// set annotatd results to ts query so when generating ts types, it can use annotated results wherever possible
     pub fn set_annotated_results(&mut self, annotated_results: HashMap<String, Vec<TsFieldType>>) {
         self.annotated_results = annotated_results;
     }
