@@ -6,12 +6,10 @@ use crate::ts_generator::types::db_conn::DBConn;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
 
 use sqlparser::ast::Statement;
-use std::collections::HashMap;
 
 pub fn translate_stmt(
     ts_query: &mut TsQuery,
     sql_statement: &Statement,
-    annotated_results: &HashMap<String, Vec<TsFieldType>>,
     db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
     match sql_statement {

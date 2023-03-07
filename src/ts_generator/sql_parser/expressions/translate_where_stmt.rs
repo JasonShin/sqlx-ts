@@ -69,9 +69,9 @@ pub fn translate_where_stmt<'a>(
     ts_query: &'a mut TsQuery,
     // sql_statement is required
     expr: &Expr,
-    // queries like DELETE would never have table_with_joins
+    // queries like DELETE and INSERT would never have table_with_joins
     single_table_name: &Option<&str>,
-    // queries like SELECT or INSERT might have table_with_joins and we need this explicitly
+    // queries like SELECT might have table_with_joins and we need this explicitly
     table_with_joins: &Option<&Vec<TableWithJoins>>,
     db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {

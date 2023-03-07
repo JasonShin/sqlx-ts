@@ -59,9 +59,10 @@ pub fn generate_ts_interface<'a>(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery,
     let mut ts_query = TsQuery::new(get_query_name(sql)?);
 
     let annotated_result_types = extract_result_annotations(&sql.query);
+    ts_query.set_annotated_results(annotated_result_types);
 
     for sql_statement in &sql_ast {
-        translate_stmt(&mut ts_query, &sql_statement, &annotated_result_types, db_conn)?;
+        translate_stmt(&mut ts_query, &sql_statement, db_conn)?;
     }
 
     Ok(ts_query)

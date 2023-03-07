@@ -172,6 +172,10 @@ impl TsQuery {
         }
     }
 
+    pub fn set_annotated_results(&mut self, annotated_results: HashMap<String, Vec<TsFieldType>>) {
+        self.annotated_results = annotated_results;
+    }
+
     /// inserts a value into the result hashmap
     /// it should only insert a value if you are working with a non-subquery queries
     pub fn insert_result(&mut self, key: String, value: &Vec<TsFieldType>, is_subquery: bool) {
