@@ -185,7 +185,7 @@ pub fn translate_expr(
             if alias.is_some() {
                 // TODO: We need to be able to use alias when processing subquery
                 let _alias = format_column_name(alias.unwrap().to_string());
-                translate_query(ts_query, None, sub_query, db_conn, false)?;
+                translate_query(ts_query, sub_query, db_conn, false)?;
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))

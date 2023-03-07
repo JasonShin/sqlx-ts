@@ -120,11 +120,11 @@ pub fn translate_where_stmt<'a>(
             subquery,
             negated: _,
         } => {
-            translate_query(ts_query, None, subquery, db_conn, true)?;
+            translate_query(ts_query, subquery, db_conn, true)?;
             Ok(())
         }
         Expr::Subquery(subquery) => {
-            translate_query(ts_query, None, subquery, db_conn, true)?;
+            translate_query(ts_query, subquery, db_conn, true)?;
             Ok(())
         }
         _ => Ok(()),

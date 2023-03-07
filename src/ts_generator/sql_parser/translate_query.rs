@@ -19,7 +19,6 @@ use super::expressions::{
 /// translates query
 pub fn translate_query(
     ts_query: &mut TsQuery,
-    _alias: Option<&str>,
     query: &Box<Query>,
     db_conn: &DBConn,
     is_subquery: bool,

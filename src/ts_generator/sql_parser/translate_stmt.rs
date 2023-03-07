@@ -14,7 +14,7 @@ pub fn translate_stmt(
 ) -> Result<(), TsGeneratorError> {
     match sql_statement {
         Statement::Query(query) => {
-            translate_query(ts_query, None, &query, db_conn, false)?;
+            translate_query(ts_query, &query, db_conn, false)?;
         }
         Statement::Update { .. } => {
             println!("UPDATE statement is not yet supported by TS type generator")
