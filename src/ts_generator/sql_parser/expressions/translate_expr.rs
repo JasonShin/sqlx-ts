@@ -78,12 +78,15 @@ pub fn format_column_name(column_name: String) -> String {
     }
 }
 
+/// TODO: Add docs about translate expr
 pub fn translate_expr(
     expr: &Expr,
     table_name: &str,
     alias: Option<&str>,
     ts_query: &mut TsQuery,
     db_conn: &DBConn,
+    // is subquery determines if we can safely append result types into ts_query.results
+    // subqueries on WHERE expression should no determine the SELECTIONs
     is_subquery: bool,
 ) -> Result<(), TsGeneratorError> {
     match expr {

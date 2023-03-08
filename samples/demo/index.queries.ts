@@ -1,19 +1,15 @@
 
 
-export type SomeQueryParams = [number, number, number];
+export type SomeDeleteQueryParams = [number];
 
 
-export interface ISomeQueryResult {
-    food_type: string;
-	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+export interface ISomeDeleteQueryResult {
+    
 };
 
 
-export interface ISomeQueryQuery {
-    params: SomeQueryParams;
-    result: ISomeQueryResult;
+export interface ISomeDeleteQueryQuery {
+    params: SomeDeleteQueryParams;
+    result: ISomeDeleteQueryResult;
 };
 

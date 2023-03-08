@@ -1,5 +1,6 @@
 use crate::ts_generator::errors::TsGeneratorError;
 
+use crate::ts_generator::sql_parser::translate_delete::translate_delete;
 use crate::ts_generator::sql_parser::translate_insert::translate_insert;
 use crate::ts_generator::sql_parser::translate_query::translate_query;
 use crate::ts_generator::types::db_conn::DBConn;
@@ -37,9 +38,9 @@ pub fn translate_stmt(
         }
         Statement::Delete { table_name, selection } => {
             let table_name = table_name.to_string();
-            let _table_name = table_name.as_str();
-            let _selection = selection.to_owned().unwrap();
-            // translate_delete(&selection, db_name, table_name, db_conn)?;
+            let table_name = table_name.as_str();
+            let selection = selection.to_owned().unwrap();
+            translate_delete(ts_query, &selection, table_name, db_conn)?;
         }
         _ => {}
     }
