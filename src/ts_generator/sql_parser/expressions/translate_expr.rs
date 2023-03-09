@@ -1,11 +1,11 @@
 use crate::common::lazy::{CONFIG, DB_SCHEMA};
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::translate_query::translate_query;
-use crate::ts_generator::types::{DBConn, TsFieldType, TsQuery};
+use crate::ts_generator::types::db_conn::DBConn;
+use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
 use convert_case::{Case, Casing};
 use regex::Regex;
-use sqlparser::ast::{Expr, Statement, Value};
-use std::collections::HashMap;
+use sqlparser::ast::{Expr, Value};
 
 /// Given an expression
 /// e.g.
@@ -78,22 +78,22 @@ pub fn format_column_name(column_name: String) -> String {
     }
 }
 
+/// TODO: Add docs about translate expr
 pub fn translate_expr(
     expr: &Expr,
-    db_name: &str,
     table_name: &str,
     alias: Option<&str>,
-    _annotated_result: &HashMap<String, Vec<TsFieldType>>,
     ts_query: &mut TsQuery,
-    sql_statement: &Statement,
     db_conn: &DBConn,
+    // is subquery determines if we can safely append result types into ts_query.results
+    // subqueries on WHERE expression should no determine the SELECTIONs
     is_subquery: bool,
 ) -> Result<(), TsGeneratorError> {
     match expr {
         Expr::Identifier(ident) => {
             let column_name = format_column_name(ident.value.to_string());
 
-            let table_details = &DB_SCHEMA.fetch_table(db_name, &vec![table_name], db_conn);
+            let table_details = &DB_SCHEMA.fetch_table(&vec![table_name], db_conn);
 
             // TODO: We can also memoize this method
             if let Some(table_details) = table_details {
@@ -109,7 +109,7 @@ pub fn translate_expr(
             if idents.len() == 2 {
                 let ident = idents[1].value.clone();
 
-                let table_details = &DB_SCHEMA.fetch_table(db_name, &vec![table_name], db_conn);
+                let table_details = &DB_SCHEMA.fetch_table(&vec![table_name], db_conn);
                 if let Some(table_details) = table_details {
                     let field = table_details.get(&ident).unwrap();
 
@@ -187,16 +187,7 @@ pub fn translate_expr(
             if alias.is_some() {
                 // TODO: We need to be able to use alias when processing subquery
                 let _alias = format_column_name(alias.unwrap().to_string());
-                translate_query(
-                    ts_query,
-                    None,
-                    sql_statement,
-                    sub_query,
-                    db_name,
-                    _annotated_result,
-                    db_conn,
-                    false,
-                )?;
+                translate_query(ts_query, sub_query, db_conn, false)?;
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))

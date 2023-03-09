@@ -1,11 +1,6 @@
-use std::collections::HashMap;
+use sqlparser::ast::{Query, SelectItem, SetExpr};
 
-use sqlparser::ast::{Query, SelectItem, SetExpr, Statement};
-
-use crate::ts_generator::{
-    errors::TsGeneratorError,
-    types::{DBConn, TsFieldType, TsQuery},
-};
+use crate::ts_generator::{errors::TsGeneratorError, types::db_conn::DBConn, types::ts_query::TsQuery};
 
 use super::expressions::{
     translate_expr::translate_expr, translate_table_with_joins::translate_table_with_joins,
@@ -15,11 +10,7 @@ use super::expressions::{
 /// translates query
 pub fn translate_query(
     ts_query: &mut TsQuery,
-    _alias: Option<&str>,
-    sql_statement: &Statement,
     query: &Box<Query>,
-    db_name: &str,
-    annotated_results: &HashMap<String, Vec<TsFieldType>>,
     db_conn: &DBConn,
     is_subquery: bool,
 ) -> Result<(), TsGeneratorError> {
@@ -36,18 +27,7 @@ pub fn translate_query(
                             .expect("Default FROM table is not found from the query {query}");
 
                         // Handles SQL Expression and appends result
-                        translate_expr(
-                            unnamed_expr,
-                            db_name,
-                            &table_name,
-                            None,
-                            annotated_results,
-                            ts_query,
-                            sql_statement,
-                            db_conn,
-                            is_subquery,
-                        )
-                        .unwrap();
+                        translate_expr(unnamed_expr, &table_name, None, ts_query, db_conn, is_subquery).unwrap();
                     }
                     SelectItem::ExprWithAlias { expr, alias } => {
                         let alias = alias.to_string();
@@ -55,35 +35,24 @@ pub fn translate_query(
 
                         translate_expr(
                             expr,
-                            db_name,
                             table_name.unwrap().as_str(),
                             Some(alias.as_str()),
-                            annotated_results,
                             ts_query,
-                            sql_statement,
                             db_conn,
                             is_subquery,
                         )
                         .unwrap();
                     }
                     SelectItem::QualifiedWildcard(_) => todo!(),
-                    _Wildcard => {
-                        translate_wildcard_expr(db_name, sql_statement, &mut ts_query.result, db_conn).unwrap();
+                    SelectItem::Wildcard => {
+                        translate_wildcard_expr(query, ts_query, db_conn).unwrap();
                     }
                 }
             }
 
             // If there's any WHERE statements, process it
             if let Some(selection) = select.clone().selection {
-                translate_where_stmt(
-                    db_name,
-                    ts_query,
-                    sql_statement,
-                    &selection,
-                    &table_with_joins,
-                    annotated_results,
-                    db_conn,
-                )?;
+                translate_where_stmt(ts_query, &selection, &None, &Some(&table_with_joins), db_conn)?;
             }
             Ok(())
         }

@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod postgres_insert_query_parameters {
+mod mysql_delete_query_parameters {
     use assert_cmd::prelude::*;
     use predicates::prelude::*;
     use pretty_assertions::assert_eq;
@@ -11,7 +11,7 @@ mod postgres_insert_query_parameters {
     use test_utils::test_utils::TSString;
 
     #[test]
-    fn should_pick_query_params_from_single_row_of_values() -> Result<(), Box<dyn std::error::Error>> {
+    fn should_pick_query_params_from_binary_ops() -> Result<(), Box<dyn std::error::Error>> {
         // SETUP
         let dir = tempdir()?;
         let parent_path = dir.path();
@@ -20,10 +20,11 @@ mod postgres_insert_query_parameters {
         let index_content = r#"
 import { sql } from "sqlx-ts";
 
-const someInputQuery = sql`
-INSERT INTO items (id, food_type, time_takes_to_cook, table_id, points)
-VALUES
-($2, $1, 2, $3, 2);
+const someDeleteQuery = sql`
+DELETE FROM items
+WHERE id = $2
+AND time_takes_to_cook > 1
+OR food_type = $1;
 `
         "#;
         let mut temp_file = fs::File::create(file_path)?;
@@ -48,15 +49,15 @@ VALUES
         let type_file = fs::read_to_string(parent_path.join("index.queries.ts"))?;
         let type_file = type_file.trim();
         let gen_query_types = r#"
-export type SomeInputQueryParams = [string, number, number];
+export type SomeDeleteQueryParams = [string, number];
 
-export interface ISomeInputQueryResult {
+export interface ISomeDeleteQueryResult {
     
 };
 
-export interface ISomeInputQueryQuery {
-    params: SomeInputQueryParams;
-    result: ISomeInputQueryResult;
+export interface ISomeDeleteQueryQuery {
+    params: SomeDeleteQueryParams;
+    result: ISomeDeleteQueryResult;
 };
         "#;
 
@@ -68,7 +69,7 @@ export interface ISomeInputQueryQuery {
     }
 
     #[test]
-    fn should_pick_query_params_from_multiple_rows_of_values() -> Result<(), Box<dyn std::error::Error>> {
+    fn should_pick_query_params_from_subquery() -> Result<(), Box<dyn std::error::Error>> {
         // SETUP
         let dir = tempdir()?;
         let parent_path = dir.path();
@@ -77,11 +78,11 @@ export interface ISomeInputQueryQuery {
         let index_content = r#"
 import { sql } from "sqlx-ts";
 
-const someInputQuery = sql`
-INSERT INTO items (id, food_type, time_takes_to_cook, table_id, points)
-VALUES
-($2, $1, 2, $3, 2),
-($5, 'test', $4, $7, $6);
+const someDeleteQuery = sql`
+DELETE FROM items
+WHERE id = $2
+AND time_takes_to_cook > 1
+OR table_id = (SELECT id FROM tables WHERE id = $1);
 `
         "#;
         let mut temp_file = fs::File::create(file_path)?;
@@ -106,15 +107,15 @@ VALUES
         let type_file = fs::read_to_string(parent_path.join("index.queries.ts"))?;
         let type_file = type_file.trim();
         let gen_query_types = r#"
-export type SomeInputQueryParams = [string, number, number, number, number, number, number];
+export type SomeDeleteQueryParams = [number, number];
 
-export interface ISomeInputQueryResult {
+export interface ISomeDeleteQueryResult {
     
 };
 
-export interface ISomeInputQueryQuery {
-    params: SomeInputQueryParams;
-    result: ISomeInputQueryResult;
+export interface ISomeDeleteQueryQuery {
+    params: SomeDeleteQueryParams;
+    result: ISomeDeleteQueryResult;
 };
         "#;
 

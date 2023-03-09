@@ -72,7 +72,7 @@ impl Config {
     /// Retrieves the configuration required for generating typescript interface
     /// If there is CLI_ARGS.generate_types set already, it would prioritise using CLI_ARGS
     fn generate_types_config(file_config_path: &PathBuf) -> Option<GenerateTypesConfig> {
-        let file_based_config = fs::read_to_string(&file_config_path);
+        let file_based_config = fs::read_to_string(file_config_path);
         let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
 
         let generate_types = &file_based_config
@@ -94,7 +94,7 @@ impl Config {
 
     /// Build the initial connection config to be used as a HashMap
     fn build_configs(dotenv: &Dotenv, file_config_path: &PathBuf) -> HashMap<String, DbConnectionConfig> {
-        let file_based_config = fs::read_to_string(&file_config_path);
+        let file_based_config = fs::read_to_string(file_config_path);
         let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
 
         let connections = &mut file_based_config

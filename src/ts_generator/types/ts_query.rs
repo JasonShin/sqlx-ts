@@ -1,16 +1,6 @@
-use std::cell::RefCell;
+use regex::Regex;
 use std::collections::{BTreeMap, HashMap};
 use std::fmt::{self};
-
-use mysql::Conn as MySQLConn;
-use postgres::Client as PostgresConn;
-use regex::Regex;
-
-pub enum DBConn<'a> {
-    // TODO: Maybe we can also pass down db_name through DBConn
-    MySQLPooledConn(&'a mut RefCell<&'a mut MySQLConn>),
-    PostgresConn(&'a mut RefCell<&'a mut PostgresConn>),
-}
 
 #[derive(Debug, Clone, Copy)]
 pub enum ArrayItem {
@@ -151,6 +141,11 @@ impl TsFieldType {
     }
 }
 
+/// TsQuery holds information required to generate typescript type definition
+/// of the target SQL query
+///
+/// There are tests under `tests` folder that checks TsQuery generates the
+/// correct type definitions
 #[derive(Debug)]
 pub struct TsQuery {
     pub name: String,
@@ -161,6 +156,8 @@ pub struct TsQuery {
     // We use BTreeMap here as it's a collection that's already sorted
     pub insert_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
     pub result: HashMap<String, Vec<TsFieldType>>,
+    // Holds any annotated @Result and perform replacement when generating TS types
+    pub annotated_results: HashMap<String, Vec<TsFieldType>>,
 }
 
 impl TsQuery {
@@ -171,7 +168,13 @@ impl TsQuery {
             params: BTreeMap::new(),
             result: HashMap::new(),
             insert_params: BTreeMap::new(),
+            annotated_results: HashMap::new(),
         }
+    }
+
+    /// set annotatd results to ts query so when generating ts types, it can use annotated results wherever possible
+    pub fn set_annotated_results(&mut self, annotated_results: HashMap<String, Vec<TsFieldType>>) {
+        self.annotated_results = annotated_results;
     }
 
     /// inserts a value into the result hashmap
@@ -248,8 +251,8 @@ impl TsQuery {
         if is_insert_query {
             return self
                 .insert_params
-                .iter()
-                .map(|(_i, row)| {
+                .values()
+                .map(|row| {
                     // Process each row and produce Number, String, Boolean
                     row.iter()
                         .map(|(_j, col)| col.to_string())

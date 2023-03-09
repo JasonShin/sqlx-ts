@@ -26,7 +26,7 @@ VALUES
 (?, ?, 2, 1, 2);
 `
         "#;
-        let mut temp_file = fs::File::create(&file_path)?;
+        let mut temp_file = fs::File::create(file_path)?;
         writeln!(temp_file, "{}", index_content)?;
 
         // EXECUTE
@@ -83,7 +83,7 @@ VALUES
 (1, 'test', ?, ?, ?);
 `
         "#;
-        let mut temp_file = fs::File::create(&file_path)?;
+        let mut temp_file = fs::File::create(file_path)?;
         writeln!(temp_file, "{}", index_content)?;
 
         // EXECUTE

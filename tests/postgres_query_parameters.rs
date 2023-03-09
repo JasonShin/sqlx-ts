@@ -28,7 +28,7 @@ AND points < $2
 OR points = $3
 `;
     "#;
-        let mut temp_file = fs::File::create(&file_path)?;
+        let mut temp_file = fs::File::create(file_path)?;
         writeln!(temp_file, "{}", index_content)?;
 
         // EXECUTE

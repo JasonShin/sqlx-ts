@@ -1,4 +1,4 @@
-use crate::ts_generator::types::TsFieldType;
+use crate::ts_generator::types::ts_query::TsFieldType;
 use regex::Regex;
 use std::collections::HashMap;
 

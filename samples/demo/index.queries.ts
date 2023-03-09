@@ -1,15 +1,15 @@
 
 
-export type SomePostgresInputQueryParams = [string, number, number, number, number, number, number];
+export type SomeDeleteQueryParams = [number];
 
 
-export interface ISomePostgresInputQueryResult {
+export interface ISomeDeleteQueryResult {
     
 };
 
 
-export interface ISomePostgresInputQueryQuery {
-    params: SomePostgresInputQueryParams;
-    result: ISomePostgresInputQueryResult;
+export interface ISomeDeleteQueryQuery {
+    params: SomeDeleteQueryParams;
+    result: ISomeDeleteQueryResult;
 };
 

@@ -28,7 +28,7 @@ AND points < ?
 OR points = ?
 `;
         "#;
-        let mut temp_file = fs::File::create(&file_path)?;
+        let mut temp_file = fs::File::create(file_path)?;
         writeln!(temp_file, "{}", index_content)?;
 
         // EXECUTE
@@ -87,7 +87,7 @@ FROM items
 WHERE id IN (?);
 `;
         "#;
-        let mut temp_file = fs::File::create(&file_path)?;
+        let mut temp_file = fs::File::create(file_path)?;
         writeln!(temp_file, "{}", index_content)?;
 
         // EXECUTE
@@ -155,7 +155,7 @@ WHERE id IN (
 ) AND points < ?;
 `;
         "#;
-        let mut temp_file = fs::File::create(&file_path)?;
+        let mut temp_file = fs::File::create(file_path)?;
         writeln!(temp_file, "{}", index_content)?;
 
         // EXECUTE
@@ -223,7 +223,7 @@ WHERE id = (
 ) AND food_type = ?;
 `;
         "#;
-        let mut temp_file = fs::File::create(&file_path)?;
+        let mut temp_file = fs::File::create(file_path)?;
         writeln!(temp_file, "{}", index_content)?;
 
         // EXECUTE
