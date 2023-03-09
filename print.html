@@ -33,6 +33,7 @@
 
     </head>
     <body>
+    <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "";
@@ -70,10 +71,12 @@
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
             var html = document.querySelector('html');
-            var sidebar = 'hidden';
+            var sidebar = null;
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
             }
             html.classList.remove('sidebar-visible');
             html.classList.add("sidebar-" + sidebar);
@@ -521,6 +524,78 @@ export interface ISomeQueryQuery {
 }
 </code></pre>
 <p>Note that <code>QueryParams</code> array respects the order of params present in the query above</p>
+<h2 id="insert-query"><a class="header" href="#insert-query">Insert query</a></h2>
+<h4 id="mysql"><a class="header" href="#mysql">MySQL</a></h4>
+<p>Query params within an insert statement can be converted into TypeScript types as well</p>
+<pre><code class="language-typescript">const someQuery = sql`
+INSERT INTO items (id, food_type, time_takes_to_cook, table_id, points)
+VALUES
+    (?, ?, ?, ?, ?),
+    (?, ?, ?, ?, ?);
+`
+</code></pre>
+<p>would generate following</p>
+<pre><code class="language-typescript">export type SomeQueryParams = [
+    [number, string, number, number, number],
+    [number, string, number, number, number]
+]
+
+export interface ISomeQueryQuery {
+    params: SomeQueryParams
+    result: null
+}
+</code></pre>
+<h4 id="postgresql"><a class="header" href="#postgresql">PostgreSQL</a></h4>
+<p>As query params of PostgresSQL uses the numbered paramters, it's meaningless to generate a nested array respresnetation of them.</p>
+<p>If you have</p>
+<pre><code class="language-typescript">const somePostgresInputQuery = sql`
+INSERT INTO items (id, food_type, time_takes_to_cook, table_id, points)
+VALUES
+($2, $1, 2, $3, 2),
+($5, 'test', $4, $7, $6);
+`
+</code></pre>
+<p>Above query will generate the following typings</p>
+<pre><code class="language-typescript">export type SomePostgresInputQueryParams = [string, number, number, number, number, number, number];
+
+export interface ISomePostgresInputQueryResult {
+    
+};
+
+export interface ISomePostgresInputQueryQuery {
+    params: SomePostgresInputQueryParams;
+    result: ISomePostgresInputQueryResult;
+};
+</code></pre>
+<h2 id="delete-query"><a class="header" href="#delete-query">DELETE query</a></h2>
+<h4 id="mysql-1"><a class="header" href="#mysql-1">MySQL</a></h4>
+<p>Query params within a DELETE statement will be converted Typescript types</p>
+<pre><code class="language-typescript">const someQuery = sql`
+DELETE FROM items WHERE id = ?
+`
+</code></pre>
+<p>would generate following</p>
+<pre><code class="language-typescript">export type SomeQueryParams = [number]
+
+export interface ISomeQueryQuery {
+    params: SomeQueryParams
+    results: null
+}
+</code></pre>
+<h4 id="postgresql-1"><a class="header" href="#postgresql-1">PostgreSQL</a></h4>
+<p>If you the following query in your Typescript code</p>
+<pre><code class="language-typescript">const someQuery = sql`
+DELETE FROM items WHERE id = $1;
+`
+</code></pre>
+<p>would result in</p>
+<pre><code class="language-typescript">export type SomeQueryParams = [number]
+
+export interface ISomeQueryQuery {
+    params: SomeQueryParams
+    results: null
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="annotations"><a class="header" href="#annotations">Annotations</a></h1>
 <blockquote>
 <p>⚠️ <strong>FEATURE NOT READY</strong>: I am still building this feature and cannot be used yet!</p>
@@ -593,7 +668,7 @@ If you ever use following SQL syntax, it is encouraged to override the type usin
 <li><code>index</code> is the position of the query parameter within your SQL</li>
 <li>type is the type to override</li>
 </ul>
-<h3 id="mysql"><a class="header" href="#mysql">MySQL</a></h3>
+<h3 id="mysql-2"><a class="header" href="#mysql-2">MySQL</a></h3>
 <p>If you have a MySQL query like following, you can override param types like in the example below</p>
 <pre><code class="language-typescript">const someQuery = sql`
 -- @db: mysql
@@ -740,5 +815,6 @@ Donec ligula dolor, placerat quis erat vitae</p>
         });
         </script>
 
+    </div>
     </body>
 </html>
