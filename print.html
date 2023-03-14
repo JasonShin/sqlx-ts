@@ -84,7 +84,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">User Guide</li><li class="chapter-item expanded "><a href="user-guide/1.installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="user-guide/2.getting-started.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="user-guide/2.1.cli-options.html"><strong aria-hidden="true">2.1.</strong> CLI Options</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Reference Guide</li><li class="chapter-item expanded "><a href="reference-guide/1.sql-check.html"><strong aria-hidden="true">3.</strong> SQL Check</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="reference-guide/1.1.sql-check-mysql.html"><strong aria-hidden="true">3.1.</strong> MySQL</a></li><li class="chapter-item expanded "><a href="reference-guide/1.2.sql-check-postgres.html"><strong aria-hidden="true">3.2.</strong> Postgres</a></li></ol></li><li class="chapter-item expanded "><a href="reference-guide/2.connection-config.html"><strong aria-hidden="true">4.</strong> Connection Config</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="reference-guide/2.1.configs-file-based.html"><strong aria-hidden="true">4.1.</strong> File based config for multiple database connections</a></li><li class="chapter-item expanded "><a href="reference-guide/2.2.environment-variables.html"><strong aria-hidden="true">4.2.</strong> Environment variables</a></li></ol></li><li class="chapter-item expanded "><a href="reference-guide/4.typescript-types-generation.html"><strong aria-hidden="true">5.</strong> Type generation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="reference-guide/4.1.parameters.html"><strong aria-hidden="true">5.1.</strong> Parameters</a></li><li class="chapter-item expanded "><a href="reference-guide/4.2.annotations.html"><strong aria-hidden="true">5.2.</strong> Annotations</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Miscellaneous</li><li class="chapter-item expanded "><a href="misc/1.troubleshooting.html"><strong aria-hidden="true">6.</strong> Troubleshooting</a></li><li class="chapter-item expanded "><a href="misc/2.documentation-practices.html"><strong aria-hidden="true">7.</strong> Documentation Best Practices</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">User Guide</li><li class="chapter-item expanded "><a href="user-guide/1.installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="user-guide/2.getting-started.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="user-guide/2.1.cli-options.html"><strong aria-hidden="true">2.1.</strong> CLI Options</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Reference Guide</li><li class="chapter-item expanded "><a href="reference-guide/1.sql-check.html"><strong aria-hidden="true">3.</strong> SQL Check</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="reference-guide/1.1.sql-check-mysql.html"><strong aria-hidden="true">3.1.</strong> MySQL</a></li><li class="chapter-item expanded "><a href="reference-guide/1.2.sql-check-postgres.html"><strong aria-hidden="true">3.2.</strong> Postgres</a></li></ol></li><li class="chapter-item expanded "><a href="reference-guide/2.connection-config.html"><strong aria-hidden="true">4.</strong> Connection Config</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="reference-guide/2.1.configs-file-based.html"><strong aria-hidden="true">4.1.</strong> File based config for multiple database connections</a></li><li class="chapter-item expanded "><a href="reference-guide/2.2.environment-variables.html"><strong aria-hidden="true">4.2.</strong> Environment variables</a></li></ol></li><li class="chapter-item expanded "><a href="reference-guide/4.typescript-types-generation.html"><strong aria-hidden="true">5.</strong> Type generation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="reference-guide/4.1.SELECT.html"><strong aria-hidden="true">5.1.</strong> SELECT</a></li><li class="chapter-item expanded "><a href="reference-guide/4.2.INSERT.html"><strong aria-hidden="true">5.2.</strong> INSERT</a></li><li class="chapter-item expanded "><a href="reference-guide/4.3.DELETE.html"><strong aria-hidden="true">5.3.</strong> DELETE</a></li><li class="chapter-item expanded "><a href="reference-guide/4.4.UPDATE.html"><strong aria-hidden="true">5.4.</strong> UPDATE</a></li><li class="chapter-item expanded "><a href="reference-guide/4.5.annotations.html"><strong aria-hidden="true">5.5.</strong> Annotations</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Miscellaneous</li><li class="chapter-item expanded "><a href="misc/1.troubleshooting.html"><strong aria-hidden="true">6.</strong> Troubleshooting</a></li><li class="chapter-item expanded "><a href="misc/2.documentation-practices.html"><strong aria-hidden="true">7.</strong> Documentation Best Practices</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -443,17 +443,21 @@ the true type safetiness that we are trying to achieve. Furthermore, name parame
 they are an additional syntax supported by popular ORM libraries such as Sequelize.</p>
 <p>The closest type safety that exists in TypeScript world is by emulating Opaque type e.g. https://github.com/sindresorhus/type-fest/blob/main/source/opaque.d.ts.
 In the future, sqlx-ts will support Opaque type overrides natively to solve this matter.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="parameters-in-sqls"><a class="header" href="#parameters-in-sqls">Parameters in SQLs</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="select-statement"><a class="header" href="#select-statement">SELECT statement</a></h1>
 <blockquote>
-<p>⚠️ <strong>FEATURE NOT READY</strong>: I am still building this feature and cannot be used yet!</p>
+<p>⚠️ <strong>FEATURE NOT READY</strong>: We still haven't fully covered all SQL syntax yet</p>
 </blockquote>
-<p>Parameters is a way to denote value replacements in a SQL query. Each database uses
+<p>Parameter is way to denote value replacements in a SQL query. Each database uses
 different placeholder symbol:</p>
 <div class="table-wrapper"><table><thead><tr><th>database</th><th>placeholder symbol</th><th>Example</th></tr></thead><tbody>
 <tr><td>MySQL</td><td><code>?</code></td><td><code>SELECT * FROM items WHERE points &gt; ?</code></td></tr>
 <tr><td>PostgreSQL</td><td><code>$1</code> <code>$2</code> <code>$3</code> ... <code>$n</code></td><td><code>SELECT * FROM items WHERE points &gt; $1</code></td></tr>
 </tbody></table>
 </div>
+<p>Based on your target database, you should use its known placeholder symbol. sqlx-ts is able to handle both MySQL and PostgreSQL placeholder syntax.</p>
+<h2 id="example-database"><a class="header" href="#example-database">Example database</a></h2>
+<p>Throughout this section of the guide, we will be using the following database ERD</p>
+<img src="reference-guide/../assets/example-erd.png" />
 <h2 id="binary-operations"><a class="header" href="#binary-operations">Binary operations</a></h2>
 <p>If you have the follow MySQL query in typescript</p>
 <pre><code class="language-typescript">// example
@@ -524,7 +528,11 @@ export interface ISomeQueryQuery {
 }
 </code></pre>
 <p>Note that <code>QueryParams</code> array respects the order of params present in the query above</p>
-<h2 id="insert-query"><a class="header" href="#insert-query">Insert query</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="insert-statement"><a class="header" href="#insert-statement">INSERT statement</a></h1>
+<blockquote>
+<p>⚠️ <strong>FEATURE NOT READY</strong>: We still haven't fully covered all SQL syntax yet</p>
+</blockquote>
+<p>To read more about how sqlx-ts translates query parameters, <a href="reference-guide/./4.1.SELECT.html">visit this page</a></p>
 <h4 id="mysql"><a class="header" href="#mysql">MySQL</a></h4>
 <p>Query params within an insert statement can be converted into TypeScript types as well</p>
 <pre><code class="language-typescript">const someQuery = sql`
@@ -567,7 +575,11 @@ export interface ISomePostgresInputQueryQuery {
     result: ISomePostgresInputQueryResult;
 };
 </code></pre>
-<h2 id="delete-query"><a class="header" href="#delete-query">DELETE query</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="delete-statement"><a class="header" href="#delete-statement">DELETE statement</a></h1>
+<blockquote>
+<p>⚠️ <strong>FEATURE NOT READY</strong>: We still haven't fully covered all SQL syntax yet</p>
+</blockquote>
+<p>To read more about how sqlx-ts translates query parameters, <a href="reference-guide/./4.1.SELECT.html">visit this page</a></p>
 <h4 id="mysql-1"><a class="header" href="#mysql-1">MySQL</a></h4>
 <p>Query params within a DELETE statement will be converted Typescript types</p>
 <pre><code class="language-typescript">const someQuery = sql`
@@ -596,6 +608,12 @@ export interface ISomeQueryQuery {
     results: null
 }
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="update-satement"><a class="header" href="#update-satement">UPDATE satement</a></h1>
+<blockquote>
+<p>⚠️ <strong>FEATURE NOT READY</strong>: We still haven't fully covered all SQL syntax yet</p>
+</blockquote>
+<p>To read more about how sqlx-ts translates query parameters, <a href="reference-guide/./4.1.SELECT.html">visit this page</a></p>
+<p>WIP</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="annotations"><a class="header" href="#annotations">Annotations</a></h1>
 <blockquote>
 <p>⚠️ <strong>FEATURE NOT READY</strong>: I am still building this feature and cannot be used yet!</p>
