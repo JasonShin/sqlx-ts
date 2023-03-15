@@ -32,8 +32,16 @@ OR points = ?
 `
 */
 
+/*
 const someDeleteQuery = sql`
 DELETE FROM items WHERE id = ?
+`
+*/
+
+const someUpdateQuery = sql`
+UPDATE items
+SET food_type = ?
+WHERE id = ?
 `
 
 /*

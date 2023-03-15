@@ -17,9 +17,6 @@ pub fn translate_stmt(
         Statement::Query(query) => {
             translate_query(ts_query, query, db_conn, false)?;
         }
-        Statement::Update { .. } => {
-            println!("UPDATE statement is not yet supported by TS type generator")
-        }
         Statement::Insert {
             or: _,
             into: _,
@@ -42,6 +39,17 @@ pub fn translate_stmt(
             let selection = selection.to_owned().unwrap();
             translate_delete(ts_query, &selection, table_name, db_conn)?;
         }
+        Statement::Update {
+            table,
+            assignments, 
+            from, 
+            selection,
+        } => {
+            println!("UPDATE table {:#?}", table);
+            println!("UPDATE assignments {:#?}", assignments);
+            println!("UPDATE from {:#?}", from);
+            println!("UPDATE selection {:#?}", selection);
+        },
         _ => {}
     }
     Ok(())
