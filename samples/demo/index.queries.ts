@@ -1,6 +1,6 @@
 
 
-export type SomeUpdateQuery2Params = [string];
+export type SomeUpdateQuery2Params = [string, number];
 
 
 export interface ISomeUpdateQuery2Result {

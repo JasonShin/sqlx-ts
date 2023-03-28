@@ -6,7 +6,9 @@ use crate::ts_generator::{
 };
 
 use super::expressions::{
-    translate_expr::translate_assignment, translate_table_with_joins::translate_table_from_assignments,
+    translate_expr::translate_assignment,
+    translate_table_with_joins::translate_table_from_assignments,
+    translate_where_stmt::translate_where_stmt,
 };
 
 fn translate_assignments(
@@ -32,5 +34,9 @@ pub fn translate_update(
     selection: &Option<Expr>,
     db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
-    translate_assignments(ts_query, table_with_joins, assignments, db_conn)
+    translate_assignments(ts_query, table_with_joins, assignments, db_conn)?;
+    if selection.is_some() {
+        translate_where_stmt(ts_query, &selection.to_owned().unwrap(), &None, &Some(&vec![table_with_joins.to_owned()]), db_conn)?;
+    }
+    Ok(())
 }
