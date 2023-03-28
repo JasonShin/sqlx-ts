@@ -3,6 +3,7 @@ use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::translate_delete::translate_delete;
 use crate::ts_generator::sql_parser::translate_insert::translate_insert;
 use crate::ts_generator::sql_parser::translate_query::translate_query;
+use crate::ts_generator::sql_parser::translate_update::translate_update;
 use crate::ts_generator::types::db_conn::DBConn;
 use crate::ts_generator::types::ts_query::TsQuery;
 
@@ -41,15 +42,12 @@ pub fn translate_stmt(
         }
         Statement::Update {
             table,
-            assignments, 
-            from, 
+            assignments,
+            from,
             selection,
         } => {
-            println!("UPDATE table {:#?}", table);
-            println!("UPDATE assignments {:#?}", assignments);
-            println!("UPDATE from {:#?}", from);
-            println!("UPDATE selection {:#?}", selection);
-        },
+            translate_update(ts_query, &table, &assignments, &from, &selection, &db_conn)?;
+        }
         _ => {}
     }
     Ok(())

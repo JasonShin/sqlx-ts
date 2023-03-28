@@ -1,4 +1,4 @@
-use sqlparser::ast::{Expr, Join, SelectItem, TableFactor, TableWithJoins};
+use sqlparser::ast::{Assignment, Expr, Join, SelectItem, TableFactor, TableWithJoins};
 
 fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
     table_with_joins
@@ -83,6 +83,17 @@ pub fn translate_table_from_expr(table_with_joins: &Vec<TableWithJoins>, expr: &
             find_table_name_from_identifier(table_with_joins, identifier)
         }
         _ => None,
+    }
+}
+
+pub fn translate_table_from_assignments(
+    table_with_joins: &Vec<TableWithJoins>,
+    assignment: &Assignment,
+) -> Option<String> {
+    let identifier = assignment.id.get(0);
+    match identifier {
+        Some(identifier) => find_table_name_from_identifier(table_with_joins, identifier.value.to_string()),
+        None => Some(get_default_table(table_with_joins)),
     }
 }
 

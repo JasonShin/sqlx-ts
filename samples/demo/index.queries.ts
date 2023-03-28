@@ -1,15 +1,15 @@
 
 
-export type SomeUpdateQueryParams = [];
+export type SomeUpdateQuery2Params = [string];
 
 
-export interface ISomeUpdateQueryResult {
+export interface ISomeUpdateQuery2Result {
     
 };
 
 
-export interface ISomeUpdateQueryQuery {
-    params: SomeUpdateQueryParams;
-    result: ISomeUpdateQueryResult;
+export interface ISomeUpdateQuery2Query {
+    params: SomeUpdateQuery2Params;
+    result: ISomeUpdateQuery2Result;
 };
 
