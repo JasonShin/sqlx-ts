@@ -29,7 +29,7 @@ pub fn translate_update(
     ts_query: &mut TsQuery,
     table_with_joins: &TableWithJoins,
     assignments: &Vec<Assignment>,
-    from: &Option<TableWithJoins>,
+    _from: &Option<TableWithJoins>,
     selection: &Option<Expr>,
     db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {

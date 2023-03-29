@@ -287,10 +287,10 @@ pub fn translate_assignment(
 
     if value.is_some() {
         let table_details = &DB_SCHEMA.fetch_table(&vec![table_name], db_conn).unwrap();
-        let column_name = translate_column_name_assignment(&assignment).unwrap();
+        let column_name = translate_column_name_assignment(assignment).unwrap();
         let field = table_details
             .get(&column_name)
-            .expect(format!("Failed to find the column detail for {column_name}").as_str());
+            .unwrap_or_else(|| panic!("Failed to find the column detail for {column_name}"));
         ts_query.insert_param(&field.field_type, &value);
     }
     Ok(())

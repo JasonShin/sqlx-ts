@@ -46,7 +46,7 @@ pub fn translate_stmt(
             from,
             selection,
         } => {
-            translate_update(ts_query, &table, &assignments, &from, &selection, &db_conn)?;
+            translate_update(ts_query, table, assignments, from, selection, db_conn)?;
         }
         _ => {}
     }
