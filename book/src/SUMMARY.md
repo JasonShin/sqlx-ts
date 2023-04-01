@@ -27,3 +27,4 @@
 
 - [Troubleshooting](./misc/1.troubleshooting.md)
 - [Documentation Best Practices](./misc/2.documentation-practices.md)
+- [Limitations](./misc/3.limitations.md)
