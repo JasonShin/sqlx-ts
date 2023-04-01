@@ -1,15 +1,15 @@
 
 
-export type SomeUpdateQuery2Params = [string, number];
+export type SomeUpdateQuery3Params = [string, number, number];
 
 
-export interface ISomeUpdateQuery2Result {
+export interface ISomeUpdateQuery3Result {
     
 };
 
 
-export interface ISomeUpdateQuery2Query {
-    params: SomeUpdateQuery2Params;
-    result: ISomeUpdateQuery2Result;
+export interface ISomeUpdateQuery3Query {
+    params: SomeUpdateQuery3Params;
+    result: ISomeUpdateQuery3Result;
 };
 

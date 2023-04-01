@@ -20,10 +20,11 @@ mod mysql_insert_query_parameters {
         let index_content = r#"
 import { sql } from "sqlx-ts";
 
-const someInputQuery = sql`
-INSERT INTO items (id, food_type, time_takes_to_cook, table_id, points)
-VALUES
-(?, ?, 2, 1, 2);
+const someUpdateQuery = sql`
+UPDATE items
+JOIN tables ON tables.id = items.table_id
+SET items.food_type = ?
+WHERE tables.id = ?
 `
         "#;
         let mut temp_file = fs::File::create(file_path)?;
@@ -47,15 +48,15 @@ VALUES
         let type_file = fs::read_to_string(parent_path.join("index.queries.ts"))?;
         let type_file = type_file.trim();
         let gen_query_types = r#"
-export type SomeInputQueryParams = [[number, string]];
+export type SomeUpdateQueryParams = [string, number];
 
-export interface ISomeInputQueryResult {
+export interface ISomeUpdateQueryResult {
     
 };
 
-export interface ISomeInputQueryQuery {
-    params: SomeInputQueryParams;
-    result: ISomeInputQueryResult;
+export interface ISomeUpdateQueryQuery {
+    params: SomeUpdateQueryParams;
+    result: ISomeUpdateQueryResult;
 };
         "#;
 
@@ -76,11 +77,13 @@ export interface ISomeInputQueryQuery {
         let index_content = r#"
 import { sql } from "sqlx-ts";
 
-const someInputQuery = sql`
-INSERT INTO items (id, food_type, time_takes_to_cook, table_id, points)
-VALUES
-(?, ?, 2, 1, 2),
-(1, 'test', ?, ?, ?);
+const someUpdateQuery = sql`
+UPDATE items
+JOIN tables ON tables.id = items.table_id
+SET
+    items.food_type = ?,
+    items.time_takes_to_cook = ?
+WHERE tables.id = ?
 `
         "#;
         let mut temp_file = fs::File::create(file_path)?;
@@ -104,15 +107,15 @@ VALUES
         let type_file = fs::read_to_string(parent_path.join("index.queries.ts"))?;
         let type_file = type_file.trim();
         let gen_query_types = r#"
-export type SomeInputQueryParams = [[number, string], [number, number, number]];
+export type SomeUpdateQueryParams = [string, number, number];
 
-export interface ISomeInputQueryResult {
+export interface ISomeUpdateQueryResult {
     
 };
 
-export interface ISomeInputQueryQuery {
-    params: SomeInputQueryParams;
-    result: ISomeInputQueryResult;
+export interface ISomeUpdateQueryQuery {
+    params: SomeUpdateQueryParams;
+    result: ISomeUpdateQueryResult;
 };
         "#;
 

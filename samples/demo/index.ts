@@ -46,10 +46,21 @@ WHERE id = ?
 `
 */
 
+/*
 const someUpdateQuery2 = sql`
 UPDATE items
 JOIN tables ON tables.id = items.table_id
 SET items.food_type = ?
+WHERE tables.id = ?
+`
+*/
+
+const someUpdateQuery3 = sql`
+UPDATE items
+JOIN tables ON tables.id = items.table_id
+SET
+    items.food_type = ?,
+    items.time_takes_to_cook = ?
 WHERE tables.id = ?
 `
 
