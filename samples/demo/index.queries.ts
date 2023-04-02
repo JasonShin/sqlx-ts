@@ -1,15 +1,15 @@
 
 
-export type SomeDeleteQueryParams = [number];
+export type SomeUpdateQueryParams = [string];
 
 
-export interface ISomeDeleteQueryResult {
+export interface ISomeUpdateQueryResult {
     
 };
 
 
-export interface ISomeDeleteQueryQuery {
-    params: SomeDeleteQueryParams;
-    result: ISomeDeleteQueryResult;
+export interface ISomeUpdateQueryQuery {
+    params: SomeUpdateQueryParams;
+    result: ISomeUpdateQueryResult;
 };
 

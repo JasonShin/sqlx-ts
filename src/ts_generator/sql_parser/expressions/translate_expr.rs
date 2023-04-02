@@ -5,7 +5,7 @@ use crate::ts_generator::types::db_conn::DBConn;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
 use convert_case::{Case, Casing};
 use regex::Regex;
-use sqlparser::ast::{Expr, Value};
+use sqlparser::ast::{Assignment, Expr, Value};
 
 /// Given an expression
 /// e.g.
@@ -65,6 +65,18 @@ pub fn translate_column_name_expr(expr: &Expr) -> Option<String> {
         Expr::CompoundIdentifier(comp) => Some(comp.get(1).unwrap().to_string()),
         _ => None,
     }
+}
+
+pub fn translate_column_name_assignment(assignment: &Assignment) -> Option<String> {
+    let left = assignment.id.get(0);
+    let right = assignment.id.get(1);
+
+    if left.is_some() && right.is_some() {
+        return right.map(|x| x.to_string());
+    } else if left.is_some() && right.is_none() {
+        return left.map(|x| x.to_string());
+    }
+    None
 }
 
 pub fn format_column_name(column_name: String) -> String {
@@ -263,4 +275,23 @@ pub fn translate_expr(
          */
         _ => todo!(),
     }
+}
+
+pub fn translate_assignment(
+    assignment: &Assignment,
+    table_name: &str,
+    ts_query: &mut TsQuery,
+    db_conn: &DBConn,
+) -> Result<(), TsGeneratorError> {
+    let value = get_expr_placeholder(&assignment.value);
+
+    if value.is_some() {
+        let table_details = &DB_SCHEMA.fetch_table(&vec![table_name], db_conn).unwrap();
+        let column_name = translate_column_name_assignment(assignment).unwrap();
+        let field = table_details
+            .get(&column_name)
+            .unwrap_or_else(|| panic!("Failed to find the column detail for {column_name}"));
+        ts_query.insert_param(&field.field_type, &value);
+    }
+    Ok(())
 }

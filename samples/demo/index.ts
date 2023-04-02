@@ -32,9 +32,57 @@ OR points = ?
 `
 */
 
+/*
 const someDeleteQuery = sql`
 DELETE FROM items WHERE id = ?
 `
+*/
+
+/*
+const someUpdateQuery = sql`
+UPDATE items
+SET food_type = ?
+WHERE id = ?
+`
+*/
+
+/*
+const someUpdateQuery2 = sql`
+UPDATE items
+JOIN tables ON tables.id = items.table_id
+SET items.food_type = ?
+WHERE tables.id = ?
+`
+*/
+
+/*
+const someUpdateQuery3 = sql`
+UPDATE items
+JOIN tables ON tables.id = items.table_id
+SET
+    items.food_type = ?,
+    items.time_takes_to_cook = ?
+WHERE tables.id = ?
+`
+*/
+
+const someUpdateQuery = sql`
+UPDATE items
+SET food_type = $1;
+`;
+
+/**
+// FROM syntax below
+UPDATE 
+    sales.commissions
+SET  
+    sales.commissions.commission = 
+        c.base_amount  * COALESCE(t.percentage,0.1)
+FROM  
+    sales.commissions c
+    LEFT JOIN sales.targets t 
+        ON c.target_id = t.target_id;
+ */
 
 /*
 const subQuery1 = sql`

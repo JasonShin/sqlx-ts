@@ -3,6 +3,7 @@ use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::translate_delete::translate_delete;
 use crate::ts_generator::sql_parser::translate_insert::translate_insert;
 use crate::ts_generator::sql_parser::translate_query::translate_query;
+use crate::ts_generator::sql_parser::translate_update::translate_update;
 use crate::ts_generator::types::db_conn::DBConn;
 use crate::ts_generator::types::ts_query::TsQuery;
 
@@ -16,9 +17,6 @@ pub fn translate_stmt(
     match sql_statement {
         Statement::Query(query) => {
             translate_query(ts_query, query, db_conn, false)?;
-        }
-        Statement::Update { .. } => {
-            println!("UPDATE statement is not yet supported by TS type generator")
         }
         Statement::Insert {
             or: _,
@@ -41,6 +39,14 @@ pub fn translate_stmt(
             let table_name = table_name.as_str();
             let selection = selection.to_owned().unwrap();
             translate_delete(ts_query, &selection, table_name, db_conn)?;
+        }
+        Statement::Update {
+            table,
+            assignments,
+            from,
+            selection,
+        } => {
+            translate_update(ts_query, table, assignments, from, selection, db_conn)?;
         }
         _ => {}
     }
