@@ -14,7 +14,6 @@ pub fn translate_stmt(
     sql_statement: &Statement,
     db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
-    println!("translating stmt {:?}", sql_statement);
     match sql_statement {
         Statement::Query(query) => {
             translate_query(ts_query, query, db_conn, false)?;
@@ -47,9 +46,6 @@ pub fn translate_stmt(
             from,
             selection,
         } => {
-            println!("checking table for update stmd");
-            println!("UPDATE table {:?}", table);
-            println!("UPDATE from {:?}", from);
             translate_update(ts_query, table, assignments, from, selection, db_conn)?;
         }
         _ => {}

@@ -17,12 +17,21 @@ fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
 
 pub fn find_table_name_from_identifier(
     table_with_joins: &Vec<TableWithJoins>,
-    identifier: String, // can be the actual identifier or an alias
+    identifiers: &Vec<String>, // can be the actual identifier or an alias
 ) -> Option<String> {
+    let left = identifiers
+        .get(0)
+        .expect("The first identifier must exist in order to find the table name")
+        .to_owned();
+    let right = identifiers.get(1);
     let default_table_name = get_default_table(table_with_joins);
 
     // if the identifier of a compound identifier is exactly same as the default table name, we just return it
-    if identifier == default_table_name {
+    if left == default_table_name {
+        return Some(default_table_name);
+    } else if right.is_none() {
+        // If right is none, it means we cannot further assume and try to find the table name
+        // we should simply return the default table name
         return Some(default_table_name);
     }
 
@@ -34,7 +43,8 @@ pub fn find_table_name_from_identifier(
                 args: _,
                 with_hints: _,
             } => {
-                if Some(identifier.to_owned()) == alias.to_owned().map(|a| a.to_string()) {
+                if Some(left.to_owned()) == alias.to_owned().map(|a| a.to_string()) {
+                    // If the identifier matches the alias, then return the table name
                     return Some(name.to_string());
                 }
             }
@@ -57,7 +67,7 @@ pub fn find_table_name_from_identifier(
                 let alias = alias.to_owned().map(|x| x.to_string());
                 let name = name.to_string();
 
-                if Some(identifier.to_owned()) == alias || identifier == name {
+                if Some(left.to_owned()) == alias || left == name {
                     return Some(name);
                 }
             }
@@ -78,9 +88,9 @@ pub fn translate_table_from_expr(table_with_joins: &Vec<TableWithJoins>, expr: &
         Expr::Identifier(_) => Some(get_default_table(table_with_joins)),
         Expr::CompoundIdentifier(compound_identifier) => {
             // Assumes that [0] of the compound identifiers is the alias that points to the table
-            let identifier = compound_identifier[0].to_string();
+            let identifiers = &compound_identifier.into_iter().map(|x| x.to_string()).collect();
 
-            find_table_name_from_identifier(table_with_joins, identifier)
+            find_table_name_from_identifier(table_with_joins, identifiers)
         }
         _ => None,
     }
@@ -92,7 +102,7 @@ pub fn translate_table_from_assignments(
 ) -> Option<String> {
     let identifier = assignment.id.get(0);
     match identifier {
-        Some(identifier) => find_table_name_from_identifier(table_with_joins, identifier.value.to_string()),
+        Some(identifier) => find_table_name_from_identifier(table_with_joins, &vec![identifier.value.to_string()]),
         None => Some(get_default_table(table_with_joins)),
     }
 }
@@ -108,9 +118,8 @@ pub fn translate_table_with_joins(table_with_joins: &Vec<TableWithJoins>, select
             match expr {
                 Expr::CompoundIdentifier(compound_identifier) => {
                     // Assumes that [0] of the compound identifiers is the alias that points to the table
-                    let identifier = compound_identifier[0].to_string();
-
-                    find_table_name_from_identifier(table_with_joins, identifier)
+                    let identifiers = &compound_identifier.into_iter().map(|x| x.to_string()).collect();
+                    find_table_name_from_identifier(table_with_joins, identifiers)
                 }
                 _ => Some(default_table_name),
             }
@@ -119,9 +128,8 @@ pub fn translate_table_with_joins(table_with_joins: &Vec<TableWithJoins>, select
         SelectItem::ExprWithAlias { expr, alias: _ } => match &expr {
             Expr::Identifier(_) => todo!(),
             Expr::CompoundIdentifier(compound_identifier) => {
-                let identifier = compound_identifier[0].to_string();
-
-                find_table_name_from_identifier(table_with_joins, identifier)
+                let identifiers = &compound_identifier.into_iter().map(|x| x.to_string()).collect();
+                find_table_name_from_identifier(table_with_joins, identifiers)
             }
             _ => Some(default_table_name),
         },
