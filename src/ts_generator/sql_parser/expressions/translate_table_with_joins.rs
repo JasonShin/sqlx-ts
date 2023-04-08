@@ -88,7 +88,7 @@ pub fn translate_table_from_expr(table_with_joins: &Vec<TableWithJoins>, expr: &
         Expr::Identifier(_) => Some(get_default_table(table_with_joins)),
         Expr::CompoundIdentifier(compound_identifier) => {
             // Assumes that [0] of the compound identifiers is the alias that points to the table
-            let identifiers = &compound_identifier.into_iter().map(|x| x.to_string()).collect();
+            let identifiers = &compound_identifier.iter().map(|x| x.to_string()).collect();
 
             find_table_name_from_identifier(table_with_joins, identifiers)
         }
@@ -118,7 +118,7 @@ pub fn translate_table_with_joins(table_with_joins: &Vec<TableWithJoins>, select
             match expr {
                 Expr::CompoundIdentifier(compound_identifier) => {
                     // Assumes that [0] of the compound identifiers is the alias that points to the table
-                    let identifiers = &compound_identifier.into_iter().map(|x| x.to_string()).collect();
+                    let identifiers = &compound_identifier.iter().map(|x| x.to_string()).collect();
                     find_table_name_from_identifier(table_with_joins, identifiers)
                 }
                 _ => Some(default_table_name),
@@ -128,7 +128,7 @@ pub fn translate_table_with_joins(table_with_joins: &Vec<TableWithJoins>, select
         SelectItem::ExprWithAlias { expr, alias: _ } => match &expr {
             Expr::Identifier(_) => todo!(),
             Expr::CompoundIdentifier(compound_identifier) => {
-                let identifiers = &compound_identifier.into_iter().map(|x| x.to_string()).collect();
+                let identifiers = &compound_identifier.iter().map(|x| x.to_string()).collect();
                 find_table_name_from_identifier(table_with_joins, identifiers)
             }
             _ => Some(default_table_name),
