@@ -122,7 +122,13 @@ For more advanced usage, please check `--help` command of install.sh
 
 ```bash
 $ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | \
-    sh -s --help
+    sh -s -- --help
+```
+
+
+
+```
+
 ```
 
 ### Motivation
