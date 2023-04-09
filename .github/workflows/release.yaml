@@ -24,11 +24,12 @@ jobs:
         with:
           file: "Cargo.toml"
           key: "package.version"
-          value: ${{ env.PKG_VERSION }}
+          value: "${{ env.PKG_VERSION }}"
       
       - name: Git Push
         shell: bash
         run: |
+          echo "Updated to ${{ env.PKG_VERSION }}"
           git config --global user.email "visualbbasic@gmail.com"
           git config --global user.name "Jason Shin"
           cat Cargo.toml
