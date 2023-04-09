@@ -176,11 +176,13 @@ jobs:
       - name: Install cargo-release
         run: cargo install cargo-release
 
-      - name: Git Config
+      - name: Git Commit
         shell: bash
         run: |
           git config --global user.email "visualbbasic@gmail.com"
           git config --global user.name "Jason Shin"
+          git add .
+          git commit -m "Updated Cargo.toml"
 
       - name: Release to crates.io
         shell: bash
