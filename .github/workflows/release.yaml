@@ -31,7 +31,9 @@ jobs:
         run: |
           git config --global user.email "visualbbasic@gmail.com"
           git config --global user.name "Jason Shin"
-          git commit -a -m "release: Updating Cargo.toml package version"
+          cat Cargo.toml
+          git add .
+          git commit -m "release: Updating Cargo.toml package version"
           git push
       
   build-release:
