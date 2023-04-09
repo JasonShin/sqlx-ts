@@ -5,8 +5,54 @@ on:
 name: release
 
 jobs:
+  update-package-version:
+    name: update version number in Cargo.toml
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@master
+        with:
+          ref: main
+
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.3
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Get tag version
+        shell: bash
+        run: |
+          tag="${{ github.event.release.tag_name }}"
+          version=$(echo $tag | cut -d 'v' -f2)
+          echo "PKG_VERSION=$version" >> $GITHUB_ENV
+
+      - name: Edit Cargo.toml
+        uses: ciiiii/toml-editor@1.0.0
+        with:
+          file: "Cargo.toml"
+          key: "package.version"
+          value: "${{ env.PKG_VERSION }}"
+      
+      - name: Git commit
+        shell: bash
+        run: |
+          echo "Updated to ${{ env.PKG_VERSION }}"
+          git config --global user.email "visualbbasic@gmail.com"
+          git config --global user.name "Jason Shin"
+          cat Cargo.toml
+          echo "CARGO_PKG_HASH=${{ hashFiles('Cargo.toml') }}" >> $GITHUB_ENV
+      
+      - name: Cache Cargo.toml
+        id: cache-cargo-toml
+        uses: actions/cache@v3
+        with:
+          path: Cargo.toml
+          key: ${{ CARGO_PKG_HASH }}
+      
   build-release:
     name: release ${{ matrix.target }}
+    needs: update-package-version
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -39,6 +85,13 @@ jobs:
         run: |
           ci/ubuntu-install-packages
 
+      - name: Cache Cargo.toml
+        id: cache-cargo-toml
+        uses: actions/cache@v3
+        with:
+          path: Cargo.toml
+          key: ${{ CARGO_PKG_HASH }}
+
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -46,30 +99,6 @@ jobs:
           target: ${{ matrix.target }}
           profile: minimal
           override: true
-
-      - name: Get tag version
-        shell: bash
-        run: |
-          tag="${{ github.event.release.tag_name }}"
-          version=$(echo $tag | cut -d 'v' -f2)
-          echo "PKG_VERSION=$version" >> $GITHUB_ENV
-
-      - name: Edit Cargo.toml
-        uses: ciiiii/toml-editor@1.0.0
-        with:
-          file: "Cargo.toml"
-          key: "package.version"
-          value: "${{ env.PKG_VERSION }}"
-      
-      - name: Git Commit Version update
-        shell: bash
-        run: |
-          echo "Updated to ${{ env.PKG_VERSION }}"
-          git config --global user.email "visualbbasic@gmail.com"
-          git config --global user.name "Jason Shin"
-          cat Cargo.toml
-          git add .
-          git commit -m "release: Updating Cargo.toml package version"
 
       - name: Build release binary
         run: cargo build --verbose --release
@@ -109,6 +138,7 @@ jobs:
 
   build-cargo-release:
     name: cargo release
+    needs: update-package-version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -136,29 +166,12 @@ jobs:
           profile: minimal
           override: true
 
-      - name: Get tag version
-        shell: bash
-        run: |
-          tag="${{ github.event.release.tag_name }}"
-          version=$(echo $tag | cut -d 'v' -f2)
-          echo "PKG_VERSION=$version" >> $GITHUB_ENV
-
-      - name: Edit Cargo.toml
-        uses: ciiiii/toml-editor@1.0.0
+      - name: Cache Cargo.toml
+        id: cache-cargo-toml
+        uses: actions/cache@v3
         with:
-          file: "Cargo.toml"
-          key: "package.version"
-          value: "${{ env.PKG_VERSION }}"
-      
-      - name: Git Commit Version update
-        shell: bash
-        run: |
-          echo "Updated to ${{ env.PKG_VERSION }}"
-          git config --global user.email "visualbbasic@gmail.com"
-          git config --global user.name "Jason Shin"
-          cat Cargo.toml
-          git add .
-          git commit -m "release: Updating Cargo.toml package version"
+          path: Cargo.toml
+          key: ${{ CARGO_PKG_HASH }}
 
       - name: Install cargo-release
         run: cargo install cargo-release
