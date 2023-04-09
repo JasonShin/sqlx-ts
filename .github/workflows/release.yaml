@@ -24,9 +24,8 @@ jobs:
         shell: bash
         run: |
           tag="${{ github.event.release.tag_name }}"
-          version=$(echo $TAG | cut -d 'v' -f2)
+          version=$(echo $tag | cut -d 'v' -f2)
           echo "PKG_VERSION=$version" >> $GITHUB_ENV
-          echo "Tag detected $tag - $version"
 
       - name: Edit Cargo.toml
         uses: ciiiii/toml-editor@1.0.0
