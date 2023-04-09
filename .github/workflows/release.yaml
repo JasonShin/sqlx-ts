@@ -49,7 +49,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: Cargo.toml
-          key: ${{ CARGO_PKG_HASH }}
+          key: ${{ env.CARGO_PKG_HASH }}
       
   build-release:
     name: release ${{ matrix.target }}
