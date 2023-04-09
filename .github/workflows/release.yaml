@@ -7,10 +7,12 @@ name: release
 jobs:
   update-package-version:
     name: update version number in Cargo.toml
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@master
+        with:
+          ref: main
 
       - name: Get release
         id: get_release
@@ -24,7 +26,7 @@ jobs:
           tag="$github.event.release.tag_name"
           version=$(echo $TAG | cut -d 'v' -f2)
           echo "PKG_VERSION=$version" >> $GITHUB_ENV
-          echo "Tag detected $tag"
+          echo "Tag detected $tag - $version"
 
       - name: Edit Cargo.toml
         uses: ciiiii/toml-editor@1.0.0
