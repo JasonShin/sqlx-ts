@@ -63,6 +63,7 @@ jobs:
           else
             cp target/release/sqlx-ts sqlx-ts
             tar -czf "$file_name.tar.gz" sqlx-ts
+            ls
             echo "ASSET=$file_name.tar.gz" >> $GITHUB_ENV
           fi
           
