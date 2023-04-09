@@ -12,12 +12,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@master
 
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.3
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
       - name: Get tag version
         shell: bash
         run: |
           tag="$github.event.release.tag_name"
           version=$(echo $TAG | cut -d 'v' -f2)
           echo "PKG_VERSION=$version" >> $GITHUB_ENV
+          echo "Tag detected $tag"
 
       - name: Edit Cargo.toml
         uses: ciiiii/toml-editor@1.0.0
