@@ -42,6 +42,7 @@ jobs:
           git config --global user.name "Jason Shin"
           cat Cargo.toml
           echo "CARGO_PKG_HASH=${{ hashFiles('Cargo.toml') }}" >> $GITHUB_ENV
+          echo "Cargo ${{ hashFiles('Cargo.toml') }}"
       
       - name: Cache Cargo.toml
         id: cache-cargo-toml
