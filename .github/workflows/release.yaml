@@ -43,7 +43,6 @@ jobs:
           cat Cargo.toml
           git add .
           git commit -m "release: Updating Cargo.toml package version"
-          git push
       
   build-release:
     name: release ${{ matrix.target }}
