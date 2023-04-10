@@ -37,11 +37,8 @@ jobs:
       - name: Git commit
         shell: bash
         run: |
-          echo "Updated to ${{ env.PKG_VERSION }}"
           git config --global user.email "visualbbasic@gmail.com"
           git config --global user.name "Jason Shin"
-          cat Cargo.toml
-          echo "CARGO_PKG_HASH=${{ hashFiles('Cargo.toml') }}" >> $GITHUB_ENV
       
       - name: Cache Cargo.toml
         id: cache-cargo-toml
@@ -168,6 +165,12 @@ jobs:
 
       - name: Install cargo-release
         run: cargo install cargo-release
+
+      - name: Git commit
+        shell: bash
+        run: |
+          git config --global user.email "visualbbasic@gmail.com"
+          git config --global user.name "Jason Shin"
 
       - name: Release to crates.io
         shell: bash
