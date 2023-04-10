@@ -166,23 +166,8 @@ jobs:
           profile: minimal
           override: true
 
-      - name: Cache Cargo.toml
-        id: cache-cargo-toml
-        uses: actions/cache@v3
-        with:
-          path: Cargo.toml
-          key: ${{ github.event.release.tag_name }}-cargo-toml
-
       - name: Install cargo-release
         run: cargo install cargo-release
-
-      - name: Git Commit
-        shell: bash
-        run: |
-          git config --global user.email "visualbbasic@gmail.com"
-          git config --global user.name "Jason Shin"
-          git add .
-          git commit -m "Updated Cargo.toml"
 
       - name: Release to crates.io
         shell: bash
