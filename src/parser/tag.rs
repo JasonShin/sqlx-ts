@@ -46,14 +46,12 @@ pub fn get_sql_from_expr<'a>(
             vec![]
         }
         Expr::TsNonNull(expr) => get_sql_from_expr(var_decl_name, &expr.expr, span, import_alias),
-        Expr::Call(call_expr) => {
-            call_expr
-                .args
-                .clone()
-                .into_iter()
-                .flat_map(|arg| get_sql_from_expr(var_decl_name, &arg.expr, span, import_alias))
-                .collect()
-        }
+        Expr::Call(call_expr) => call_expr
+            .args
+            .clone()
+            .into_iter()
+            .flat_map(|arg| get_sql_from_expr(var_decl_name, &arg.expr, span, import_alias))
+            .collect(),
         _ => vec![],
     }
 }
