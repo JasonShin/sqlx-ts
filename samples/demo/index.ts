@@ -1,4 +1,13 @@
 import { sql } from "sqlx-ts";
+import { Sequelize, QueryTypes } from 'sequelize';
+
+const sequelize = new Sequelize('...')
+
+sequelize.query(sql`
+SELECT * FROM items;
+`!, {
+    type: QueryTypes.SELECT
+})
 
 /*
 const someInputQuery = sql`
@@ -66,10 +75,12 @@ WHERE tables.id = ?
 `
 */
 
+/*
 const someUpdateQuery = sql`
 UPDATE items
 SET food_type = $1;
 `;
+*/
 
 /**
 // FROM syntax below

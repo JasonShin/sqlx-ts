@@ -23,7 +23,6 @@ pub fn get_sql_from_expr<'a>(
     span: &MultiSpan,
     import_alias: &String,
 ) -> Vec<SQL> {
-    let mut sqls: Vec<SQL> = vec![];
     match &expr {
         Expr::TaggedTpl(tagged_tpl) => {
             let tag = &*tagged_tpl.tag;
@@ -31,7 +30,7 @@ pub fn get_sql_from_expr<'a>(
                 let ident = ident.to_string();
 
                 if ident.contains(import_alias) {
-                    let mut sql_statements: Vec<SQL> = tagged_tpl
+                    return tagged_tpl
                         .tpl
                         .quasis
                         .iter()
@@ -41,15 +40,20 @@ pub fn get_sql_from_expr<'a>(
                             span: span.clone(),
                         })
                         .collect();
-
-                    sqls.append(&mut sql_statements)
                 }
             }
-        }
-        _ => {}
-    }
 
-    sqls
+            vec![]
+        }
+        Expr::TsNonNull(expr) => get_sql_from_expr(var_decl_name, &expr.expr, span, import_alias),
+        Expr::Call(call_expr) => call_expr
+            .args
+            .clone()
+            .into_iter()
+            .flat_map(|arg| get_sql_from_expr(var_decl_name, &arg.expr, span, import_alias))
+            .collect(),
+        _ => vec![],
+    }
 }
 
 /// you would normally pass in any var declarator such as

@@ -1,15 +1,19 @@
 
 
-export type SomeUpdateQueryParams = [string];
+export type TestQueryParams = [];
 
 
-export interface ISomeUpdateQueryResult {
-    
+export interface ITestQueryResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
 };
 
 
-export interface ISomeUpdateQueryQuery {
-    params: SomeUpdateQueryParams;
-    result: ISomeUpdateQueryResult;
+export interface ITestQueryQuery {
+    params: TestQueryParams;
+    result: ITestQueryResult;
 };
 
