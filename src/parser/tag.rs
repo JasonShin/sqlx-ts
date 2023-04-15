@@ -23,6 +23,7 @@ pub fn get_sql_from_expr<'a>(
     span: &MultiSpan,
     import_alias: &String,
 ) -> Vec<SQL> {
+    // TODO: Optimise this so that we don't append, instead it should just return sqls
     let mut sqls: Vec<SQL> = vec![];
     match &expr {
         Expr::TaggedTpl(tagged_tpl) => {
@@ -45,6 +46,16 @@ pub fn get_sql_from_expr<'a>(
                     sqls.append(&mut sql_statements)
                 }
             }
+        }
+        Expr::TsNonNull(expr) => return get_sql_from_expr(var_decl_name, &expr.expr, span, import_alias),
+        Expr::Call(call_expr) => {
+            return call_expr
+                .args
+                .clone()
+                .into_iter()
+                .map(|arg| get_sql_from_expr(var_decl_name, &arg.expr, span, import_alias))
+                .flatten()
+                .collect()
         }
         _ => {}
     }
