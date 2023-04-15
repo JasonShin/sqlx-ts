@@ -40,7 +40,7 @@ pub fn get_query_name(sql: &SQL) -> Result<String, TsGeneratorError> {
         return Ok(var_decl_name.to_case(Case::Pascal));
     }
 
-    Err(TsGeneratorError::EmptyQueryNameFromVarDecl)
+    Err(TsGeneratorError::EmptyQueryNameFromVarDecl(sql.query.to_string()))
 }
 
 pub fn get_query_ts_file_path(file_path: &PathBuf) -> Result<PathBuf, TsGeneratorError> {

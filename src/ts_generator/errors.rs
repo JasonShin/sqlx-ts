@@ -4,7 +4,7 @@ use std::path::PathBuf;
 #[derive(Debug)]
 pub enum TsGeneratorError {
     EmptyQueryNameFromAnnotation(String),
-    EmptyQueryNameFromVarDecl,
+    EmptyQueryNameFromVarDecl(String),
     MissingAliasForFunctions(String),
     InvalidTypescriptFilePath(PathBuf),
     // Wildcard expr handler errors
@@ -23,7 +23,9 @@ impl fmt::Display for TsGeneratorError {
                 "Failed to fetch query name from DB name annotation - query: {}",
                 query,
             ),
-            Self::EmptyQueryNameFromVarDecl => todo!(),
+            Self::EmptyQueryNameFromVarDecl(query) => {
+                writeln!(f, "[E001] Unable to infer an appropriate name for the query - query {:#?}", query)
+            },
             Self::MissingAliasForFunctions(query) => {
                 writeln!(f, "Missing alias when handling functions - query: {}", query,)
             }
