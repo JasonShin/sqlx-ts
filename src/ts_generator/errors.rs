@@ -24,8 +24,12 @@ impl fmt::Display for TsGeneratorError {
                 query,
             ),
             Self::EmptyQueryNameFromVarDecl(query) => {
-                writeln!(f, "[E001] Unable to infer an appropriate name for the query - query {:#?}", query)
-            },
+                writeln!(
+                    f,
+                    "[E001] Unable to infer an appropriate name for the query - query {:#?}",
+                    query
+                )
+            }
             Self::MissingAliasForFunctions(query) => {
                 writeln!(f, "Missing alias when handling functions - query: {}", query,)
             }
