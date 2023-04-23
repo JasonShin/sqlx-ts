@@ -5,14 +5,14 @@ use crate::core::mysql::prepare as mysql_explain;
 use crate::core::postgres::prepare as postgres_explain;
 use crate::ts_generator::generator::get_query_ts_file_path;
 
+use color_eyre::eyre::Result;
 use std::collections::HashMap;
 use std::fs::{remove_file, File};
 use std::io::Write;
 use std::path::PathBuf;
-
 use swc_common::errors::Handler;
 
-pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> bool {
+pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Result<bool> {
     // TODO: later we will add mysql_explain, sqlite_explain depending on the database type
     let mut failed = false;
     let should_generate_types = &CONFIG
@@ -27,8 +27,8 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> bool 
             let connection = &CONFIG.get_correct_db_connection(&sql.query);
 
             let (explain_failed, ts_query) = match connection.db_type {
-                DatabaseType::Postgres => postgres_explain::prepare(sql, should_generate_types, handler),
-                DatabaseType::Mysql => mysql_explain::prepare(sql, should_generate_types, handler),
+                DatabaseType::Postgres => postgres_explain::prepare(sql, should_generate_types, handler)?,
+                DatabaseType::Mysql => mysql_explain::prepare(sql, should_generate_types, handler)?,
             };
 
             // If any prepare statement fails, we should set the failed flag as true
@@ -42,16 +42,16 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> bool 
 
         if *should_generate_types {
             // Finally writes query typing files
-            let query_ts_file_path = get_query_ts_file_path(file_path).unwrap();
+            let query_ts_file_path = get_query_ts_file_path(file_path)?;
             if query_ts_file_path.exists() {
                 remove_file(&query_ts_file_path).unwrap();
             }
-            let mut file_to_write = File::create(query_ts_file_path).unwrap();
+            let mut file_to_write = File::create(query_ts_file_path)?;
             let sqls_to_write = sqls_to_write.join("\n");
 
-            file_to_write.write_all(sqls_to_write.as_ref()).unwrap();
+            file_to_write.write_all(sqls_to_write.as_ref())?;
         }
     }
 
-    failed
+    Ok(failed)
 }

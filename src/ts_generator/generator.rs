@@ -7,8 +7,8 @@ use crate::ts_generator::annotations::extract_result_annotations;
 use crate::ts_generator::sql_parser::translate_stmt::translate_stmt;
 use crate::ts_generator::types::ts_query::TsQuery;
 
+use color_eyre::eyre::Result;
 use convert_case::{Case, Casing};
-use eyre::Result;
 use regex::Regex;
 use sqlparser::{dialect::GenericDialect, parser::Parser};
 
