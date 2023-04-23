@@ -32,7 +32,12 @@ pub fn prepare<'a>(sql: &SQL, should_generate_types: &bool, handler: &Handler) -
     let mut ts_query = None;
 
     if should_generate_types == &true {
-        ts_query = Some(generate_ts_interface(sql, &DBConn::PostgresConn(&mut RefCell::new(&mut conn))).unwrap());
+        
+        ts_query = Some(
+            generate_ts_interface(sql, &DBConn::PostgresConn(&mut RefCell::new(&mut conn)))
+                // .map_err(|err| panic!("{:?}", err.to_string()))
+                .unwrap()
+        );
     }
 
     (failed, ts_query)
