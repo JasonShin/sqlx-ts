@@ -13,8 +13,10 @@ use dotenv::dotenv;
 
 use crate::common::lazy::CLI_ARGS;
 use crate::{parser::parse_source, scan_folder::scan_folder};
+use color_eyre::{eyre::eyre, eyre::Result};
 
-fn main() {
+fn main() -> Result<()> {
+    color_eyre::install()?;
     dotenv().ok();
 
     let source_folder = &CLI_ARGS.path;
@@ -26,15 +28,14 @@ fn main() {
     let files = scan_folder(source_folder, ext, ignore_paths);
 
     if files.is_empty() {
-        println!("No targets detected, is it an empty folder?");
-        return;
+        return Err(eyre!("No targets detected, is it an empty folder?"));
     }
 
     let explain_results: Vec<bool> = files
         .into_iter()
         .map(|file_path| {
             let (sqls, handler) = parse_source(&file_path);
-            execute(&sqls, &handler)
+            execute(&sqls, &handler).unwrap()
         })
         .collect();
 

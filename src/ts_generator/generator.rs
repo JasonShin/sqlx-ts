@@ -7,13 +7,14 @@ use crate::ts_generator::annotations::extract_result_annotations;
 use crate::ts_generator::sql_parser::translate_stmt::translate_stmt;
 use crate::ts_generator::types::ts_query::TsQuery;
 
+use color_eyre::eyre::Result;
 use convert_case::{Case, Casing};
 use regex::Regex;
 use sqlparser::{dialect::GenericDialect, parser::Parser};
 
 use super::errors::TsGeneratorError;
 
-pub fn get_query_name(sql: &SQL) -> Result<String, TsGeneratorError> {
+pub fn get_query_name(sql: &SQL) -> Result<String> {
     let re = Regex::new(r"@name:(.+)").unwrap();
     let var_decl_name = &sql.var_decl_name;
     let captures = re.captures(sql.query.as_str());
@@ -29,7 +30,7 @@ pub fn get_query_name(sql: &SQL) -> Result<String, TsGeneratorError> {
             .to_string();
 
         if query_name.is_empty() {
-            return Err(TsGeneratorError::EmptyQueryNameFromAnnotation(sql.query.to_string()));
+            return Err(TsGeneratorError::EmptyQueryNameFromAnnotation(sql.query.to_string()).into());
         }
         return Ok(query_name.to_case(Case::Pascal));
     }
@@ -40,10 +41,10 @@ pub fn get_query_name(sql: &SQL) -> Result<String, TsGeneratorError> {
         return Ok(var_decl_name.to_case(Case::Pascal));
     }
 
-    Err(TsGeneratorError::EmptyQueryNameFromVarDecl(sql.query.to_string()))
+    Err(TsGeneratorError::EmptyQueryNameFromVarDecl(sql.query.to_string()).into())
 }
 
-pub fn get_query_ts_file_path(file_path: &PathBuf) -> Result<PathBuf, TsGeneratorError> {
+pub fn get_query_ts_file_path(file_path: &PathBuf) -> Result<PathBuf> {
     let path = file_path.parent().unwrap();
     let file = file_path.file_name().unwrap();
     let file_name = file.to_str().unwrap().split('.').next().unwrap();
@@ -52,7 +53,7 @@ pub fn get_query_ts_file_path(file_path: &PathBuf) -> Result<PathBuf, TsGenerato
     Ok(result)
 }
 
-pub fn generate_ts_interface<'a>(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery, TsGeneratorError> {
+pub fn generate_ts_interface<'a>(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery> {
     let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
 
     let sql_ast = Parser::parse_sql(&dialect, &sql.query).unwrap();
