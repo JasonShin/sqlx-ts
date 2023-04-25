@@ -182,6 +182,7 @@ jobs:
           cargo release \
             --tag-name="$tag" \
             --no-tag \
+            --verbose \
             --execute \
             --no-confirm
          
