@@ -180,7 +180,7 @@ jobs:
           tag="${{ github.event.release.tag_name }}"
           echo "checking tag name $tag"
           cargo release \
-            --tag-name="${{ tag }}" \
+            --tag-name "$tag" \
             --no-tag \
             --verbose \
             --execute \
