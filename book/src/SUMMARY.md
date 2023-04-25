@@ -23,6 +23,7 @@
   - [DELETE](./reference-guide/4.3.DELETE.md)
   - [UPDATE](./reference-guide/4.4.UPDATE.md)
   - [Annotations](./reference-guide/4.5.annotations.md)
+- [Errors](./reference-guide/5.errors.md)
 
 # Miscellaneous
 

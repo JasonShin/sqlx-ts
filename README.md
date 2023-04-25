@@ -125,12 +125,6 @@ $ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | \
     sh -s -- --help
 ```
 
-
-
-```
-
-```
-
 ### Motivation
 
 Rust's philosophy of guaranteed compile-time safety of your code has always inspired me. Rust is still new and many seasoned developers would view Rust's increased benefit/cost ratio claims are as yet unproven. However, there are lessons from these new technologies that we can bring back to our everyday languages such as JavaScript and TypeScript. [SQLx](https://github.com/launchbadge/sqlx) is a great example of this, although the idea isn't directly co-related to Rust, but its philosophy well-aligns with Rust's overall ecosystem.

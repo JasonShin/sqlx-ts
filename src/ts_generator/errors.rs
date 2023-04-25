@@ -5,7 +5,7 @@ use thiserror::Error;
 pub enum TsGeneratorError {
     #[error("[E001] Unable to infer an appropriate name for the query - query: `{0}`")]
     EmptyQueryNameFromVarDecl(String),
-    #[error("[E002] Failed to fetch query name from DB name annotation - query: `{0}`")]
+    #[error("[E002] Failed to fetch query name from the annotation - query: `{0}`")]
     EmptyQueryNameFromAnnotation(String),
     #[error("[E003] Missing alias when handling functions - query: `{0}`")]
     MissingAliasForFunctions(String),
@@ -17,6 +17,6 @@ pub enum TsGeneratorError {
     WildcardStatementDeadendExpression(String),
     #[error("[E007] Unsupported table with joins statement detected - query: `{0}`")]
     WildcardStatementUnsupportedTableExpr(String),
-    #[error("[E008] The query contains unknown placeholder paramter symbol - query: `{0}`")]
+    #[error("[E008] The query contains unknown placeholder parameter symbol - query: `{0}`")]
     UnknownPlaceholder(String),
 }
