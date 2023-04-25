@@ -163,9 +163,6 @@ jobs:
           profile: minimal
           override: true
 
-      - name: Install cargo-release
-        run: cargo install cargo-release
-
       - name: Git commit
         shell: bash
         run: |
@@ -178,11 +175,10 @@ jobs:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
           tag="${{ github.event.release.tag_name }}"
-          echo "checking tag name $tag"
-          cargo release \
-            --tag-name "$tag" \
-            --no-tag \
-            --verbose \
-            --execute \
-            --no-confirm
-         
+          tag_without_prefix=${tag#"v"}
+          line=$(grep -n "^\s*version\s*=" "Cargo.toml")
+          line_number=$(echo "$line" | cut -d ":" -f 1)
+          updated_cargo_toml=$(sed "${line_number}s/.*/version = \"$version_without_prefix\"/" Cargo.toml)
+          echo $updated_cargo_toml > Cargo.toml
+
+          cargo publish --allow-dirty
