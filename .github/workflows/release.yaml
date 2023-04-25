@@ -178,7 +178,7 @@ jobs:
           tag_without_prefix=${tag#"v"}
           line=$(grep -n "^\s*version\s*=" "Cargo.toml")
           line_number=$(echo "$line" | cut -d ":" -f 1)
-          updated_cargo_toml=$(sed "${line_number}s/.*/version = \"$version_without_prefix\"/" Cargo.toml)
+          updated_cargo_toml=$(sed "${line_number}s/.*/version = \"$tag_without_prefix\"/" Cargo.toml)
           echo $updated_cargo_toml > Cargo.toml
 
           cargo publish --allow-dirty
