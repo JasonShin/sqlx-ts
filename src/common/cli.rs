@@ -61,6 +61,10 @@ pub struct Cli {
     #[clap(long, short)]
     pub generate_types: bool,
 
+    /// generates types in a target directory path or a file
+    #[clap(long, parse(from_os_str))]
+    pub generate_path: Option<std::path::PathBuf>,
+
     #[clap(long, short)]
     pub message_format: Option<String>,
 }

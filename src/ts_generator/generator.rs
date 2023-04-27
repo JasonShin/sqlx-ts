@@ -1,7 +1,13 @@
-use std::path::{Path, PathBuf};
+use std::fs::OpenOptions;
+use std::io::Write;
+use std::{
+    fs::{remove_file, File},
+    path::{Path, PathBuf},
+};
 
 use super::types::db_conn::DBConn;
 
+use crate::common::lazy::CLI_ARGS;
 use crate::common::SQL;
 use crate::ts_generator::annotations::extract_result_annotations;
 use crate::ts_generator::sql_parser::translate_stmt::translate_stmt;
@@ -44,13 +50,39 @@ pub fn get_query_name(sql: &SQL) -> Result<String> {
     Err(TsGeneratorError::EmptyQueryNameFromVarDecl(sql.query.to_string()).into())
 }
 
-pub fn get_query_ts_file_path(file_path: &PathBuf) -> Result<PathBuf> {
+/// Write colocated Type definition file next to the TS source code
+pub fn write_colocated_ts_file(file_path: &PathBuf, sqls_to_write: String) -> Result<()> {
     let path = file_path.parent().unwrap();
     let file = file_path.file_name().unwrap();
     let file_name = file.to_str().unwrap().split('.').next().unwrap();
 
-    let result = path.join(Path::new(format!("{file_name}.queries.ts").as_str()));
-    Ok(result)
+    let query_ts_file_path = path.join(Path::new(format!("{file_name}.queries.ts").as_str()));
+
+    if query_ts_file_path.exists() {
+        remove_file(&query_ts_file_path)?;
+    }
+
+    let mut file_to_write = File::create(query_ts_file_path)?;
+
+    file_to_write.write_all(sqls_to_write.as_ref())?;
+    Ok(())
+}
+
+pub fn write_single_ts_file(sqls_to_write: String) -> Result<()> {
+    let mut output = CLI_ARGS.generate_path.to_owned().unwrap();
+    if output.is_dir() {
+        output = output.join("types.queries.ts");
+    }
+
+    let mut file_to_write = OpenOptions::new()
+        .create(true)
+        .read(true)
+        .write(true)
+        .append(true)
+        .open(&output)?;
+
+    file_to_write.write_all(sqls_to_write.as_ref())?;
+    Ok(())
 }
 
 pub fn generate_ts_interface<'a>(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery> {

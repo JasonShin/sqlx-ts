@@ -1,12 +1,13 @@
-use crate::common::lazy::CONFIG;
+use crate::common::lazy::{CLI_ARGS, CONFIG};
 use crate::common::types::DatabaseType;
 use crate::common::SQL;
 use crate::core::mysql::prepare as mysql_explain;
 use crate::core::postgres::prepare as postgres_explain;
-use crate::ts_generator::generator::get_query_ts_file_path;
+use crate::ts_generator::generator::{write_colocated_ts_file, write_single_ts_file};
 
 use color_eyre::eyre::Result;
 use std::collections::HashMap;
+use std::fs::OpenOptions;
 use std::fs::{remove_file, File};
 use std::io::Write;
 use std::path::PathBuf;
@@ -41,15 +42,14 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Resul
         }
 
         if *should_generate_types {
-            // Finally writes query typing files
-            let query_ts_file_path = get_query_ts_file_path(file_path)?;
-            if query_ts_file_path.exists() {
-                remove_file(&query_ts_file_path).unwrap();
-            }
-            let mut file_to_write = File::create(query_ts_file_path)?;
             let sqls_to_write = sqls_to_write.join("\n");
-
-            file_to_write.write_all(sqls_to_write.as_ref())?;
+            if CLI_ARGS.generate_path.is_none() {
+                // generates types colocated to source code
+                write_colocated_ts_file(file_path, sqls_to_write)?;
+            } else {
+                // generates types in a single directory/file
+                write_single_ts_file(sqls_to_write)?;
+            }
         }
     }
 
