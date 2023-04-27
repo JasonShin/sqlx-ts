@@ -10,6 +10,7 @@ extern crate dotenv;
 use crate::core::execute::execute;
 
 use dotenv::dotenv;
+use sqlx_ts::ts_generator::generator::clear_single_ts_file_if_exists;
 
 use crate::common::lazy::CLI_ARGS;
 use crate::{parser::parse_source, scan_folder::scan_folder};
@@ -30,6 +31,9 @@ fn main() -> Result<()> {
     if files.is_empty() {
         return Err(eyre!("No targets detected, is it an empty folder?"));
     }
+    
+    // If CLI_ARGS.generate_types is true, it will clear the single TS file so `execute` will generate a new one from scratch
+    clear_single_ts_file_if_exists()?;
 
     let explain_results: Vec<bool> = files
         .into_iter()

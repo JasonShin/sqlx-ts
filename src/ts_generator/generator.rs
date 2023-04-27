@@ -68,6 +68,7 @@ pub fn write_colocated_ts_file(file_path: &PathBuf, sqls_to_write: String) -> Re
     Ok(())
 }
 
+/// Write a single TS file to a target destination according to CLI_ARGS.generate_path
 pub fn write_single_ts_file(sqls_to_write: String) -> Result<()> {
     let mut output = CLI_ARGS.generate_path.to_owned().unwrap();
     if output.is_dir() {
@@ -82,6 +83,27 @@ pub fn write_single_ts_file(sqls_to_write: String) -> Result<()> {
         .open(&output)?;
 
     file_to_write.write_all(sqls_to_write.as_ref())?;
+    Ok(())
+}
+
+/// clears the target single TS file if it exists
+pub fn clear_single_ts_file_if_exists() -> Result<()> {
+    if !CLI_ARGS.generate_types {
+        return Ok(())
+    }
+
+    if CLI_ARGS.generate_path.is_none() {
+        return Ok(())
+    }
+
+    let mut target = CLI_ARGS.generate_path.to_owned().unwrap();
+    if target.is_dir() {
+        target = target.join("types.queries.ts");
+    }
+
+    if target.exists() {
+        remove_file(target)?
+    }
     Ok(())
 }
 
