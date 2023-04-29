@@ -9,6 +9,10 @@ SELECT * FROM items;
     type: QueryTypes.SELECT
 })
 
+const x = sql`
+SELECT * FROM items;
+`
+
 /*
 const someInputQuery = sql`
 INSERT INTO items (id, food_type, time_takes_to_cook, table_id, points)

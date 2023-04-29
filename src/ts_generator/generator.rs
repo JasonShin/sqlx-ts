@@ -1,7 +1,7 @@
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::{
-    fs::{remove_file, File},
+    fs,
     path::{Path, PathBuf},
 };
 
@@ -59,10 +59,10 @@ pub fn write_colocated_ts_file(file_path: &PathBuf, sqls_to_write: String) -> Re
     let query_ts_file_path = path.join(Path::new(format!("{file_name}.queries.ts").as_str()));
 
     if query_ts_file_path.exists() {
-        remove_file(&query_ts_file_path)?;
+        fs::remove_file(&query_ts_file_path)?;
     }
 
-    let mut file_to_write = File::create(query_ts_file_path)?;
+    let mut file_to_write = fs::File::create(query_ts_file_path)?;
 
     file_to_write.write_all(sqls_to_write.as_ref())?;
     Ok(())
@@ -71,8 +71,10 @@ pub fn write_colocated_ts_file(file_path: &PathBuf, sqls_to_write: String) -> Re
 /// Write a single TS file to a target destination according to CLI_ARGS.generate_path
 pub fn write_single_ts_file(sqls_to_write: String) -> Result<()> {
     let mut output = CLI_ARGS.generate_path.to_owned().unwrap();
-    if output.is_dir() {
-        output = output.join("types.queries.ts");
+
+    let parent_output_path: Option<&Path> = output.parent();
+    if parent_output_path.is_some() {
+        fs::create_dir_all(parent_output_path.unwrap())?;
     }
 
     let mut file_to_write = OpenOptions::new()
@@ -101,8 +103,8 @@ pub fn clear_single_ts_file_if_exists() -> Result<()> {
         target = target.join("types.queries.ts");
     }
 
-    if target.exists() {
-        remove_file(target)?
+     if target.exists() {
+        fs::remove_file(target)?
     }
     Ok(())
 }
