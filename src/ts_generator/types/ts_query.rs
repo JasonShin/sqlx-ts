@@ -179,9 +179,9 @@ impl TsQuery {
 
     /// inserts a value into the result hashmap
     /// it should only insert a value if you are working with a non-subquery queries
-    pub fn insert_result(&mut self, key: String, value: &Vec<TsFieldType>, is_subquery: bool) {
+    pub fn insert_result(&mut self, key: String, value: &[TsFieldType], is_subquery: bool) {
         if !is_subquery {
-            let _ = self.result.insert(key, value.clone());
+            let _ = self.result.insert(key, value.to_owned());
         }
     }
 
@@ -246,7 +246,7 @@ impl TsQuery {
     /// The method is to format SQL params extracted via translate methods
     /// It can work for SELECT, INSERT, DELETE and UPDATE queries
     fn fmt_params(&self, _: &mut fmt::Formatter<'_>) -> String {
-        let is_insert_query = &self.insert_params.keys().len() > &0;
+        let is_insert_query = self.insert_params.keys().len() > 0;
 
         if is_insert_query {
             return self

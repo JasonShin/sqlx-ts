@@ -6,8 +6,8 @@ use crate::ts_generator::{errors::TsGeneratorError, types::db_conn::DBConn, type
 
 pub fn translate_insert(
     ts_query: &mut TsQuery,
-    columns: &Vec<Ident>,
-    source: &Box<Query>,
+    columns: &[Ident],
+    source: &Query,
     table_name: &str,
     conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {

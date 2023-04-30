@@ -4,8 +4,7 @@ use sqlparser::ast::{Query, Statement};
 pub struct SqlQuery {
     /// The field stores the parent level SQL statements, mostly used for wildcard queries
     pub sql_statement: Statement,
-    ///
-    pub query: Box<Query>,
+    pub query: Query,
 }
 
 impl SqlQuery {
@@ -13,7 +12,7 @@ impl SqlQuery {
         self.sql_statement = sql_statement.to_owned()
     }
 
-    pub fn set_query(&mut self, query: &Box<Query>) {
+    pub fn set_query(&mut self, query: &Query) {
         self.query = query.to_owned();
     }
 }

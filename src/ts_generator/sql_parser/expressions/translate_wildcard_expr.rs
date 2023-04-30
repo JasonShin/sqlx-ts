@@ -27,11 +27,12 @@ pub fn get_all_table_names_from_expr(query: &Query) -> Result<Vec<String>> {
     let mut join_tables = table_with_joins
         .joins
         .into_iter()
-        .filter_map(|join| match join {
-            Join { relation, .. } => match relation {
+        .filter_map(|join| {
+            let Join { relation, .. } = join;
+            match relation {
                 TableFactor::Table { name, .. } => Some(name.to_string()),
                 _ => unimplemented!(),
-            },
+            }
         })
         .collect::<Vec<String>>();
 
