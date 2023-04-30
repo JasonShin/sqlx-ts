@@ -7,12 +7,13 @@ use std::{
 
 use super::types::db_conn::DBConn;
 
-use crate::common::lazy::CLI_ARGS;
+use crate::common::lazy::{CLI_ARGS, CONFIG};
 use crate::common::SQL;
 use crate::ts_generator::annotations::extract_result_annotations;
 use crate::ts_generator::sql_parser::translate_stmt::translate_stmt;
 use crate::ts_generator::types::ts_query::TsQuery;
 
+use color_eyre::eyre::eyre;
 use color_eyre::eyre::Result;
 use convert_case::{Case, Casing};
 use regex::Regex;
@@ -70,7 +71,14 @@ pub fn write_colocated_ts_file(file_path: &PathBuf, sqls_to_write: String) -> Re
 
 /// Write a single TS file to a target destination according to CLI_ARGS.generate_path
 pub fn write_single_ts_file(sqls_to_write: String) -> Result<()> {
-    let mut output = CLI_ARGS.generate_path.to_owned().unwrap();
+    let generate_path = CONFIG
+        .generate_types_config
+        .clone()
+        .map(|x| x.generate_path)
+        .flatten();
+    let mut output = generate_path.ok_or(eyre!(
+        "TS generation path (--generate-path=) is required if you want to generate the SQL at a single path"
+    ))?;
 
     let parent_output_path: Option<&Path> = output.parent();
     if parent_output_path.is_some() {
@@ -90,20 +98,22 @@ pub fn write_single_ts_file(sqls_to_write: String) -> Result<()> {
 
 /// clears the target single TS file if it exists
 pub fn clear_single_ts_file_if_exists() -> Result<()> {
-    if !CLI_ARGS.generate_types {
-        return Ok(())
+    let generate_types_config = CONFIG.generate_types_config.clone();
+    if generate_types_config.is_none() {
+        return Ok(());
     }
 
-    if CLI_ARGS.generate_path.is_none() {
-        return Ok(())
+    let generate_path = generate_types_config.map(|x| x.generate_path).flatten();
+    if generate_path.is_none() {
+        return Ok(());
     }
 
-    let mut target = CLI_ARGS.generate_path.to_owned().unwrap();
+    let mut target = generate_path.to_owned().unwrap();
     if target.is_dir() {
         target = target.join("types.queries.ts");
     }
 
-     if target.exists() {
+    if target.exists() {
         fs::remove_file(target)?
     }
     Ok(())

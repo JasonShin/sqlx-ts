@@ -31,7 +31,7 @@ fn main() -> Result<()> {
     if files.is_empty() {
         return Err(eyre!("No targets detected, is it an empty folder?"));
     }
-    
+
     // If CLI_ARGS.generate_types is true, it will clear the single TS file so `execute` will generate a new one from scratch
     clear_single_ts_file_if_exists()?;
 
