@@ -1,7 +1,8 @@
 {
   "generateTypes": {
     "enabled": false,
-    "convertToCamelCaseColumnName": true
+    "convertToCamelCaseColumnName": true,
+    "generate_path": "./test_gen_path/test.queries.ts"
   },
   "connections": {
     "default": {
