@@ -17,11 +17,12 @@ pub struct SqlxConfig {
     pub connections: HashMap<String, DbConnectionConfig>,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct GenerateTypesConfig {
     pub enabled: bool,
     #[serde(rename = "convertToCamelCaseColumnName")]
     pub convert_to_camel_case_column_name: bool,
+    pub generate_path: Option<PathBuf>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -78,14 +79,16 @@ impl Config {
         let generate_types = &file_based_config
             .as_ref()
             .map(|config| {
-                config.generate_types.map(|x| GenerateTypesConfig {
+                config.generate_types.to_owned().map(|x| GenerateTypesConfig {
                     enabled: CLI_ARGS.generate_types || x.enabled,
+                    generate_path: x.generate_path.or(CLI_ARGS.generate_path.to_owned()),
                     convert_to_camel_case_column_name: x.convert_to_camel_case_column_name,
                 })
             })
             // If the file config is not provided, we will return the CLI arg's default values
             .unwrap_or(Some(GenerateTypesConfig {
                 enabled: CLI_ARGS.generate_types,
+                generate_path: CLI_ARGS.generate_path.to_owned(),
                 convert_to_camel_case_column_name: false,
             }));
 

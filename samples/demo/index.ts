@@ -3,11 +3,15 @@ import { Sequelize, QueryTypes } from 'sequelize';
 
 const sequelize = new Sequelize('...')
 
-sequelize.query(sql`
+const z = sequelize.query(sql`
 SELECT * FROM items;
 `!, {
     type: QueryTypes.SELECT
 })
+
+const x = sql`
+SELECT * FROM items;
+`
 
 /*
 const someInputQuery = sql`
