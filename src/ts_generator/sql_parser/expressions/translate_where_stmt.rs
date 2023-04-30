@@ -63,8 +63,8 @@ pub fn get_sql_query_param(
     None
 }
 
-pub fn translate_where_stmt<'a>(
-    ts_query: &'a mut TsQuery,
+pub fn translate_where_stmt(
+    ts_query: &mut TsQuery,
     // sql_statement is required
     expr: &Expr,
     // queries like DELETE and INSERT would never have table_with_joins

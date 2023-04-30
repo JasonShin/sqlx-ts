@@ -7,9 +7,7 @@ use crate::ts_generator::generator::{write_colocated_ts_file, write_single_ts_fi
 
 use color_eyre::eyre::Result;
 use std::collections::HashMap;
-use std::fs::OpenOptions;
-use std::fs::{remove_file, File};
-use std::io::Write;
+
 use std::path::PathBuf;
 use swc_common::errors::Handler;
 

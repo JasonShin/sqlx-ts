@@ -7,7 +7,7 @@ use std::{
 
 use super::types::db_conn::DBConn;
 
-use crate::common::lazy::{CLI_ARGS, CONFIG};
+use crate::common::lazy::CONFIG;
 use crate::common::SQL;
 use crate::ts_generator::annotations::extract_result_annotations;
 use crate::ts_generator::sql_parser::translate_stmt::translate_stmt;
@@ -71,12 +71,8 @@ pub fn write_colocated_ts_file(file_path: &PathBuf, sqls_to_write: String) -> Re
 
 /// Write a single TS file to a target destination according to CLI_ARGS.generate_path
 pub fn write_single_ts_file(sqls_to_write: String) -> Result<()> {
-    let generate_path = CONFIG
-        .generate_types_config
-        .clone()
-        .map(|x| x.generate_path)
-        .flatten();
-    let mut output = generate_path.ok_or(eyre!(
+    let generate_path = CONFIG.generate_types_config.clone().and_then(|x| x.generate_path);
+    let output = generate_path.ok_or(eyre!(
         "TS generation path (--generate-path=) is required if you want to generate the SQL at a single path"
     ))?;
 
@@ -103,12 +99,12 @@ pub fn clear_single_ts_file_if_exists() -> Result<()> {
         return Ok(());
     }
 
-    let generate_path = generate_types_config.map(|x| x.generate_path).flatten();
+    let generate_path = generate_types_config.and_then(|x| x.generate_path);
     if generate_path.is_none() {
         return Ok(());
     }
 
-    let mut target = generate_path.to_owned().unwrap();
+    let mut target = generate_path.unwrap();
     if target.is_dir() {
         target = target.join("types.queries.ts");
     }
