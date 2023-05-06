@@ -27,9 +27,7 @@ pub fn find_table_name_from_identifier(
     let default_table_name = get_default_table(table_with_joins);
 
     // if the identifier of a compound identifier is exactly same as the default table name, we just return it
-    if left == default_table_name {
-        return Some(default_table_name);
-    } else if right.is_none() {
+    if left == default_table_name || right.is_none(){
         // If right is none, it means we cannot further assume and try to find the table name
         // we should simply return the default table name
         return Some(default_table_name);
