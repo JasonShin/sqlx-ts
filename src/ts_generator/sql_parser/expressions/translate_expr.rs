@@ -113,7 +113,7 @@ pub fn translate_expr(
                 let field = table_details.get(&column_name).unwrap();
 
                 let field_name = alias.unwrap_or(column_name.as_str()).to_string();
-                ts_query.insert_result(field_name, &vec![field.field_type.to_owned()], is_subquery);
+                ts_query.insert_result(field_name, &[field.field_type.to_owned()], is_subquery);
             }
             Ok(())
         }
@@ -128,7 +128,7 @@ pub fn translate_expr(
 
                     ts_query.insert_result(
                         alias.unwrap().to_string(),
-                        &vec![field.field_type.to_owned()],
+                        &[field.field_type.to_owned()],
                         is_subquery,
                     );
                 }
@@ -141,7 +141,7 @@ pub fn translate_expr(
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string());
                 // throw error here
-                ts_query.insert_result(alias, &vec![TsFieldType::Boolean], is_subquery);
+                ts_query.insert_result(alias, &[TsFieldType::Boolean], is_subquery);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(query.to_string()))
@@ -152,7 +152,7 @@ pub fn translate_expr(
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string());
                 // throw error here
-                ts_query.insert_result(alias, &vec![TsFieldType::Boolean], is_subquery);
+                ts_query.insert_result(alias, &[TsFieldType::Boolean], is_subquery);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(query.to_string()))
@@ -165,7 +165,7 @@ pub fn translate_expr(
         } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string());
-                ts_query.insert_result(alias, &vec![TsFieldType::Any], is_subquery);
+                ts_query.insert_result(alias, &[TsFieldType::Any], is_subquery);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(operator.to_string()))
@@ -174,7 +174,7 @@ pub fn translate_expr(
         Expr::CompositeAccess { expr, key: _ } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string());
-                ts_query.insert_result(alias, &vec![TsFieldType::Any], is_subquery);
+                ts_query.insert_result(alias, &[TsFieldType::Any], is_subquery);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
@@ -190,7 +190,7 @@ pub fn translate_expr(
         } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string());
-                ts_query.insert_result(alias, &vec![TsFieldType::Boolean, TsFieldType::Null], is_subquery);
+                ts_query.insert_result(alias, &[TsFieldType::Boolean, TsFieldType::Null], is_subquery);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
@@ -213,7 +213,7 @@ pub fn translate_expr(
         } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string());
-                ts_query.insert_result(alias, &vec![TsFieldType::Any], is_subquery);
+                ts_query.insert_result(alias, &[TsFieldType::Any], is_subquery);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
@@ -226,7 +226,7 @@ pub fn translate_expr(
         } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string());
-                ts_query.insert_result(alias, &vec![TsFieldType::Any], is_subquery);
+                ts_query.insert_result(alias, &[TsFieldType::Any], is_subquery);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))

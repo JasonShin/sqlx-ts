@@ -47,8 +47,8 @@ jobs:
           command: fmt
           args: --all -- --check
 
-#      - name: clippy fail on wanring
-#        uses: actions-rs/cargo@v1
-#        with:
-#          command: clippy
-#          args: -- -A clippy::all -W clippy::correctness -W clippy::suspicious -W clippy::complexity -W clippy::perf -D warnings
+     - name: clippy fail on wanring
+       uses: actions-rs/cargo@v1
+       with:
+         command: clippy
+         args: -- -A clippy::all -W clippy::correctness -W clippy::suspicious -W clippy::complexity -W clippy::perf -D warnings

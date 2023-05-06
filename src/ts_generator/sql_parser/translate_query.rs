@@ -10,7 +10,7 @@ use super::expressions::{
 /// translates query
 pub fn translate_query(
     ts_query: &mut TsQuery,
-    query: &Box<Query>,
+    query: &Query,
     db_conn: &DBConn,
     is_subquery: bool,
 ) -> Result<(), TsGeneratorError> {
