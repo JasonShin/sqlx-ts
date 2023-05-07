@@ -12,11 +12,12 @@ use sqlparser::ast::Statement;
 pub fn translate_stmt(
     ts_query: &mut TsQuery,
     sql_statement: &Statement,
+    alias: Option<&str>, // If the statement is originated from a subquery, it must have an alias provided
     db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
     match sql_statement {
         Statement::Query(query) => {
-            translate_query(ts_query, query, db_conn, false)?;
+            translate_query(ts_query, query, db_conn, alias, false)?;
         }
         Statement::Insert {
             or: _,

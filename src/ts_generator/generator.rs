@@ -125,7 +125,8 @@ pub fn generate_ts_interface<'a>(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery>
     ts_query.set_annotated_results(annotated_result_types);
 
     for sql_statement in &sql_ast {
-        translate_stmt(&mut ts_query, sql_statement, db_conn)?;
+        // The loot level statements cannot have any alias
+        translate_stmt(&mut ts_query, sql_statement, None, db_conn)?;
     }
 
     Ok(ts_query)

@@ -113,6 +113,7 @@ pub fn translate_expr(
                 let field = table_details.get(&column_name).unwrap();
 
                 let field_name = alias.unwrap_or(column_name.as_str()).to_string();
+                println!("checking alias in indentifier translator {:?}", alias);
                 ts_query.insert_result(field_name, &[field.field_type.to_owned()], is_subquery);
             }
             Ok(())
@@ -198,9 +199,9 @@ pub fn translate_expr(
         }
         Expr::Subquery(sub_query) => {
             if alias.is_some() {
-                // TODO: We need to be able to use alias when processing subquery
-                let _alias = format_column_name(alias.unwrap().to_string());
-                translate_query(ts_query, sub_query, db_conn, false)?;
+                let alias = format_column_name(alias.unwrap().to_string());
+                let alias = alias.as_str();
+                translate_query(ts_query, sub_query, db_conn, Some(alias), false)?;
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
