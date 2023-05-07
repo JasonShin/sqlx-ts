@@ -103,6 +103,35 @@ pub fn translate_expr(
     is_subquery: bool,
 ) -> Result<(), TsGeneratorError> {
     match expr {
+        Expr::CompoundIdentifier(idents) => {
+            // let table_name = get_table_name(a, )
+            if idents.len() == 2 {
+                let ident = idents[1].value.clone();
+
+                let table_details = &DB_SCHEMA.fetch_table(&vec![table_name], db_conn);
+                if let Some(table_details) = table_details {
+                    let field = table_details.get(&ident).unwrap();
+
+                    // if the select item is a compound identifier and does not has an alias, we should use `table_name.ident` as the key name
+                    let key_name = format!("{}_{}", table_name, ident.to_string());
+                    let key_name = alias.unwrap_or(key_name.as_str());
+                    ts_query.insert_result(key_name.to_string(), &[field.field_type.to_owned()], is_subquery);
+                }
+                return Ok(());
+            }
+            unimplemented!()
+        }
+        Expr::Function(function) => {
+            let function = function.name.to_string();
+            let alias = alias.ok_or(TsGeneratorError::FunctionWithoutAliasInSelectClause(expr.to_string()))?;
+            if function == "COUNT" {
+                ts_query.insert_result(alias.to_string(), &[TsFieldType::Number], is_subquery);
+            } else {
+                return Err(TsGeneratorError::FunctionUnknown(expr.to_string()));
+            }
+
+            Ok(())
+        }
         Expr::Identifier(ident) => {
             let column_name = format_column_name(ident.value.to_string());
 
@@ -117,21 +146,7 @@ pub fn translate_expr(
             }
             Ok(())
         }
-        Expr::CompoundIdentifier(idents) => {
-            // let table_name = get_table_name(a, )
-            if idents.len() == 2 {
-                let ident = idents[1].value.clone();
 
-                let table_details = &DB_SCHEMA.fetch_table(&vec![table_name], db_conn);
-                if let Some(table_details) = table_details {
-                    let field = table_details.get(&ident).unwrap();
-
-                    ts_query.insert_result(alias.unwrap().to_string(), &[field.field_type.to_owned()], is_subquery);
-                }
-                return Ok(());
-            }
-            unimplemented!()
-        }
         Expr::IsTrue(query) | Expr::IsFalse(query) | Expr::IsNull(query) | Expr::IsNotNull(query) => {
             // TODO: we can move the follow logic, if alias exists then use alias otherwise throwing err into TsQuery
             if alias.is_some() {

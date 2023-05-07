@@ -1,15 +1,15 @@
 
 
-export type Sql1Params = [];
+export type Sql4Params = [];
 
 
-export interface ISql1Result {
-    id1: number;
+export interface ISql4Result {
+    the_count: number;
 };
 
 
-export interface ISql1Query {
-    params: Sql1Params;
-    result: ISql1Result;
+export interface ISql4Query {
+    params: Sql4Params;
+    result: ISql4Result;
 };
 
