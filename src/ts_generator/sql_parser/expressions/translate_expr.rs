@@ -113,7 +113,6 @@ pub fn translate_expr(
                 let field = table_details.get(&column_name).unwrap();
 
                 let field_name = alias.unwrap_or(column_name.as_str()).to_string();
-                println!("checking alias in indentifier translator {:?}", alias);
                 ts_query.insert_result(field_name, &[field.field_type.to_owned()], is_subquery);
             }
             Ok(())
@@ -127,11 +126,7 @@ pub fn translate_expr(
                 if let Some(table_details) = table_details {
                     let field = table_details.get(&ident).unwrap();
 
-                    ts_query.insert_result(
-                        alias.unwrap().to_string(),
-                        &[field.field_type.to_owned()],
-                        is_subquery,
-                    );
+                    ts_query.insert_result(alias.unwrap().to_string(), &[field.field_type.to_owned()], is_subquery);
                 }
                 return Ok(());
             }

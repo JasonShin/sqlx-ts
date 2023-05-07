@@ -27,7 +27,7 @@ pub fn find_table_name_from_identifier(
     let default_table_name = get_default_table(table_with_joins);
 
     // if the identifier of a compound identifier is exactly same as the default table name, we just return it
-    if left == default_table_name || right.is_none(){
+    if left == default_table_name || right.is_none() {
         // If right is none, it means we cannot further assume and try to find the table name
         // we should simply return the default table name
         return Some(default_table_name);
@@ -124,7 +124,10 @@ pub fn translate_table_with_joins(table_with_joins: &Vec<TableWithJoins>, select
         }
         SelectItem::Wildcard => Some(default_table_name),
         SelectItem::ExprWithAlias { expr, alias: _ } => match &expr {
-            Expr::Identifier(_) => todo!(),
+            Expr::Identifier(_) => {
+                // if the select item is not a compount identifier with an expression, just return the default table name
+                Some(default_table_name)
+            }
             Expr::CompoundIdentifier(compound_identifier) => {
                 let identifiers = &compound_identifier.iter().map(|x| x.to_string()).collect();
                 find_table_name_from_identifier(table_with_joins, identifiers)

@@ -24,7 +24,7 @@ pub fn translate_query(
             for select_item in projection {
                 match &select_item {
                     SelectItem::UnnamedExpr(unnamed_expr) => {
-                        println!("checking unnamed expr {:?}", unnamed_expr);
+                        ("checking unnamed expr {:?}", unnamed_expr);
                         let table_name = translate_table_with_joins(&table_with_joins, &select_item)
                             .expect("Default FROM table is not found from the query {query}");
 
@@ -33,7 +33,6 @@ pub fn translate_query(
                     }
                     SelectItem::ExprWithAlias { expr, alias } => {
                         let alias = alias.to_string();
-                        println!("checking alias {:?}", alias);
                         let table_name = translate_table_with_joins(&table_with_joins, &select_item);
 
                         translate_expr(
