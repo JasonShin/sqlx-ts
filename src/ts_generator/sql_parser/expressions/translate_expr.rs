@@ -1,5 +1,6 @@
 use crate::common::lazy::{CONFIG, DB_SCHEMA};
 use crate::ts_generator::errors::TsGeneratorError;
+use crate::ts_generator::sql_parser::expressions::functions::is_string_function;
 use crate::ts_generator::sql_parser::translate_query::translate_query;
 use crate::ts_generator::types::db_conn::DBConn;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
@@ -122,10 +123,9 @@ pub fn translate_expr(
             unimplemented!()
         }
         Expr::Function(function) => {
-            let function = function.name.to_string();
-            println!("checking func {:?}", function);
+            let function = function.name.to_string().as_str();
             let alias = alias.ok_or(TsGeneratorError::FunctionWithoutAliasInSelectClause(expr.to_string()))?;
-            if function == "COUNT" {
+            if is_string_function(function) {
                 ts_query.insert_result(alias.to_string(), &[TsFieldType::Number], is_subquery);
             } else {
                 return Err(TsGeneratorError::FunctionUnknown(expr.to_string()));
