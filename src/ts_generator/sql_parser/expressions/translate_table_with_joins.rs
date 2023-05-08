@@ -122,7 +122,7 @@ pub fn translate_table_with_joins(table_with_joins: &Vec<TableWithJoins>, select
                 _ => Some(default_table_name),
             }
         }
-        SelectItem::Wildcard => Some(default_table_name),
+        SelectItem::Wildcard(_) => Some(default_table_name),
         SelectItem::ExprWithAlias { expr, alias: _ } => match &expr {
             Expr::Identifier(_) => {
                 // if the select item is not a compount identifier with an expression, just return the default table name
@@ -134,7 +134,7 @@ pub fn translate_table_with_joins(table_with_joins: &Vec<TableWithJoins>, select
             }
             _ => Some(default_table_name),
         },
-        SelectItem::QualifiedWildcard(_) => todo!(),
+        SelectItem::QualifiedWildcard(_, _) => todo!(),
     }
 }
 

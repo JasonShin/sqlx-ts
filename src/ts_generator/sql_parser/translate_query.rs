@@ -15,7 +15,7 @@ pub fn translate_query(
     alias: Option<&str>,
     is_subquery: bool,
 ) -> Result<(), TsGeneratorError> {
-    let body = &query.body;
+    let body = *query.body.clone();
     match body {
         SetExpr::Select(select) => {
             let projection = select.clone().projection;
@@ -45,8 +45,8 @@ pub fn translate_query(
                         )
                         .unwrap();
                     }
-                    SelectItem::QualifiedWildcard(_) => todo!(),
-                    SelectItem::Wildcard => {
+                    SelectItem::QualifiedWildcard(_, _) => todo!(),
+                    SelectItem::Wildcard(_) => {
                         translate_wildcard_expr(query, ts_query, db_conn).unwrap();
                     }
                 }
@@ -61,11 +61,13 @@ pub fn translate_query(
         SetExpr::Query(_) => todo!(),
         SetExpr::SetOperation {
             op: _,
-            all: _,
             left: _,
             right: _,
+            set_quantifier: _,
         } => todo!(),
         SetExpr::Values(_) => todo!(),
         SetExpr::Insert(_) => todo!(),
+        SetExpr::Update(_) => todo!(),
+        SetExpr::Table(_) => todo!(),
     }
 }

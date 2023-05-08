@@ -1,6 +1,5 @@
 import { sql } from 'sqlx-ts'
 
-/*
 const sql1 = sql`
 SELECT
     id as id1
@@ -16,10 +15,14 @@ const sql3 = sql`
 SELECT items.id
 FROM items
 `
-*/
 
 const sql4 = sql`
 SELECT
     COUNT(*) AS the_count
+FROM items
+`
+
+const sql5 = sql`
+SELECT AVG(points) AS the_avg
 FROM items
 `

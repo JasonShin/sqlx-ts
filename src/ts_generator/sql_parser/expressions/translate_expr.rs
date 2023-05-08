@@ -123,6 +123,7 @@ pub fn translate_expr(
         }
         Expr::Function(function) => {
             let function = function.name.to_string();
+            println!("checking func {:?}", function);
             let alias = alias.ok_or(TsGeneratorError::FunctionWithoutAliasInSelectClause(expr.to_string()))?;
             if function == "COUNT" {
                 ts_query.insert_result(alias.to_string(), &[TsFieldType::Number], is_subquery);
@@ -158,7 +159,7 @@ pub fn translate_expr(
                 Err(TsGeneratorError::MissingAliasForFunctions(query.to_string()))
             }
         }
-        Expr::Exists(query) => {
+        Expr::Exists { negated: _, subquery } => {
             // Handles all boolean return type methods
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string());
@@ -166,7 +167,7 @@ pub fn translate_expr(
                 ts_query.insert_result(alias, &[TsFieldType::Boolean], is_subquery);
                 Ok(())
             } else {
-                Err(TsGeneratorError::MissingAliasForFunctions(query.to_string()))
+                Err(TsGeneratorError::MissingAliasForFunctions(subquery.to_string()))
             }
         }
         Expr::JsonAccess {

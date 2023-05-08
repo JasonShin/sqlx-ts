@@ -30,12 +30,18 @@ pub fn translate_stmt(
             after_columns: _,
             table: _,
             on: _,
+            returning,
         } => {
             let table_name = table_name.to_string();
             let table_name = table_name.as_str();
             translate_insert(ts_query, columns, source, table_name, db_conn)?;
         }
-        Statement::Delete { table_name, selection } => {
+        Statement::Delete {
+            table_name,
+            selection,
+            using,
+            returning,
+        } => {
             let table_name = table_name.to_string();
             let table_name = table_name.as_str();
             let selection = selection.to_owned().unwrap();
@@ -46,6 +52,7 @@ pub fn translate_stmt(
             assignments,
             from,
             selection,
+            returning,
         } => {
             translate_update(ts_query, table, assignments, from, selection, db_conn)?;
         }

@@ -16,12 +16,12 @@ pub fn translate_insert(
         // Nearly impossible to panic at this point as we've already validated queries with prepare statements
         .unwrap();
 
-    let values = &source.body;
+    let values = *source.body.clone();
 
     match values {
         SetExpr::Values(values) => {
             // Process the rows
-            for (row, values) in values.0.iter().enumerate() {
+            for (row, values) in values.rows.iter().enumerate() {
                 // Given a list of values
                 // [ [?, 1, ?], [?, ?, ?] ]
                 // Loop each value placeholder / actual values, if it finds the placeholder either `?` or `$n`
