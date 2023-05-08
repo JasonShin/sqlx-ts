@@ -53,7 +53,7 @@ pub fn translate_query(
             }
 
             // If there's any WHERE statements, process it
-            if let Some(selection) = select.clone().selection {
+            if let Some(selection) = select.selection {
                 translate_where_stmt(ts_query, &selection, &None, &Some(&table_with_joins), db_conn)?;
             }
             Ok(())

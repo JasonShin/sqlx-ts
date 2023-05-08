@@ -113,7 +113,7 @@ pub fn translate_expr(
                     let field = table_details.get(&ident).unwrap();
 
                     // if the select item is a compound identifier and does not has an alias, we should use `table_name.ident` as the key name
-                    let key_name = format!("{}_{}", table_name, ident.to_string());
+                    let key_name = format!("{}_{}", table_name, ident);
                     let key_name = alias.unwrap_or(key_name.as_str());
                     ts_query.insert_result(key_name.to_string(), &[field.field_type.to_owned()], is_subquery);
                 }

@@ -39,8 +39,8 @@ pub fn translate_stmt(
         Statement::Delete {
             table_name,
             selection,
-            using,
-            returning,
+            using: _,
+            returning: _,
         } => {
             let table_name = table_name.to_string();
             let table_name = table_name.as_str();
@@ -52,7 +52,7 @@ pub fn translate_stmt(
             assignments,
             from,
             selection,
-            returning,
+            returning: _,
         } => {
             translate_update(ts_query, table, assignments, from, selection, db_conn)?;
         }
