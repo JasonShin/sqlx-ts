@@ -30,7 +30,7 @@ pub fn translate_stmt(
             after_columns: _,
             table: _,
             on: _,
-            returning,
+            returning: _,
         } => {
             let table_name = table_name.to_string();
             let table_name = table_name.as_str();
