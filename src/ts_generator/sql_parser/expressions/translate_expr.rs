@@ -8,6 +8,8 @@ use convert_case::{Case, Casing};
 use regex::Regex;
 use sqlparser::ast::{Assignment, Expr, Value};
 
+use super::functions::{is_numeric_function, is_date_function};
+
 /// Given an expression
 /// e.g.
 /// WHERE
@@ -123,10 +125,16 @@ pub fn translate_expr(
             unimplemented!()
         }
         Expr::Function(function) => {
-            let function = function.name.to_string().as_str();
+            let function = function.name.to_string();
+            let function = function.as_str();
             let alias = alias.ok_or(TsGeneratorError::FunctionWithoutAliasInSelectClause(expr.to_string()))?;
+            
             if is_string_function(function) {
+                ts_query.insert_result(alias.to_string(), &[TsFieldType::String], is_subquery);
+            } else if is_numeric_function(function) {
                 ts_query.insert_result(alias.to_string(), &[TsFieldType::Number], is_subquery);
+            } else if is_date_function(function) {
+                ts_query.insert_result(alias.to_string(), &[TsFieldType::String], is_subquery);
             } else {
                 return Err(TsGeneratorError::FunctionUnknown(expr.to_string()));
             }

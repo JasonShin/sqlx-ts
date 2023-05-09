@@ -26,3 +26,8 @@ const sql5 = sql`
 SELECT AVG(points) AS the_avg
 FROM items
 `
+
+const sql6 = sql`
+SELECT LOWER(varchar1)
+FROM random
+`

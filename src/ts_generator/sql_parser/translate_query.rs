@@ -29,7 +29,7 @@ pub fn translate_query(
                             .expect("Default FROM table is not found from the query {query}");
 
                         // Handles SQL Expression and appends result
-                        translate_expr(unnamed_expr, &table_name, alias, ts_query, db_conn, is_subquery).unwrap();
+                        translate_expr(unnamed_expr, &table_name, alias, ts_query, db_conn, is_subquery)?;
                     }
                     SelectItem::ExprWithAlias { expr, alias } => {
                         let alias = alias.to_string();
@@ -42,12 +42,11 @@ pub fn translate_query(
                             ts_query,
                             db_conn,
                             is_subquery,
-                        )
-                        .unwrap();
+                        )?;
                     }
                     SelectItem::QualifiedWildcard(_, _) => todo!(),
                     SelectItem::Wildcard(_) => {
-                        translate_wildcard_expr(query, ts_query, db_conn).unwrap();
+                        translate_wildcard_expr(query, ts_query, db_conn)?;
                     }
                 }
             }
