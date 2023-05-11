@@ -77,3 +77,35 @@ export interface ISql5Query {
     result: ISql5Result;
 };
 
+
+
+
+export type Sql6Params = [];
+
+
+export interface ISql6Result {
+    lower_varchar: string;
+};
+
+
+export interface ISql6Query {
+    params: Sql6Params;
+    result: ISql6Result;
+};
+
+
+
+
+export type Sql7Params = [];
+
+
+export interface ISql7Result {
+    current_time: string;
+};
+
+
+export interface ISql7Query {
+    params: Sql7Params;
+    result: ISql7Result;
+};
+

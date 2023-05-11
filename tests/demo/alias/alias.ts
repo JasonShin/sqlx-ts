@@ -28,6 +28,11 @@ FROM items
 `
 
 const sql6 = sql`
-SELECT LOWER(varchar1)
+SELECT LOWER(varchar1) as lower_varchar
 FROM random
+`
+
+const sql7 = sql`
+SELECT NOW() AS current_time
+FROM items
 `
