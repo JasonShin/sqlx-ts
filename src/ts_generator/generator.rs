@@ -5,6 +5,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use super::annotations::extract_param_annotations;
 use super::types::db_conn::DBConn;
 
 use crate::common::lazy::CONFIG;
@@ -123,6 +124,9 @@ pub fn generate_ts_interface<'a>(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery>
 
     let annotated_result_types = extract_result_annotations(sql.query.as_str());
     ts_query.set_annotated_results(annotated_result_types);
+
+    let annotated_param_types = extract_param_annotations(sql.query.as_str());
+    ts_query.set_annotated_params(annotated_param_types);
 
     for sql_statement in &sql_ast {
         // The loot level statements cannot have any alias

@@ -156,8 +156,10 @@ pub struct TsQuery {
     // We use BTreeMap here as it's a collection that's already sorted
     pub insert_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
     pub result: HashMap<String, Vec<TsFieldType>>,
-    // Holds any annotated @Result and perform replacement when generating TS types
+    // Holds any annotated @result and perform replacement when generating TS types
     pub annotated_results: HashMap<String, Vec<TsFieldType>>,
+    // Holds any annoated @param and perform replacement when generated TS types
+    pub annotated_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
 }
 
 impl TsQuery {
@@ -169,12 +171,17 @@ impl TsQuery {
             result: HashMap::new(),
             insert_params: BTreeMap::new(),
             annotated_results: HashMap::new(),
+            annotated_params: BTreeMap::new(),
         }
     }
 
     /// set annotatd results to ts query so when generating ts types, it can use annotated results wherever possible
     pub fn set_annotated_results(&mut self, annotated_results: HashMap<String, Vec<TsFieldType>>) {
         self.annotated_results = annotated_results;
+    }
+
+    pub fn set_annotated_params(&mut self, annotated_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>) {
+        self.annotated_params = annotated_params;
     }
 
     /// inserts a value into the result hashmap
@@ -211,15 +218,21 @@ impl TsQuery {
     /// [ [number, string], [number, string] ]
     pub fn insert_value_params(&mut self, value: &TsFieldType, point: &(usize, usize), _placeholder: &Option<String>) {
         let (row, column) = point;
-        let mut row_params = self.insert_params.get_mut(row);
+        let annotated_param = self.annotated_params.get(row);
 
-        // If the row of the insert params is not found, create a new BTreeMap and insert it
-        if row_params.is_none() {
-            let _ = &self.insert_params.insert(*row, BTreeMap::new());
-            row_params = self.insert_params.get_mut(row);
+        if annotated_param.is_some() {
+            &self.insert_params.insert(*row, annotated_param.unwrap().clone());
+        } else {
+            let mut row_params = self.insert_params.get_mut(row);
+
+            // If the row of the insert params is not found, create a new BTreeMap and insert it
+            if row_params.is_none() {
+                let _ = &self.insert_params.insert(*row, BTreeMap::new());
+                row_params = self.insert_params.get_mut(row);
+            }
+
+            row_params.unwrap().insert(*column, value.to_owned());
         }
-
-        row_params.unwrap().insert(*column, value.to_owned());
     }
 
     /// Inserts a parameter into TsQuery for type definition generation
