@@ -15,7 +15,7 @@ FROM items;
 `
 
 const sql3 = sql`
--- @results points: string
+-- @result points: string
 SELECT
     points
 FROM items;

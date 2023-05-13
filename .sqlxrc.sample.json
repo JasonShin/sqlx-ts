@@ -1,5 +1,5 @@
 {
-  "generateTypes": {
+  "generate_types": {
     "enabled": true,
     "convertToCamelCaseColumnName": true
   },

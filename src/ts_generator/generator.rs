@@ -118,7 +118,7 @@ pub fn clear_single_ts_file_if_exists() -> Result<()> {
 pub fn generate_ts_interface<'a>(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery> {
     let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
 
-    let sql_ast = Parser::parse_sql(&dialect, &sql.query).unwrap();
+    let sql_ast = Parser::parse_sql(&dialect, &sql.query)?;
     let mut ts_query = TsQuery::new(get_query_name(sql)?);
 
     let annotated_result_types = extract_result_annotations(&sql.query);

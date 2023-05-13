@@ -8,7 +8,7 @@ use convert_case::{Case, Casing};
 use regex::Regex;
 use sqlparser::ast::{Assignment, Expr, Value};
 
-use super::functions::{is_numeric_function, is_date_function};
+use super::functions::{is_date_function, is_numeric_function};
 
 /// Given an expression
 /// e.g.
@@ -128,7 +128,7 @@ pub fn translate_expr(
             let function = function.name.to_string();
             let function = function.as_str();
             let alias = alias.ok_or(TsGeneratorError::FunctionWithoutAliasInSelectClause(expr.to_string()))?;
-            
+
             if is_string_function(function) {
                 ts_query.insert_result(alias.to_string(), &[TsFieldType::String], is_subquery);
             } else if is_numeric_function(function) {

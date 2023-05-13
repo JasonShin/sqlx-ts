@@ -181,7 +181,13 @@ impl TsQuery {
     /// it should only insert a value if you are working with a non-subquery queries
     pub fn insert_result(&mut self, key: String, value: &[TsFieldType], is_subquery: bool) {
         if !is_subquery {
-            let _ = self.result.insert(key, value.to_owned());
+            let value = self
+                .annotated_results
+                .get(key.as_str())
+                .map(|x| x.clone())
+                .unwrap_or_else(|| value.to_vec());
+
+            self.result.insert(key, value);
         }
     }
 

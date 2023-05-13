@@ -3,7 +3,7 @@ use regex::Regex;
 use std::collections::HashMap;
 
 pub fn extract_result_annotations(query: &String) -> HashMap<String, Vec<TsFieldType>> {
-    let re = Regex::new(r"@result (\w+) -> ([^\n]+)").unwrap();
+    let re = Regex::new(r"@result (\w+): ([^\n]+)").unwrap();
     let captures = re.captures_iter(query.as_str());
 
     let mut result: HashMap<String, Vec<TsFieldType>> = HashMap::new();
