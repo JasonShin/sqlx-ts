@@ -13,3 +13,10 @@ const sql2 = sql`
 SELECT *
 FROM items;
 `
+
+const sql3 = sql`
+-- @results points: string
+SELECT
+    points
+FROM items;
+`
