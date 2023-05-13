@@ -184,7 +184,7 @@ impl TsQuery {
             let value = self
                 .annotated_results
                 .get(key.as_str())
-                .map(|x| x.clone())
+                .cloned()
                 .unwrap_or_else(|| value.to_vec());
 
             self.result.insert(key, value);
