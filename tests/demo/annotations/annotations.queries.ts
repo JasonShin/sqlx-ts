@@ -56,7 +56,7 @@ export interface ISql3Query {
 
 
 
-export type Sql4Params = [number];
+export type Sql4Params = [string];
 
 
 export interface ISql4Result {

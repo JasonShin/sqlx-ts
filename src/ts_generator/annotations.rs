@@ -30,7 +30,7 @@ pub fn extract_result_annotations(query: &str) -> HashMap<String, Vec<TsFieldTyp
     result
 }
 
-pub fn extract_param_annotations(query: &str) -> BTreeMap<usize, BTreeMap<usize, TsFieldType>> {
+pub fn extract_param_annotations(query: &str) -> BTreeMap<usize, TsFieldType> {
     let re = Regex::new(r"@param (\d+): ([^\n]+)").unwrap();
     let captures = re.captures_iter(query);
 
@@ -40,15 +40,8 @@ pub fn extract_param_annotations(query: &str) -> BTreeMap<usize, BTreeMap<usize,
             let types = capture.get(2);
             if index.is_some() && types.is_some() {
                 let index = index?.as_str().parse::<usize>().unwrap();
-                let types = types?
-                    .as_str()
-                    .split('|')
-                    .map(|t| t.trim())
-                    .map(TsFieldType::get_ts_field_from_annotation)
-                    .enumerate()
-                    .map(|(i, t)| (i + 1, t))
-                    .collect::<BTreeMap<usize, TsFieldType>>();
-
+                let types = types?.as_str();
+                let types = TsFieldType::get_ts_field_from_annotation(types);
                 return Some((index, types.to_owned()));
             }
             None

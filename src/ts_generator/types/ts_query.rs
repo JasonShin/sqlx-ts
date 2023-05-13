@@ -153,13 +153,17 @@ pub struct TsQuery {
     // We use BTreeMap here as it's a collection that's already sorted
     // TODO: use usize instead
     pub params: BTreeMap<i32, TsFieldType>,
+    pub annotated_params: BTreeMap<usize, TsFieldType>,
+
     // We use BTreeMap here as it's a collection that's already sorted
     pub insert_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
+
+    // Holds any annoated @param and perform replacement when generated TS types
+    pub annotated_insert_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
+
     pub result: HashMap<String, Vec<TsFieldType>>,
     // Holds any annotated @result and perform replacement when generating TS types
     pub annotated_results: HashMap<String, Vec<TsFieldType>>,
-    // Holds any annoated @param and perform replacement when generated TS types
-    pub annotated_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
 }
 
 impl TsQuery {
@@ -168,10 +172,11 @@ impl TsQuery {
             name,
             param_order: 0,
             params: BTreeMap::new(),
+            annotated_params: BTreeMap::new(),
             result: HashMap::new(),
             insert_params: BTreeMap::new(),
             annotated_results: HashMap::new(),
-            annotated_params: BTreeMap::new(),
+            annotated_insert_params: BTreeMap::new(),
         }
     }
 
@@ -180,8 +185,15 @@ impl TsQuery {
         self.annotated_results = annotated_results;
     }
 
-    pub fn set_annotated_params(&mut self, annotated_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>) {
+    pub fn set_annotated_params(&mut self, annotated_params: BTreeMap<usize, TsFieldType>) {
         self.annotated_params = annotated_params;
+    }
+
+    pub fn set_annotated_insert_params(
+        &mut self,
+        annotated_insert_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
+    ) {
+        self.annotated_insert_params = annotated_insert_params;
     }
 
     /// inserts a value into the result hashmap
@@ -218,10 +230,12 @@ impl TsQuery {
     /// [ [number, string], [number, string] ]
     pub fn insert_value_params(&mut self, value: &TsFieldType, point: &(usize, usize), _placeholder: &Option<String>) {
         let (row, column) = point;
-        let annotated_param = self.annotated_params.get(row);
+        let annotated_insert_param = self.annotated_insert_params.get(row);
 
-        if annotated_param.is_some() {
-            &self.insert_params.insert(*row, annotated_param.unwrap().clone());
+        if annotated_insert_param.is_some() {
+            &self
+                .insert_params
+                .insert(*row, annotated_insert_param.unwrap().clone());
         } else {
             let mut row_params = self.insert_params.get_mut(row);
 
@@ -244,7 +258,13 @@ impl TsQuery {
     pub fn insert_param(&mut self, value: &TsFieldType, placeholder: &Option<String>) {
         if let Some(placeholder) = placeholder {
             if placeholder == "?" {
-                self.params.insert(self.param_order, value.clone());
+                let annotated_param = self.annotated_params.get(&(self.param_order as usize));
+
+                if annotated_param.is_some() {
+                    self.params.insert(self.param_order, annotated_param.unwrap().clone());
+                } else {
+                    self.params.insert(self.param_order, value.clone());
+                }
                 self.param_order += 1;
             } else {
                 let re = Regex::new(r"\$(\d+)").unwrap();
@@ -257,7 +277,13 @@ impl TsQuery {
                     .parse::<i32>()
                     .unwrap();
 
-                self.params.insert(order, value.clone());
+                let annotated_param = self.annotated_params.get(&(order as usize));
+
+                if annotated_param.is_some() {
+                    self.params.insert(order, annotated_param.unwrap().clone());
+                } else {
+                    self.params.insert(order, value.clone());
+                }
             }
         }
     }
