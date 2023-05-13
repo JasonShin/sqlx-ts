@@ -20,3 +20,10 @@ SELECT
     points
 FROM items;
 `
+
+const sql4 = sql`
+-- @param 1: string
+SELECT *
+FROM items
+WHERE points > $1
+`

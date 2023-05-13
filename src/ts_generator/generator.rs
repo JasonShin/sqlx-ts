@@ -121,7 +121,7 @@ pub fn generate_ts_interface<'a>(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery>
     let sql_ast = Parser::parse_sql(&dialect, &sql.query)?;
     let mut ts_query = TsQuery::new(get_query_name(sql)?);
 
-    let annotated_result_types = extract_result_annotations(&sql.query);
+    let annotated_result_types = extract_result_annotations(sql.query.as_str());
     ts_query.set_annotated_results(annotated_result_types);
 
     for sql_statement in &sql_ast {
