@@ -1,10 +1,10 @@
 use crate::ts_generator::types::ts_query::TsFieldType;
 use regex::Regex;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
-pub fn extract_result_annotations(query: &String) -> HashMap<String, Vec<TsFieldType>> {
-    let re = Regex::new(r"@result (\w+) -> ([^\n]+)").unwrap();
-    let captures = re.captures_iter(query.as_str());
+pub fn extract_result_annotations(query: &str) -> HashMap<String, Vec<TsFieldType>> {
+    let re = Regex::new(r"@result (\w+): ([^\n]+)").unwrap();
+    let captures = re.captures_iter(query);
 
     let mut result: HashMap<String, Vec<TsFieldType>> = HashMap::new();
     for capture in captures {
@@ -22,9 +22,29 @@ pub fn extract_result_annotations(query: &String) -> HashMap<String, Vec<TsField
 
                 result.insert(name, types);
             }
+            // We should skip the annotation if it does not match the format sqlx-ts is expecting
             (_, _) => {}
         }
     }
 
     result
+}
+
+pub fn extract_param_annotations(query: &str) -> BTreeMap<usize, TsFieldType> {
+    let re = Regex::new(r"@param (\d+): ([^\n]+)").unwrap();
+    let captures = re.captures_iter(query);
+
+    captures
+        .filter_map(|capture| {
+            let index = capture.get(1);
+            let types = capture.get(2);
+            if index.is_some() && types.is_some() {
+                let index = index?.as_str().parse::<usize>().unwrap();
+                let types = types?.as_str();
+                let types = TsFieldType::get_ts_field_from_annotation(types);
+                return Some((index, types.to_owned()));
+            }
+            None
+        })
+        .collect()
 }

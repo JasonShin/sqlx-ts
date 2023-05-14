@@ -12,9 +12,10 @@ pub fn translate_query(
     ts_query: &mut TsQuery,
     query: &Query,
     db_conn: &DBConn,
+    alias: Option<&str>,
     is_subquery: bool,
 ) -> Result<(), TsGeneratorError> {
-    let body = &query.body;
+    let body = *query.body.clone();
     match body {
         SetExpr::Select(select) => {
             let projection = select.clone().projection;
@@ -27,7 +28,7 @@ pub fn translate_query(
                             .expect("Default FROM table is not found from the query {query}");
 
                         // Handles SQL Expression and appends result
-                        translate_expr(unnamed_expr, &table_name, None, ts_query, db_conn, is_subquery).unwrap();
+                        translate_expr(unnamed_expr, &table_name, alias, ts_query, db_conn, is_subquery)?;
                     }
                     SelectItem::ExprWithAlias { expr, alias } => {
                         let alias = alias.to_string();
@@ -40,18 +41,17 @@ pub fn translate_query(
                             ts_query,
                             db_conn,
                             is_subquery,
-                        )
-                        .unwrap();
+                        )?;
                     }
-                    SelectItem::QualifiedWildcard(_) => todo!(),
-                    SelectItem::Wildcard => {
-                        translate_wildcard_expr(query, ts_query, db_conn).unwrap();
+                    SelectItem::QualifiedWildcard(_, _) => todo!(),
+                    SelectItem::Wildcard(_) => {
+                        translate_wildcard_expr(query, ts_query, db_conn)?;
                     }
                 }
             }
 
             // If there's any WHERE statements, process it
-            if let Some(selection) = select.clone().selection {
+            if let Some(selection) = select.selection {
                 translate_where_stmt(ts_query, &selection, &None, &Some(&table_with_joins), db_conn)?;
             }
             Ok(())
@@ -59,11 +59,13 @@ pub fn translate_query(
         SetExpr::Query(_) => todo!(),
         SetExpr::SetOperation {
             op: _,
-            all: _,
             left: _,
             right: _,
+            set_quantifier: _,
         } => todo!(),
         SetExpr::Values(_) => todo!(),
         SetExpr::Insert(_) => todo!(),
+        SetExpr::Update(_) => todo!(),
+        SetExpr::Table(_) => todo!(),
     }
 }

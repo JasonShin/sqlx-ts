@@ -1,11 +1,14 @@
 use crate::common::lazy::{CONFIG, DB_SCHEMA};
 use crate::ts_generator::errors::TsGeneratorError;
+use crate::ts_generator::sql_parser::expressions::functions::is_string_function;
 use crate::ts_generator::sql_parser::translate_query::translate_query;
 use crate::ts_generator::types::db_conn::DBConn;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
 use convert_case::{Case, Casing};
 use regex::Regex;
 use sqlparser::ast::{Assignment, Expr, Value};
+
+use super::functions::{is_date_function, is_numeric_function};
 
 /// Given an expression
 /// e.g.
@@ -103,6 +106,41 @@ pub fn translate_expr(
     is_subquery: bool,
 ) -> Result<(), TsGeneratorError> {
     match expr {
+        Expr::CompoundIdentifier(idents) => {
+            // let table_name = get_table_name(a, )
+            if idents.len() == 2 {
+                let ident = idents[1].value.clone();
+
+                let table_details = &DB_SCHEMA.fetch_table(&vec![table_name], db_conn);
+                if let Some(table_details) = table_details {
+                    let field = table_details.get(&ident).unwrap();
+
+                    // if the select item is a compound identifier and does not has an alias, we should use `table_name.ident` as the key name
+                    let key_name = format!("{}_{}", table_name, ident);
+                    let key_name = alias.unwrap_or(key_name.as_str());
+                    ts_query.insert_result(key_name.to_string(), &[field.field_type.to_owned()], is_subquery);
+                }
+                return Ok(());
+            }
+            unimplemented!()
+        }
+        Expr::Function(function) => {
+            let function = function.name.to_string();
+            let function = function.as_str();
+            let alias = alias.ok_or(TsGeneratorError::FunctionWithoutAliasInSelectClause(expr.to_string()))?;
+
+            if is_string_function(function) {
+                ts_query.insert_result(alias.to_string(), &[TsFieldType::String], is_subquery);
+            } else if is_numeric_function(function) {
+                ts_query.insert_result(alias.to_string(), &[TsFieldType::Number], is_subquery);
+            } else if is_date_function(function) {
+                ts_query.insert_result(alias.to_string(), &[TsFieldType::String], is_subquery);
+            } else {
+                return Err(TsGeneratorError::FunctionUnknown(expr.to_string()));
+            }
+
+            Ok(())
+        }
         Expr::Identifier(ident) => {
             let column_name = format_column_name(ident.value.to_string());
 
@@ -117,25 +155,7 @@ pub fn translate_expr(
             }
             Ok(())
         }
-        Expr::CompoundIdentifier(idents) => {
-            // let table_name = get_table_name(a, )
-            if idents.len() == 2 {
-                let ident = idents[1].value.clone();
 
-                let table_details = &DB_SCHEMA.fetch_table(&vec![table_name], db_conn);
-                if let Some(table_details) = table_details {
-                    let field = table_details.get(&ident).unwrap();
-
-                    ts_query.insert_result(
-                        alias.unwrap().to_string(),
-                        &[field.field_type.to_owned()],
-                        is_subquery,
-                    );
-                }
-                return Ok(());
-            }
-            unimplemented!()
-        }
         Expr::IsTrue(query) | Expr::IsFalse(query) | Expr::IsNull(query) | Expr::IsNotNull(query) => {
             // TODO: we can move the follow logic, if alias exists then use alias otherwise throwing err into TsQuery
             if alias.is_some() {
@@ -147,7 +167,7 @@ pub fn translate_expr(
                 Err(TsGeneratorError::MissingAliasForFunctions(query.to_string()))
             }
         }
-        Expr::Exists(query) => {
+        Expr::Exists { negated: _, subquery } => {
             // Handles all boolean return type methods
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string());
@@ -155,7 +175,7 @@ pub fn translate_expr(
                 ts_query.insert_result(alias, &[TsFieldType::Boolean], is_subquery);
                 Ok(())
             } else {
-                Err(TsGeneratorError::MissingAliasForFunctions(query.to_string()))
+                Err(TsGeneratorError::MissingAliasForFunctions(subquery.to_string()))
             }
         }
         Expr::JsonAccess {
@@ -198,9 +218,9 @@ pub fn translate_expr(
         }
         Expr::Subquery(sub_query) => {
             if alias.is_some() {
-                // TODO: We need to be able to use alias when processing subquery
-                let _alias = format_column_name(alias.unwrap().to_string());
-                translate_query(ts_query, sub_query, db_conn, false)?;
+                let alias = format_column_name(alias.unwrap().to_string());
+                let alias = alias.as_str();
+                translate_query(ts_query, sub_query, db_conn, Some(alias), false)?;
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))

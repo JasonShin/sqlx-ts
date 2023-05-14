@@ -19,4 +19,8 @@ pub enum TsGeneratorError {
     WildcardStatementUnsupportedTableExpr(String),
     #[error("[E008] The query contains unknown placeholder parameter symbol - query: `{0}`")]
     UnknownPlaceholder(String),
+    #[error("[E009] When translating a function in a SELECT clause, you must provide an alias - query : `{0}`")]
+    FunctionWithoutAliasInSelectClause(String),
+    #[error("[E010] Unknown function detected while processing a SELECT clause - query: `{0}`")]
+    FunctionUnknown(String),
 }

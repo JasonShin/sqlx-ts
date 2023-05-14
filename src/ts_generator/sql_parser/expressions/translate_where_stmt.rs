@@ -118,11 +118,12 @@ pub fn translate_where_stmt(
             subquery,
             negated: _,
         } => {
-            translate_query(ts_query, subquery, db_conn, true)?;
+            // You do not need an alias as we are processing a subquery within the WHERE clause
+            translate_query(ts_query, subquery, db_conn, None, true)?;
             Ok(())
         }
         Expr::Subquery(subquery) => {
-            translate_query(ts_query, subquery, db_conn, true)?;
+            translate_query(ts_query, subquery, db_conn, None, true)?;
             Ok(())
         }
         _ => Ok(()),
