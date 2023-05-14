@@ -73,3 +73,19 @@ export interface ISql4Query {
     result: ISql4Result;
 };
 
+
+
+
+export type Sql5Params = [string];
+
+
+export interface ISql5Result {
+    table_id: boolean;
+};
+
+
+export interface ISql5Query {
+    params: Sql5Params;
+    result: ISql5Result;
+};
+

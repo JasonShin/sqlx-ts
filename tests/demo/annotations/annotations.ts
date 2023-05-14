@@ -27,3 +27,13 @@ SELECT *
 FROM items
 WHERE points > $1
 `
+
+const sql5 = sql`
+-- @result table_id: boolean
+-- @param 1: string
+SELECT
+    tables.id AS table_id
+FROM tables
+JOIN items ON items.table_id = tables.id
+WHERE tables.id = $1
+`
