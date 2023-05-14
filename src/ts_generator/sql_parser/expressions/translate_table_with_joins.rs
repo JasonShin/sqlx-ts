@@ -161,7 +161,7 @@ mod tests {
         let stmt = sql_ast[0].clone();
         match stmt {
             Statement::Query(query) => {
-                let body = query.body;
+                let body = *query.body;
                 match body {
                     SetExpr::Select(select) => {
                         let select_item = select.projection[0].clone();
@@ -191,7 +191,7 @@ mod tests {
         let stmt = sql_ast[0].clone();
         match stmt {
             Statement::Query(query) => {
-                let body = query.body;
+                let body = *query.body;
                 match body {
                     SetExpr::Select(select) => {
                         let select_item = select.projection[0].clone();
@@ -222,7 +222,7 @@ mod tests {
         let stmt = sql_ast[0].clone();
         match stmt {
             Statement::Query(query) => {
-                let body = query.body;
+                let body = *query.body;
                 match body {
                     SetExpr::Select(select) => {
                         // choosing `tables.id`
@@ -253,7 +253,7 @@ mod tests {
         let stmt = sql_ast[0].clone();
         match stmt {
             Statement::Query(query) => {
-                let body = query.body;
+                let body = *query.body;
                 match body {
                     SetExpr::Select(select) => {
                         // choosing `items.id`
