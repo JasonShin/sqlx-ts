@@ -13,12 +13,13 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/main'
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
 
-      - name: Install nightly toolchain
+      - name: Install stable toolchain
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -40,3 +41,34 @@ jobs:
         with:
           command: test
           args: --verbose -- --test-threads 1
+
+  coverage:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: build docker-compose services for integration tests
+        run: docker-compose -f docker-compose.yml up -d
+
+      - uses: GuillaumeFalourd/wait-sleep-action@v1
+        with:
+          time: '10' # for 10 seconds
+
+      - name: Check the docker-compose services running
+        run: docker ps -a
+
+      - name: Install tarpaulin
+        run: cargo install cargo-tarpaulin
+      
+      - name: Run coverage
+        run: cargo tarpaulin --output-dir=coverage -o html -b --coveralls ${{ secrets.COVERALLS_KEY }}
