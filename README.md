@@ -1,5 +1,6 @@
 <h1 align="center">SQLx-ts</h1>
-[![Coverage Status](https://coveralls.io/repos/github/JasonShin/sqlx-ts/badge.svg?branch=better-tests)](https://coveralls.io/github/JasonShin/sqlx-ts?branch=better-tests)
+
+<a href='https://coveralls.io/github/JasonShin/sqlx-ts?branch=better-tests'><img src='https://coveralls.io/repos/github/JasonShin/sqlx-ts/badge.svg?branch=better-tests' alt='Coverage Status' /></a>
 
 <div align="center">
  <strong>
