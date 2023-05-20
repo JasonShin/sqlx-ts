@@ -1,7 +1,7 @@
 <h1 align="center">SQLx-ts</h1>
 
 <div align="center">
-    <a href='https://coveralls.io/github/JasonShin/sqlx-ts?branch=better-tests'><img src='https://coveralls.io/repos/github/JasonShin/sqlx-ts/badge.svg?branch=better-tests' alt='Coverage Status' /></a>
+    <a href='https://coveralls.io/github/JasonShin/sqlx-ts?branch=main'><img src='https://coveralls.io/repos/github/JasonShin/sqlx-ts/badge.svg?branch=better-tests' alt='Coverage Status' /></a>
 </div>
 
 <div align="center">
