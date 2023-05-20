@@ -39,7 +39,7 @@ jobs:
       - name: Install tarpaulin
         run: cargo install cargo-tarpaulin
       
-      - name: Run coverage
+      - name: Run tests
         run: cargo tarpaulin --frozen --fail-under 83
 
   coverage:
