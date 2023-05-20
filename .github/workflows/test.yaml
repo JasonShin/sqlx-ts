@@ -74,4 +74,4 @@ jobs:
         run: cargo install cargo-tarpaulin
 
       - name: Run coverage
-        run: cargo tarpaulin -o html -b --coveralls ${{ secrets.COVERALLS_KEY }}
+        run: cargo tarpaulin --tests -o html -b --coveralls ${{ secrets.COVERALLS_KEY }} --engine Llvm
