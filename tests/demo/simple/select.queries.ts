@@ -45,7 +45,7 @@ export type Sql3Params = [];
 
 
 export interface ISql3Result {
-    table_number: number;
+    tableNumber: number;
 };
 
 
