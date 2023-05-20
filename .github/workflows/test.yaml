@@ -40,7 +40,7 @@ jobs:
         run: cargo install cargo-tarpaulin
       
       - name: Run coverage
-        run: cargo tarpaulin --fail-under 83
+        run: cargo tarpaulin --frozen --fail-under 83
 
   coverage:
     runs-on: ubuntu-latest
@@ -71,4 +71,4 @@ jobs:
         run: cargo install cargo-tarpaulin
       
       - name: Run coverage
-        run: cargo tarpaulin --output-dir=coverage -o html -b --coveralls ${{ secrets.COVERALLS_KEY }}
+        run: cargo tarpaulin --frozen --output-dir=coverage -o html -b --coveralls ${{ secrets.COVERALLS_KEY }}
