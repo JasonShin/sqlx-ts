@@ -42,7 +42,7 @@ pub fn extract_param_annotations(query: &str) -> BTreeMap<usize, TsFieldType> {
                 let index = index?.as_str().parse::<usize>().unwrap();
                 let types = types?.as_str();
                 let types = TsFieldType::get_ts_field_from_annotation(types);
-                return Some((index, types.to_owned()));
+                return Some((index, types));
             }
             None
         })

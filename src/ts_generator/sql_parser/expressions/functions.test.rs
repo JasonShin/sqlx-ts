@@ -11,13 +11,13 @@ mod tests {
         let funcs = NUMERIC_FUNCTIONS.to_vec();
         let random_func = funcs.choose(&mut rand::thread_rng());
         let result = is_numeric_function(random_func.unwrap());
-        assert_eq!(result, true)
+        assert!(result)
     }
 
     #[test]
     fn should_return_numeric_method_falsy() {
         let result = is_numeric_function("abcd");
-        assert_eq!(result, false)
+        assert!(!result)
     }
 
     #[test]
@@ -25,13 +25,13 @@ mod tests {
         let funcs = STRING_FUNCTIONS.to_vec();
         let random_func = funcs.choose(&mut rand::thread_rng());
         let result = is_string_function(random_func.unwrap());
-        assert_eq!(result, true)
+        assert!(result)
     }
 
     #[test]
     fn should_return_string_method_falsy() {
         let result = is_string_function("abcd");
-        assert_eq!(result, false)
+        assert!(!result)
     }
 
     #[test]
@@ -39,12 +39,12 @@ mod tests {
         let funcs = DATE_FUNCTIONS.to_vec();
         let random_func = funcs.choose(&mut rand::thread_rng());
         let result = is_date_function(random_func.unwrap());
-        assert_eq!(result, true)
+        assert!(result)
     }
 
     #[test]
     fn should_return_date_method_falsy() {
         let result = is_date_function("abcd");
-        assert_eq!(result, false)
+        assert!(!result)
     }
 }
