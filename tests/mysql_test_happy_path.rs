@@ -4,6 +4,17 @@ import { sql } from "sqlx-ts";
 // expressions //
 /////////////////
 
+const query0 = sql`
+SELECT id, points
+FROM items;
+`;
+
+const queryCompount = sql`
+SELECT items.id, tables.id
+FROM items
+JOIN tables ON items.table_id = tables.id;
+`;
+
 const query1 = sql`SELECT * FROM items;`;
 // variable de
 const query2 = sql`

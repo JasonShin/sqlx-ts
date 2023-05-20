@@ -66,6 +66,10 @@ You can also set these up by CLI arguments. Please run `--help` on `/target/debu
 
 At this point, you should be all set up to start contributing to sqlx-ts! :rocket:
 
+## Testing
+
+
+
 ## Releasing
 
 We release by creating a new Github release and a git tag. Each tag is automatically picked up by Github Action 

@@ -233,7 +233,7 @@ impl TsQuery {
         let annotated_insert_param = self.annotated_insert_params.get(row);
 
         if annotated_insert_param.is_some() {
-            &self
+            let _ = self
                 .insert_params
                 .insert(*row, annotated_insert_param.unwrap().clone());
         } else {

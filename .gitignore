@@ -22,3 +22,7 @@ book/book
 # vscode
 .run
 .vscode
+
+# code coverage
+*.profraw
+coverage

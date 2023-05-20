@@ -9,45 +9,23 @@ mod mysql_delete_query_parameters {
     use tempfile::tempdir;
 
     use test_utils::test_utils::TSString;
+    use test_utils::{run_test, sandbox::TestConfig};
 
-    #[test]
-    fn should_pick_query_params_from_binary_ops() -> Result<(), Box<dyn std::error::Error>> {
-        // SETUP
-        let dir = tempdir()?;
-        let parent_path = dir.path();
-        let file_path = parent_path.join("index.ts");
+    #[rustfmt::skip]
+run_test!(should_pick_query_params_from_binary_ops, TestConfig::new("mysql"),
 
-        let index_content = r#"
-import { sql } from "sqlx-ts";
-
+//// TS query ////
+r#"
 const someDeleteQuery = sql`
 DELETE FROM items
 WHERE id = ?
 AND time_takes_to_cook > 1
 OR food_type = ?;
 `
-        "#;
-        let mut temp_file = fs::File::create(file_path)?;
-        writeln!(temp_file, "{}", index_content)?;
+"#,
 
-        // EXECUTE
-        let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
-
-        cmd.arg(parent_path.to_str().unwrap())
-            .arg("--ext=ts")
-            .arg("--db-type=mysql")
-            .arg("--db-host=127.0.0.1")
-            .arg("--db-port=33306")
-            .arg("--db-user=root")
-            .arg("--db-name=sqlx-ts")
-            .arg("-g");
-
-        // ASSERT
-        cmd.assert().success();
-
-        let type_file = fs::read_to_string(parent_path.join("index.queries.ts"))?;
-        let type_file = type_file.trim();
-        let gen_query_types = r#"
+//// Generated TS interfaces ////
+r#"
 export type SomeDeleteQueryParams = [number, string];
 
 export interface ISomeDeleteQueryResult {
@@ -58,53 +36,23 @@ export interface ISomeDeleteQueryQuery {
     params: SomeDeleteQueryParams;
     result: ISomeDeleteQueryResult;
 };
-        "#;
+"#);
 
-        assert_eq!(
-            gen_query_types.trim().to_string().flatten(),
-            type_file.to_string().flatten()
-        );
-        Ok(())
-    }
+    #[rustfmt::skip]
+run_test!(should_pick_query_params_from_subquery, TestConfig::new("mysql"),
 
-    #[test]
-    fn should_pick_query_params_from_subquery() -> Result<(), Box<dyn std::error::Error>> {
-        // SETUP
-        let dir = tempdir()?;
-        let parent_path = dir.path();
-        let file_path = parent_path.join("index.ts");
-
-        let index_content = r#"
-import { sql } from "sqlx-ts";
-
+//// TS query ////
+r#"
 const someDeleteQuery = sql`
 DELETE FROM items
 WHERE id = ?
 AND time_takes_to_cook > 1
 OR table_id = (SELECT id FROM tables WHERE id = ?);
 `
-        "#;
-        let mut temp_file = fs::File::create(file_path)?;
-        writeln!(temp_file, "{}", index_content)?;
+"#,
 
-        // EXECUTE
-        let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
-
-        cmd.arg(parent_path.to_str().unwrap())
-            .arg("--ext=ts")
-            .arg("--db-type=mysql")
-            .arg("--db-host=127.0.0.1")
-            .arg("--db-port=33306")
-            .arg("--db-user=root")
-            .arg("--db-name=sqlx-ts")
-            .arg("-g");
-
-        // ASSERT
-        cmd.assert().success();
-
-        let type_file = fs::read_to_string(parent_path.join("index.queries.ts"))?;
-        let type_file = type_file.trim();
-        let gen_query_types = r#"
+//// Generated TS interfaces ////
+r#"
 export type SomeDeleteQueryParams = [number, number];
 
 export interface ISomeDeleteQueryResult {
@@ -114,13 +62,6 @@ export interface ISomeDeleteQueryResult {
 export interface ISomeDeleteQueryQuery {
     params: SomeDeleteQueryParams;
     result: ISomeDeleteQueryResult;
-};
-        "#;
-
-        assert_eq!(
-            gen_query_types.trim().to_string().flatten(),
-            type_file.to_string().flatten()
-        );
-        Ok(())
-    }
+}; 
+"#);
 }
