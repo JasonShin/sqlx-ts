@@ -39,6 +39,9 @@ jobs:
       - name: Install tarpaulin
         run: cargo install cargo-tarpaulin
       
+      - name: build
+        run: cargo build
+      
       - name: Run tests
         run: cargo tarpaulin --frozen --fail-under 83
 
@@ -70,5 +73,8 @@ jobs:
       - name: Install tarpaulin
         run: cargo install cargo-tarpaulin
       
+      - name: build
+        run: cargo build
+
       - name: Run coverage
         run: cargo tarpaulin --frozen --output-dir=coverage -o html -b --coveralls ${{ secrets.COVERALLS_KEY }}
