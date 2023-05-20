@@ -36,14 +36,16 @@ jobs:
       - name: Check the docker-compose services running
         run: docker ps -a
 
-      - name: Install tarpaulin
-        run: cargo install cargo-tarpaulin
-      
-      - name: build
-        run: cargo build
-      
-      - name: Run tests
-        run: cargo tarpaulin --frozen --fail-under 83
+      - name: Run cargo-tarpaulin
+          uses: actions-rs/tarpaulin@v0.1
+          with:
+            version: '0.25.2'
+            args: '-- --test-threads 1'
+      # - name: Install tarpaulin
+      #   run: cargo install cargo-tarpaulin
+
+      # - name: Run tests
+      #   run: cargo tarpaulin --fail-under 83
 
   coverage:
     runs-on: ubuntu-latest
@@ -72,9 +74,6 @@ jobs:
 
       - name: Install tarpaulin
         run: cargo install cargo-tarpaulin
-      
-      - name: build
-        run: cargo build
 
       - name: Run coverage
-        run: cargo tarpaulin --frozen --output-dir=coverage -o html -b --coveralls ${{ secrets.COVERALLS_KEY }}
+        run: cargo tarpaulin -o html -b --coveralls ${{ secrets.COVERALLS_KEY }}
