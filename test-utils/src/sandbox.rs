@@ -1,4 +1,4 @@
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct TestConfig {
     pub db_type: String,
     pub js_extension: String,
@@ -29,7 +29,7 @@ impl TestConfig {
             db_port: 54321,
             db_user: "postgres".to_string(),
             db_pass: Some("postgres".to_string()),
-            db_name: "sqlx-ts".to_string(),
+            db_name: "postgres".to_string(),
         }
     }
 
@@ -86,7 +86,7 @@ $(
       let db_user = test_config.db_user;
       let db_pass = test_config.db_pass;
       let db_name = test_config.db_name;
-
+      
       // SETUP
       let dir = tempdir()?;
       let parent_path = dir.path();

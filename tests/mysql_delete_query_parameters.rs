@@ -38,7 +38,7 @@ export interface ISomeDeleteQueryQuery {
 };
 "#);
 
-#[rustfmt::skip]
+    #[rustfmt::skip]
 run_test!(should_pick_query_params_from_subquery, TestConfig::new("mysql"),
 
 //// TS query ////
