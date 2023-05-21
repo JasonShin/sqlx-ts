@@ -33,7 +33,7 @@ const sql5 = sql`
 -- @param 1: string
 SELECT
     tables.id AS table_id
-FROM tablesz
+FROM tables
 JOIN items ON items.table_id = tables.id
 WHERE tables.id = $1
 `

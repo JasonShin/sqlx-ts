@@ -2,18 +2,19 @@ use crate::common::SQL;
 use swc_common::MultiSpan;
 use swc_ecma_ast::{Expr, Pat, VarDeclarator};
 
+/// The method grabs the name of the variable if it exists
 pub fn get_var_decl_name(var_declarator: &VarDeclarator) -> Option<String> {
     match &var_declarator.name {
         // ident is a valid pattern to figure out var_decl_name `const someQuery = foo`
         Pat::Ident(ident) => Some(ident.id.sym.to_string()),
         // `const [foo, bar]` = foo is not a valid pattern to figure out var_decl_name
         Pat::Array(_) => None,
-        Pat::Rest(_) => todo!(),
+        Pat::Rest(_) => None,
         // `const { something } = foo` is not a valid pattern to figure out var_decl_name
-        Pat::Object(_object_pat) => None,
-        Pat::Assign(_) => todo!(),
-        Pat::Invalid(_) => todo!(),
-        Pat::Expr(_) => todo!(),
+        Pat::Object(_) => None,
+        Pat::Assign(_) => None,
+        Pat::Invalid(_) => None,
+        Pat::Expr(_) => None,
     }
 }
 
@@ -69,7 +70,7 @@ pub fn get_sql_from_var_decl(var_declarator: &VarDeclarator, span: MultiSpan, im
 
     if let Some(init) = &var_declarator.init {
         // TODO: make it understand `const someQuery = SQLX.sql`SELECT * FROM lazy_unknown2`;` in js_failure_path1/lazy-loaded.js
-        let mut result = get_sql_from_expr(&Some(var_decl_name.unwrap()), &init.clone(), &span, import_alias);
+        let mut result = get_sql_from_expr(&var_decl_name, &init.clone(), &span, import_alias);
         bag_of_sqls.append(&mut result);
     }
 

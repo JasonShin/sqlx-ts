@@ -143,7 +143,7 @@ fn recurse_and_find_sql(
                     insert_or_append_sqls(sqls_container, &sqls, file_path);
                 }
             }
-            _ => unimplemented!("decl: {:?}", decl),
+            _ => {}
         },
         Stmt::Expr(expr) => {
             let span: MultiSpan = expr.span.into();
@@ -152,8 +152,7 @@ fn recurse_and_find_sql(
             insert_or_append_sqls(sqls_container, &sqls, file_path);
         }
         // Ignores empty statements
-        Stmt::Empty(_) => {}
-        _ => unimplemented!("stmt: {:?}", stmt),
+        _ => {}
     }
     Ok(())
 }

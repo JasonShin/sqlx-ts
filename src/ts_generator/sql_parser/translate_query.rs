@@ -58,6 +58,9 @@ pub fn translate_query(
             }
             Ok(())
         }
-        _ => Err(TsGeneratorError::Unknown(format!("Unknown query type while processing query: {:#?}", query))),
+        _ => Err(TsGeneratorError::Unknown(format!(
+            "Unknown query type while processing query: {:#?}",
+            query
+        ))),
     }
 }
