@@ -16,3 +16,9 @@ SELECT
     (SELECT number FROM tables WHERE tables.id = items.table_id) AS table_number
 FROM items
 `
+
+// wildcard
+const sql4 = sql`
+SELECT items.*
+FROM items;
+`

@@ -1,6 +1,6 @@
 use crate::common::SQL;
 use swc_common::MultiSpan;
-use swc_ecma_ast::{Expr, VarDeclarator, Pat};
+use swc_ecma_ast::{Expr, Pat, VarDeclarator};
 
 pub fn get_var_decl_name(var_declarator: &VarDeclarator) -> Option<String> {
     match &var_declarator.name {

@@ -43,7 +43,9 @@ pub fn translate_query(
                             is_subquery,
                         )?;
                     }
-                    SelectItem::QualifiedWildcard(_, _) => todo!(),
+                    SelectItem::QualifiedWildcard(a, b) => {
+                        translate_wildcard_expr(query, ts_query, db_conn)?;
+                    }
                     SelectItem::Wildcard(_) => {
                         translate_wildcard_expr(query, ts_query, db_conn)?;
                     }

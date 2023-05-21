@@ -6,6 +6,7 @@ use std::{fs, path::PathBuf};
 
 use crate::common::SQL;
 use crate::parser::import::find_sqlx_import_alias;
+use color_eyre::eyre::Result;
 use swc_common::{
     errors::{ColorConfig, Handler},
     input::StringInput,
@@ -15,7 +16,6 @@ use swc_common::{
 use swc_ecma_ast::{ClassMember, ModuleDecl, ModuleItem, Stmt};
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 use tag::{get_sql_from_expr, get_sql_from_var_decl};
-use color_eyre::eyre::{Result};
 
 fn insert_or_append_sqls(sqls_container: &mut HashMap<PathBuf, Vec<SQL>>, sqls: &Vec<SQL>, file_path: &PathBuf) {
     if sqls_container.contains_key(&*file_path.clone()) {
