@@ -36,7 +36,7 @@ pub fn translate_query(
 
                         translate_expr(
                             expr,
-                            table_name.unwrap().as_str(),
+                            table_name.expect("Unknown table name").as_str(),
                             Some(alias.as_str()),
                             ts_query,
                             db_conn,
