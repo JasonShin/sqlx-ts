@@ -58,16 +58,6 @@ pub fn translate_query(
             }
             Ok(())
         }
-        SetExpr::Query(_) => todo!(),
-        SetExpr::SetOperation {
-            op: _,
-            left: _,
-            right: _,
-            set_quantifier: _,
-        } => todo!(),
-        SetExpr::Values(_) => todo!(),
-        SetExpr::Insert(_) => todo!(),
-        SetExpr::Update(_) => todo!(),
-        SetExpr::Table(_) => todo!(),
+        _ => Err(TsGeneratorError::Unknown(format!("Unknown query type while processing query: {:#?}", query))),
     }
 }
