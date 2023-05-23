@@ -146,6 +146,9 @@ pub fn translate_where_stmt(
         Expr::AllOp(expr) => {
             translate_where_stmt(ts_query, expr, single_table_name, table_with_joins, db_conn)
         }
+        Expr::UnaryOp { op: _, expr } => {
+            translate_where_stmt(ts_query, expr, single_table_name, table_with_joins, db_conn)
+        }
         _ => Ok(()),
     }
 }

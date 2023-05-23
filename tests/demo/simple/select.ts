@@ -30,8 +30,17 @@ FROM items
 JOIN tables ON items.table_id = tables.id
 `
 
+// Various operators
+
 const sql6 = sql`
 SELECT id
 FROM items
 WHERE points BETWEEN $1 AND $2;
+`
+
+const sql7 = sql`
+SELECT
+	id,
+	CAST('2015-01-01' AS DATE) as DATE
+FROM items;
 `

@@ -1,6 +1,9 @@
 use crate::common::lazy::{CONFIG, DB_SCHEMA};
 use crate::ts_generator::errors::TsGeneratorError;
-use crate::ts_generator::sql_parser::expressions::functions::is_string_function;
+use crate::ts_generator::sql_parser::expressions::{
+    functions::is_string_function,
+    translate_data_type::translate_data_type,
+};
 use crate::ts_generator::sql_parser::translate_query::translate_query;
 use crate::ts_generator::types::db_conn::DBConn;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
@@ -247,6 +250,16 @@ pub fn translate_expr(
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string());
                 ts_query.insert_result(alias, &[TsFieldType::Any], is_subquery);
+                Ok(())
+            } else {
+                Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
+            }
+        }
+        Expr::Cast { expr, data_type } => {
+            if alias.is_some() {
+                let alias = format_column_name(alias.unwrap().to_string());
+                let data_type = translate_data_type(data_type);
+                ts_query.insert_result(alias, &[data_type], is_subquery);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))

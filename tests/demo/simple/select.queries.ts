@@ -111,3 +111,20 @@ export interface ISql6Query {
     result: ISql6Result;
 };
 
+
+
+
+export type Sql7Params = [];
+
+
+export interface ISql7Result {
+    date: Date;
+	id: number;
+};
+
+
+export interface ISql7Query {
+    params: Sql7Params;
+    result: ISql7Result;
+};
+
