@@ -74,3 +74,24 @@ export interface ISql4Query {
     result: ISql4Result;
 };
 
+
+
+
+export type Sql5Params = [];
+
+
+export interface ISql5Result {
+    food_type: string;
+	id: number;
+	number: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface ISql5Query {
+    params: Sql5Params;
+    result: ISql5Result;
+};
+

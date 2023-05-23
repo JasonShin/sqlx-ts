@@ -43,7 +43,10 @@ pub fn translate_query(
                             is_subquery,
                         )?;
                     }
-                    SelectItem::QualifiedWildcard(a, b) => {
+                    SelectItem::QualifiedWildcard(_, _) => {
+                        // TODO: If there's are two tables and two qualifieid wildcards are provided
+                        // It will simply generate types for both tables' columns
+                        // Should we namespace each field based on the table alias? e.g. table1_field1, table2_field1
                         translate_wildcard_expr(query, ts_query, db_conn)?;
                     }
                     SelectItem::Wildcard(_) => {

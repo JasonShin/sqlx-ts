@@ -22,3 +22,10 @@ const sql4 = sql`
 SELECT items.*
 FROM items;
 `
+
+// table wit joins
+const sql5 = sql`
+SELECT tables.*
+FROM items
+JOIN tables ON items.table_id = tables.id
+`
