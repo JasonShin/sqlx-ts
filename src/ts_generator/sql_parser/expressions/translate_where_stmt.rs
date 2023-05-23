@@ -126,6 +126,26 @@ pub fn translate_where_stmt(
             translate_query(ts_query, subquery, db_conn, None, true)?;
             Ok(())
         }
+        Expr::Between { expr, negated, low, high } => {
+            let low = get_sql_query_param(expr, low, single_table_name, table_with_joins, db_conn);
+            let high = get_sql_query_param(expr, high, single_table_name, table_with_joins, db_conn);
+            if low.is_some() {
+                let (value, placeholder) = low.unwrap();
+                ts_query.insert_param(&value, &placeholder)
+            }
+
+            if high.is_some() {
+                let (value, placeholder) = high.unwrap();
+                ts_query.insert_param(&value, &placeholder)
+            }
+            Ok(())
+        }
+        Expr::AnyOp(expr) => {
+            translate_where_stmt(ts_query, expr, single_table_name, table_with_joins, db_conn)
+        }
+        Expr::AllOp(expr) => {
+            translate_where_stmt(ts_query, expr, single_table_name, table_with_joins, db_conn)
+        }
         _ => Ok(()),
     }
 }

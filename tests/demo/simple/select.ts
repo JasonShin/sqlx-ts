@@ -29,3 +29,9 @@ SELECT tables.*
 FROM items
 JOIN tables ON items.table_id = tables.id
 `
+
+const sql6 = sql`
+SELECT id
+FROM items
+WHERE points BETWEEN $1 AND $2;
+`

@@ -95,3 +95,19 @@ export interface ISql5Query {
     result: ISql5Result;
 };
 
+
+
+
+export type Sql6Params = [number, number];
+
+
+export interface ISql6Result {
+    id: number;
+};
+
+
+export interface ISql6Query {
+    params: Sql6Params;
+    result: ISql6Result;
+};
+
