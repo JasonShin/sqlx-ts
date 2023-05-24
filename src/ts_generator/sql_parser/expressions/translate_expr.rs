@@ -255,7 +255,8 @@ pub fn translate_expr(
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
             }
         }
-        Expr::Cast { expr, data_type } => {
+        Expr::Cast { expr, data_type }|
+        Expr::TryCast { expr, data_type } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string());
                 let data_type = translate_data_type(data_type);
@@ -265,49 +266,52 @@ pub fn translate_expr(
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
             }
         }
-        /*
-        Expr::Between {
-            expr,
-            negated,
-            low,
-            high,
-        } => todo!(),
-        Expr::BinaryOp { left, op, right } => todo!(),
-        Expr::AnyOp(_) => todo!(),
-        Expr::AllOp(_) => todo!(),
-        Expr::UnaryOp { op, expr } => todo!(),
-        Expr::Cast { expr, data_type } => todo!(),
-        Expr::TryCast { expr, data_type } => todo!(),
-        Expr::Extract { field, expr } => todo!(),
-        Expr::Position { expr, r#in } => todo!(),
-        Expr::Substring {
-            expr,
-            substring_from,
-            substring_for,
-        } => todo!(),
-        Expr::Trim { expr, trim_where } => todo!(),
-        Expr::Collate { expr, collation } => todo!(),
-        Expr::Nested(_) => todo!(),
-        Expr::Value(_) => todo!(),
-        Expr::TypedString { data_type, value } => todo!(),
-        Expr::MapAccess { column, keys } => todo!(),
-        Expr::Function(_) => todo!(),
-        Expr::Case {
-            operand,
-            conditions,
-            results,
-            else_result,
-        } => todo!(),
-        Expr::Subquery(_) => todo!(),
-        Expr::ListAgg(_) => todo!(),
-        Expr::GroupingSets(_) => todo!(),
-        Expr::Cube(_) => todo!(),
-        Expr::Rollup(_) => todo!(),
-        Expr::Tuple(_) => todo!(),
-        Expr::ArrayIndex { obj, indexes } => todo!(),
-        Expr::Array(_) => todo!(),
-         */
-        _ => todo!(),
+        Expr::Extract { field: _, expr } => {
+            if alias.is_some() {
+                let alias = format_column_name(alias.unwrap().to_string());
+                ts_query.insert_result(alias, &[TsFieldType::Date], is_subquery);
+                Ok(())
+            } else {
+                Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
+            }
+        }
+        Expr::Position { expr: _, r#in: _ } => {
+            if alias.is_some() {
+                let alias = format_column_name(alias.unwrap().to_string());
+                ts_query.insert_result(alias, &[TsFieldType::Number], is_subquery);
+                Ok(())
+            } else {
+                Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
+            }
+        }
+        Expr::Substring{ expr: _, substring_for: _, substring_from: _} => {
+            if alias.is_some() {
+                let alias = format_column_name(alias.unwrap().to_string());
+                ts_query.insert_result(alias, &[TsFieldType::String], is_subquery);
+                Ok(())
+            } else {
+                Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
+            }
+        }
+        Expr::Trim { expr: _, trim_what: _, trim_where: _  } => {
+            if alias.is_some() {
+                let alias = format_column_name(alias.unwrap().to_string());
+                ts_query.insert_result(alias, &[TsFieldType::String], is_subquery);
+                Ok(())
+            } else {
+                Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
+            }
+        }
+        _ => {
+            // If nothing matches, we should simply fall back to any
+            if alias.is_some() {
+                let alias = format_column_name(alias.unwrap().to_string());
+                ts_query.insert_result(alias, &[TsFieldType::Any], is_subquery);
+                Ok(())
+            } else {
+                Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
+            }
+        },
     }
 }
 

@@ -44,3 +44,17 @@ SELECT
 	CAST('2015-01-01' AS DATE) as DATE
 FROM items;
 `
+
+const sql8 = sql`
+SELECT
+    id,
+    EXTRACT(MONTH FROM DATE '2017-08-08') AS THE_MONTH
+FROM items;
+`
+
+// Where condition expressions
+const sql9 = sql`
+SELECT *
+FROM items
+WHERE $1;
+`

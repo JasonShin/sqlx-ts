@@ -128,3 +128,40 @@ export interface ISql7Query {
     result: ISql7Result;
 };
 
+
+
+
+export type Sql8Params = [];
+
+
+export interface ISql8Result {
+    id: number;
+	theMonth: Date;
+};
+
+
+export interface ISql8Query {
+    params: Sql8Params;
+    result: ISql8Result;
+};
+
+
+
+
+export type Sql9Params = [boolean];
+
+
+export interface ISql9Result {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface ISql9Query {
+    params: Sql9Params;
+    result: ISql9Result;
+};
+
