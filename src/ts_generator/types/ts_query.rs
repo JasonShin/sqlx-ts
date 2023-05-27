@@ -1,3 +1,4 @@
+use color_eyre::eyre::Result;
 use regex::Regex;
 use std::collections::{BTreeMap, HashMap};
 use std::fmt::{self};
@@ -255,7 +256,7 @@ impl TsQuery {
     /// You can only sequentially use `insert_param` with manual order or automatic order parameter
     ///
     /// This method was specifically designed with an assumption that 1 TsQuery is connected to 1 type of DB
-    pub fn insert_param(&mut self, value: &TsFieldType, placeholder: &Option<String>) {
+    pub fn insert_param(&mut self, value: &TsFieldType, placeholder: &Option<String>) -> Result(()) {
         if let Some(placeholder) = placeholder {
             if placeholder == "?" {
                 let annotated_param = self.annotated_params.get(&(self.param_order as usize));
@@ -286,6 +287,7 @@ impl TsQuery {
                 }
             }
         }
+        Ok(())
     }
 
     /// The method is to format SQL params extracted via translate methods

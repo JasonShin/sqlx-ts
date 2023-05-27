@@ -1,9 +1,10 @@
-use crate::{common::lazy::{CONFIG, DB_SCHEMA}, ts_generator::types::ts_query::TsFieldType};
-use sqlparser::ast::{DataType};
+use crate::{
+    common::lazy::{CONFIG, DB_SCHEMA},
+    ts_generator::types::ts_query::TsFieldType,
+};
+use sqlparser::ast::DataType;
 
-pub fn translate_data_type(
-    data_type: &DataType
-) -> TsFieldType {
+pub fn translate_data_type(data_type: &DataType) -> TsFieldType {
     match &data_type {
         DataType::Character(_) => TsFieldType::String,
         DataType::Char(_) => TsFieldType::String,

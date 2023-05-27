@@ -1,8 +1,7 @@
 use crate::common::lazy::{CONFIG, DB_SCHEMA};
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::expressions::{
-    functions::is_string_function,
-    translate_data_type::translate_data_type,
+    functions::is_string_function, translate_data_type::translate_data_type,
 };
 use crate::ts_generator::sql_parser::translate_query::translate_query;
 use crate::ts_generator::types::db_conn::DBConn;
@@ -204,7 +203,10 @@ pub fn translate_expr(
             }
         }
         /* IsDistinctForm and IsNotDistinctFrom are Postgres syntax, maybe only used in WHERE condition */
-        Expr::IsDistinctFrom(_, _) => todo!(),
+        Expr::IsDistinctFrom(a, b) => {
+            println!("SELECT - checking is distinct from {:?} + {:?}", a, b);
+            Ok(())
+        }
         Expr::IsNotDistinctFrom(_, _) => todo!(),
         Expr::InList {
             expr,
@@ -255,8 +257,7 @@ pub fn translate_expr(
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
             }
         }
-        Expr::Cast { expr, data_type }|
-        Expr::TryCast { expr, data_type } => {
+        Expr::Cast { expr, data_type } | Expr::TryCast { expr, data_type } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string());
                 let data_type = translate_data_type(data_type);
@@ -284,7 +285,11 @@ pub fn translate_expr(
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
             }
         }
-        Expr::Substring{ expr: _, substring_for: _, substring_from: _} => {
+        Expr::Substring {
+            expr: _,
+            substring_for: _,
+            substring_from: _,
+        } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string());
                 ts_query.insert_result(alias, &[TsFieldType::String], is_subquery);
@@ -293,7 +298,11 @@ pub fn translate_expr(
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
             }
         }
-        Expr::Trim { expr: _, trim_what: _, trim_where: _  } => {
+        Expr::Trim {
+            expr: _,
+            trim_what: _,
+            trim_where: _,
+        } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string());
                 ts_query.insert_result(alias, &[TsFieldType::String], is_subquery);
@@ -311,7 +320,7 @@ pub fn translate_expr(
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
             }
-        },
+        }
     }
 }
 

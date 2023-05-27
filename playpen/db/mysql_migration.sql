@@ -1,6 +1,7 @@
 CREATE TABLE tables (
     id INTEGER NOT NULL AUTO_INCREMENT,
     number INTEGER NOT NULL,
+    occupied BOOL NOT NULL DEFAULT FALSE,
     PRIMARY KEY (id)
 );
 

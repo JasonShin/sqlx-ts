@@ -126,7 +126,12 @@ pub fn translate_where_stmt(
             translate_query(ts_query, subquery, db_conn, None, true)?;
             Ok(())
         }
-        Expr::Between { expr, negated, low, high } => {
+        Expr::Between {
+            expr,
+            negated,
+            low,
+            high,
+        } => {
             let low = get_sql_query_param(expr, low, single_table_name, table_with_joins, db_conn);
             let high = get_sql_query_param(expr, high, single_table_name, table_with_joins, db_conn);
             if low.is_some() {
@@ -140,35 +145,51 @@ pub fn translate_where_stmt(
             }
             Ok(())
         }
-        Expr::AnyOp(expr) => {
-            translate_where_stmt(ts_query, expr, single_table_name, table_with_joins, db_conn)
-        }
-        Expr::AllOp(expr) => {
-            translate_where_stmt(ts_query, expr, single_table_name, table_with_joins, db_conn)
-        }
+        Expr::AnyOp(expr) => translate_where_stmt(ts_query, expr, single_table_name, table_with_joins, db_conn),
+        Expr::AllOp(expr) => translate_where_stmt(ts_query, expr, single_table_name, table_with_joins, db_conn),
         Expr::UnaryOp { op: _, expr } => {
             translate_where_stmt(ts_query, expr, single_table_name, table_with_joins, db_conn)
-        },
+        }
         Expr::Value(placeholder) => {
             ts_query.insert_param(&TsFieldType::Boolean, &Some(placeholder.to_string()));
             Ok(())
-        },
-        Expr::JsonAccess { left, operator, right } => todo!(),
+        }
+        Expr::JsonAccess {
+            left: _,
+            operator: _,
+            right: _,
+        } => {
+            ts_query.insert_param(&TsFieldType::Any, &None);
+            Ok(())
+        }
         Expr::CompositeAccess { expr, key } => todo!(),
-        Expr::IsFalse(_) => todo!(),
-        Expr::IsNotFalse(_) => todo!(),
-        Expr::IsTrue(_) => todo!(),
-        Expr::IsNotTrue(_) => todo!(),
-        Expr::IsNull(_) => todo!(),
-        Expr::IsNotNull(_) => todo!(),
-        Expr::IsUnknown(_) => todo!(),
-        Expr::IsNotUnknown(_) => todo!(),
-        Expr::IsDistinctFrom(_, _) => todo!(),
-        Expr::IsNotDistinctFrom(_, _) => todo!(),
-        Expr::InUnnest { expr, array_expr, negated } => todo!(),
-        Expr::Like { negated, expr, pattern, escape_char } => todo!(),
-        Expr::ILike { negated, expr, pattern, escape_char } => todo!(),
-        Expr::SimilarTo { negated, expr, pattern, escape_char } => todo!(),
+        Expr::IsNotDistinctFrom(_, placeholder) | Expr::IsDistinctFrom(_, placeholder) => {
+            ts_query.insert_param(&TsFieldType::String, &Some(placeholder.to_string()));
+            Ok(())
+        }
+        Expr::InUnnest {
+            expr,
+            array_expr,
+            negated,
+        } => todo!(),
+        Expr::Like {
+            negated,
+            expr,
+            pattern,
+            escape_char,
+        } => todo!(),
+        Expr::ILike {
+            negated,
+            expr,
+            pattern,
+            escape_char,
+        } => todo!(),
+        Expr::SimilarTo {
+            negated,
+            expr,
+            pattern,
+            escape_char,
+        } => todo!(),
         Expr::Cast { expr, data_type } => todo!(),
         Expr::TryCast { expr, data_type } => todo!(),
         Expr::SafeCast { expr, data_type } => todo!(),
@@ -177,9 +198,22 @@ pub fn translate_where_stmt(
         Expr::Ceil { expr, field } => todo!(),
         Expr::Floor { expr, field } => todo!(),
         Expr::Position { expr, r#in } => todo!(),
-        Expr::Substring { expr, substring_from, substring_for } => todo!(),
-        Expr::Trim { expr, trim_where, trim_what } => todo!(),
-        Expr::Overlay { expr, overlay_what, overlay_from, overlay_for } => todo!(),
+        Expr::Substring {
+            expr,
+            substring_from,
+            substring_for,
+        } => todo!(),
+        Expr::Trim {
+            expr,
+            trim_where,
+            trim_what,
+        } => todo!(),
+        Expr::Overlay {
+            expr,
+            overlay_what,
+            overlay_from,
+            overlay_for,
+        } => todo!(),
         Expr::Collate { expr, collation } => todo!(),
         Expr::Nested(_) => todo!(),
         Expr::IntroducedString { introducer, value } => todo!(),
@@ -187,7 +221,12 @@ pub fn translate_where_stmt(
         Expr::MapAccess { column, keys } => todo!(),
         Expr::Function(_) => todo!(),
         Expr::AggregateExpressionWithFilter { expr, filter } => todo!(),
-        Expr::Case { operand, conditions, results, else_result } => todo!(),
+        Expr::Case {
+            operand,
+            conditions,
+            results,
+            else_result,
+        } => todo!(),
         Expr::Exists { subquery, negated } => todo!(),
         Expr::ArraySubquery(_) => todo!(),
         Expr::ListAgg(_) => todo!(),
@@ -198,8 +237,18 @@ pub fn translate_where_stmt(
         Expr::Tuple(_) => todo!(),
         Expr::ArrayIndex { obj, indexes } => todo!(),
         Expr::Array(_) => todo!(),
-        Expr::Interval { value, leading_field, leading_precision, last_field, fractional_seconds_precision } => todo!(),
-        Expr::MatchAgainst { columns, match_value, opt_search_modifier } => todo!(),
-        _ => Ok(())
+        Expr::Interval {
+            value,
+            leading_field,
+            leading_precision,
+            last_field,
+            fractional_seconds_precision,
+        } => todo!(),
+        Expr::MatchAgainst {
+            columns,
+            match_value,
+            opt_search_modifier,
+        } => todo!(),
+        _ => Ok(()),
     }
 }

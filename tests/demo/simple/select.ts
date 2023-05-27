@@ -58,3 +58,16 @@ SELECT *
 FROM items
 WHERE $1;
 `
+
+const sql10 = sql`
+SELECT *
+FROM tables
+WHERE occupied IS TRUE;
+`
+
+// IS DISTINCT FROM operator as part of the WHERE statement
+const sql11 = sql`
+SELECT id, number, id IS DISTINCT FROM number AS hmm
+FROM tables
+WHERE id IS DISTINCT FROM $1
+`

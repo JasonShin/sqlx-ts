@@ -27,6 +27,7 @@ export interface ISql2Result {
     food_type: string;
 	id: number;
 	number: number;
+	occupied: boolean;
 	points: number;
 	table_id: number;
 	time_takes_to_cook: number;
@@ -84,6 +85,7 @@ export interface ISql5Result {
     food_type: string;
 	id: number;
 	number: number;
+	occupied: boolean;
 	points: number;
 	table_id: number;
 	time_takes_to_cook: number;
@@ -163,5 +165,40 @@ export interface ISql9Result {
 export interface ISql9Query {
     params: Sql9Params;
     result: ISql9Result;
+};
+
+
+
+
+export type Sql10Params = [];
+
+
+export interface ISql10Result {
+    id: number;
+	number: number;
+	occupied: boolean;
+};
+
+
+export interface ISql10Query {
+    params: Sql10Params;
+    result: ISql10Result;
+};
+
+
+
+
+export type Sql11Params = [];
+
+
+export interface ISql11Result {
+    id: number;
+	number: number;
+};
+
+
+export interface ISql11Query {
+    params: Sql11Params;
+    result: ISql11Result;
 };
 
