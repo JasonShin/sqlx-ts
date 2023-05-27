@@ -8,6 +8,7 @@ use crate::ts_generator::{
     types::ts_query::{TsFieldType, TsQuery},
 };
 
+use super::translate_data_type::translate_data_type;
 use super::{
     translate_expr::{get_expr_placeholder, translate_column_name_expr},
     translate_table_with_joins::translate_table_from_expr,
@@ -84,7 +85,6 @@ pub fn translate_where_stmt(
                 let (value, index) = param.unwrap();
                 ts_query.insert_param(&value, &index);
             }
-            Ok(())
         }
         Expr::InList { expr, list, negated: _ } => {
             // If the list is just a single `(?)`, then we should return the dynamic
@@ -111,7 +111,6 @@ pub fn translate_where_stmt(
                     return Ok(());
                 }
             }
-            Ok(())
         }
         Expr::InSubquery {
             expr: _,
@@ -119,12 +118,10 @@ pub fn translate_where_stmt(
             negated: _,
         } => {
             // You do not need an alias as we are processing a subquery within the WHERE clause
-            translate_query(ts_query, subquery, db_conn, None, true)?;
-            Ok(())
+            translate_query(ts_query, subquery, db_conn, None, true);
         }
         Expr::Subquery(subquery) => {
-            translate_query(ts_query, subquery, db_conn, None, true)?;
-            Ok(())
+            translate_query(ts_query, subquery, db_conn, None, true);
         }
         Expr::Between {
             expr,
@@ -136,23 +133,22 @@ pub fn translate_where_stmt(
             let high = get_sql_query_param(expr, high, single_table_name, table_with_joins, db_conn);
             if low.is_some() {
                 let (value, placeholder) = low.unwrap();
-                ts_query.insert_param(&value, &placeholder)
+                ts_query.insert_param(&value, &placeholder);
             }
 
             if high.is_some() {
                 let (value, placeholder) = high.unwrap();
-                ts_query.insert_param(&value, &placeholder)
+                ts_query.insert_param(&value, &placeholder);
             }
-            Ok(())
         }
-        Expr::AnyOp(expr) => translate_where_stmt(ts_query, expr, single_table_name, table_with_joins, db_conn),
-        Expr::AllOp(expr) => translate_where_stmt(ts_query, expr, single_table_name, table_with_joins, db_conn),
+        Expr::AnyOp(expr) | Expr::AllOp(expr) => {
+            translate_where_stmt(ts_query, expr, single_table_name, table_with_joins, db_conn);
+        }
         Expr::UnaryOp { op: _, expr } => {
-            translate_where_stmt(ts_query, expr, single_table_name, table_with_joins, db_conn)
+            translate_where_stmt(ts_query, expr, single_table_name, table_with_joins, db_conn);
         }
         Expr::Value(placeholder) => {
             ts_query.insert_param(&TsFieldType::Boolean, &Some(placeholder.to_string()));
-            Ok(())
         }
         Expr::JsonAccess {
             left: _,
@@ -160,39 +156,44 @@ pub fn translate_where_stmt(
             right: _,
         } => {
             ts_query.insert_param(&TsFieldType::Any, &None);
-            Ok(())
         }
-        Expr::CompositeAccess { expr, key } => todo!(),
+        Expr::CompositeAccess { expr, key } => {
+            println!("composite access expr {:?} {:?}", expr, key);
+            todo!()
+        }
         Expr::IsNotDistinctFrom(_, placeholder) | Expr::IsDistinctFrom(_, placeholder) => {
             ts_query.insert_param(&TsFieldType::String, &Some(placeholder.to_string()));
-            Ok(())
         }
         Expr::InUnnest {
             expr,
             array_expr,
             negated,
         } => todo!(),
-        Expr::Like {
-            negated,
-            expr,
-            pattern,
-            escape_char,
-        } => todo!(),
-        Expr::ILike {
-            negated,
-            expr,
-            pattern,
-            escape_char,
-        } => todo!(),
         Expr::SimilarTo {
-            negated,
-            expr,
+            negated: _,
+            expr: _,
             pattern,
-            escape_char,
-        } => todo!(),
-        Expr::Cast { expr, data_type } => todo!(),
-        Expr::TryCast { expr, data_type } => todo!(),
-        Expr::SafeCast { expr, data_type } => todo!(),
+            escape_char: _,
+        }
+        | Expr::ILike {
+            negated: _,
+            expr: _,
+            pattern,
+            escape_char: _,
+        }
+        | Expr::Like {
+            negated: _,
+            expr: _,
+            pattern,
+            escape_char: _,
+        } => {
+            // If the pattern has a placeholder, then we should append the param to ts_query
+            ts_query.insert_param(&TsFieldType::String, &Some(pattern.to_string()))
+        }
+        Expr::TryCast { expr, data_type } | Expr::SafeCast { expr, data_type } | Expr::Cast { expr, data_type } => {
+            let data_type = translate_data_type(data_type);
+            ts_query.insert_param(&data_type, &Some(expr.to_string()));
+        }
         Expr::AtTimeZone { timestamp, time_zone } => todo!(),
         Expr::Extract { field, expr } => todo!(),
         Expr::Ceil { expr, field } => todo!(),
@@ -249,6 +250,7 @@ pub fn translate_where_stmt(
             match_value,
             opt_search_modifier,
         } => todo!(),
-        _ => Ok(()),
+        _ => {}
     }
+    Ok(())
 }

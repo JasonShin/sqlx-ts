@@ -188,11 +188,12 @@ export interface ISql10Query {
 
 
 
-export type Sql11Params = [];
+export type Sql11Params = [string, string];
 
 
 export interface ISql11Result {
-    id: number;
+    hmm: any;
+	id: number;
 	number: number;
 };
 
@@ -200,5 +201,41 @@ export interface ISql11Result {
 export interface ISql11Query {
     params: Sql11Params;
     result: ISql11Result;
+};
+
+
+
+
+export type Sql12Params = [number];
+
+
+export interface ISql12Result {
+    id: number;
+};
+
+
+export interface ISql12Query {
+    params: Sql12Params;
+    result: ISql12Result;
+};
+
+
+
+
+export type Sql13Params = [];
+
+
+export interface ISql13Result {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface ISql13Query {
+    params: Sql13Params;
+    result: ISql13Result;
 };
 

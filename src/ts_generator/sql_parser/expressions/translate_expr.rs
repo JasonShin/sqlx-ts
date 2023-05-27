@@ -202,12 +202,17 @@ pub fn translate_expr(
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
             }
         }
-        /* IsDistinctForm and IsNotDistinctFrom are Postgres syntax, maybe only used in WHERE condition */
-        Expr::IsDistinctFrom(a, b) => {
-            println!("SELECT - checking is distinct from {:?} + {:?}", a, b);
-            Ok(())
+        Expr::IsNotDistinctFrom(_, placeholder) | Expr::IsDistinctFrom(_, placeholder) => {
+            // IsDistinctFrom and IsNotDistinctFrom are the same and can have a placeholder
+            ts_query.insert_param(&TsFieldType::String, &Some(placeholder.to_string()));
+            if alias.is_some() {
+                let alias = format_column_name(alias.unwrap().to_string());
+                ts_query.insert_result(alias, &[TsFieldType::Any], is_subquery);
+                Ok(())
+            } else {
+                Err(TsGeneratorError::MissingAliasForFunctions(placeholder.to_string()))
+            }
         }
-        Expr::IsNotDistinctFrom(_, _) => todo!(),
         Expr::InList {
             expr,
             list: _,

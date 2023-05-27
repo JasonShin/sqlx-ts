@@ -67,7 +67,19 @@ WHERE occupied IS TRUE;
 
 // IS DISTINCT FROM operator as part of the WHERE statement
 const sql11 = sql`
-SELECT id, number, id IS DISTINCT FROM number AS hmm
+SELECT id, number, id IS DISTINCT FROM $1 AS hmm
 FROM tables
-WHERE id IS DISTINCT FROM $1
+WHERE id IS DISTINCT FROM $2
+`
+
+const sql12 = sql`
+SELECT id
+FROM tables
+WHERE tables.id = $1
+`
+
+const sql13 = sql`
+SELECT *
+FROM items
+WHERE food_type LIKE $1
 `
