@@ -125,7 +125,7 @@ pub fn translate_where_stmt(
         }
         Expr::Between {
             expr,
-            negated,
+            negated: _,
             low,
             high,
         } => {
@@ -194,7 +194,10 @@ pub fn translate_where_stmt(
             let data_type = translate_data_type(data_type);
             ts_query.insert_param(&data_type, &Some(expr.to_string()));
         }
-        Expr::AtTimeZone { timestamp, time_zone } => todo!(),
+        Expr::AtTimeZone { timestamp, time_zone } => {
+            ts_query.insert_param(&TsFieldType::String, &Some(timestamp.to_string()));
+            ts_query.insert_param(&TsFieldType::String, &Some(time_zone.to_string()));
+        },
         Expr::Extract { field, expr } => todo!(),
         Expr::Ceil { expr, field } => todo!(),
         Expr::Floor { expr, field } => todo!(),
@@ -203,7 +206,9 @@ pub fn translate_where_stmt(
             expr,
             substring_from,
             substring_for,
-        } => todo!(),
+        } => {
+
+        },
         Expr::Trim {
             expr,
             trim_where,

@@ -83,3 +83,10 @@ SELECT *
 FROM items
 WHERE food_type LIKE $1
 `
+
+const sql14 = sql`
+SELECT
+    id,
+    '2018-09-02 07:09:19'::timestamp AT TIME ZONE 'America/Chicago' as some_date
+FROM items;
+`

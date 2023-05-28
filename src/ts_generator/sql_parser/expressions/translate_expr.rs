@@ -316,6 +316,15 @@ pub fn translate_expr(
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
             }
         }
+        Expr::AtTimeZone { timestamp: _, time_zone: _ } => {
+            if alias.is_some() {
+                let alias = format_column_name(alias.unwrap().to_string());
+                ts_query.insert_result(alias, &[TsFieldType::Date], is_subquery);
+                Ok(())
+            } else {
+                Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
+            }
+        }
         _ => {
             // If nothing matches, we should simply fall back to any
             if alias.is_some() {
