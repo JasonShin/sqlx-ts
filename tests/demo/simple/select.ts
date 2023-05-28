@@ -90,3 +90,10 @@ SELECT
     '2018-09-02 07:09:19'::timestamp AT TIME ZONE 'America/Chicago' as some_date
 FROM items;
 `
+
+const sql15 = sql`
+SELECT
+    id,
+    CEIL(51.11) AS some_number
+FROM items;
+`

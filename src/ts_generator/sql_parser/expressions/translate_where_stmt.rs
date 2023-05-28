@@ -198,22 +198,29 @@ pub fn translate_where_stmt(
             ts_query.insert_param(&TsFieldType::String, &Some(timestamp.to_string()));
             ts_query.insert_param(&TsFieldType::String, &Some(time_zone.to_string()));
         },
-        Expr::Extract { field, expr } => todo!(),
-        Expr::Ceil { expr, field } => todo!(),
-        Expr::Floor { expr, field } => todo!(),
+        Expr::Extract { field, expr } => {
+            ts_query.insert_param(&TsFieldType::String, &Some(field.to_string()));
+            ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()));
+        },
+        Expr::Floor { expr, field: _ } |
+        Expr::Ceil { expr, field: _ } => {
+            ts_query.insert_param(&TsFieldType::Number, &Some(expr.to_string()));
+        },
         Expr::Position { expr, r#in } => todo!(),
         Expr::Substring {
             expr,
             substring_from,
             substring_for,
         } => {
-
+            ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()));
         },
         Expr::Trim {
             expr,
             trim_where,
             trim_what,
-        } => todo!(),
+        } => {
+            ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()));
+        },
         Expr::Overlay {
             expr,
             overlay_what,
