@@ -216,8 +216,8 @@ pub fn translate_where_stmt(
         },
         Expr::Trim {
             expr,
-            trim_where,
-            trim_what,
+            trim_where: _,
+            trim_what: _,
         } => {
             ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()));
         },
