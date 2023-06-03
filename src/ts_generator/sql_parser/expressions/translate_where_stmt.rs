@@ -77,10 +77,9 @@ pub fn translate_where_stmt(
     match expr {
         Expr::BinaryOp { left, op: _, right } => {
             let param = get_sql_query_param(left, right, single_table_name, table_with_joins, db_conn);
-
             if param.is_none() {
-                translate_where_stmt(ts_query, left, single_table_name, table_with_joins, db_conn)?;
-                translate_where_stmt(ts_query, right, single_table_name, table_with_joins, db_conn)?;
+                translate_where_stmt(ts_query, left, single_table_name, table_with_joins, db_conn);
+                translate_where_stmt(ts_query, right, single_table_name, table_with_joins, db_conn);
             } else {
                 let (value, index) = param.unwrap();
                 ts_query.insert_param(&value, &index);
@@ -158,7 +157,6 @@ pub fn translate_where_stmt(
             ts_query.insert_param(&TsFieldType::Any, &None);
         }
         Expr::CompositeAccess { expr, key } => {
-            println!("composite access expr {:?} {:?}", expr, key);
             todo!()
         }
         Expr::IsNotDistinctFrom(_, placeholder) | Expr::IsDistinctFrom(_, placeholder) => {

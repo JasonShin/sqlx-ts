@@ -1,5 +1,6 @@
 import { sql } from 'sqlx-ts'
 
+/*
 // simple select
 const sql1 = sql`SELECT * FROM items`
 
@@ -96,4 +97,12 @@ SELECT
     id,
     CEIL(51.11) AS some_number
 FROM items;
+`
+*/
+
+const someDeleteQuery = sql`
+DELETE FROM items
+WHERE id = $1
+AND time_takes_to_cook > 1
+OR food_type = $2;
 `
