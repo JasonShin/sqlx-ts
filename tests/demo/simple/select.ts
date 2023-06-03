@@ -1,5 +1,6 @@
 import { sql } from 'sqlx-ts'
 
+/*
 // simple select
 const sql1 = sql`SELECT * FROM items`
 
@@ -31,7 +32,6 @@ JOIN tables ON items.table_id = tables.id
 `
 
 // Various operators
-
 const sql6 = sql`
 SELECT id
 FROM items
@@ -97,10 +97,10 @@ SELECT
     CEIL(51.11) AS some_number
 FROM items;
 `
+*/
 
-const someDeleteQuery = sql`
-DELETE FROM items
-WHERE id = $1
-AND time_takes_to_cook > 1
-OR food_type = $2;
+// Is True, Is False, Is Null, Is Not Null
+const sql16 = sql`
+SELECT ($1 IS TRUE) as is_true
+FROM items
 `
