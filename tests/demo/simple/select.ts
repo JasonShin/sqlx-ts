@@ -104,3 +104,8 @@ const sql16 = sql`
 SELECT ($1 IS TRUE) as is_true
 FROM items
 `
+
+const sql17 = sql`
+SELECT ($1 IS FALSE) as is_false
+FROM items
+`

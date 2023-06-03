@@ -107,7 +107,6 @@ pub fn translate_expr(
     // subqueries on WHERE expression should no determine the SELECTIONs
     is_subquery: bool,
 ) -> Result<(), TsGeneratorError> {
-    println!("checking expr {:?}", expr);
     match expr {
         Expr::CompoundIdentifier(idents) => {
             // let table_name = get_table_name(a, )
@@ -161,7 +160,6 @@ pub fn translate_expr(
 
         Expr::IsTrue(query) | Expr::IsFalse(query) | Expr::IsNull(query) | Expr::IsNotNull(query) => {
             // TODO: we can move the follow logic, if alias exists then use alias otherwise throwing err into TsQuery
-            println!("checking is true ? {:?}", query);
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string());
                 // throw error here

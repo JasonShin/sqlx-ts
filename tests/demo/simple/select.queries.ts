@@ -13,3 +13,19 @@ export interface ISql16Query {
     result: ISql16Result;
 };
 
+
+
+
+export type Sql17Params = [];
+
+
+export interface ISql17Result {
+    isFalse: boolean;
+};
+
+
+export interface ISql17Query {
+    params: Sql17Params;
+    result: ISql17Result;
+};
+
