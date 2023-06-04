@@ -3,11 +3,11 @@ use sqlparser::ast::{Query, SelectItem, SetExpr};
 use crate::ts_generator::{errors::TsGeneratorError, types::db_conn::DBConn, types::ts_query::TsQuery};
 
 use super::expressions::{
-    translate_expr::translate_expr, translate_table_with_joins::translate_table_with_joins,
-    translate_where_stmt::translate_where_stmt, translate_wildcard_expr::translate_wildcard_expr,
+    translate_expr::translate_expr,
+    translate_table_with_joins::translate_table_with_joins,
+    translate_wildcard_expr::translate_wildcard_expr,
 };
 
-/// translates query
 pub fn translate_query(
     ts_query: &mut TsQuery,
     query: &Query,
@@ -28,15 +28,17 @@ pub fn translate_query(
                             .expect("Default FROM table is not found from the query {query}");
 
                         // Handles SQL Expression and appends result
-                        translate_expr(unnamed_expr, &table_name, alias, ts_query, db_conn, is_subquery)?;
+                        translate_expr(unnamed_expr, &Some(&table_name.as_str()), &Some(&table_with_joins), alias, ts_query, db_conn, is_subquery)?;
                     }
                     SelectItem::ExprWithAlias { expr, alias } => {
                         let alias = alias.to_string();
                         let table_name = translate_table_with_joins(&table_with_joins, &select_item);
+                        let table_name = table_name.expect("Unknown table name");
 
                         translate_expr(
                             expr,
-                            table_name.expect("Unknown table name").as_str(),
+                            &Some(table_name.as_str()),
+                            &Some(&table_with_joins),
                             Some(alias.as_str()),
                             ts_query,
                             db_conn,
@@ -61,7 +63,15 @@ pub fn translate_query(
 
             // If there's any WHERE statements, process it
             if let Some(selection) = select.selection {
-                translate_where_stmt(ts_query, &selection, &None, &Some(&table_with_joins), db_conn)?;
+                translate_expr(
+                    &selection,
+                    &None,
+                    &Some(&table_with_joins),
+                    None,
+                    ts_query,
+                    db_conn,
+                    false,
+                )?;
             }
             Ok(())
         }
