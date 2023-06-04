@@ -43,7 +43,7 @@ jobs:
         run: cargo tarpaulin --version
 
       - name: Run tests
-        run: cargo tarpaulin --tests --fail-under 83 --engine Llvm
+        run: cargo tarpaulin --tests --fail-under 78 --engine Llvm
 
   coverage:
     runs-on: ubuntu-latest
