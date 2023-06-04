@@ -1,14 +1,16 @@
 // LIST OF FUNCTIONS FOUND https://www.w3schools.com/mysql/mysql_ref_functions.asp
 pub static NUMERIC_FUNCTIONS: &[&str] = &[
-    "ABS", "ACOS", "ASIN", "ATAN", "ATAN2", "AVG", "CEIL", "CEILING", "COS", "COT", "COUNT", "DEGREES", "DIV", " EXP",
-    "FLOOR", "GREATEST", "LEAST", "LN", "LOG", "LOG10", " LOG2", "MAX", "MIN", "MOD", "PI", "POW", "POWER", "RADIANS",
-    "RAND", "ROUND", "SIGN", "SIN", "SQRT", "SUM", "TAN", "TRUNCATE",
+    "ABS", "ACOS", "ASIN", "ATAN", "ATAN2", "AVG", "CEIL", "CEILING", "COS", "COT", "COUNT", "DEGREES", "DIV", "EXP",
+    "FLOOR", "GREATEST", "LEAST", "LN", "LOG", "LOG10", "LOG2", "MAX", "MIN", "MOD", "PI", "POW", "POWER", "RADIANS",
+    "RAND", "ROUND", "SIGN", "SIN", "SQRT", "SUM", "TAN", "TRUNCATE", "TRUNC",
 ];
 
 pub static STRING_FUNCTIONS: &[&str] = &[
+    // These methods expect string as input and number as output
     "ASCII",
     "CHAR_LENGTH",
     "CHARACTER_LENGTH",
+    // String to string
     "CONCAT",
     "CONCAT_WS",
     "FIELD",
@@ -28,17 +30,17 @@ pub static STRING_FUNCTIONS: &[&str] = &[
     "REPEAT",
     "REPLACE",
     "REVERSE",
-    " RIGHT",
+    "RIGHT",
     "RPAD",
     "RTRIM",
-    " SPACE",
+    "SPACE",
     "STRCMP",
     "SUBSTR",
     "SUBSTRING",
-    " SUBSTRING_INDEX",
+    "SUBSTRING_INDEX",
     "TRIM",
     "UCASE",
-    " UPPER",
+    "UPPER",
 ];
 
 pub static DATE_FUNCTIONS: &[&str] = &[
@@ -92,13 +94,13 @@ pub static DATE_FUNCTIONS: &[&str] = &[
 ];
 
 pub fn is_numeric_function(func_name: &str) -> bool {
-    NUMERIC_FUNCTIONS.contains(&func_name)
+    NUMERIC_FUNCTIONS.contains(&func_name.to_uppercase().as_str())
 }
 
 pub fn is_string_function(func_name: &str) -> bool {
-    STRING_FUNCTIONS.contains(&func_name)
+    STRING_FUNCTIONS.contains(&func_name.to_uppercase().as_str())
 }
 
 pub fn is_date_function(func_name: &str) -> bool {
-    DATE_FUNCTIONS.contains(&func_name)
+    DATE_FUNCTIONS.contains(&func_name.to_uppercase().as_str())
 }

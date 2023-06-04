@@ -8,6 +8,7 @@ use crate::ts_generator::{
     types::ts_query::{TsFieldType, TsQuery},
 };
 
+use super::translate_data_type::translate_data_type;
 use super::{
     translate_expr::{get_expr_placeholder, translate_column_name_expr},
     translate_table_with_joins::translate_table_from_expr,
@@ -76,15 +77,13 @@ pub fn translate_where_stmt(
     match expr {
         Expr::BinaryOp { left, op: _, right } => {
             let param = get_sql_query_param(left, right, single_table_name, table_with_joins, db_conn);
-
             if param.is_none() {
-                translate_where_stmt(ts_query, left, single_table_name, table_with_joins, db_conn)?;
-                translate_where_stmt(ts_query, right, single_table_name, table_with_joins, db_conn)?;
+                translate_where_stmt(ts_query, left, single_table_name, table_with_joins, db_conn);
+                translate_where_stmt(ts_query, right, single_table_name, table_with_joins, db_conn);
             } else {
                 let (value, index) = param.unwrap();
                 ts_query.insert_param(&value, &index);
             }
-            Ok(())
         }
         Expr::InList { expr, list, negated: _ } => {
             // If the list is just a single `(?)`, then we should return the dynamic
@@ -111,7 +110,6 @@ pub fn translate_where_stmt(
                     return Ok(());
                 }
             }
-            Ok(())
         }
         Expr::InSubquery {
             expr: _,
@@ -119,13 +117,149 @@ pub fn translate_where_stmt(
             negated: _,
         } => {
             // You do not need an alias as we are processing a subquery within the WHERE clause
-            translate_query(ts_query, subquery, db_conn, None, true)?;
-            Ok(())
+            translate_query(ts_query, subquery, db_conn, None, true);
         }
         Expr::Subquery(subquery) => {
-            translate_query(ts_query, subquery, db_conn, None, true)?;
-            Ok(())
+            translate_query(ts_query, subquery, db_conn, None, true);
         }
-        _ => Ok(()),
+        Expr::Between {
+            expr,
+            negated: _,
+            low,
+            high,
+        } => {
+            let low = get_sql_query_param(expr, low, single_table_name, table_with_joins, db_conn);
+            let high = get_sql_query_param(expr, high, single_table_name, table_with_joins, db_conn);
+            if low.is_some() {
+                let (value, placeholder) = low.unwrap();
+                ts_query.insert_param(&value, &placeholder);
+            }
+
+            if high.is_some() {
+                let (value, placeholder) = high.unwrap();
+                ts_query.insert_param(&value, &placeholder);
+            }
+        }
+        Expr::AnyOp(expr) | Expr::AllOp(expr) => {
+            translate_where_stmt(ts_query, expr, single_table_name, table_with_joins, db_conn);
+        }
+        Expr::UnaryOp { op: _, expr } => {
+            translate_where_stmt(ts_query, expr, single_table_name, table_with_joins, db_conn);
+        }
+        Expr::Value(placeholder) => {
+            ts_query.insert_param(&TsFieldType::Boolean, &Some(placeholder.to_string()));
+        }
+        Expr::JsonAccess {
+            left: _,
+            operator: _,
+            right: _,
+        } => {
+            ts_query.insert_param(&TsFieldType::Any, &None);
+        }
+        Expr::CompositeAccess { expr, key } => {
+            todo!()
+        }
+        Expr::IsNotDistinctFrom(_, placeholder) | Expr::IsDistinctFrom(_, placeholder) => {
+            ts_query.insert_param(&TsFieldType::String, &Some(placeholder.to_string()));
+        }
+        Expr::InUnnest {
+            expr,
+            array_expr,
+            negated,
+        } => todo!(),
+        Expr::SimilarTo {
+            negated: _,
+            expr: _,
+            pattern,
+            escape_char: _,
+        }
+        | Expr::ILike {
+            negated: _,
+            expr: _,
+            pattern,
+            escape_char: _,
+        }
+        | Expr::Like {
+            negated: _,
+            expr: _,
+            pattern,
+            escape_char: _,
+        } => {
+            // If the pattern has a placeholder, then we should append the param to ts_query
+            ts_query.insert_param(&TsFieldType::String, &Some(pattern.to_string()))
+        }
+        Expr::TryCast { expr, data_type } | Expr::SafeCast { expr, data_type } | Expr::Cast { expr, data_type } => {
+            let data_type = translate_data_type(data_type);
+            ts_query.insert_param(&data_type, &Some(expr.to_string()));
+        }
+        Expr::AtTimeZone { timestamp, time_zone } => {
+            ts_query.insert_param(&TsFieldType::String, &Some(timestamp.to_string()));
+            ts_query.insert_param(&TsFieldType::String, &Some(time_zone.to_string()));
+        }
+        Expr::Extract { field, expr } => {
+            ts_query.insert_param(&TsFieldType::String, &Some(field.to_string()));
+            ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()));
+        }
+        Expr::Floor { expr, field: _ } | Expr::Ceil { expr, field: _ } => {
+            ts_query.insert_param(&TsFieldType::Number, &Some(expr.to_string()));
+        }
+        Expr::Position { expr, r#in } => todo!(),
+        Expr::Substring {
+            expr,
+            substring_from,
+            substring_for,
+        } => {
+            ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()));
+        }
+        Expr::Trim {
+            expr,
+            trim_where: _,
+            trim_what: _,
+        } => {
+            ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()));
+        }
+        Expr::Overlay {
+            expr,
+            overlay_what,
+            overlay_from,
+            overlay_for,
+        } => todo!(),
+        Expr::Collate { expr, collation } => todo!(),
+        Expr::Nested(_) => todo!(),
+        Expr::IntroducedString { introducer, value } => todo!(),
+        Expr::TypedString { data_type, value } => todo!(),
+        Expr::MapAccess { column, keys } => todo!(),
+        Expr::Function(_) => todo!(),
+        Expr::AggregateExpressionWithFilter { expr, filter } => todo!(),
+        Expr::Case {
+            operand,
+            conditions,
+            results,
+            else_result,
+        } => todo!(),
+        Expr::Exists { subquery, negated } => todo!(),
+        Expr::ArraySubquery(_) => todo!(),
+        Expr::ListAgg(_) => todo!(),
+        Expr::ArrayAgg(_) => todo!(),
+        Expr::GroupingSets(_) => todo!(),
+        Expr::Cube(_) => todo!(),
+        Expr::Rollup(_) => todo!(),
+        Expr::Tuple(_) => todo!(),
+        Expr::ArrayIndex { obj, indexes } => todo!(),
+        Expr::Array(_) => todo!(),
+        Expr::Interval {
+            value,
+            leading_field,
+            leading_precision,
+            last_field,
+            fractional_seconds_precision,
+        } => todo!(),
+        Expr::MatchAgainst {
+            columns,
+            match_value,
+            opt_search_modifier,
+        } => todo!(),
+        _ => {}
     }
+    Ok(())
 }

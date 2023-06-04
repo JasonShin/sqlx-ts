@@ -269,20 +269,24 @@ impl TsQuery {
             } else {
                 let re = Regex::new(r"\$(\d+)").unwrap();
                 let indexed_binding_params = re.captures(placeholder);
-                let order = indexed_binding_params
-                    .unwrap()
-                    .get(1)
-                    .unwrap()
-                    .as_str()
-                    .parse::<i32>()
-                    .unwrap();
 
-                let annotated_param = self.annotated_params.get(&(order as usize));
+                // Only runs the code if the placeholder is an indexed binding parameter such as $1 or $2
+                if indexed_binding_params.is_some() {
+                    let order = indexed_binding_params
+                        .unwrap()
+                        .get(1)
+                        .unwrap()
+                        .as_str()
+                        .parse::<i32>()
+                        .unwrap();
 
-                if annotated_param.is_some() {
-                    self.params.insert(order, annotated_param.unwrap().clone());
-                } else {
-                    self.params.insert(order, value.clone());
+                    let annotated_param = self.annotated_params.get(&(order as usize));
+
+                    if annotated_param.is_some() {
+                        self.params.insert(order, annotated_param.unwrap().clone());
+                    } else {
+                        self.params.insert(order, value.clone());
+                    }
                 }
             }
         }

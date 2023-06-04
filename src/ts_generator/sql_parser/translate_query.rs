@@ -36,16 +36,25 @@ pub fn translate_query(
 
                         translate_expr(
                             expr,
-                            table_name.unwrap().as_str(),
+                            table_name.expect("Unknown table name").as_str(),
                             Some(alias.as_str()),
                             ts_query,
                             db_conn,
                             is_subquery,
                         )?;
                     }
-                    SelectItem::QualifiedWildcard(_, _) => todo!(),
+                    SelectItem::QualifiedWildcard(_, _) => {
+                        // TODO: If there's are two tables and two qualifieid wildcards are provided
+                        // It will simply generate types for both tables' columns
+                        // Should we namespace each field based on the table alias? e.g. table1_field1, table2_field1
+                        if !is_subquery {
+                            translate_wildcard_expr(query, ts_query, db_conn)?;
+                        }
+                    }
                     SelectItem::Wildcard(_) => {
-                        translate_wildcard_expr(query, ts_query, db_conn)?;
+                        if !is_subquery {
+                            translate_wildcard_expr(query, ts_query, db_conn)?;
+                        }
                     }
                 }
             }
@@ -56,16 +65,9 @@ pub fn translate_query(
             }
             Ok(())
         }
-        SetExpr::Query(_) => todo!(),
-        SetExpr::SetOperation {
-            op: _,
-            left: _,
-            right: _,
-            set_quantifier: _,
-        } => todo!(),
-        SetExpr::Values(_) => todo!(),
-        SetExpr::Insert(_) => todo!(),
-        SetExpr::Update(_) => todo!(),
-        SetExpr::Table(_) => todo!(),
+        _ => Err(TsGeneratorError::Unknown(format!(
+            "Unknown query type while processing query: {:#?}",
+            query
+        ))),
     }
 }

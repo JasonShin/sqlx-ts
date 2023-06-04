@@ -1,4 +1,5 @@
 pub mod functions;
+pub mod translate_data_type;
 pub mod translate_expr;
 pub mod translate_table_with_joins;
 pub mod translate_where_stmt;

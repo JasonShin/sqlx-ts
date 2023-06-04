@@ -7,6 +7,7 @@ GRANT ALL ON SCHEMA public TO public;
 CREATE TABLE postgres.public.tables (
     id SERIAL NOT NULL,
     number INTEGER NOT NULL,
+    occupied BOOL NOT NULL DEFAULT FALSE,
     PRIMARY KEY (id)
 );
 

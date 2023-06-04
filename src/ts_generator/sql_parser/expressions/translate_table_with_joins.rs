@@ -134,6 +134,9 @@ pub fn translate_table_with_joins(table_with_joins: &Vec<TableWithJoins>, select
             }
             _ => Some(default_table_name),
         },
-        SelectItem::QualifiedWildcard(_, _) => todo!(),
+        // This condition would never reach because translate_table_with_joins is only used when processing non wildcard select items
+        SelectItem::QualifiedWildcard(_, _) => {
+            unimplemented!("QualifiedWildcard is not supported yet when translating table with joins")
+        }
     }
 }
