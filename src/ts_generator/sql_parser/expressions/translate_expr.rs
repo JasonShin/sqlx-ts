@@ -126,11 +126,19 @@ pub fn translate_expr(
             }
             unimplemented!()
         }
+        Expr::Floor { expr, field } | Expr::Ceil { expr, field } => {
+            if alias.is_some() {
+                let alias = format_column_name(alias.unwrap().to_string());
+                ts_query.insert_result(alias, &[TsFieldType::Number], is_subquery);
+                Ok(())
+            } else {
+                Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
+            }
+        }
         Expr::Function(function) => {
             let function = function.name.to_string();
             let function = function.as_str();
             let alias = alias.ok_or(TsGeneratorError::FunctionWithoutAliasInSelectClause(expr.to_string()))?;
-
             if is_string_function(function) {
                 ts_query.insert_result(alias.to_string(), &[TsFieldType::String], is_subquery);
             } else if is_numeric_function(function) {
@@ -172,6 +180,7 @@ pub fn translate_expr(
         Expr::Exists { negated: _, subquery } => {
             // Handles all boolean return type methods
             if alias.is_some() {
+                translate_query(ts_query, subquery, db_conn, alias, true)?;
                 let alias = format_column_name(alias.unwrap().to_string());
                 // throw error here
                 ts_query.insert_result(alias, &[TsFieldType::Boolean], is_subquery);
@@ -220,7 +229,7 @@ pub fn translate_expr(
         } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string());
-                ts_query.insert_result(alias, &[TsFieldType::Boolean, TsFieldType::Null], is_subquery);
+                ts_query.insert_result(alias, &[TsFieldType::Boolean], is_subquery);
                 Ok(())
             } else {
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
@@ -320,7 +329,10 @@ pub fn translate_expr(
                 Err(TsGeneratorError::MissingAliasForFunctions(expr.to_string()))
             }
         }
-        Expr::AtTimeZone { timestamp: _, time_zone: _ } => {
+        Expr::AtTimeZone {
+            timestamp: _,
+            time_zone: _,
+        } => {
             if alias.is_some() {
                 let alias = format_column_name(alias.unwrap().to_string());
                 ts_query.insert_result(alias, &[TsFieldType::Date], is_subquery);

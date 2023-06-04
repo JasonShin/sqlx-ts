@@ -1,6 +1,5 @@
 import { sql } from 'sqlx-ts'
 
-/*
 // simple select
 const sql1 = sql`SELECT * FROM items`
 
@@ -38,20 +37,6 @@ FROM items
 WHERE points BETWEEN $1 AND $2;
 `
 
-const sql7 = sql`
-SELECT
-	id,
-	CAST('2015-01-01' AS DATE) as DATE
-FROM items;
-`
-
-const sql8 = sql`
-SELECT
-    id,
-    EXTRACT(MONTH FROM DATE '2017-08-08') AS THE_MONTH
-FROM items;
-`
-
 // Where condition expressions
 const sql9 = sql`
 SELECT *
@@ -84,28 +69,3 @@ FROM items
 WHERE food_type LIKE $1
 `
 
-const sql14 = sql`
-SELECT
-    id,
-    '2018-09-02 07:09:19'::timestamp AT TIME ZONE 'America/Chicago' as some_date
-FROM items;
-`
-
-const sql15 = sql`
-SELECT
-    id,
-    CEIL(51.11) AS some_number
-FROM items;
-`
-*/
-
-// Is True, Is False, Is Null, Is Not Null
-const sql16 = sql`
-SELECT ($1 IS TRUE) as is_true
-FROM items
-`
-
-const sql17 = sql`
-SELECT ($1 IS FALSE) as is_false
-FROM items
-`

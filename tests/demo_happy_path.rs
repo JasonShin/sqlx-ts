@@ -32,9 +32,12 @@ mod demo_happy_path_tests {
                 let path = entry.path();
                 let parent = entry.path().parent().unwrap();
                 let file_name = path.file_name().unwrap().to_str().unwrap().to_string();
-                let snapshot_path = parent.join("snapshot.ts");
 
                 if path.is_file() && file_name.ends_with(".queries.ts") {
+                    let base_file_name = file_name.split(".").collect::<Vec<&str>>();
+                    let base_file_name = base_file_name.get(0).unwrap();
+                    let snapshot_path = parent.join(format!("{base_file_name}.snapshot.ts"));
+
                     let generated_types = fs::read_to_string(path)?;
 
                     if !snapshot_path.exists() {
