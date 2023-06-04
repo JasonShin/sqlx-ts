@@ -6,9 +6,11 @@ pub static NUMERIC_FUNCTIONS: &[&str] = &[
 ];
 
 pub static STRING_FUNCTIONS: &[&str] = &[
+    // These methods expect string as input and number as output
     "ASCII",
     "CHAR_LENGTH",
     "CHARACTER_LENGTH",
+    // String to string
     "CONCAT",
     "CONCAT_WS",
     "FIELD",
@@ -31,7 +33,7 @@ pub static STRING_FUNCTIONS: &[&str] = &[
     "RIGHT",
     "RPAD",
     "RTRIM",
-    " SPACE",
+    "SPACE",
     "STRCMP",
     "SUBSTR",
     "SUBSTRING",

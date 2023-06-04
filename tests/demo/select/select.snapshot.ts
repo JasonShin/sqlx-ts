@@ -116,40 +116,6 @@ export interface ISql6Query {
 
 
 
-export type Sql7Params = [];
-
-
-export interface ISql7Result {
-    date: Date;
-	id: number;
-};
-
-
-export interface ISql7Query {
-    params: Sql7Params;
-    result: ISql7Result;
-};
-
-
-
-
-export type Sql8Params = [];
-
-
-export interface ISql8Result {
-    id: number;
-	theMonth: Date;
-};
-
-
-export interface ISql8Query {
-    params: Sql8Params;
-    result: ISql8Result;
-};
-
-
-
-
 export type Sql9Params = [boolean];
 
 
@@ -237,23 +203,6 @@ export interface ISql13Result {
 export interface ISql13Query {
     params: Sql13Params;
     result: ISql13Result;
-};
-
-
-
-
-export type Sql14Params = [];
-
-
-export interface ISql14Result {
-    id: number;
-	someDate: Date;
-};
-
-
-export interface ISql14Query {
-    params: Sql14Params;
-    result: ISql14Result;
 };
 
 

@@ -1,48 +1,64 @@
 
 
-export type Sql1Params = [number];
+export type ExistsParams = [number];
 
 
-export interface ISql1Result {
+export interface IExistsResult {
     exists: boolean;
 };
 
 
-export interface ISql1Query {
-    params: Sql1Params;
-    result: ISql1Result;
+export interface IExistsQuery {
+    params: ExistsParams;
+    result: IExistsResult;
 };
 
 
 
 
-export type Sql16Params = [];
+export type IsTrueParams = [];
 
 
-export interface ISql16Result {
+export interface IIsTrueResult {
     isTrue: boolean;
 };
 
 
-export interface ISql16Query {
-    params: Sql16Params;
-    result: ISql16Result;
+export interface IIsTrueQuery {
+    params: IsTrueParams;
+    result: IIsTrueResult;
 };
 
 
 
 
-export type Sql17Params = [];
+export type IsFalseParams = [];
 
 
-export interface ISql17Result {
+export interface IIsFalseResult {
     isFalse: boolean;
 };
 
 
-export interface ISql17Query {
-    params: Sql17Params;
-    result: ISql17Result;
+export interface IIsFalseQuery {
+    params: IsFalseParams;
+    result: IIsFalseResult;
+};
+
+
+
+
+export type InListParams = [];
+
+
+export interface IInListResult {
+    test: boolean;
+};
+
+
+export interface IInListQuery {
+    params: InListParams;
+    result: IInListResult;
 };
 
 
