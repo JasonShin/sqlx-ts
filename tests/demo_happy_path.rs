@@ -17,7 +17,7 @@ mod demo_happy_path_tests {
         // EXECUTE
         let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
         cmd.arg(demo_path.to_str().unwrap())
-            .arg(format!("--ext=ts"))
+            .arg("--ext=ts".to_string())
             .arg("--config=.sqlxrc.sample.json")
             .arg("-g");
 
@@ -34,8 +34,8 @@ mod demo_happy_path_tests {
                 let file_name = path.file_name().unwrap().to_str().unwrap().to_string();
 
                 if path.is_file() && file_name.ends_with(".queries.ts") {
-                    let base_file_name = file_name.split(".").collect::<Vec<&str>>();
-                    let base_file_name = base_file_name.get(0).unwrap();
+                    let base_file_name = file_name.split('.').collect::<Vec<&str>>();
+                    let base_file_name = base_file_name.first().unwrap();
                     let snapshot_path = parent.join(format!("{base_file_name}.snapshot.ts"));
 
                     let generated_types = fs::read_to_string(path)?;
