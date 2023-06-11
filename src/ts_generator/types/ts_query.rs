@@ -1,6 +1,12 @@
+use color_eyre::eyre::Result;
+use convert_case::{Case, Casing};
 use regex::Regex;
+use sqlparser::ast::Expr;
 use std::collections::{BTreeMap, HashMap};
 use std::fmt::{self};
+
+use crate::common::lazy::CONFIG;
+use crate::ts_generator::errors::TsGeneratorError;
 
 #[derive(Debug, Clone, Copy)]
 pub enum ArrayItem {
@@ -196,18 +202,42 @@ impl TsQuery {
         self.annotated_insert_params = annotated_insert_params;
     }
 
+    pub fn format_column_name(&self, column_name: &str) -> String {
+        let convert_to_camel_case_column_name = &CONFIG
+            .generate_types_config
+            .to_owned()
+            .map(|x| x.convert_to_camel_case_column_name);
+
+        match convert_to_camel_case_column_name {
+            Some(true) => column_name.to_case(Case::Camel),
+            Some(false) | None => column_name.to_string(),
+        }
+    }
+
     /// inserts a value into the result hashmap
     /// it should only insert a value if you are working with a non-subquery queries
-    pub fn insert_result(&mut self, key: String, value: &[TsFieldType], is_subquery: bool) {
+    pub fn insert_result(
+        &mut self,
+        alias: Option<&str>,
+        value: &[TsFieldType],
+        is_subquery: bool,
+        expr_for_logging: &str,
+    ) -> Result<(), TsGeneratorError> {
         if !is_subquery {
-            let value = self
-                .annotated_results
-                .get(key.as_str())
-                .cloned()
-                .unwrap_or_else(|| value.to_vec());
+            if alias.is_some() {
+                let alias = &self.format_column_name(alias.clone().unwrap());
+                let value = &self
+                    .annotated_results
+                    .get(alias.as_str())
+                    .cloned()
+                    .unwrap_or_else(|| value.to_vec());
 
-            self.result.insert(key, value);
+                &self.result.insert(alias.to_owned(), value.to_owned());
+            } else {
+                return Err(TsGeneratorError::MissingAliasForFunctions(expr_for_logging.to_string()));
+            }
         }
+        Ok(())
     }
 
     /// This is used to insert value params required for INSERT statements
@@ -255,7 +285,7 @@ impl TsQuery {
     /// You can only sequentially use `insert_param` with manual order or automatic order parameter
     ///
     /// This method was specifically designed with an assumption that 1 TsQuery is connected to 1 type of DB
-    pub fn insert_param(&mut self, value: &TsFieldType, placeholder: &Option<String>) {
+    pub fn insert_param(&mut self, value: &TsFieldType, placeholder: &Option<String>) -> Result<(), TsGeneratorError> {
         if let Some(placeholder) = placeholder {
             if placeholder == "?" {
                 let annotated_param = self.annotated_params.get(&(self.param_order as usize));
@@ -290,6 +320,7 @@ impl TsQuery {
                 }
             }
         }
+        Ok(())
     }
 
     /// The method is to format SQL params extracted via translate methods

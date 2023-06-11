@@ -3,8 +3,7 @@ use sqlparser::ast::{Query, SelectItem, SetExpr};
 use crate::ts_generator::{errors::TsGeneratorError, types::db_conn::DBConn, types::ts_query::TsQuery};
 
 use super::expressions::{
-    translate_expr::translate_expr,
-    translate_table_with_joins::translate_table_with_joins,
+    translate_expr::translate_expr, translate_table_with_joins::translate_table_with_joins,
     translate_wildcard_expr::translate_wildcard_expr,
 };
 
@@ -28,7 +27,15 @@ pub fn translate_query(
                             .expect("Default FROM table is not found from the query {query}");
 
                         // Handles SQL Expression and appends result
-                        translate_expr(unnamed_expr, &Some(&table_name.as_str()), &Some(&table_with_joins), alias, ts_query, db_conn, is_subquery)?;
+                        translate_expr(
+                            unnamed_expr,
+                            &Some(&table_name.as_str()),
+                            &Some(&table_with_joins),
+                            alias,
+                            ts_query,
+                            db_conn,
+                            is_subquery,
+                        )?;
                     }
                     SelectItem::ExprWithAlias { expr, alias } => {
                         let alias = alias.to_string();
