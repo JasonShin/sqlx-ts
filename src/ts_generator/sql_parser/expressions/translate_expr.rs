@@ -1,5 +1,6 @@
 use crate::common::lazy::{CONFIG, DB_SCHEMA};
 use crate::ts_generator::errors::TsGeneratorError;
+use crate::ts_generator::sql_parser::expressions::translate_table_with_joins::translate_table_from_expr;
 use crate::ts_generator::sql_parser::expressions::{
     functions::is_string_function, translate_data_type::translate_data_type,
 };
@@ -9,10 +10,8 @@ use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
 use convert_case::{Case, Casing};
 use regex::Regex;
 use sqlparser::ast::{Assignment, Expr, TableWithJoins, Value};
-use sqlparser::test_utils::table;
 
 use super::functions::{is_date_function, is_numeric_function};
-use super::translate_table_with_joins::translate_table_from_expr;
 
 /// Given an expression
 /// e.g.
@@ -146,7 +145,7 @@ pub fn translate_expr(
     db_conn: &DBConn,
     // is subquery determines if we can safely append result types into ts_query.results
     // subqueries on WHERE expression should no determine the SELECTIONs
-    is_subquery: bool,
+    is_selection: bool,
 ) -> Result<(), TsGeneratorError> {
     let binding = expr.to_string();
     let expr_for_logging = &binding.as_str();
@@ -165,18 +164,21 @@ pub fn translate_expr(
                 ts_query.insert_result(
                     Some(field_name),
                     &[field.field_type.to_owned()],
-                    is_subquery,
+                    is_selection,
                     &expr_for_logging,
-                );
+                )?
             }
             Ok(())
         }
         Expr::CompoundIdentifier(idents) => {
             if idents.len() == 2 {
                 let ident = idents[1].value.clone();
-                let table_name = single_table_name.expect("Missing table name for compound identifier");
+                let table_with_joins =
+                    table_with_joins.ok_or_else(|| TsGeneratorError::IndentifierWithoutTable(expr.to_string()))?;
+                let table_name = translate_table_from_expr(table_with_joins, &expr)
+                    .ok_or_else(|| TsGeneratorError::IndentifierWithoutTable(expr.to_string()))?;
 
-                let table_details = &DB_SCHEMA.fetch_table(&vec![table_name], db_conn);
+                let table_details = &DB_SCHEMA.fetch_table(&vec![table_name.as_str()], db_conn);
                 if let Some(table_details) = table_details {
                     let field = table_details.get(&ident).unwrap();
 
@@ -186,7 +188,7 @@ pub fn translate_expr(
                     ts_query.insert_result(
                         Some(key_name),
                         &[field.field_type.to_owned()],
-                        is_subquery,
+                        is_selection,
                         &expr_for_logging,
                     )?;
                 }
@@ -206,7 +208,7 @@ pub fn translate_expr(
                     alias,
                     ts_query,
                     db_conn,
-                    is_subquery,
+                    is_selection,
                 )?;
                 translate_expr(
                     &*right,
@@ -215,7 +217,7 @@ pub fn translate_expr(
                     alias,
                     ts_query,
                     db_conn,
-                    is_subquery,
+                    is_selection,
                 )?;
                 Ok(())
             } else {
@@ -257,11 +259,11 @@ pub fn translate_expr(
             negated: _,
         } => {
             // You do not need an alias as we are processing a subquery within the WHERE clause
-            translate_query(ts_query, subquery, db_conn, None, true)?;
+            translate_query(ts_query, subquery, db_conn, None, false)?;
             Ok(())
         }
         Expr::Subquery(subquery) => {
-            translate_query(ts_query, subquery, db_conn, None, true)?;
+            translate_query(ts_query, subquery, db_conn, None, false)?;
             Ok(())
         }
         Expr::Between {
@@ -290,7 +292,7 @@ pub fn translate_expr(
             alias,
             ts_query,
             db_conn,
-            is_subquery,
+            is_selection,
         ),
         Expr::UnaryOp { op: _, expr } => translate_expr(
             &*expr,
@@ -299,7 +301,7 @@ pub fn translate_expr(
             alias,
             ts_query,
             db_conn,
-            is_subquery,
+            is_selection,
         ),
         Expr::Value(placeholder) => ts_query.insert_param(&TsFieldType::Boolean, &Some(placeholder.to_string())),
         Expr::JsonAccess {
@@ -369,11 +371,9 @@ pub fn translate_expr(
             overlay_for,
         } => todo!(),
         Expr::Collate { expr, collation } => todo!(),
-        Expr::Nested(_) => todo!(),
         Expr::IntroducedString { introducer, value } => todo!(),
         Expr::TypedString { data_type, value } => todo!(),
         Expr::MapAccess { column, keys } => todo!(),
-        Expr::Function(_) => todo!(),
         Expr::AggregateExpressionWithFilter { expr, filter } => todo!(),
         Expr::Case {
             operand,
@@ -381,7 +381,11 @@ pub fn translate_expr(
             results,
             else_result,
         } => todo!(),
-        Expr::Exists { subquery, negated } => todo!(),
+        Expr::Exists { subquery, negated: _ } => {
+            ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, expr_for_logging)?;
+            translate_query(ts_query, *&subquery, db_conn, alias, false)?;
+            Ok(())
+        }
         Expr::ArraySubquery(_) => todo!(),
         Expr::ListAgg(_) => todo!(),
         Expr::ArrayAgg(_) => todo!(),
@@ -411,74 +415,71 @@ pub fn translate_expr(
         // FUNCTIONS START //
         /////////////////////
         Expr::IsTrue(query) | Expr::IsFalse(query) | Expr::IsNull(query) | Expr::IsNotNull(query) => {
-            ts_query.insert_result(alias, &[TsFieldType::Boolean], is_subquery, expr.to_string().as_str())
+            ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, expr.to_string().as_str())
         }
         Expr::Floor { expr, field } | Expr::Ceil { expr, field } => {
-            ts_query.insert_result(alias, &[TsFieldType::Number], is_subquery, expr_for_logging)
+            ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging)
         }
         Expr::Function(function) => {
             let function = function.name.to_string();
             let function = function.as_str();
             let alias = alias.ok_or(TsGeneratorError::FunctionWithoutAliasInSelectClause(expr.to_string()))?;
             if is_string_function(function) {
-                ts_query.insert_result(Some(alias), &[TsFieldType::String], is_subquery, expr_for_logging);
+                ts_query.insert_result(Some(alias), &[TsFieldType::String], is_selection, expr_for_logging);
             } else if is_numeric_function(function) {
-                ts_query.insert_result(Some(alias), &[TsFieldType::Number], is_subquery, expr_for_logging);
+                ts_query.insert_result(Some(alias), &[TsFieldType::Number], is_selection, expr_for_logging);
             } else if is_date_function(function) {
-                ts_query.insert_result(Some(alias), &[TsFieldType::String], is_subquery, expr_for_logging);
+                ts_query.insert_result(Some(alias), &[TsFieldType::String], is_selection, expr_for_logging);
             } else {
                 return Err(TsGeneratorError::FunctionUnknown(expr.to_string()));
             }
 
             Ok(())
         }
-        Expr::Exists { negated: _, subquery } => {
-            ts_query.insert_result(alias, &[TsFieldType::Boolean], is_subquery, expr_for_logging)
-        }
         Expr::JsonAccess {
             left: _,
             operator,
             right: _,
-        } => ts_query.insert_result(alias, &[TsFieldType::Any], is_subquery, expr_for_logging),
+        } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),
         Expr::IsNotDistinctFrom(_, placeholder) | Expr::IsDistinctFrom(_, placeholder) => {
             // IsDistinctFrom and IsNotDistinctFrom are the same and can have a placeholder
             ts_query.insert_param(&TsFieldType::String, &Some(placeholder.to_string()));
-            ts_query.insert_result(alias, &[TsFieldType::Any], is_subquery, expr_for_logging)
+            ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
         }
         Expr::InList {
             expr,
             list: _,
             negated: _,
-        } => ts_query.insert_result(alias, &[TsFieldType::Boolean], is_subquery, expr_for_logging),
+        } => ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, expr_for_logging),
         Expr::Cast { expr, data_type } | Expr::TryCast { expr, data_type } => {
             let data_type = translate_data_type(data_type);
-            ts_query.insert_result(alias, &[data_type], is_subquery, expr_for_logging)
+            ts_query.insert_result(alias, &[data_type], is_selection, expr_for_logging)
         }
         Expr::Extract { field: _, expr } => {
-            ts_query.insert_result(alias, &[TsFieldType::Date], is_subquery, expr_for_logging)
+            ts_query.insert_result(alias, &[TsFieldType::Date], is_selection, expr_for_logging)
         }
         Expr::Position { expr: _, r#in: _ } => {
-            ts_query.insert_result(alias, &[TsFieldType::Number], is_subquery, expr_for_logging)
+            ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging)
         }
         Expr::Substring {
             expr: _,
             substring_for: _,
             substring_from: _,
-        } => ts_query.insert_result(alias, &[TsFieldType::String], is_subquery, expr_for_logging),
+        } => ts_query.insert_result(alias, &[TsFieldType::String], is_selection, expr_for_logging),
         Expr::Trim {
             expr: _,
             trim_what: _,
             trim_where: _,
-        } => ts_query.insert_result(alias, &[TsFieldType::String], is_subquery, expr_for_logging),
+        } => ts_query.insert_result(alias, &[TsFieldType::String], is_selection, expr_for_logging),
         Expr::AtTimeZone {
             timestamp: _,
             time_zone: _,
-        } => ts_query.insert_result(alias, &[TsFieldType::Date], is_subquery, expr_for_logging),
+        } => ts_query.insert_result(alias, &[TsFieldType::Date], is_selection, expr_for_logging),
         /////////////////////
         // FUNCTIONS END //
         /////////////////////
         Expr::CompositeAccess { expr, key: _ } => {
-            ts_query.insert_result(alias, &[TsFieldType::Any], is_subquery, expr_for_logging)
+            ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
         }
         Expr::Subquery(sub_query) => translate_query(ts_query, sub_query, db_conn, alias, false),
         Expr::Nested(expr) => translate_expr(
@@ -488,19 +489,19 @@ pub fn translate_expr(
             alias,
             ts_query,
             db_conn,
-            is_subquery,
+            is_selection,
         ),
         Expr::InSubquery {
             expr,
             subquery: _,
             negated: _,
-        } => ts_query.insert_result(alias, &[TsFieldType::Any], is_subquery, &expr_for_logging),
+        } => ts_query.insert_result(alias, &[TsFieldType::Any], false, &expr_for_logging),
         Expr::InUnnest {
             expr,
             array_expr: _,
             negated: _,
-        } => ts_query.insert_result(alias, &[TsFieldType::Any], is_subquery, &expr_for_logging),
-        _ => ts_query.insert_result(alias, &[TsFieldType::Any], is_subquery, &expr_for_logging),
+        } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, &expr_for_logging),
+        _ => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, &expr_for_logging),
     }
 }
 

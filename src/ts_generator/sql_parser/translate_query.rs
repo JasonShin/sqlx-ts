@@ -12,7 +12,7 @@ pub fn translate_query(
     query: &Query,
     db_conn: &DBConn,
     alias: Option<&str>,
-    is_subquery: bool,
+    is_selection: bool,
 ) -> Result<(), TsGeneratorError> {
     let body = *query.body.clone();
     match body {
@@ -34,7 +34,7 @@ pub fn translate_query(
                             alias,
                             ts_query,
                             db_conn,
-                            is_subquery,
+                            is_selection,
                         )?;
                     }
                     SelectItem::ExprWithAlias { expr, alias } => {
@@ -49,19 +49,19 @@ pub fn translate_query(
                             Some(alias.as_str()),
                             ts_query,
                             db_conn,
-                            is_subquery,
+                            is_selection,
                         )?;
                     }
                     SelectItem::QualifiedWildcard(_, _) => {
                         // TODO: If there's are two tables and two qualifieid wildcards are provided
                         // It will simply generate types for both tables' columns
                         // Should we namespace each field based on the table alias? e.g. table1_field1, table2_field1
-                        if !is_subquery {
+                        if is_selection {
                             translate_wildcard_expr(query, ts_query, db_conn)?;
                         }
                     }
                     SelectItem::Wildcard(_) => {
-                        if !is_subquery {
+                        if is_selection {
                             translate_wildcard_expr(query, ts_query, db_conn)?;
                         }
                     }

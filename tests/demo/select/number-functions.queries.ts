@@ -5,7 +5,6 @@ export type CeilParams = [];
 
 export interface ICeilResult {
     id: number;
-	someNumber: number;
 };
 
 
@@ -26,14 +25,12 @@ export interface IAllResult {
 	asin1: number;
 	atan1: number;
 	avg1: number;
-	ceil1: number;
 	ceiling1: number;
 	cos1: number;
 	cot1: number;
 	count1: number;
 	degrees1: number;
 	exp1: number;
-	floor1: number;
 	greatest1: number;
 	least1: number;
 	ln1: number;

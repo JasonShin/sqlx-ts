@@ -23,6 +23,8 @@ pub enum TsGeneratorError {
     FunctionWithoutAliasInSelectClause(String),
     #[error("[E010] Unknown function detected while processing a SELECT clause - query: `{0}`")]
     FunctionUnknown(String),
+    #[error("[E011] table name was not found while processing an identifier - query: `{0}`")]
+    IndentifierWithoutTable(String),
     #[error("Unknown error: `{0}`")]
     Unknown(String),
 }

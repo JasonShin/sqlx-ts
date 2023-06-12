@@ -220,10 +220,10 @@ impl TsQuery {
         &mut self,
         alias: Option<&str>,
         value: &[TsFieldType],
-        is_subquery: bool,
+        is_selection: bool,
         expr_for_logging: &str,
     ) -> Result<(), TsGeneratorError> {
-        if !is_subquery {
+        if is_selection {
             if alias.is_some() {
                 let alias = &self.format_column_name(alias.clone().unwrap());
                 let value = &self
