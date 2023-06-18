@@ -17,7 +17,7 @@ pub fn translate_stmt(
 ) -> Result<(), TsGeneratorError> {
     match sql_statement {
         Statement::Query(query) => {
-            translate_query(ts_query, query, db_conn, alias, true)?;
+            translate_query(ts_query, &mut None, query, db_conn, alias, true)?;
         }
         Statement::Insert {
             or: _,

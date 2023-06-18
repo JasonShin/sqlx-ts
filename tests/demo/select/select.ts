@@ -4,13 +4,12 @@ import { sql } from 'sqlx-ts'
 // const sql1 = sql`SELECT * FROM items`
 
 // single join
-/*const sql2 = sql`
+const sql2 = sql`
 SELECT *
 FROM items
 JOIN tables ON items.table_id = tables.id
-`*/
+`
 
-/*
 // subquery
 const sql3 = sql`
 SELECT
@@ -69,4 +68,3 @@ SELECT *
 FROM items
 WHERE food_type LIKE $1
 `
-*/

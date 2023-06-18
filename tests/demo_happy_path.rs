@@ -17,7 +17,7 @@ mod demo_happy_path_tests {
         // EXECUTE
         let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
         cmd.arg(demo_path.to_str().unwrap())
-            .arg("--ext=ts".to_string())
+            .arg("--ext=ts")
             .arg("--config=.sqlxrc.sample.json")
             .arg("-g");
 

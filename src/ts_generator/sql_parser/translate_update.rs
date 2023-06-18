@@ -36,8 +36,8 @@ pub fn translate_update(
     translate_assignments(ts_query, table_with_joins, assignments, db_conn)?;
 
     if selection.is_some() {
-        let binding = from.clone().map(|x| vec![x]);
-        let from = binding.as_ref();
+        let mut binding = from.clone().map(|x| vec![x]);
+        let from = binding;
         translate_expr(
             &selection.to_owned().unwrap(),
             &None,
