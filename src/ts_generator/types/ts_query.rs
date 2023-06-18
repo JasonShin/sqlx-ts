@@ -225,10 +225,11 @@ impl TsQuery {
     ) -> Result<(), TsGeneratorError> {
         if is_selection {
             if alias.is_some() {
+                let temp_alias = alias.clone().unwrap();
                 let alias = &self.format_column_name(alias.clone().unwrap());
                 let value = &self
                     .annotated_results
-                    .get(alias.as_str())
+                    .get(temp_alias)
                     .cloned()
                     .unwrap_or_else(|| value.to_vec());
 

@@ -80,7 +80,7 @@ export type Sql5Params = [string];
 
 
 export interface ISql5Result {
-    tableId: number;
+    tableId: boolean;
 };
 
 

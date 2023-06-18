@@ -52,7 +52,7 @@ export type InListParams = [];
 
 
 export interface IInListResult {
-    
+    test: boolean;
 };
 
 

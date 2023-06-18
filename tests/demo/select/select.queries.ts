@@ -1,5 +1,25 @@
 
 
+export type Sql1Params = [];
+
+
+export interface ISql1Result {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface ISql1Query {
+    params: Sql1Params;
+    result: ISql1Result;
+};
+
+
+
+
 export type Sql2Params = [];
 
 
@@ -138,7 +158,8 @@ export type Sql11Params = [string, string];
 
 
 export interface ISql11Result {
-    id: number;
+    hmm: any;
+	id: number;
 	number: number;
 };
 

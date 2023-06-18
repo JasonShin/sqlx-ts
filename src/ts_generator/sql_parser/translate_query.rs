@@ -22,12 +22,12 @@ pub fn translate_query(
     match body {
         SetExpr::Select(select) => {
             let projection = select.clone().projection;
-            
+
             // We create a new table with joins within the scope of this select (it could be within a subquery)
             // full_table_with_joins should contain all tables from the parent and keeping it within this query's scope
             let mut full_table_with_joins: Vec<TableWithJoins> = vec![];
             let child_table_with_joins = select.clone().from;
-            
+
             // The most inner table should be extended first as it will be the default table within the subquery
             full_table_with_joins.extend(child_table_with_joins);
 
@@ -89,15 +89,7 @@ pub fn translate_query(
 
             // If there's any WHERE statements, process it
             if let Some(selection) = select.selection {
-                translate_expr(
-                    &selection,
-                    &None,
-                    full_table_with_joins,
-                    None,
-                    ts_query,
-                    db_conn,
-                    false,
-                )?;
+                translate_expr(&selection, &None, full_table_with_joins, None, ts_query, db_conn, false)?;
             }
             Ok(())
         }

@@ -41,8 +41,8 @@ export type QueryCompountParams = [];
 
 
 export interface IQueryCompountResult {
-    items_id: number;
-	tables_id: number;
+    itemsId: number;
+	tablesId: number;
 };
 
 

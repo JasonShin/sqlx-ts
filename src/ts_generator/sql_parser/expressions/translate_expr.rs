@@ -183,6 +183,7 @@ pub fn translate_expr(
                     // if the select item is a compound identifier and does not has an alias, we should use `table_name.ident` as the key name
                     let key_name = format!("{}_{}", table_name, ident);
                     let key_name = alias.unwrap_or(key_name.as_str());
+                    println!("checking key name {:#?}", key_name);
                     ts_query.insert_result(
                         Some(key_name),
                         &[field.field_type.to_owned()],
@@ -225,6 +226,7 @@ pub fn translate_expr(
             }
         }
         Expr::InList { expr, list, negated: _ } => {
+            ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, expr_for_logging)?;
             // If the list is just a single `(?)`, then we should return the dynamic
             // If the list contains multiple `(?, ?...)` then we should return a fixed length array
             if list.len() == 1 {
@@ -302,12 +304,14 @@ pub fn translate_expr(
             left: _,
             operator: _,
             right: _,
-        } => ts_query.insert_param(&TsFieldType::Any, &None),
-        Expr::CompositeAccess { expr, key } => {
-            todo!()
+        } => {
+            ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)?;
+            ts_query.insert_param(&TsFieldType::Any, &None)
         }
         Expr::IsNotDistinctFrom(_, placeholder) | Expr::IsDistinctFrom(_, placeholder) => {
-            ts_query.insert_param(&TsFieldType::String, &Some(placeholder.to_string()))
+            // IsDistinctFrom and IsNotDistinctFrom are the same and can have a placeholder
+            ts_query.insert_param(&TsFieldType::String, &Some(placeholder.to_string()))?;
+            ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
         }
         Expr::SimilarTo {
             negated: _,
@@ -332,32 +336,45 @@ pub fn translate_expr(
         }
         Expr::TryCast { expr, data_type } | Expr::SafeCast { expr, data_type } | Expr::Cast { expr, data_type } => {
             let data_type = translate_data_type(data_type);
-            ts_query.insert_param(&data_type, &Some(expr.to_string()))
+            ts_query.insert_result(alias, &[data_type.clone()], is_selection, expr_for_logging)?;
+            ts_query.insert_param(&data_type, &Some(expr.to_string()))?;
+            Ok(())
         }
         Expr::AtTimeZone { timestamp, time_zone } => {
+            ts_query.insert_result(alias, &[TsFieldType::Date], is_selection, expr_for_logging)?;
             ts_query.insert_param(&TsFieldType::String, &Some(timestamp.to_string()))?;
             ts_query.insert_param(&TsFieldType::String, &Some(time_zone.to_string()))?;
             Ok(())
         }
         Expr::Extract { field, expr } => {
+            ts_query.insert_result(alias, &[TsFieldType::Date], is_selection, expr_for_logging)?;
             ts_query.insert_param(&TsFieldType::String, &Some(field.to_string()))?;
             ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()))?;
             Ok(())
         }
         Expr::Floor { expr, field: _ } | Expr::Ceil { expr, field: _ } => {
+            ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging)?;
             ts_query.insert_param(&TsFieldType::Number, &Some(expr.to_string()))
         }
-        Expr::Position { expr, r#in } => todo!(),
+        Expr::Position { expr, r#in } => {
+            ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging)
+        }
         Expr::Substring {
             expr,
             substring_from,
             substring_for,
-        } => ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string())),
+        } => {
+            ts_query.insert_result(alias, &[TsFieldType::String], is_selection, expr_for_logging)?;
+            ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()))
+        }
         Expr::Trim {
             expr,
             trim_where: _,
             trim_what: _,
-        } => ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string())),
+        } => {
+            ts_query.insert_result(alias, &[TsFieldType::String], is_selection, expr_for_logging)?;
+            ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()))
+        }
         Expr::Overlay {
             expr,
             overlay_what,
@@ -411,64 +428,22 @@ pub fn translate_expr(
         Expr::IsTrue(query) | Expr::IsFalse(query) | Expr::IsNull(query) | Expr::IsNotNull(query) => {
             ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, expr.to_string().as_str())
         }
-        Expr::Floor { expr: _, field: _ } | Expr::Ceil { expr: _, field: _ } => {
-            ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging)
-        }
         Expr::Function(function) => {
             let function = function.name.to_string();
             let function = function.as_str();
             let alias = alias.ok_or(TsGeneratorError::FunctionWithoutAliasInSelectClause(expr.to_string()))?;
             if is_string_function(function) {
-                ts_query.insert_result(Some(alias), &[TsFieldType::String], is_selection, expr_for_logging);
+                ts_query.insert_result(Some(alias), &[TsFieldType::String], is_selection, expr_for_logging)?;
             } else if is_numeric_function(function) {
-                ts_query.insert_result(Some(alias), &[TsFieldType::Number], is_selection, expr_for_logging);
+                ts_query.insert_result(Some(alias), &[TsFieldType::Number], is_selection, expr_for_logging)?;
             } else if is_date_function(function) {
-                ts_query.insert_result(Some(alias), &[TsFieldType::String], is_selection, expr_for_logging);
+                ts_query.insert_result(Some(alias), &[TsFieldType::String], is_selection, expr_for_logging)?;
             } else {
                 return Err(TsGeneratorError::FunctionUnknown(expr.to_string()));
             }
 
             Ok(())
         }
-        Expr::JsonAccess {
-            left: _,
-            operator,
-            right: _,
-        } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),
-        Expr::IsNotDistinctFrom(_, placeholder) | Expr::IsDistinctFrom(_, placeholder) => {
-            // IsDistinctFrom and IsNotDistinctFrom are the same and can have a placeholder
-            ts_query.insert_param(&TsFieldType::String, &Some(placeholder.to_string()));
-            ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
-        }
-        Expr::InList {
-            expr,
-            list: _,
-            negated: _,
-        } => ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, expr_for_logging),
-        Expr::Cast { expr, data_type } | Expr::TryCast { expr, data_type } => {
-            let data_type = translate_data_type(data_type);
-            ts_query.insert_result(alias, &[data_type], is_selection, expr_for_logging)
-        }
-        Expr::Extract { field: _, expr } => {
-            ts_query.insert_result(alias, &[TsFieldType::Date], is_selection, expr_for_logging)
-        }
-        Expr::Position { expr: _, r#in: _ } => {
-            ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging)
-        }
-        Expr::Substring {
-            expr: _,
-            substring_for: _,
-            substring_from: _,
-        } => ts_query.insert_result(alias, &[TsFieldType::String], is_selection, expr_for_logging),
-        Expr::Trim {
-            expr: _,
-            trim_what: _,
-            trim_where: _,
-        } => ts_query.insert_result(alias, &[TsFieldType::String], is_selection, expr_for_logging),
-        Expr::AtTimeZone {
-            timestamp: _,
-            time_zone: _,
-        } => ts_query.insert_result(alias, &[TsFieldType::Date], is_selection, expr_for_logging),
         /////////////////////
         // FUNCTIONS END //
         /////////////////////
@@ -478,10 +453,10 @@ pub fn translate_expr(
         Expr::Subquery(sub_query) => {
             // For the first layer of subquery, we consider the first field selected as the result
             if is_selection && table_with_joins.clone().unwrap().len() == 1 {
-                return translate_query(ts_query, &table_with_joins, sub_query, db_conn, alias, true)
+                return translate_query(ts_query, &table_with_joins, sub_query, db_conn, alias, true);
             }
             translate_query(ts_query, &table_with_joins, sub_query, db_conn, alias, false)
-        },
+        }
         Expr::Nested(expr) => translate_expr(
             &*expr,
             single_table_name,

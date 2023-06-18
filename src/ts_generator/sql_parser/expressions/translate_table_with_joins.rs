@@ -33,7 +33,6 @@ pub fn find_table_name_from_identifier(
         return Some(default_table_name);
     }
 
-
     // Check the default table with joins to see if any left identifier (table name) matches any alias of tables or table name itself
     for relation in table_with_joins.iter().map(|tj| tj.relation.clone()) {
         match &relation {
@@ -43,7 +42,9 @@ pub fn find_table_name_from_identifier(
                 args: _,
                 with_hints: _,
             } => {
-                if Some(left.to_string()) == alias.to_owned().map(|a| a.to_string()) || left.to_string() == name.to_string() {
+                if Some(left.to_string()) == alias.to_owned().map(|a| a.to_string())
+                    || left.to_string() == name.to_string()
+                {
                     // If the identifier matches the alias, then return the table name
                     return Some(name.to_string());
                 }
@@ -85,7 +86,7 @@ pub fn find_table_name_from_identifier(
 ///
 pub fn translate_table_from_expr(table_with_joins: &Option<Vec<TableWithJoins>>, expr: &Expr) -> Option<String> {
     if table_with_joins.is_none() {
-        return None
+        return None;
     }
 
     let table_with_joins = table_with_joins.as_ref().unwrap();
@@ -114,9 +115,12 @@ pub fn translate_table_from_assignments(
 /// Translates a select item's target table by looking for TableWithJoins
 /// If the select item uses table alias, it should find the table name using the alias
 /// If the select item does not have any alias or table name, it should pick the default table name
-pub fn translate_table_with_joins(table_with_joins: &Option<Vec<TableWithJoins>>, select_item: &SelectItem) -> Option<String> {
+pub fn translate_table_with_joins(
+    table_with_joins: &Option<Vec<TableWithJoins>>,
+    select_item: &SelectItem,
+) -> Option<String> {
     if &table_with_joins.is_none() == &true {
-        return None
+        return None;
     }
 
     let table_with_joins = table_with_joins.as_ref().unwrap().as_ref();

@@ -5,6 +5,7 @@ export type AtTimeZoneParams = [];
 
 export interface IAtTimeZoneResult {
     id: number;
+	someDate: Date;
 };
 
 
@@ -20,7 +21,8 @@ export type CastParams = [];
 
 
 export interface ICastResult {
-    id: number;
+    date: Date;
+	id: number;
 };
 
 
@@ -37,6 +39,7 @@ export type ExtractParams = [];
 
 export interface IExtractResult {
     id: number;
+	theMonth: Date;
 };
 
 
