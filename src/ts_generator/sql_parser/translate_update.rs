@@ -45,8 +45,8 @@ pub fn translate_update(
             None,
             ts_query,
             db_conn,
-            true,
-        );
+            false,
+        )?;
     }
     Ok(())
 }

@@ -17,6 +17,6 @@ pub fn translate_delete(
         None,
         ts_query,
         db_conn,
-        true,
+        false,
     )
 }

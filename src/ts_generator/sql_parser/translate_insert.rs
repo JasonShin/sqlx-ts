@@ -45,7 +45,7 @@ pub fn translate_insert(
                             // If the placeholder is `'?'`, we can process it using insert_value_params and generate nested params type
                             ts_query.insert_value_params(&field.field_type, &(row, column), &placeholder);
                         } else {
-                            ts_query.insert_param(&field.field_type, &placeholder);
+                            ts_query.insert_param(&field.field_type, &placeholder)?;
                         }
                     }
                 }
