@@ -1,6 +1,6 @@
 use sqlparser::ast::{Assignment, Expr, Join, SelectItem, TableFactor, TableWithJoins};
 
-fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
+pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
     table_with_joins
         .get(0)
         .and_then(|x| match &x.relation {

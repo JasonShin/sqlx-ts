@@ -183,7 +183,6 @@ pub fn translate_expr(
                     // if the select item is a compound identifier and does not has an alias, we should use `table_name.ident` as the key name
                     let key_name = format!("{}_{}", table_name, ident);
                     let key_name = alias.unwrap_or(key_name.as_str());
-                    println!("checking key name {:#?}", key_name);
                     ts_query.insert_result(
                         Some(key_name),
                         &[field.field_type.to_owned()],

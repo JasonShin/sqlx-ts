@@ -1,6 +1,9 @@
 use sqlparser::ast::{Query, SelectItem, SetExpr, TableWithJoins};
 
-use crate::ts_generator::{errors::TsGeneratorError, types::db_conn::DBConn, types::ts_query::TsQuery};
+use crate::ts_generator::{
+    errors::TsGeneratorError, sql_parser::expressions::translate_table_with_joins::get_default_table,
+    types::db_conn::DBConn, types::ts_query::TsQuery,
+};
 
 use super::expressions::{
     translate_expr::translate_expr, translate_table_with_joins::translate_table_with_joins,
@@ -29,7 +32,7 @@ pub fn translate_query(
             let child_table_with_joins = select.clone().from;
 
             // The most inner table should be extended first as it will be the default table within the subquery
-            full_table_with_joins.extend(child_table_with_joins);
+            full_table_with_joins.extend(child_table_with_joins.clone());
 
             if table_with_joins.is_some() {
                 let table_with_joins = table_with_joins.as_ref().unwrap();
@@ -89,7 +92,17 @@ pub fn translate_query(
 
             // If there's any WHERE statements, process it
             if let Some(selection) = select.selection {
-                translate_expr(&selection, &None, full_table_with_joins, None, ts_query, db_conn, false)?;
+                let current_scope_table_name = get_default_table(&child_table_with_joins);
+                let current_scope_table_name = current_scope_table_name.as_str();
+                translate_expr(
+                    &selection,
+                    &Some(current_scope_table_name),
+                    full_table_with_joins,
+                    None,
+                    ts_query,
+                    db_conn,
+                    false,
+                )?;
             }
             Ok(())
         }
