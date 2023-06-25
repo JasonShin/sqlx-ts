@@ -28,4 +28,4 @@ book/book
 coverage
 
 # staging area for testing TS files
-tests/demo/staging
+tests/staging

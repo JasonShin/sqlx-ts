@@ -7,7 +7,7 @@ use crate::ts_generator::{
 
 use super::expressions::{
     translate_expr::{translate_assignment, translate_expr},
-    translate_table_with_joins::translate_table_from_assignments,
+    translate_table_with_joins::{translate_table_from_assignments, get_default_table},
 };
 
 fn translate_assignments(
@@ -36,12 +36,15 @@ pub fn translate_update(
     translate_assignments(ts_query, table_with_joins, assignments, db_conn)?;
 
     if selection.is_some() {
-        let mut binding = from.clone().map(|x| vec![x]);
-        let from = binding;
+        // let mut binding = from.clone().map(|x| vec![x]);
+        // let from = binding;
+        let table_with_joins = vec![table_with_joins.clone()];
+        let current_scope_table = get_default_table(&table_with_joins);
+        let current_scope_table = current_scope_table.as_str();
         translate_expr(
             &selection.to_owned().unwrap(),
-            &None,
-            &from,
+            &Some(current_scope_table),
+            &Some(table_with_joins),
             None,
             ts_query,
             db_conn,
