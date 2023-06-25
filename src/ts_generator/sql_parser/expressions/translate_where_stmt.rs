@@ -190,18 +190,21 @@ pub fn translate_where_stmt(
         }
         Expr::TryCast { expr, data_type } | Expr::SafeCast { expr, data_type } | Expr::Cast { expr, data_type } => {
             let data_type = translate_data_type(data_type);
-            ts_query.insert_param(&data_type, &Some(expr.to_string()));
+            ts_query.insert_param(&data_type, &Some(expr.to_string()))
         }
         Expr::AtTimeZone { timestamp, time_zone } => {
             ts_query.insert_param(&TsFieldType::String, &Some(timestamp.to_string()));
             ts_query.insert_param(&TsFieldType::String, &Some(time_zone.to_string()));
+            Ok(())
         }
         Expr::Extract { field, expr } => {
             ts_query.insert_param(&TsFieldType::String, &Some(field.to_string()));
             ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()));
+            Ok(())
         }
         Expr::Floor { expr, field: _ } | Expr::Ceil { expr, field: _ } => {
             ts_query.insert_param(&TsFieldType::Number, &Some(expr.to_string()));
+            Ok(())
         }
         Expr::Position { expr, r#in } => todo!(),
         Expr::Substring {
@@ -209,7 +212,7 @@ pub fn translate_where_stmt(
             substring_from,
             substring_for,
         } => {
-            ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()));
+            ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()))
         }
         Expr::Trim {
             expr,
@@ -259,7 +262,6 @@ pub fn translate_where_stmt(
             match_value,
             opt_search_modifier,
         } => todo!(),
-        _ => {}
+        _ => Ok(())
     }
-    Ok(())
 }

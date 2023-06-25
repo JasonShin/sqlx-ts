@@ -6,8 +6,8 @@ use crate::ts_generator::{
 };
 
 use super::expressions::{
-    translate_expr::translate_assignment, translate_table_with_joins::translate_table_from_assignments,
-    translate_where_stmt::translate_where_stmt,
+    translate_expr::{translate_assignment, translate_expr},
+    translate_table_with_joins::{get_default_table, translate_table_from_assignments},
 };
 
 fn translate_assignments(
@@ -29,18 +29,25 @@ pub fn translate_update(
     ts_query: &mut TsQuery,
     table_with_joins: &TableWithJoins,
     assignments: &Vec<Assignment>,
-    _from: &Option<TableWithJoins>,
+    from: &Option<TableWithJoins>,
     selection: &Option<Expr>,
     db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
     translate_assignments(ts_query, table_with_joins, assignments, db_conn)?;
+
     if selection.is_some() {
-        translate_where_stmt(
-            ts_query,
+        let table_with_joins = vec![table_with_joins.clone()];
+        let current_scope_table = get_default_table(&table_with_joins);
+        let current_scope_table = current_scope_table.as_str();
+
+        translate_expr(
             &selection.to_owned().unwrap(),
-            &None,
-            &Some(&vec![table_with_joins.to_owned()]),
+            &Some(current_scope_table),
+            &Some(table_with_joins),
+            None,
+            ts_query,
             db_conn,
+            false,
         )?;
     }
     Ok(())

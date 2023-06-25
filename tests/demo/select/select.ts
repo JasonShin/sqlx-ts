@@ -68,4 +68,3 @@ SELECT *
 FROM items
 WHERE food_type LIKE $1
 `
-

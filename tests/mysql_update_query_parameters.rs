@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod mysql_insert_query_parameters {
+mod mysql_update_query_parameters {
     use assert_cmd::prelude::*;
     use predicates::prelude::*;
     use pretty_assertions::assert_eq;
