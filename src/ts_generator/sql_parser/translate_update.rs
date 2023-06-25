@@ -7,7 +7,7 @@ use crate::ts_generator::{
 
 use super::expressions::{
     translate_expr::{translate_assignment, translate_expr},
-    translate_table_with_joins::{translate_table_from_assignments, get_default_table},
+    translate_table_with_joins::{get_default_table, translate_table_from_assignments},
 };
 
 fn translate_assignments(
