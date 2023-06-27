@@ -375,11 +375,13 @@ pub fn translate_expr(
             ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()))
         }
         Expr::Overlay {
-            expr,
-            overlay_what,
-            overlay_from,
-            overlay_for,
-        } => todo!(),
+            expr: _,
+            overlay_what: _,
+            overlay_from: _,
+            overlay_for: _,
+        } => {
+            ts_query.insert_result(alias, &[TsFieldType::String], is_selection, expr_for_logging)
+        },
         Expr::Collate { expr, collation } => todo!(),
         Expr::IntroducedString { introducer, value } => todo!(),
         Expr::TypedString { data_type, value } => todo!(),
