@@ -17,14 +17,14 @@ run_test!(overlay, TestConfig::new("postgres"),
 //// TS query ////
 r#"
 const someQuery = sql`
-SELECT OVERLAY('DONALD DUCK' PLACING 'TRUMP' FROM 8) AS test
+SELECT OVERLAY($1 PLACING $2 FROM $3) AS test
 FROM items;
 `
 "#,
 
 //// Generated TS interfaces ////
 r#"
-export type SomeQueryParams = [];
+export type SomeQueryParams = [string, string, number];
 
 export interface ISomeQueryResult {
     test: string;
@@ -35,6 +35,8 @@ export interface ISomeQueryQuery {
     result: ISomeQueryResult;
 };
 "#
-
 );
+
+
+
 }

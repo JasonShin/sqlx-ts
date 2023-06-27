@@ -375,11 +375,14 @@ pub fn translate_expr(
             ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()))
         }
         Expr::Overlay {
-            expr: _,
-            overlay_what: _,
-            overlay_from: _,
+            expr,
+            overlay_what,
+            overlay_from,
             overlay_for: _,
         } => {
+            ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()))?;
+            ts_query.insert_param(&TsFieldType::String, &Some(overlay_what.to_string()))?;
+            ts_query.insert_param(&TsFieldType::Number, &Some(overlay_from.to_string()))?;
             ts_query.insert_result(alias, &[TsFieldType::String], is_selection, expr_for_logging)
         },
         Expr::Collate { expr, collation } => todo!(),
