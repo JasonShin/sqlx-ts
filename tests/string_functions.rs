@@ -36,7 +36,4 @@ export interface ISomeQueryQuery {
 };
 "#
 );
-
-
-
 }
