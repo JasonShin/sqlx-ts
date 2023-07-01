@@ -6,7 +6,7 @@ pub static NUMERIC_FUNCTIONS: &[&str] = &[
 ];
 
 pub static STRING_FUNCTIONS: &[&str] = &[
-    // These methods expect string as input and number as output
+    // TODO: These methods expect string as input and number as output
     "ASCII",
     "CHAR_LENGTH",
     "CHARACTER_LENGTH",

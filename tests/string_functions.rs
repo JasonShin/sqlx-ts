@@ -17,7 +17,8 @@ run_test!(overlay, TestConfig::new("postgres"),
 //// TS query ////
 r#"
 const someQuery = sql`
-SELECT OVERLAY($1 PLACING $2 FROM $3) AS test
+SELECT
+    OVERLAY($1 PLACING $2 FROM $3) AS test
 FROM items;
 `
 "#,
@@ -36,4 +37,72 @@ export interface ISomeQueryQuery {
 };
 "#
 );
+
+
+#[rustfmt::skip]
+run_test!(trim, TestConfig::new("postgres"),
+
+//// TS query ////
+"const someQuery = sql`SELECT TRIM($1) AS test FROM items;`",
+
+//// Generated TS interfaces ////
+r#"
+export type SomeQueryParams = [string];
+
+export interface ISomeQueryResult {
+    test: string;
+};
+
+export interface ISomeQueryQuery {
+    params: SomeQueryParams;
+    result: ISomeQueryResult;
+};
+"#
+);
+
+
+#[rustfmt::skip]
+run_test!(substring, TestConfig::new("postgres"),
+
+//// TS query ////"
+"const someQuery = sql`SELECT SUBSTRING($1, 5, 6) AS ExtractString FROM items;`",
+
+//// Generated TS interfaces ////
+r#"
+export type SomeQueryParams = [string];
+
+export interface ISomeQueryResult {
+    ExtractString: string;
+};
+
+export interface ISomeQueryQuery {
+    params: SomeQueryParams;
+    result: ISomeQueryResult;
+};
+"#
+);
+
+
+#[rustfmt::skip]
+run_test!(like, TestConfig::new("postgres"),
+
+//// TS query ////"
+"const someQuery = sql`SELECT id FROM items WHERE food_type LIKE $1;`",
+
+//// Generated TS interfaces ////
+r#"
+export type SomeQueryParams = [string];
+
+export interface ISomeQueryResult {
+    id: number;
+};
+
+export interface ISomeQueryQuery {
+    params: SomeQueryParams;
+    result: ISomeQueryResult;
+};
+"#
+);
+
+
 }
