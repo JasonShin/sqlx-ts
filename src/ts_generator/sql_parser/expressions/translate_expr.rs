@@ -378,45 +378,62 @@ pub fn translate_expr(
             expr,
             overlay_what,
             overlay_from,
-            overlay_for,
-        } => todo!(),
-        Expr::Collate { expr, collation } => todo!(),
-        Expr::IntroducedString { introducer, value } => todo!(),
-        Expr::TypedString { data_type, value } => todo!(),
-        Expr::MapAccess { column, keys } => todo!(),
-        Expr::AggregateExpressionWithFilter { expr, filter } => todo!(),
+            overlay_for: _,
+        } => {
+            ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()))?;
+            ts_query.insert_param(&TsFieldType::String, &Some(overlay_what.to_string()))?;
+            ts_query.insert_param(&TsFieldType::Number, &Some(overlay_from.to_string()))?;
+            ts_query.insert_result(alias, &[TsFieldType::String], is_selection, expr_for_logging)
+        }
+        Expr::Collate { expr, collation } => {
+            ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
+        }
+        Expr::IntroducedString { introducer, value } => {
+            ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
+        }
+        Expr::TypedString { data_type, value } => {
+            ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
+        }
+        Expr::MapAccess { column, keys } => {
+            ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
+        }
+        Expr::AggregateExpressionWithFilter { expr, filter } => {
+            ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
+        }
         Expr::Case {
             operand: _,
             conditions: _,
             results: _,
             else_result: _,
-        } => todo!(),
+        } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),
         Expr::Exists { subquery, negated: _ } => {
             ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, expr_for_logging)?;
-            translate_query(ts_query, &mut None, *&subquery, db_conn, alias, false)?;
-            Ok(())
+            translate_query(ts_query, &mut None, *&subquery, db_conn, alias, false)
         }
-        Expr::ArraySubquery(_) => todo!(),
-        Expr::ListAgg(_) => todo!(),
-        Expr::ArrayAgg(_) => todo!(),
-        Expr::GroupingSets(_) => todo!(),
-        Expr::Cube(_) => todo!(),
-        Expr::Rollup(_) => todo!(),
-        Expr::Tuple(_) => todo!(),
-        Expr::ArrayIndex { obj, indexes } => todo!(),
-        Expr::Array(_) => todo!(),
+        Expr::ListAgg(_)
+        | Expr::ArrayAgg(_)
+        | Expr::GroupingSets(_)
+        | Expr::GroupingSets(_)
+        | Expr::Cube(_)
+        | Expr::Rollup(_)
+        | Expr::Tuple(_)
+        | Expr::Array(_)
+        | Expr::ArraySubquery(_) => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),
+        Expr::ArrayIndex { obj, indexes } => {
+            ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
+        }
         Expr::Interval {
-            value,
-            leading_field,
-            leading_precision,
-            last_field,
-            fractional_seconds_precision,
-        } => todo!(),
+            value: _,
+            leading_field: _,
+            leading_precision: _,
+            last_field: _,
+            fractional_seconds_precision: _,
+        } => ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging),
         Expr::MatchAgainst {
             columns,
             match_value,
             opt_search_modifier,
-        } => todo!(),
+        } => ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging),
         /////////////////////
         // OPERATORS ENDS  //
         /////////////////////
@@ -465,7 +482,6 @@ pub fn translate_expr(
             db_conn,
             is_selection,
         ),
-
         Expr::InUnnest {
             expr,
             array_expr: _,
