@@ -154,6 +154,8 @@ if [ -z $artifact ]; then
   elif [ "$os" == "linux" ]; then
     if [ "$cpu" == "x64" ]; then
       target="linux-64-bit.zip"
+    elif [ "$cpu" == "arm64" ]; then
+      target="linux-arm.zip"
     else
       target="linux-32-bit.zip"
     fi
