@@ -1,0 +1,20 @@
+# This image is to test ubuntu environment of sqlx-ts binary
+# 1. docker build -f ci/Dockerfile.ubuntu -t sqlx-ts-ubuntu .
+# 2. docker run -it sqlx-ts-ubuntu /bin/bash
+
+FROM ubuntu
+
+RUN apt-get update -y
+
+RUN apt-get install -y --no-install-recommends \
+  asciidoctor \
+  zsh xz-utils liblz4-tool musl-tools \
+  brotli zstd \
+  build-essential libssl-dev pkg-config
+
+RUN apt-get install -y curl
+RUN apt-get install -y git
+
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
+
+RUN git clone https://github.com/JasonShin/sqlx-ts.git
