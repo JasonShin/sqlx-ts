@@ -108,8 +108,7 @@ jobs:
         with:
           node-version: '18.x'
           registry-url: 'https://registry.npmjs.org'
-      - run: cd node
-      - run: npm i
-      - run: npm publish -f
+      - run: cd node && npm i
+      - run: cd node && npm publish -f
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
