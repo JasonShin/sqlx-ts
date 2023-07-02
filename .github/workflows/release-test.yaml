@@ -57,8 +57,12 @@ jobs:
             command: cross
     steps:
       - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@nightly
+      - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
+      - name: Install packages (Ubuntu)
+        run: |
+          ci/ubuntu-install-packages
       - run: cargo install cross --git https://github.com/cross-rs/cross
       - run: ${{ matrix.command }} build --release --target ${{ matrix.target }}
+      - run: ls target/release
