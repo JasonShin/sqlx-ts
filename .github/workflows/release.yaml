@@ -4,25 +4,26 @@ on:
     types: [created]
 
 jobs:
-  checkVersion:
+  version-check:
     runs-on: ubuntu-latest
-    - uses: actions/checkout@v2
-    - name: Install latest nightly
-      uses: actions-rs/toolchain@v1
-      with:
-          toolchain: stable
-          override: true
-    - run: cargo install toml-cli
-    - run: |
-        TOML_VERSION=$(toml get Cargo.toml package.version --raw)
-        if [[ "v$TOML_VERSION" != "${{ github.event.release.tag_name }}" ]]; then
-          echo "Version mismatch: Cargo.toml version is v$TOML_VERSION, but release tag is ${{ github.event.release.tag_name }}"
-          exit 1
-        fi
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            override: true
+      - run: cargo install toml-cli
+      - run: |
+          TOML_VERSION=$(toml get Cargo.toml package.version --raw)
+          if [[ "v$TOML_VERSION" != "${{ github.event.release.tag_name }}" ]]; then
+            echo "Version mismatch: Cargo.toml version is v$TOML_VERSION, but release tag is ${{ github.event.release.tag_name }}"
+            exit 1
+          fi
 
   assets:
     runs-on: ${{ matrix.os }}
-    needs: checkVersion
+    needs: version-check
     strategy:
       matrix:
         # Include all "Tier 1 with Host Tools" targets and "Tier 2 with Host Tools" targets for Windows and macOS,
