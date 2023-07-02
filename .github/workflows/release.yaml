@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Install latest nightly
+      - name: Install stable Rust
         uses: actions-rs/toolchain@v1
         with:
             toolchain: stable
@@ -108,7 +108,8 @@ jobs:
         with:
           node-version: '18.x'
           registry-url: 'https://registry.npmjs.org'
-      - run: npm ci
+      - run: cd node
+      - run: npm i
       - run: npm publish -f
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

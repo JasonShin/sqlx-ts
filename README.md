@@ -35,7 +35,7 @@ SQLx-ts is a CLI application featuring compile-time checked queries without a DS
 
 ### Installation
 
-##### Install sqlx-ts npm module
+##### Install sqlx-ts npm module (recommended)
 
 If you are using npm
 ```bash
@@ -45,6 +45,18 @@ $ npm install sqlx-ts
 If you are using yarn
 ```bash
 $ yarn add sqlx-ts
+```
+
+You can also install sqlx-ts globally
+```bash
+$ npm install -g sqlx-ts
+```
+
+Installing sqlx-ts using npm also installed `sqlx-ts` binary of the same version as the npm module.
+Verify the installation by running
+
+```bash
+$ npx sqlx-ts --version
 ```
 
 And to use sqlx-ts in your code
@@ -72,55 +84,56 @@ const { sql } = require('sqlx-ts')
 const query = sql`SELECT * FROM some_table;`
 ```
 
-##### Installing binary
+##### Installing binary separately
 
-###### Using cargo
-
-To install sqlx-ts using cargo
-
-```bash
-$ cargo install sqlx-ts
-```
+You may choose to install sqlx-ts separately instead of using `npm i`
 
 ###### Using install.sh
 
 The binary name for sqlx-ts is `sqlx-ts`.
 
-[Archives of precompiled binaries of sqlx-ts are available for Windows, macOS and Linux](https://github.com/JasonShin/sqlx-ts/releases). Linux and Windows binaries are static executables. Users of platforms not explicitly mentioned below are advised to download one of these archives.
+[Archives of precompiled binaries of sqlx-ts are available for windows, macOS and Linux](https://github.com/JasonShin/sqlx-ts/releases). Linux and Windows binaries are static executables. Users of platforms not explicitly mentioned below are advised to download one of these archives.
 
 If you're a **macOS** user, then you can install sqlx-ts from via install.sh:
 
 ```bash
-$ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | \
-    sh -s -- --os macos
+# macos & ARM CPU
+$ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | sh -s -- --os darwin --cpu arm64
+# macos & X64 CPU
+$ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | sh -s -- --os darwin --cpu x64
 ```
 
 If you're a **Windows** user, then you can install sqlx-ts from via install.sh:
 
 ```bash
-$ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | \
-    sh -s -- --os win32
+# windows & x32
+$ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | sh -s -- --os win32 --cpu x32
+# windows & x64
+$ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | sh -s -- --os win32 --cpu x32
 ```
 
 If you're a **Linux** user, then you can install sqlx-ts from via install.sh:
 
 ```bash
-$ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | \
-    sh -s -- --os linux
+# linux & x32
+$ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | sh -s -- --os linux --cpu x32
+# linux & x64
+$ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | sh -s -- --os linux --cpu x64
+# linux & arm
+$ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | sh -s -- --os linux --cpu arm64
 ```
 
 To install a specific artifact, [go to the release page to find the exact name of the artifact](https://github.com/JasonShin/sqlx-ts/releases)
 
 ```bash
-$ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | \
-    sh -s -- --artifact sqlx_ts_v0.1.0_x86_64-apple-darwin.tar.gz
+$ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | sh -s -- --artifact sqlx-ts-v0.1.0-macos-arm.zip
 ```
 
 Upgrading to a new version can be done by grabbing the next version of the sqlx-ts artifact and use `--force` command from install.sh
 
 ```bash
 $ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | \
-    sh -s -- --artifact sqlx_ts_v0.2.0_x86_64-apple-darwin.tar.gz --force
+    sh -s -- --artifact ssqlx-ts-v0.1.0-macos-arm.zip --force
 ```
 
 For more advanced usage, please check `--help` command of install.sh
@@ -132,4 +145,4 @@ $ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | \
 
 ### Motivation
 
-Rust's philosophy of guaranteed compile-time safety of your code has always inspired me. Rust is still new and many seasoned developers would view Rust's increased benefit/cost ratio claims are as yet unproven. However, there are lessons from these new technologies that we can bring back to our everyday languages such as JavaScript and TypeScript. [SQLx](https://github.com/launchbadge/sqlx) is a great example of this, although the idea isn't directly co-related to Rust, but its philosophy well-aligns with Rust's overall ecosystem.
+I would like to bring the powerful compile-time safety ideas to Node.js. [sqlx](https://github.com/launchbadge/sqlx) is a great example of this, as it provides compile-time check of SQLs within your Rust code and Rust itself provides a great environment for tools like sqlx. sqlx-ts is greatly inspired by [sqlx](https://github.com/launchbadge/sqlx), but solves additional problems of generating TypeScript interfaces based on the SQL queries that are present in your code.
