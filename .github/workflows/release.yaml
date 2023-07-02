@@ -101,6 +101,9 @@ jobs:
   node:
     needs: assets
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./node
     steps:
       - uses: actions/checkout@v3
       # Setup .npmrc file to publish to npm
@@ -108,7 +111,7 @@ jobs:
         with:
           node-version: '18.x'
           registry-url: 'https://registry.npmjs.org'
-      - run: cd node && npm i
-      - run: cd node && npm publish -f
+      - run: npm i
+      - run: npm publish -f
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
