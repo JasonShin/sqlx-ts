@@ -14,7 +14,7 @@ Options:
     --cpu CPU             Your current CPU architecture, it's used to determine the type of binary to be installed (one of x32 or x64 or arm64)
     --artifact ARTIFACT   Specific artifact to install. Please find the artifact name from https://github.com/JasonShin/sqlx-ts/releases (e.g. sqlx_ts_v0.1.0_x86_64-apple-darwin.zip)
     --tag TAG             Tag (version) of the crate to install (default <latest release>)
-    --to LOCATION         Where to install the binary (default to ~/.cargo/bin)
+    --to LOCATION         Where to install the binary (default to the current directory)
 EOF
 }
 
@@ -95,12 +95,7 @@ need curl
 need install
 need mkdir
 need mktemp
-
-if [ "$os" == "macos" ] || [ "$os" == "linux" ]; then
-  need tar
-else
-  need unzip
-fi
+need unzip
 
 need sed
 
@@ -135,7 +130,7 @@ else
 fi
 
 if [ -z $dest ]; then
-    dest="$HOME/.cargo/bin"
+    dest="."
 fi
 
 say_err "Installing to: $dest"
@@ -147,19 +142,19 @@ if [ -z $artifact ]; then
   if [ "$os" == "darwin" ]; then
     if [ "$cpu" == "arm64" ]; then
       target="macos-arm.zip"
-    else [ "$cpu" == "x64" ]; then
+    else
       target="macos-64-bit.zip"
     fi
   elif [ "$os" == "win32" ]; then
     if [ "$cpu" == "x64" ]; then
       target="windows-64-bit.zip"
-    else [ "$cpu" == "x32" ]; then
+    else
       target="windows-32-bit.zip"
     fi
   elif [ "$os" == "linux" ]; then
     if [ "$cpu" == "x64" ]; then
       target="linux-64-bit.zip"
-    else [ "$cpu" == "x32" ]; then
+    else
       target="linux-32-bit.zip"
     fi
   else
@@ -180,17 +175,10 @@ fi
 td=$(mktemp -d || mktemp -d -t tmp)
 
 echo "URL to download $url"
-# if [ "$os" == "macos" ] || [ "$os" == "linux" ]; then
-#   curl -LSfs $url | tar -C $td -xz
-# else
-#   curl -sL -o ./sqlx-ts-latest.zip $url
-#   unzip ./sqlx-ts-latest.zip -d $td
-#   rm -f ./sqlx-ts-latest.zip
-# fi
 
 curl -LSfs $url --output $td/sqlx-ts.zip
-unzip $td/sqlx-ts.zip -d $td
-cp $td/sqlx-ts/sqlx-ts ./sqlx-ts
+unzip -j $td/sqlx-ts.zip -d $td
+cp $td/sqlx-ts .
 
 # shellcheck disable=SC2045
 for f in $(ls $td); do
