@@ -8,7 +8,9 @@
   ],
   "author": "Jason Shin <visualbbasic@gmail.com>",
   "license": "MIT",
+  "bin": "./sqlx-ts",
   "scripts": {
+    "postinstall": "node postinstall.js",
     "compile": "npx tsc -p tsconfig.json",
     "lint": "npx eslint --ext .ts src",
     "lint:fix": "npx eslint --ext .ts src --fix",
