@@ -1,6 +1,8 @@
-let exec = require('child_process').exec
+let execSync = require('child_process').execSync
 
-console.log('checking post install ??')
-exec('curl -LSfs https://github.com/JasonShin/sqlx-ts/releases/download/v0.1.0-alpha.16/sqlx-ts-v0.1.0-alpha.16-macos-arm.zip --output test.zip', (err) => {
-    console.error(err)
-})
+const os = process.platform
+const cpu = process.arch
+
+console.error('testing installation')
+execSync(`curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | bash -s -- --os ${os} --cpu ${cpu} -f`, { stdio: 'inherit' })
+console.error('sqlx-ts installation successful')
