@@ -5,7 +5,6 @@ on:
       - main
 jobs:
   assets:
-    needs: release
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
