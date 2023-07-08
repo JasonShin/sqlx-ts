@@ -13,7 +13,7 @@ use swc_common::{
     sync::Lrc,
     FileName, MultiSpan, SourceMap,
 };
-use swc_ecma_ast::{ClassMember, ModuleDecl, ModuleItem, Stmt};
+use swc_ecma_ast::{ClassMember, ModuleDecl, ModuleItem, Stmt, Decl};
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 use tag::{get_sql_from_expr, get_sql_from_var_decl};
 
@@ -101,7 +101,7 @@ fn recurse_and_find_sql(
             recurse_and_find_sql(sqls_container, &body_stmt, import_alias, file_path)?;
         }
         Stmt::Decl(decl) => match decl {
-            swc_ecma_ast::Decl::Class(class) => {
+            Decl::Class(class) => {
                 let class_body = &class.class.body;
                 for body_stmt in class_body {
                     match body_stmt {
@@ -129,21 +129,24 @@ fn recurse_and_find_sql(
                     }
                 }
             }
-            swc_ecma_ast::Decl::Fn(fun) => {
+            Decl::Fn(fun) => {
                 if let Some(body) = &fun.function.body {
                     for stmt in &body.stmts {
                         recurse_and_find_sql(sqls_container, stmt, import_alias, file_path)?;
                     }
                 }
             }
-            swc_ecma_ast::Decl::Var(var) => {
+            Decl::Var(var) => {
                 for var_decl in &var.decls {
                     let span: MultiSpan = var.span.into();
                     let sqls = get_sql_from_var_decl(var_decl, span, import_alias);
                     insert_or_append_sqls(sqls_container, &sqls, file_path);
                 }
             }
-            _ => {}
+            Decl::TsInterface(_) => todo!(),
+            Decl::TsTypeAlias(_) => todo!(),
+            Decl::TsEnum(_) => todo!(),
+            Decl::TsModule(_) => todo!(),
         },
         Stmt::Expr(expr) => {
             let span: MultiSpan = expr.span.into();
@@ -151,8 +154,11 @@ fn recurse_and_find_sql(
             let sqls = get_sql_from_expr(&None, &expr, &span, import_alias);
             insert_or_append_sqls(sqls_container, &sqls, file_path);
         }
-        // Ignores empty statements
-        _ => {}
+        Stmt::Empty(_) => {},
+        Stmt::Debugger(_) => {},
+        Stmt::Labeled(_) => todo!(),
+        Stmt::Break(_) => {},
+        Stmt::Continue(_) => {},
     }
     Ok(())
 }

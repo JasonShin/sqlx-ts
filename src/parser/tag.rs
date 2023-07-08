@@ -53,7 +53,52 @@ pub fn get_sql_from_expr<'a>(
             .into_iter()
             .flat_map(|arg| get_sql_from_expr(var_decl_name, &arg.expr, span, import_alias))
             .collect(),
-        _ => vec![],
+        Expr::This(_) => todo!(),
+        Expr::Array(_) => todo!(),
+        Expr::Object(obj) => {
+            println!("object {:?}", obj);
+            vec![]
+        },
+        Expr::Fn(_) => todo!(),
+        Expr::Unary(_) => todo!(),
+        Expr::Update(_) => todo!(),
+        Expr::Bin(_) => todo!(),
+        Expr::Assign(_) => todo!(),
+        Expr::Member(_) => todo!(),
+        Expr::SuperProp(_) => todo!(),
+        Expr::Cond(_) => todo!(),
+        Expr::New(expr) => {
+            let expr = &expr.callee;
+            get_sql_from_expr(var_decl_name, expr, span, import_alias)
+        },
+        Expr::Seq(_) => todo!(),
+        Expr::Ident(ident) => {
+            println!("checking ident {:?}", ident);
+            vec![]
+        },
+        Expr::Lit(_) => todo!(),
+        Expr::Tpl(_) => todo!(),
+        Expr::Arrow(_) => todo!(),
+        Expr::Class(_) => todo!(),
+        Expr::Yield(_) => todo!(),
+        Expr::MetaProp(_) => todo!(),
+        Expr::Await(await_expr) => {
+            let expr = &await_expr.arg;
+            get_sql_from_expr(var_decl_name, expr, span, import_alias)
+        },
+        Expr::Paren(_) => todo!(),
+        Expr::JSXMember(_) => todo!(),
+        Expr::JSXNamespacedName(_) => todo!(),
+        Expr::JSXEmpty(_) => todo!(),
+        Expr::JSXElement(_) => todo!(),
+        Expr::JSXFragment(_) => todo!(),
+        Expr::TsTypeAssertion(_) => todo!(),
+        Expr::TsConstAssertion(_) => todo!(),
+        Expr::TsAs(_) => todo!(),
+        Expr::TsInstantiation(_) => todo!(),
+        Expr::PrivateName(_) => todo!(),
+        Expr::OptChain(_) => todo!(),
+        Expr::Invalid(_) => todo!(),
     }
 }
 
@@ -68,10 +113,12 @@ pub fn get_sql_from_var_decl(var_declarator: &VarDeclarator, span: MultiSpan, im
         return bag_of_sqls;
     }
 
+    let test = &var_declarator.name;
     if let Some(init) = &var_declarator.init {
         // TODO: make it understand `const someQuery = SQLX.sql`SELECT * FROM lazy_unknown2`;` in js_failure_path1/lazy-loaded.js
         let mut result = get_sql_from_expr(&var_decl_name, &init.clone(), &span, import_alias);
         bag_of_sqls.append(&mut result);
+        let zz = &init.clone();
     }
 
     bag_of_sqls

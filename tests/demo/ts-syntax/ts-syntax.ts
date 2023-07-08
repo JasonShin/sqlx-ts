@@ -1,4 +1,7 @@
+
+/*
 import { sql } from 'sqlx-ts'
+import { QueryTypes, Sequelize } from 'sequelize'
 
 // Array expression with sql, it should skip generating the type as we cannot figure out the name to use
 const [] = sql`SELECT * FROM items`
@@ -166,3 +169,26 @@ enum TestEnum {
 
 module TestModule {
 }
+
+///// Sequelize /////
+const sequelize = new Sequelize('postgres://127.0.0.1')
+*/
+
+import { QueryTypes, Sequelize } from 'sequelize'
+import { sql } from 'sqlx-ts'
+
+async function zz() {
+  const sequelize = new Sequelize('postgres://')
+  const result = await sequelize.query(sql`
+    -- @name: testSequelizeQuery
+    SELECT * FROM items
+    WHERE id = $1;
+  `!, {
+    type: QueryTypes.SELECT,
+    replacements: [],
+  })
+}
+
+
+///// Empty /////
+// const empty = sql``
