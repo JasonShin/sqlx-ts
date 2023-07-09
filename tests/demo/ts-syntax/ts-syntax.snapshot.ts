@@ -448,3 +448,263 @@ export interface IQueryQuery {
 };
 
 
+
+
+export type TestSequelizeQueryParams = [number];
+
+
+export interface ITestSequelizeQueryResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface ITestSequelizeQueryQuery {
+    params: TestSequelizeQueryParams;
+    result: ITestSequelizeQueryResult;
+};
+
+
+
+
+export type ArrayQueryParams = [];
+
+
+export interface IArrayQueryResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface IArrayQueryQuery {
+    params: ArrayQueryParams;
+    result: IArrayQueryResult;
+};
+
+
+
+
+export type AnotherTestObjectQueryParams = [];
+
+
+export interface IAnotherTestObjectQueryResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface IAnotherTestObjectQueryQuery {
+    params: AnotherTestObjectQueryParams;
+    result: IAnotherTestObjectQueryResult;
+};
+
+
+
+
+export type NestedTestObjectQueryParams = [];
+
+
+export interface INestedTestObjectQueryResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface INestedTestObjectQueryQuery {
+    params: NestedTestObjectQueryParams;
+    result: INestedTestObjectQueryResult;
+};
+
+
+
+
+export type TplQueryParams = [];
+
+
+export interface ITplQueryResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface ITplQueryQuery {
+    params: TplQueryParams;
+    result: ITplQueryResult;
+};
+
+
+
+
+export type ArrowQueryParams = [];
+
+
+export interface IArrowQueryResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface IArrowQueryQuery {
+    params: ArrowQueryParams;
+    result: IArrowQueryResult;
+};
+
+
+
+
+export type TestClassPropertyQueryParams = [];
+
+
+export interface ITestClassPropertyQueryResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface ITestClassPropertyQueryQuery {
+    params: TestClassPropertyQueryParams;
+    result: ITestClassPropertyQueryResult;
+};
+
+
+
+
+export type TestClassConstructorQueryParams = [];
+
+
+export interface ITestClassConstructorQueryResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface ITestClassConstructorQueryQuery {
+    params: TestClassConstructorQueryParams;
+    result: ITestClassConstructorQueryResult;
+};
+
+
+
+
+export type TestClassMethodQueryParams = [];
+
+
+export interface ITestClassMethodQueryResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface ITestClassMethodQueryQuery {
+    params: TestClassMethodQueryParams;
+    result: ITestClassMethodQueryResult;
+};
+
+
+
+
+export type TestChildClassConstructorQueryParams = [];
+
+
+export interface ITestChildClassConstructorQueryResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface ITestChildClassConstructorQueryQuery {
+    params: TestChildClassConstructorQueryParams;
+    result: ITestChildClassConstructorQueryResult;
+};
+
+
+
+
+export type ModuleSqlParams = [];
+
+
+export interface IModuleSqlResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface IModuleSqlQuery {
+    params: ModuleSqlParams;
+    result: IModuleSqlResult;
+};
+
+
+
+
+export type TestParenthesisQueryParams = [];
+
+
+export interface ITestParenthesisQueryResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface ITestParenthesisQueryQuery {
+    params: TestParenthesisQueryParams;
+    result: ITestParenthesisQueryResult;
+};
+
+
+
+
+export type TestNullishCoalescingQueryParams = [];
+
+
+export interface ITestNullishCoalescingQueryResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface ITestNullishCoalescingQueryQuery {
+    params: TestNullishCoalescingQueryParams;
+    result: ITestNullishCoalescingQueryResult;
+};
+
+

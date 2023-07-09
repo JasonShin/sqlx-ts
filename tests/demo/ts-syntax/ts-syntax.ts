@@ -1,5 +1,3 @@
-
-/*
 import { sql } from 'sqlx-ts'
 import { QueryTypes, Sequelize } from 'sequelize'
 
@@ -171,11 +169,7 @@ module TestModule {
 }
 
 ///// Sequelize /////
-const sequelize = new Sequelize('postgres://127.0.0.1')
-*/
 
-import { QueryTypes, Sequelize } from 'sequelize'
-import { sql } from 'sqlx-ts'
 
 async function demo() {
   const sequelize = new Sequelize('postgres://')
@@ -211,3 +205,63 @@ const tpl = `${sql`
 -- @name: tplQuery
 SELECT * FROM items
 `}`
+
+const arrow = () => sql`
+-- @name: arrowQuery
+SELECT * FROM items
+`
+
+class TestClass {
+  private sql1 = sql`
+  -- @name: testClassPropertyQuery
+    SELECT * FROM items
+  `
+  constructor(z: string) {
+    const query = sql`
+    -- @name: testClassConstructorQuery
+    SELECT * FROM items
+    `
+  }
+
+  someMethod() {
+    const query = sql`
+    -- @name: testClassMethodQuery
+    SELECT * FROM items
+    `
+  }
+}
+
+class ChildClass extends TestClass {
+  constructor() {
+    super(sql`
+      -- @name: testChildClassConstructorQuery
+      SELECT * FROM items
+    `)
+  }
+}
+
+interface TestInterface {
+  sql1: string
+}
+
+module TestModule {
+  const moduleSql = sql`SELECT * FROM items`
+}
+
+let name: any = 'test'
+let companyName = <string>name
+let partnerName = name as string
+let someName = 'test' as const
+
+(
+  sql`
+  -- @name: testParenthesisQuery
+  SELECT * FROM items
+  `
+)
+
+const something = false
+const somethingElse = something ?? sql`
+-- @name: testNullishCoalescingQuery
+SELECT * FROM items
+`

@@ -106,7 +106,13 @@ fn recurse_and_find_sql(
                 let class_body = &class.class.body;
                 for body_stmt in class_body {
                     match body_stmt {
-                        ClassMember::Constructor(_) => {}
+                        ClassMember::Constructor(constructor) => {
+                            if let Some(body) = &constructor.body {
+                                for stmt in &body.stmts {
+                                    recurse_and_find_sql(sqls_container, stmt, import_alias, file_path)?;
+                                }
+                            }
+                        }
                         ClassMember::Method(class_method) => {
                             if let Some(body) = &class_method.function.body {
                                 for stmt in &body.stmts {
@@ -126,7 +132,22 @@ fn recurse_and_find_sql(
                                 recurse_and_find_sql(sqls_container, stmt, import_alias, file_path)?;
                             }
                         }
-                        _ => {}
+                        ClassMember::PrivateProp(private_prop) => {
+                            if let Some(expr) = &private_prop.value {
+                                let span: MultiSpan = private_prop.span.into();
+                                get_sql_from_expr(&mut sqls, &None, &expr.clone(), &span, import_alias);
+                                insert_or_append_sqls(sqls_container, &sqls, file_path);
+                            }
+                        }
+                        ClassMember::ClassProp(class_prop) => {
+                            if let Some(expr) = &class_prop.value {
+                                let span: MultiSpan = class_prop.span.into();
+                                get_sql_from_expr(&mut sqls, &None, &expr.clone(), &span, import_alias);
+                                insert_or_append_sqls(sqls_container, &sqls, file_path);
+                            }
+                        }
+                        ClassMember::TsIndexSignature(_) => {}
+                        ClassMember::Empty(_) => {}
                     }
                 }
             }
@@ -144,10 +165,21 @@ fn recurse_and_find_sql(
                     insert_or_append_sqls(sqls_container, &sqls, file_path);
                 }
             }
-            Decl::TsInterface(_) => todo!(),
-            Decl::TsTypeAlias(_) => todo!(),
-            Decl::TsEnum(_) => todo!(),
-            Decl::TsModule(_) => todo!(),
+            Decl::TsInterface(_) => {}
+            Decl::TsTypeAlias(_) => {}
+            Decl::TsEnum(_) => {}
+            Decl::TsModule(module) => {
+                for stmt in &module.body {
+                    for block in &stmt.as_ts_module_block() {
+                        for body in &block.body {
+                            let stmt = &body.clone().stmt();
+                            if let Some(stmt) = stmt {
+                                recurse_and_find_sql(sqls_container, stmt, import_alias, file_path)?;
+                            }
+                        }
+                    }
+                }
+            }
         },
         Stmt::Expr(expr) => {
             let span: MultiSpan = expr.span.into();
@@ -157,7 +189,10 @@ fn recurse_and_find_sql(
         }
         Stmt::Empty(_) => {}
         Stmt::Debugger(_) => {}
-        Stmt::Labeled(_) => todo!(),
+        Stmt::Labeled(labeled) => {
+            let body_stmt = *labeled.body.clone();
+            recurse_and_find_sql(sqls_container, &body_stmt, import_alias, file_path)?;
+        }
         Stmt::Break(_) => {}
         Stmt::Continue(_) => {}
     }
