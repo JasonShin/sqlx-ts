@@ -177,7 +177,7 @@ const sequelize = new Sequelize('postgres://127.0.0.1')
 import { QueryTypes, Sequelize } from 'sequelize'
 import { sql } from 'sqlx-ts'
 
-async function zz() {
+async function demo() {
   const sequelize = new Sequelize('postgres://')
   const result = await sequelize.query(sql`
     -- @name: testSequelizeQuery
@@ -187,6 +187,24 @@ async function zz() {
     type: QueryTypes.SELECT,
     replacements: [],
   })
+}
+
+const arr = [sql`
+-- @name: arrayQuery  
+SELECT * FROM items
+`]
+
+const obj = {
+  a: sql`
+  -- @name: anotherTestObjectQuery  
+  SELECT * FROM items
+  `,
+  b: {
+    c: sql`
+    -- @name: nestedTestObjectQuery
+    SELECT * FROM items
+    `
+  }
 }
 
 

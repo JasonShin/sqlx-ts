@@ -1,6 +1,6 @@
 use crate::common::SQL;
 use swc_common::MultiSpan;
-use swc_ecma_ast::{Expr, Pat, VarDeclarator};
+use swc_ecma_ast::{Expr, Pat, Prop, PropOrSpread, VarDeclarator};
 
 /// The method grabs the name of the variable if it exists
 pub fn get_var_decl_name(var_declarator: &VarDeclarator) -> Option<String> {
@@ -19,11 +19,12 @@ pub fn get_var_decl_name(var_declarator: &VarDeclarator) -> Option<String> {
 }
 
 pub fn get_sql_from_expr<'a>(
+    sqls: &mut Vec<SQL>,
     var_decl_name: &Option<String>,
     expr: &Expr,
     span: &MultiSpan,
     import_alias: &String,
-) -> Vec<SQL> {
+) {
     match &expr {
         Expr::TaggedTpl(tagged_tpl) => {
             let tag = &*tagged_tpl.tag;
@@ -31,7 +32,7 @@ pub fn get_sql_from_expr<'a>(
                 let ident = ident.to_string();
 
                 if ident.contains(import_alias) {
-                    return tagged_tpl
+                    let new_sqls: Vec<SQL> = tagged_tpl
                         .tpl
                         .quasis
                         .iter()
@@ -41,41 +42,69 @@ pub fn get_sql_from_expr<'a>(
                             span: span.clone(),
                         })
                         .collect();
+
+                    sqls.extend(new_sqls.clone());
                 }
             }
-
-            vec![]
         }
-        Expr::TsNonNull(expr) => get_sql_from_expr(var_decl_name, &expr.expr, span, import_alias),
-        Expr::Call(call_expr) => call_expr
+        Expr::TsNonNull(expr) => {
+            get_sql_from_expr(sqls, var_decl_name, &expr.expr, span, import_alias);
+        }
+        Expr::Call(call_expr) => {
+            for arg in &call_expr.args {
+                get_sql_from_expr(sqls, var_decl_name, &arg.expr, span, import_alias)
+            }
+            /*let new_sqls: Vec<SQL> = call_expr
             .args
             .clone()
             .into_iter()
-            .flat_map(|arg| get_sql_from_expr(var_decl_name, &arg.expr, span, import_alias))
-            .collect(),
+            .flat_map(|arg| get_sql_from_expr(sqls, var_decl_name, &arg.expr, span, import_alias))
+            .collect();*/
+        }
         Expr::This(_) => todo!(),
-        Expr::Array(_) => todo!(),
-        Expr::Object(obj) => {
-            println!("object {:?}", obj);
-            vec![]
-        },
+        Expr::Array(a) => {
+            for elem in &a.elems {
+                match elem {
+                    Some(expr) => get_sql_from_expr(sqls, var_decl_name, &expr.expr, span, import_alias),
+                    None => {}
+                }
+            }
+        }
+        Expr::Object(object) => {
+            for prop in &object.props {
+                match prop {
+                    PropOrSpread::Spread(_) => todo!(),
+                    PropOrSpread::Prop(prop) => match *prop.clone() {
+                        Prop::Shorthand(_) => todo!(),
+                        Prop::KeyValue(key_val) => {
+                            let value = &key_val.value;
+                            get_sql_from_expr(sqls, var_decl_name, value, span, import_alias)
+                        }
+                        Prop::Assign(_) => todo!(),
+                        Prop::Getter(_) => todo!(),
+                        Prop::Setter(_) => todo!(),
+                        Prop::Method(_) => todo!(),
+                    },
+                }
+            }
+        }
         Expr::Fn(_) => todo!(),
         Expr::Unary(_) => todo!(),
         Expr::Update(_) => todo!(),
         Expr::Bin(_) => todo!(),
         Expr::Assign(_) => todo!(),
-        Expr::Member(_) => todo!(),
+        Expr::Member(member) => {
+            let obj = &member.obj;
+            return get_sql_from_expr(sqls, var_decl_name, obj, span, import_alias);
+        }
         Expr::SuperProp(_) => todo!(),
         Expr::Cond(_) => todo!(),
         Expr::New(expr) => {
             let expr = &expr.callee;
-            get_sql_from_expr(var_decl_name, expr, span, import_alias)
-        },
+            return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+        }
         Expr::Seq(_) => todo!(),
-        Expr::Ident(ident) => {
-            println!("checking ident {:?}", ident);
-            vec![]
-        },
+        Expr::Ident(ident) => {}
         Expr::Lit(_) => todo!(),
         Expr::Tpl(_) => todo!(),
         Expr::Arrow(_) => todo!(),
@@ -84,8 +113,8 @@ pub fn get_sql_from_expr<'a>(
         Expr::MetaProp(_) => todo!(),
         Expr::Await(await_expr) => {
             let expr = &await_expr.arg;
-            get_sql_from_expr(var_decl_name, expr, span, import_alias)
-        },
+            return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+        }
         Expr::Paren(_) => todo!(),
         Expr::JSXMember(_) => todo!(),
         Expr::JSXNamespacedName(_) => todo!(),
@@ -113,12 +142,11 @@ pub fn get_sql_from_var_decl(var_declarator: &VarDeclarator, span: MultiSpan, im
         return bag_of_sqls;
     }
 
-    let test = &var_declarator.name;
     if let Some(init) = &var_declarator.init {
+        let mut sqls = vec![];
         // TODO: make it understand `const someQuery = SQLX.sql`SELECT * FROM lazy_unknown2`;` in js_failure_path1/lazy-loaded.js
-        let mut result = get_sql_from_expr(&var_decl_name, &init.clone(), &span, import_alias);
-        bag_of_sqls.append(&mut result);
-        let zz = &init.clone();
+        get_sql_from_expr(&mut sqls, &var_decl_name, &init.clone(), &span, import_alias);
+        bag_of_sqls.extend(sqls);
     }
 
     bag_of_sqls

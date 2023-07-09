@@ -13,7 +13,7 @@ use swc_common::{
     sync::Lrc,
     FileName, MultiSpan, SourceMap,
 };
-use swc_ecma_ast::{ClassMember, ModuleDecl, ModuleItem, Stmt, Decl};
+use swc_ecma_ast::{ClassMember, Decl, ModuleDecl, ModuleItem, Stmt};
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 use tag::{get_sql_from_expr, get_sql_from_var_decl};
 
@@ -33,6 +33,7 @@ fn recurse_and_find_sql(
     import_alias: &String,
     file_path: &PathBuf,
 ) -> Result<()> {
+    let mut sqls = vec![];
     match stmt {
         Stmt::Block(block) => {
             for stmt in &block.stmts {
@@ -46,7 +47,7 @@ fn recurse_and_find_sql(
         Stmt::Return(rtn) => {
             if let Some(expr) = &rtn.arg {
                 let span: MultiSpan = rtn.span.into();
-                let sqls = get_sql_from_expr(&None, &expr.clone(), &span, import_alias);
+                get_sql_from_expr(&mut sqls, &None, &expr.clone(), &span, import_alias);
                 insert_or_append_sqls(sqls_container, &sqls, file_path);
             }
         }
@@ -64,7 +65,7 @@ fn recurse_and_find_sql(
         Stmt::Throw(throw_stmt) => {
             let span: MultiSpan = throw_stmt.span.into();
             let expr = *throw_stmt.arg.clone();
-            let sqls = get_sql_from_expr(&None, &expr, &span, import_alias);
+            get_sql_from_expr(&mut sqls, &None, &expr, &span, import_alias);
             insert_or_append_sqls(sqls_container, &sqls, file_path);
         }
         Stmt::Try(try_stmt) => {
@@ -151,14 +152,14 @@ fn recurse_and_find_sql(
         Stmt::Expr(expr) => {
             let span: MultiSpan = expr.span.into();
             let expr = *expr.expr.clone();
-            let sqls = get_sql_from_expr(&None, &expr, &span, import_alias);
+            get_sql_from_expr(&mut sqls, &None, &expr, &span, import_alias);
             insert_or_append_sqls(sqls_container, &sqls, file_path);
         }
-        Stmt::Empty(_) => {},
-        Stmt::Debugger(_) => {},
+        Stmt::Empty(_) => {}
+        Stmt::Debugger(_) => {}
         Stmt::Labeled(_) => todo!(),
-        Stmt::Break(_) => {},
-        Stmt::Continue(_) => {},
+        Stmt::Break(_) => {}
+        Stmt::Continue(_) => {}
     }
     Ok(())
 }
