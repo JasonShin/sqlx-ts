@@ -238,10 +238,16 @@ class ChildClass extends TestClass {
       SELECT * FROM items
     `)
   }
+
+  hmm() {
+    let z = this.someMethod
+  }
 }
 
 interface TestInterface {
   sql1: string
+  get sql2(): string
+  set sql3(value: string)
 }
 
 module TestModule {
@@ -265,3 +271,11 @@ const somethingElse = something ?? sql`
 -- @name: testNullishCoalescingQuery
 SELECT * FROM items
 `
+
+
+function *yieldMethod() {
+  yield sql`
+    -- @name: testYieldQuery
+    SELECT * FROM items
+  `
+}

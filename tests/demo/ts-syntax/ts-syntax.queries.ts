@@ -707,3 +707,23 @@ export interface ITestNullishCoalescingQueryQuery {
     result: ITestNullishCoalescingQueryResult;
 };
 
+
+
+
+export type TestYieldQueryParams = [];
+
+
+export interface ITestYieldQueryResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface ITestYieldQueryQuery {
+    params: TestYieldQueryParams;
+    result: ITestYieldQueryResult;
+};
+

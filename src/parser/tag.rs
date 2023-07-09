@@ -75,14 +75,8 @@ pub fn get_sql_from_expr<'a>(
             for arg in &call_expr.args {
                 get_sql_from_expr(sqls, var_decl_name, &arg.expr, span, import_alias)
             }
-            /*let new_sqls: Vec<SQL> = call_expr
-            .args
-            .clone()
-            .into_iter()
-            .flat_map(|arg| get_sql_from_expr(sqls, var_decl_name, &arg.expr, span, import_alias))
-            .collect();*/
         }
-        Expr::This(_) => todo!(),
+        Expr::This(_) => {}
         Expr::Array(a) => {
             for elem in &a.elems {
                 match elem {
@@ -94,17 +88,30 @@ pub fn get_sql_from_expr<'a>(
         Expr::Object(object) => {
             for prop in &object.props {
                 match prop {
-                    PropOrSpread::Spread(_) => todo!(),
+                    PropOrSpread::Spread(_) => {}
                     PropOrSpread::Prop(prop) => match *prop.clone() {
-                        Prop::Shorthand(_) => todo!(),
+                        Prop::Shorthand(_) => {}
                         Prop::KeyValue(key_val) => {
                             let value = &key_val.value;
                             get_sql_from_expr(sqls, var_decl_name, value, span, import_alias)
                         }
-                        Prop::Assign(_) => todo!(),
-                        Prop::Getter(_) => todo!(),
-                        Prop::Setter(_) => todo!(),
-                        Prop::Method(_) => todo!(),
+                        Prop::Assign(assign) => {
+                            let value = &assign.value;
+                            get_sql_from_expr(sqls, var_decl_name, value, span, import_alias)
+                        }
+                        Prop::Getter(getter) => {
+                            let body = &getter.body;
+                            process_block_stmt_as_expr(body, sqls, var_decl_name, span, import_alias)
+                        }
+                        // TODO: add test
+                        Prop::Setter(setter) => {
+                            let body = &setter.body;
+                            process_block_stmt_as_expr(body, sqls, var_decl_name, span, import_alias)
+                        }
+                        Prop::Method(method) => {
+                            let body = &method.function.body;
+                            process_block_stmt_as_expr(body, sqls, var_decl_name, span, import_alias)
+                        }
                     },
                 }
             }
@@ -210,8 +217,13 @@ pub fn get_sql_from_expr<'a>(
                 }
             }
         }
-        Expr::Yield(_) => todo!(),
-        Expr::MetaProp(_) => todo!(),
+        Expr::Yield(yield_expr) => {
+            let expr = &yield_expr.arg;
+            if let Some(expr) = expr {
+                return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+            }
+        }
+        Expr::MetaProp(_) => {}
         Expr::Await(await_expr) => {
             let expr = &await_expr.arg;
             return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
@@ -219,19 +231,19 @@ pub fn get_sql_from_expr<'a>(
         Expr::Paren(paren) => {
             let expr = &paren.expr;
             return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
-        },
-        Expr::JSXMember(_) => {},
-        Expr::JSXNamespacedName(_) => {},
-        Expr::JSXEmpty(_) => {},
-        Expr::JSXElement(_) => {},
-        Expr::JSXFragment(_) => {},
-        Expr::TsTypeAssertion(_) => {},
-        Expr::TsConstAssertion(_) => {},
-        Expr::TsAs(_) => {},
-        Expr::TsInstantiation(_) => {},
-        Expr::PrivateName(_) => {},
-        Expr::OptChain(_) => {},
-        Expr::Invalid(_) => {},
+        }
+        Expr::JSXMember(_) => {}
+        Expr::JSXNamespacedName(_) => {}
+        Expr::JSXEmpty(_) => {}
+        Expr::JSXElement(_) => {}
+        Expr::JSXFragment(_) => {}
+        Expr::TsTypeAssertion(_) => {}
+        Expr::TsConstAssertion(_) => {}
+        Expr::TsAs(_) => {}
+        Expr::TsInstantiation(_) => {}
+        Expr::PrivateName(_) => {}
+        Expr::OptChain(_) => {}
+        Expr::Invalid(_) => {}
     }
 }
 
