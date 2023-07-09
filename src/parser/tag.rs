@@ -103,10 +103,19 @@ pub fn get_sql_from_expr<'a>(
             let expr = &expr.callee;
             return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
         }
-        Expr::Seq(_) => todo!(),
+        Expr::Seq(seq) => {
+            let exprs = &seq.exprs;
+            for expr in exprs {
+                get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias)
+            }
+        },
         Expr::Ident(ident) => {}
-        Expr::Lit(_) => todo!(),
-        Expr::Tpl(_) => todo!(),
+        Expr::Lit(lit) => {},
+        Expr::Tpl(tpl) => {
+            for expr in &tpl.exprs {
+                get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias)
+            }
+        },
         Expr::Arrow(_) => todo!(),
         Expr::Class(_) => todo!(),
         Expr::Yield(_) => todo!(),

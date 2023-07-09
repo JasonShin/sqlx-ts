@@ -207,6 +207,7 @@ const obj = {
   }
 }
 
-
-///// Empty /////
-// const empty = sql``
+const tpl = `${sql`
+-- @name: tplQuery
+SELECT * FROM items
+`}`
