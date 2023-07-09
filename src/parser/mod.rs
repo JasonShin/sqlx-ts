@@ -13,7 +13,7 @@ use swc_common::{
     sync::Lrc,
     FileName, MultiSpan, SourceMap,
 };
-use swc_ecma_ast::{ClassMember, ModuleDecl, ModuleItem, Stmt};
+use swc_ecma_ast::{ClassMember, Decl, ModuleDecl, ModuleItem, Stmt};
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 use tag::{get_sql_from_expr, get_sql_from_var_decl};
 
@@ -33,6 +33,7 @@ fn recurse_and_find_sql(
     import_alias: &String,
     file_path: &PathBuf,
 ) -> Result<()> {
+    let mut sqls = vec![];
     match stmt {
         Stmt::Block(block) => {
             for stmt in &block.stmts {
@@ -46,7 +47,7 @@ fn recurse_and_find_sql(
         Stmt::Return(rtn) => {
             if let Some(expr) = &rtn.arg {
                 let span: MultiSpan = rtn.span.into();
-                let sqls = get_sql_from_expr(&None, &expr.clone(), &span, import_alias);
+                get_sql_from_expr(&mut sqls, &None, &expr.clone(), &span, import_alias);
                 insert_or_append_sqls(sqls_container, &sqls, file_path);
             }
         }
@@ -64,7 +65,7 @@ fn recurse_and_find_sql(
         Stmt::Throw(throw_stmt) => {
             let span: MultiSpan = throw_stmt.span.into();
             let expr = *throw_stmt.arg.clone();
-            let sqls = get_sql_from_expr(&None, &expr, &span, import_alias);
+            get_sql_from_expr(&mut sqls, &None, &expr, &span, import_alias);
             insert_or_append_sqls(sqls_container, &sqls, file_path);
         }
         Stmt::Try(try_stmt) => {
@@ -101,11 +102,17 @@ fn recurse_and_find_sql(
             recurse_and_find_sql(sqls_container, &body_stmt, import_alias, file_path)?;
         }
         Stmt::Decl(decl) => match decl {
-            swc_ecma_ast::Decl::Class(class) => {
+            Decl::Class(class) => {
                 let class_body = &class.class.body;
                 for body_stmt in class_body {
                     match body_stmt {
-                        ClassMember::Constructor(_) => {}
+                        ClassMember::Constructor(constructor) => {
+                            if let Some(body) = &constructor.body {
+                                for stmt in &body.stmts {
+                                    recurse_and_find_sql(sqls_container, stmt, import_alias, file_path)?;
+                                }
+                            }
+                        }
                         ClassMember::Method(class_method) => {
                             if let Some(body) = &class_method.function.body {
                                 for stmt in &body.stmts {
@@ -125,34 +132,69 @@ fn recurse_and_find_sql(
                                 recurse_and_find_sql(sqls_container, stmt, import_alias, file_path)?;
                             }
                         }
-                        _ => {}
+                        ClassMember::PrivateProp(private_prop) => {
+                            if let Some(expr) = &private_prop.value {
+                                let span: MultiSpan = private_prop.span.into();
+                                get_sql_from_expr(&mut sqls, &None, &expr.clone(), &span, import_alias);
+                                insert_or_append_sqls(sqls_container, &sqls, file_path);
+                            }
+                        }
+                        ClassMember::ClassProp(class_prop) => {
+                            if let Some(expr) = &class_prop.value {
+                                let span: MultiSpan = class_prop.span.into();
+                                get_sql_from_expr(&mut sqls, &None, &expr.clone(), &span, import_alias);
+                                insert_or_append_sqls(sqls_container, &sqls, file_path);
+                            }
+                        }
+                        ClassMember::TsIndexSignature(_) => {}
+                        ClassMember::Empty(_) => {}
                     }
                 }
             }
-            swc_ecma_ast::Decl::Fn(fun) => {
+            Decl::Fn(fun) => {
                 if let Some(body) = &fun.function.body {
                     for stmt in &body.stmts {
                         recurse_and_find_sql(sqls_container, stmt, import_alias, file_path)?;
                     }
                 }
             }
-            swc_ecma_ast::Decl::Var(var) => {
+            Decl::Var(var) => {
                 for var_decl in &var.decls {
                     let span: MultiSpan = var.span.into();
                     let sqls = get_sql_from_var_decl(var_decl, span, import_alias);
                     insert_or_append_sqls(sqls_container, &sqls, file_path);
                 }
             }
-            _ => {}
+            Decl::TsInterface(_) => {}
+            Decl::TsTypeAlias(_) => {}
+            Decl::TsEnum(_) => {}
+            Decl::TsModule(module) => {
+                for stmt in &module.body {
+                    for block in &stmt.as_ts_module_block() {
+                        for body in &block.body {
+                            let stmt = &body.clone().stmt();
+                            if let Some(stmt) = stmt {
+                                recurse_and_find_sql(sqls_container, stmt, import_alias, file_path)?;
+                            }
+                        }
+                    }
+                }
+            }
         },
         Stmt::Expr(expr) => {
             let span: MultiSpan = expr.span.into();
             let expr = *expr.expr.clone();
-            let sqls = get_sql_from_expr(&None, &expr, &span, import_alias);
+            get_sql_from_expr(&mut sqls, &None, &expr, &span, import_alias);
             insert_or_append_sqls(sqls_container, &sqls, file_path);
         }
-        // Ignores empty statements
-        _ => {}
+        Stmt::Empty(_) => {}
+        Stmt::Debugger(_) => {}
+        Stmt::Labeled(labeled) => {
+            let body_stmt = *labeled.body.clone();
+            recurse_and_find_sql(sqls_container, &body_stmt, import_alias, file_path)?;
+        }
+        Stmt::Break(_) => {}
+        Stmt::Continue(_) => {}
     }
     Ok(())
 }

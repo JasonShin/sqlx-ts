@@ -1,4 +1,5 @@
 import { sql } from 'sqlx-ts'
+import { QueryTypes, Sequelize } from 'sequelize'
 
 // Array expression with sql, it should skip generating the type as we cannot figure out the name to use
 const [] = sql`SELECT * FROM items`
@@ -165,4 +166,116 @@ enum TestEnum {
 }
 
 module TestModule {
+}
+
+///// Sequelize /////
+
+
+async function demo() {
+  const sequelize = new Sequelize('postgres://')
+  const result = await sequelize.query(sql`
+    -- @name: testSequelizeQuery
+    SELECT * FROM items
+    WHERE id = $1;
+  `!, {
+    type: QueryTypes.SELECT,
+    replacements: [],
+  })
+}
+
+const arr = [sql`
+-- @name: arrayQuery  
+SELECT * FROM items
+`]
+
+const obj = {
+  a: sql`
+  -- @name: anotherTestObjectQuery  
+  SELECT * FROM items
+  `,
+  b: {
+    c: sql`
+    -- @name: nestedTestObjectQuery
+    SELECT * FROM items
+    `
+  }
+}
+
+const tpl = `${sql`
+-- @name: tplQuery
+SELECT * FROM items
+`}`
+
+const arrow = () => sql`
+-- @name: arrowQuery
+SELECT * FROM items
+`
+
+class TestClass {
+  private sql1 = sql`
+  -- @name: testClassPropertyQuery
+    SELECT * FROM items
+  `
+  constructor(z: string) {
+    const query = sql`
+    -- @name: testClassConstructorQuery
+    SELECT * FROM items
+    `
+  }
+
+  someMethod() {
+    const query = sql`
+    -- @name: testClassMethodQuery
+    SELECT * FROM items
+    `
+  }
+}
+
+class ChildClass extends TestClass {
+  constructor() {
+    super(sql`
+      -- @name: testChildClassConstructorQuery
+      SELECT * FROM items
+    `)
+  }
+
+  hmm() {
+    let z = this.someMethod
+  }
+}
+
+interface TestInterface {
+  sql1: string
+  get sql2(): string
+  set sql3(value: string)
+}
+
+module TestModule {
+  const moduleSql = sql`SELECT * FROM items`
+}
+
+let name: any = 'test'
+let companyName = <string>name
+let partnerName = name as string
+let someName = 'test' as const
+
+(
+  sql`
+  -- @name: testParenthesisQuery
+  SELECT * FROM items
+  `
+)
+
+const something = false
+const somethingElse = something ?? sql`
+-- @name: testNullishCoalescingQuery
+SELECT * FROM items
+`
+
+
+function *yieldMethod() {
+  yield sql`
+    -- @name: testYieldQuery
+    SELECT * FROM items
+  `
 }

@@ -38,8 +38,7 @@ export interface ISomeQueryQuery {
 "#
 );
 
-
-#[rustfmt::skip]
+    #[rustfmt::skip]
 run_test!(trim, TestConfig::new("postgres"),
 
 //// TS query ////
@@ -60,8 +59,7 @@ export interface ISomeQueryQuery {
 "#
 );
 
-
-#[rustfmt::skip]
+    #[rustfmt::skip]
 run_test!(substring, TestConfig::new("postgres"),
 
 //// TS query ////"
@@ -82,8 +80,7 @@ export interface ISomeQueryQuery {
 "#
 );
 
-
-#[rustfmt::skip]
+    #[rustfmt::skip]
 run_test!(like, TestConfig::new("postgres"),
 
 //// TS query ////"
@@ -103,6 +100,4 @@ export interface ISomeQueryQuery {
 };
 "#
 );
-
-
 }

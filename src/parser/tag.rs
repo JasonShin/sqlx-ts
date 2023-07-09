@@ -1,6 +1,27 @@
 use crate::common::SQL;
 use swc_common::MultiSpan;
-use swc_ecma_ast::{Expr, Pat, VarDeclarator};
+use swc_ecma_ast::{BlockStmt, ClassMember, Expr, Pat, Prop, PropOrSpread, SuperProp, VarDeclarator};
+
+/// The method process block statement as expression
+/// It receives a block statement object from Class expression
+/// inserts the sqls into the sqls vector
+pub fn process_block_stmt_as_expr(
+    block_stmt: &Option<BlockStmt>,
+    sqls: &mut Vec<SQL>,
+    var_decl_name: &Option<String>,
+    span: &MultiSpan,
+    import_alias: &String,
+) {
+    if let Some(body) = block_stmt {
+        for stmt in &body.stmts {
+            let expr = stmt.as_expr();
+            if let Some(expr) = expr {
+                let expr = &expr.expr;
+                return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+            }
+        }
+    }
+}
 
 /// The method grabs the name of the variable if it exists
 pub fn get_var_decl_name(var_declarator: &VarDeclarator) -> Option<String> {
@@ -19,11 +40,12 @@ pub fn get_var_decl_name(var_declarator: &VarDeclarator) -> Option<String> {
 }
 
 pub fn get_sql_from_expr<'a>(
+    sqls: &mut Vec<SQL>,
     var_decl_name: &Option<String>,
     expr: &Expr,
     span: &MultiSpan,
     import_alias: &String,
-) -> Vec<SQL> {
+) {
     match &expr {
         Expr::TaggedTpl(tagged_tpl) => {
             let tag = &*tagged_tpl.tag;
@@ -31,7 +53,7 @@ pub fn get_sql_from_expr<'a>(
                 let ident = ident.to_string();
 
                 if ident.contains(import_alias) {
-                    return tagged_tpl
+                    let new_sqls: Vec<SQL> = tagged_tpl
                         .tpl
                         .quasis
                         .iter()
@@ -41,19 +63,187 @@ pub fn get_sql_from_expr<'a>(
                             span: span.clone(),
                         })
                         .collect();
+
+                    sqls.extend(new_sqls.clone());
                 }
             }
-
-            vec![]
         }
-        Expr::TsNonNull(expr) => get_sql_from_expr(var_decl_name, &expr.expr, span, import_alias),
-        Expr::Call(call_expr) => call_expr
-            .args
-            .clone()
-            .into_iter()
-            .flat_map(|arg| get_sql_from_expr(var_decl_name, &arg.expr, span, import_alias))
-            .collect(),
-        _ => vec![],
+        Expr::TsNonNull(expr) => {
+            get_sql_from_expr(sqls, var_decl_name, &expr.expr, span, import_alias);
+        }
+        Expr::Call(call_expr) => {
+            for arg in &call_expr.args {
+                get_sql_from_expr(sqls, var_decl_name, &arg.expr, span, import_alias)
+            }
+        }
+        Expr::This(_) => {}
+        Expr::Array(a) => {
+            for elem in &a.elems {
+                match elem {
+                    Some(expr) => get_sql_from_expr(sqls, var_decl_name, &expr.expr, span, import_alias),
+                    None => {}
+                }
+            }
+        }
+        Expr::Object(object) => {
+            for prop in &object.props {
+                match prop {
+                    PropOrSpread::Spread(_) => {}
+                    PropOrSpread::Prop(prop) => match *prop.clone() {
+                        Prop::Shorthand(_) => {}
+                        Prop::KeyValue(key_val) => {
+                            let value = &key_val.value;
+                            get_sql_from_expr(sqls, var_decl_name, value, span, import_alias)
+                        }
+                        Prop::Assign(assign) => {
+                            let value = &assign.value;
+                            get_sql_from_expr(sqls, var_decl_name, value, span, import_alias)
+                        }
+                        Prop::Getter(getter) => {
+                            let body = &getter.body;
+                            process_block_stmt_as_expr(body, sqls, var_decl_name, span, import_alias)
+                        }
+                        // TODO: add test
+                        Prop::Setter(setter) => {
+                            let body = &setter.body;
+                            process_block_stmt_as_expr(body, sqls, var_decl_name, span, import_alias)
+                        }
+                        Prop::Method(method) => {
+                            let body = &method.function.body;
+                            process_block_stmt_as_expr(body, sqls, var_decl_name, span, import_alias)
+                        }
+                    },
+                }
+            }
+        }
+        Expr::Fn(_) => {}
+        Expr::Unary(unary) => {
+            let expr = &unary.arg;
+            return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+        }
+        Expr::Update(update) => {
+            let expr = &update.arg;
+            return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+        }
+        Expr::Bin(bin) => {
+            let left = &bin.left;
+            let right = &bin.right;
+            get_sql_from_expr(sqls, var_decl_name, left, span, import_alias);
+            get_sql_from_expr(sqls, var_decl_name, right, span, import_alias);
+        }
+        Expr::Assign(assign) => {
+            let expr = &assign.right;
+            return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+        }
+        Expr::Member(member) => {
+            let obj = &member.obj;
+            return get_sql_from_expr(sqls, var_decl_name, obj, span, import_alias);
+        }
+        Expr::SuperProp(s) => {
+            let super_prop = &s.prop;
+            match &super_prop {
+                SuperProp::Ident(_) => {}
+                SuperProp::Computed(comp) => {
+                    let expr = &comp.expr;
+                    return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+                }
+            }
+        }
+        Expr::Cond(_) => {}
+        Expr::New(expr) => {
+            let expr = &expr.callee;
+            return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+        }
+        Expr::Seq(seq) => {
+            let exprs = &seq.exprs;
+            for expr in exprs {
+                get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias)
+            }
+        }
+        Expr::Ident(ident) => {}
+        Expr::Lit(lit) => {}
+        Expr::Tpl(tpl) => {
+            for expr in &tpl.exprs {
+                get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias)
+            }
+        }
+        Expr::Arrow(arrow) => {
+            let expr = &arrow.clone().body.expr();
+            if let Some(expr) = expr {
+                return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+            }
+        }
+        Expr::Class(class) => {
+            let class_body = &class.class.body;
+            for body_stmt in class_body {
+                match body_stmt {
+                    ClassMember::Constructor(constructor) => {
+                        if let Some(body) = &constructor.body {
+                            for stmt in &body.stmts {
+                                let expr = stmt.as_expr();
+                                if let Some(expr) = expr {
+                                    let expr = &expr.expr;
+                                    return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+                                }
+                            }
+                        }
+                    }
+                    ClassMember::Method(method) => {
+                        let body = &method.function.body;
+                        process_block_stmt_as_expr(body, sqls, var_decl_name, span, import_alias)
+                    }
+                    ClassMember::PrivateMethod(private_method) => {
+                        let body = &private_method.function.body;
+                        process_block_stmt_as_expr(body, sqls, var_decl_name, span, import_alias)
+                    }
+                    ClassMember::ClassProp(class_prop) => {
+                        let body = &class_prop.value;
+                        if let Some(body) = body {
+                            return get_sql_from_expr(sqls, var_decl_name, body, span, import_alias);
+                        }
+                    }
+                    ClassMember::PrivateProp(private_prop) => {
+                        let body = &private_prop.value;
+                        if let Some(body) = body {
+                            return get_sql_from_expr(sqls, var_decl_name, body, span, import_alias);
+                        }
+                    }
+                    ClassMember::TsIndexSignature(_) => {}
+                    ClassMember::Empty(_) => {}
+                    ClassMember::StaticBlock(static_block) => {
+                        let body = &static_block.body;
+                        process_block_stmt_as_expr(&Some(body.clone()), sqls, var_decl_name, span, import_alias)
+                    }
+                }
+            }
+        }
+        Expr::Yield(yield_expr) => {
+            let expr = &yield_expr.arg;
+            if let Some(expr) = expr {
+                return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+            }
+        }
+        Expr::MetaProp(_) => {}
+        Expr::Await(await_expr) => {
+            let expr = &await_expr.arg;
+            return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+        }
+        Expr::Paren(paren) => {
+            let expr = &paren.expr;
+            return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+        }
+        Expr::JSXMember(_) => {}
+        Expr::JSXNamespacedName(_) => {}
+        Expr::JSXEmpty(_) => {}
+        Expr::JSXElement(_) => {}
+        Expr::JSXFragment(_) => {}
+        Expr::TsTypeAssertion(_) => {}
+        Expr::TsConstAssertion(_) => {}
+        Expr::TsAs(_) => {}
+        Expr::TsInstantiation(_) => {}
+        Expr::PrivateName(_) => {}
+        Expr::OptChain(_) => {}
+        Expr::Invalid(_) => {}
     }
 }
 
@@ -69,9 +259,10 @@ pub fn get_sql_from_var_decl(var_declarator: &VarDeclarator, span: MultiSpan, im
     }
 
     if let Some(init) = &var_declarator.init {
+        let mut sqls = vec![];
         // TODO: make it understand `const someQuery = SQLX.sql`SELECT * FROM lazy_unknown2`;` in js_failure_path1/lazy-loaded.js
-        let mut result = get_sql_from_expr(&var_decl_name, &init.clone(), &span, import_alias);
-        bag_of_sqls.append(&mut result);
+        get_sql_from_expr(&mut sqls, &var_decl_name, &init.clone(), &span, import_alias);
+        bag_of_sqls.extend(sqls);
     }
 
     bag_of_sqls
