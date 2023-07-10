@@ -176,6 +176,9 @@
 <tr><td>E006</td><td><code>Failed to handle a wildcard statement as it reached a dead-end expression</code> You would never hit this error - it would only happen if your wildcard query is not actually a SELECT statement</td></tr>
 <tr><td>E007</td><td><code>Unsupported table with joins statement detected</code> You would never reach this unless the query has a malformed FROM statement in your SELECT * query</td></tr>
 <tr><td>E008</td><td><code>The query contains unknown placeholder parameter symbol</code> MySQL expects <code>?</code> and PostgreSQL expects <code>$n</code> for query parameter symbols</td></tr>
+<tr><td>E009</td><td><code>When translating a function in a SELECT clause, you must provide an alias</code>. functions used as part of SELECT must come with an alias</td></tr>
+<tr><td>E010</td><td><code>Unknown function detected while processing a SELECT clause</code> You are using a SQL function that sqlx-ts does not know</td></tr>
+<tr><td>E011</td><td><code>table name was not found while processing an identifier</code> FROM is not found in the query</td></tr>
 </tbody></table>
 </div>
                     </main>

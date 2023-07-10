@@ -487,9 +487,6 @@ they are an additional syntax supported by popular ORM libraries such as Sequeli
 <p>The closest type safety that exists in TypeScript world is by emulating Opaque type e.g. https://github.com/sindresorhus/type-fest/blob/main/source/opaque.d.ts.
 In the future, sqlx-ts will support Opaque type overrides natively to solve this matter.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="select-statement"><a class="header" href="#select-statement">SELECT statement</a></h1>
-<blockquote>
-<p>⚠️ <strong>FEATURE NOT READY</strong>: We still haven't fully covered all SQL syntax yet</p>
-</blockquote>
 <p>Parameter is way to denote value replacements in a SQL query. Each database uses
 different placeholder symbol:</p>
 <div class="table-wrapper"><table><thead><tr><th>database</th><th>placeholder symbol</th><th>Example</th></tr></thead><tbody>
@@ -572,9 +569,6 @@ export interface ISomeQueryQuery {
 </code></pre>
 <p>Note that <code>QueryParams</code> array respects the order of params present in the query above</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="insert-statement"><a class="header" href="#insert-statement">INSERT statement</a></h1>
-<blockquote>
-<p>⚠️ <strong>FEATURE NOT READY</strong>: We still haven't fully covered all SQL syntax yet</p>
-</blockquote>
 <p>To read more about how sqlx-ts translates query parameters, <a href="reference-guide/./4.1.SELECT.html">visit this page</a></p>
 <h4 id="mysql"><a class="header" href="#mysql">MySQL</a></h4>
 <p>Query params within an insert statement can be converted into TypeScript types as well</p>
@@ -619,9 +613,6 @@ export interface ISomePostgresInputQueryQuery {
 };
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="delete-statement"><a class="header" href="#delete-statement">DELETE statement</a></h1>
-<blockquote>
-<p>⚠️ <strong>FEATURE NOT READY</strong>: We still haven't fully covered all SQL syntax yet</p>
-</blockquote>
 <p>To read more about how sqlx-ts translates query parameters, <a href="reference-guide/./4.1.SELECT.html">visit this page</a></p>
 <h4 id="mysql-1"><a class="header" href="#mysql-1">MySQL</a></h4>
 <p>Query params within a DELETE statement will be converted Typescript types</p>
@@ -652,9 +643,6 @@ export interface ISomeQueryQuery {
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="update-statement"><a class="header" href="#update-statement">UPDATE statement</a></h1>
-<blockquote>
-<p>⚠️ <strong>FEATURE NOT READY</strong>: We still haven't fully covered all SQL syntax yet</p>
-</blockquote>
 <p>To read more about how sqlx-ts translates query parameters, <a href="reference-guide/./4.1.SELECT.html">visit this page</a></p>
 <h4 id="mysql-2"><a class="header" href="#mysql-2">MySQL</a></h4>
 <p>Query params within an update statement can be converted into TypeScript types as well</p>
@@ -832,6 +820,9 @@ export interface ISimpleQueryQuery{
 <tr><td>E006</td><td><code>Failed to handle a wildcard statement as it reached a dead-end expression</code> You would never hit this error - it would only happen if your wildcard query is not actually a SELECT statement</td></tr>
 <tr><td>E007</td><td><code>Unsupported table with joins statement detected</code> You would never reach this unless the query has a malformed FROM statement in your SELECT * query</td></tr>
 <tr><td>E008</td><td><code>The query contains unknown placeholder parameter symbol</code> MySQL expects <code>?</code> and PostgreSQL expects <code>$n</code> for query parameter symbols</td></tr>
+<tr><td>E009</td><td><code>When translating a function in a SELECT clause, you must provide an alias</code>. functions used as part of SELECT must come with an alias</td></tr>
+<tr><td>E010</td><td><code>Unknown function detected while processing a SELECT clause</code> You are using a SQL function that sqlx-ts does not know</td></tr>
+<tr><td>E011</td><td><code>table name was not found while processing an identifier</code> FROM is not found in the query</td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="troubleshooting"><a class="header" href="#troubleshooting">Troubleshooting</a></h1>
 <h2 id="macos"><a class="header" href="#macos">MacOS</a></h2>
