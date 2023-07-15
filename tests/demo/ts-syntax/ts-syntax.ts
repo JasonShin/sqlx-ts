@@ -1,7 +1,6 @@
 import { sql } from 'sqlx-ts'
 import { QueryTypes, Sequelize } from 'sequelize'
 
-/*
 // Array expression with sql, it should skip generating the type as we cannot figure out the name to use
 const [] = sql`SELECT * FROM items`
 
@@ -280,7 +279,6 @@ function *yieldMethod() {
     SELECT * FROM items
   `
 }
-*/
 
 (async () => {
   await sql`
