@@ -279,3 +279,10 @@ function *yieldMethod() {
     SELECT * FROM items
   `
 }
+
+(async () => {
+  await sql`
+    -- @name: testAwaitQuery
+    SELECT * FROM items
+  `
+})();
