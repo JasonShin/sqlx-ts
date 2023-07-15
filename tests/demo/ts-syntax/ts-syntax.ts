@@ -285,4 +285,8 @@ function *yieldMethod() {
     -- @name: testAwaitQuery
     SELECT * FROM items
   `
+  await sql`
+    -- @name: testAwaitQuery2
+    SELECT * FROM items
+  `
 })();
