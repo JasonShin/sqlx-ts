@@ -233,11 +233,11 @@ pub fn get_sql_from_expr<'a>(
         Expr::MetaProp(_) => {}
         Expr::Await(await_expr) => {
             let expr = &await_expr.arg;
-            get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+            return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
         }
         Expr::Paren(paren) => {
             let expr = &paren.expr;
-            get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+            return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
         }
         Expr::JSXMember(_) => {}
         Expr::JSXNamespacedName(_) => {}
