@@ -748,3 +748,23 @@ export interface ITestAwaitQueryQuery {
 };
 
 
+
+
+export type TestAwaitQuery2Params = [];
+
+
+export interface ITestAwaitQuery2Result {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface ITestAwaitQuery2Query {
+    params: TestAwaitQuery2Params;
+    result: ITestAwaitQuery2Result;
+};
+
+

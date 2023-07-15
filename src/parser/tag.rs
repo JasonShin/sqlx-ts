@@ -17,7 +17,7 @@ pub fn process_block_stmt_as_expr(
             let expr = stmt.as_expr();
             if let Some(expr) = expr {
                 let expr = &expr.expr;
-                return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+                get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
             }
         }
     }
