@@ -249,7 +249,7 @@ pub fn get_sql_from_expr<'a>(
         Expr::TsAs(_) => {}
         Expr::TsInstantiation(_) => {}
         Expr::PrivateName(_) => {}
-        Expr::OptChain(_) => {}
+        Expr::OptChain(opt_chain) => {}
         Expr::Invalid(_) => {}
     }
 }
