@@ -72,6 +72,9 @@ pub fn get_sql_from_expr<'a>(
             get_sql_from_expr(sqls, var_decl_name, &expr.expr, span, import_alias);
         }
         Expr::Call(call_expr) => {
+            if let Some(callee_expr) = &call_expr.callee.as_expr() {
+                get_sql_from_expr(sqls, var_decl_name, callee_expr, span, import_alias);
+            }
             for arg in &call_expr.args {
                 get_sql_from_expr(sqls, var_decl_name, &arg.expr, span, import_alias)
             }
@@ -169,6 +172,10 @@ pub fn get_sql_from_expr<'a>(
         }
         Expr::Arrow(arrow) => {
             let expr = &arrow.clone().body.expr();
+            let block_stmt = &arrow.clone().body.block_stmt();
+
+            process_block_stmt_as_expr(&block_stmt, sqls, var_decl_name, span, import_alias);
+
             if let Some(expr) = expr {
                 return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
             }
@@ -226,11 +233,11 @@ pub fn get_sql_from_expr<'a>(
         Expr::MetaProp(_) => {}
         Expr::Await(await_expr) => {
             let expr = &await_expr.arg;
-            return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+            get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
         }
         Expr::Paren(paren) => {
             let expr = &paren.expr;
-            return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+            get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
         }
         Expr::JSXMember(_) => {}
         Expr::JSXNamespacedName(_) => {}
