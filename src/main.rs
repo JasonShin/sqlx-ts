@@ -38,7 +38,6 @@ fn main() -> Result<()> {
     for file_path in files.iter() {
         let (sqls, handler) = parse_source(&file_path)?;
         let failed = execute(&sqls, &handler)?;
-
         if failed {
             eprintln!("SQLs failed to compile!");
             std::process::exit(1)

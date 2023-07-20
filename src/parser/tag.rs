@@ -2,6 +2,8 @@ use crate::common::SQL;
 use swc_common::MultiSpan;
 use swc_ecma_ast::{BlockStmt, ClassMember, Expr, Pat, Prop, PropOrSpread, SuperProp, VarDeclarator};
 
+use super::recurse_and_find_sql;
+
 /// The method process block statement as expression
 /// It receives a block statement object from Class expression
 /// inserts the sqls into the sqls vector
@@ -15,9 +17,13 @@ pub fn process_block_stmt_as_expr(
     if let Some(body) = block_stmt {
         for stmt in &body.stmts {
             let expr = stmt.as_expr();
+            let decl = stmt.as_decl();
             if let Some(expr) = expr {
                 let expr = &expr.expr;
                 get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+            }
+            if let Some(decl) = decl {
+                recurse_and_find_sql(sqls, stmt, import_alias);
             }
         }
     }
@@ -266,10 +272,8 @@ pub fn get_sql_from_var_decl(var_declarator: &VarDeclarator, span: MultiSpan, im
     }
 
     if let Some(init) = &var_declarator.init {
-        let mut sqls = vec![];
         // TODO: make it understand `const someQuery = SQLX.sql`SELECT * FROM lazy_unknown2`;` in js_failure_path1/lazy-loaded.js
-        get_sql_from_expr(&mut sqls, &var_decl_name, &init.clone(), &span, import_alias);
-        bag_of_sqls.extend(sqls);
+        get_sql_from_expr(&mut bag_of_sqls, &var_decl_name, &init.clone(), &span, import_alias);
     }
 
     bag_of_sqls

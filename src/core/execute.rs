@@ -42,6 +42,10 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Resul
         if *should_generate_types {
             let sqls_to_write = sqls_to_write.join("\n");
             if CLI_ARGS.generate_path.is_none() {
+                println!(
+                    "checking before writing the colocated file {:?} - {:?}",
+                    file_path, sqls_to_write
+                );
                 // generates types colocated to source code
                 write_colocated_ts_file(file_path, sqls_to_write)?;
             } else {
