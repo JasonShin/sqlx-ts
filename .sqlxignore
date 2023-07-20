@@ -1,0 +1,3 @@
+*.queries.ts
+*.snapshot.ts
+*.hello.ts

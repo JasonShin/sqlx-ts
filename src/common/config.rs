@@ -50,6 +50,7 @@ pub struct Config {
     pub dotenv: Dotenv,
     pub generate_types_config: Option<GenerateTypesConfig>,
     pub connections: HashMap<String, DbConnectionConfig>,
+    pub ignore_patterns: Vec<String>,
 }
 
 impl Config {
@@ -57,17 +58,42 @@ impl Config {
         let dotenv = Dotenv::new();
 
         let default_config_path = PathBuf::from_str(".sqlxrc.json").unwrap();
+        let default_ignore_config_path = PathBuf::from_str(".sqlxignore").unwrap();
         let file_config_path = &CLI_ARGS.config.clone().unwrap_or(default_config_path);
         let connections = Self::build_configs(&dotenv, file_config_path);
         let generate_types_config = Self::generate_types_config(file_config_path);
         let generate_types_config =
             generate_types_config.and_then(|config| if config.enabled { Some(config) } else { None });
+        let ignore_patterns = Self::get_ignore_patterns(&default_ignore_config_path);
 
         Config {
             dotenv,
             connections,
             generate_types_config,
+            ignore_patterns,
         }
+    }
+
+    fn get_ignore_patterns(ignore_config_path: &PathBuf) -> Vec<String> {
+        let mut base_ignore_patterns = vec!["*.queries.ts".to_string(), "*.queries.js".to_string()];
+        let file_based_ignore_config = fs::read_to_string(ignore_config_path);
+
+        if file_based_ignore_config.is_err() {
+            return base_ignore_patterns.to_vec();
+        }
+
+        let file_based_ignore_config = &file_based_ignore_config.unwrap();
+        let file_based_ignore_config = file_based_ignore_config.split("\n");
+        let file_based_ignore_config: Vec<&str> = file_based_ignore_config.clone().collect();
+
+        let custom_ignore_configs = &file_based_ignore_config
+            .iter()
+            .filter(|x| !x.is_empty())
+            .map(|x| x.to_string())
+            .collect::<Vec<String>>();
+
+        base_ignore_patterns.extend(custom_ignore_configs.to_vec());
+        base_ignore_patterns.clone()
     }
 
     /// Retrieves the configuration required for generating typescript interface

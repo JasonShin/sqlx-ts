@@ -768,3 +768,23 @@ export interface ITestAwaitQuery2Query {
 };
 
 
+
+
+export type AwaitClientQueryParams = [];
+
+
+export interface IAwaitClientQueryResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface IAwaitClientQueryQuery {
+    params: AwaitClientQueryParams;
+    result: IAwaitClientQueryResult;
+};
+
+

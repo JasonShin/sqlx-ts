@@ -1,13 +1,29 @@
 use std::path::{Path, PathBuf};
 
+use crate::common::lazy::CONFIG;
 use crate::common::types::JsExtension;
+use regex::Regex;
 use walkdir::WalkDir;
 
-pub fn scan_folder<'a>(
-    folder: &'a PathBuf,
-    js_extension: &'a JsExtension,
-    ignore_paths: &'a [PathBuf],
-) -> Vec<PathBuf> {
+fn pattern_to_regex(pattern: &str) -> Regex {
+    let pattern = pattern.replace(".", "\\.");
+    let pattern = pattern.replace("*", ".*");
+    let pattern = format!("^{}$", pattern);
+    Regex::new(&pattern).unwrap()
+}
+
+fn is_match(pattern: &str, path: &Path) -> bool {
+    let regex = pattern_to_regex(pattern);
+
+    if pattern.starts_with("!") {
+        !regex.is_match(path.to_str().unwrap())
+    } else {
+        regex.is_match(path.to_str().unwrap())
+    }
+}
+
+pub fn scan_folder<'a>(folder: &'a PathBuf, js_extension: &'a JsExtension) -> Vec<PathBuf> {
+    let ignore_paths = &CONFIG.ignore_patterns;
     let node_modules_path = folder.join(Path::new("node_modules"));
     let path = Path::new(folder);
     let result: Vec<_> = WalkDir::new(path)
@@ -21,7 +37,9 @@ pub fn scan_folder<'a>(
             }
 
             // 2. any custom ignore paths set by user should be ignored
-            let should_ignore = ignore_paths.iter().any(|ignore| entry.path().starts_with(ignore));
+            let should_ignore = ignore_paths
+                .iter()
+                .any(|ignore| is_match(ignore.as_str(), entry.path()));
             if should_ignore {
                 return false;
             }

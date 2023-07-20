@@ -289,4 +289,7 @@ function *yieldMethod() {
     -- @name: testAwaitQuery2
     SELECT * FROM items
   `
+  const awaitClientQuery = await client.query(sql`
+      SELECT * FROM items;
+  `)
 })();

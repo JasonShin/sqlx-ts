@@ -36,7 +36,7 @@ export type Sql3Params = [];
 
 
 export interface ISql3Result {
-    items_id: number;
+    itemsId: number;
 };
 
 
@@ -52,7 +52,7 @@ export type Sql4Params = [];
 
 
 export interface ISql4Result {
-    the_count: number;
+    theCount: number;
 };
 
 
@@ -68,7 +68,7 @@ export type Sql5Params = [];
 
 
 export interface ISql5Result {
-    the_avg: number;
+    theAvg: number;
 };
 
 
@@ -84,7 +84,7 @@ export type Sql6Params = [];
 
 
 export interface ISql6Result {
-    lower_varchar: string;
+    lowerVarchar: string;
 };
 
 
@@ -100,7 +100,7 @@ export type Sql7Params = [];
 
 
 export interface ISql7Result {
-    current_time: string;
+    currentTime: string;
 };
 
 

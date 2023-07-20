@@ -55,9 +55,8 @@ pub fn get_query_name(sql: &SQL) -> Result<String> {
 /// Write colocated Type definition file next to the TS source code
 pub fn write_colocated_ts_file(file_path: &PathBuf, sqls_to_write: String) -> Result<()> {
     let path = file_path.parent().unwrap();
-    let file = file_path.file_name().unwrap();
-    let file_name = file.to_str().unwrap().split('.').next().unwrap();
-
+    let file = file_path.file_stem().unwrap();
+    let file_name = file.to_str().unwrap();
     let query_ts_file_path = path.join(Path::new(format!("{file_name}.queries.ts").as_str()));
 
     if query_ts_file_path.exists() {
