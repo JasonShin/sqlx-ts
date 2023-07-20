@@ -8,6 +8,7 @@
   - [install.sh CLI Options](./user-guide/1.1.install_sh_cli_options.md)
 - [Getting Started](./user-guide/2.getting-started.md)
   - [CLI Options](./user-guide/2.1.cli-options.md)
+  - [Ignore Patterns](./user-guide/2.2.ignore-patterns.md)
 
 # Reference Guide
 
