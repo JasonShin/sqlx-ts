@@ -30,6 +30,10 @@ SQLx-ts is a CLI application featuring compile-time checked queries without a DS
     <strong>
     📔 <a href="https://jasonshin.github.io/sqlx-ts/">Official Documentation</a>
     </strong>
+    <strong> | </strong>
+    <strong>
+        🤓 <a href="https://github.com/JasonShin/sqlx-ts-demo">Demo</a>
+    </strong>
 </div>
 <br>
 
