@@ -27,7 +27,10 @@ fn main() -> Result<()> {
 
     let files = scan_folder(source_folder, ext);
     if files.is_empty() {
-        println!("No targets detected, is it an empty folder? - source_folder: {:?}, ext: {:?}", source_folder, ext);
+        println!(
+            "No targets detected, is it an empty folder? - source_folder: {:?}, ext: {:?}",
+            source_folder, ext
+        );
         std::process::exit(0);
     }
 

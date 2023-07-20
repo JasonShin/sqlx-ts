@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use crate::common::lazy::{CONFIG};
+use crate::common::lazy::CONFIG;
 use crate::common::types::JsExtension;
 use regex::Regex;
 use walkdir::WalkDir;
@@ -22,10 +22,7 @@ fn is_match(pattern: &str, path: &Path) -> bool {
     }
 }
 
-pub fn scan_folder<'a>(
-    folder: &'a PathBuf,
-    js_extension: &'a JsExtension,
-) -> Vec<PathBuf> {
+pub fn scan_folder<'a>(folder: &'a PathBuf, js_extension: &'a JsExtension) -> Vec<PathBuf> {
     let ignore_paths = &CONFIG.ignore_patterns;
     let node_modules_path = folder.join(Path::new("node_modules"));
     let path = Path::new(folder);
@@ -40,7 +37,9 @@ pub fn scan_folder<'a>(
             }
 
             // 2. any custom ignore paths set by user should be ignored
-            let should_ignore = ignore_paths.iter().any(|ignore| is_match(ignore.as_str(), entry.path()));
+            let should_ignore = ignore_paths
+                .iter()
+                .any(|ignore| is_match(ignore.as_str(), entry.path()));
             if should_ignore {
                 return false;
             }

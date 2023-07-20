@@ -77,7 +77,7 @@ impl Config {
     fn get_ignore_patterns(ignore_config_path: &PathBuf) -> Vec<String> {
         let mut base_ignore_patterns = vec!["*.queries.ts".to_string(), "*.queries.js".to_string()];
         let file_based_ignore_config = fs::read_to_string(ignore_config_path);
-        
+
         if file_based_ignore_config.is_err() {
             return base_ignore_patterns.to_vec();
         }
@@ -86,7 +86,8 @@ impl Config {
         let file_based_ignore_config = file_based_ignore_config.split("\n");
         let file_based_ignore_config: Vec<&str> = file_based_ignore_config.clone().collect();
 
-        let custom_ignore_configs = &file_based_ignore_config.iter()
+        let custom_ignore_configs = &file_based_ignore_config
+            .iter()
             .filter(|x| !x.is_empty())
             .map(|x| x.to_string())
             .collect::<Vec<String>>();
