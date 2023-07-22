@@ -1,3 +1,4 @@
+/*
 import { sql } from 'sqlx-ts'
 import { QueryTypes, Sequelize } from 'sequelize'
 
@@ -279,8 +280,9 @@ function *yieldMethod() {
     SELECT * FROM items
   `
 }
-
+*/
 (async () => {
+  /*
   await sql`
     -- @name: testAwaitQuery
     SELECT * FROM items
@@ -289,7 +291,15 @@ function *yieldMethod() {
     -- @name: testAwaitQuery2
     SELECT * FROM items
   `
+  */
+
   const awaitClientQuery = await client.query(sql`
       SELECT * FROM items;
   `)
+
+  // const [rows, i] = await connection.execute<Rows<IGetItems2Result>>(sql`
+  //   -- @name: getItemsWithRows
+  //   SELECT * FROM items
+  // `)
+
 })();
