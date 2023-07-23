@@ -151,8 +151,21 @@ fn recurse_and_find_sql(mut sqls: &mut Vec<SQL>, stmt: &Stmt, import_alias: &Str
             Decl::Var(var) => {
                 for var_decl in &var.decls {
                     let span: MultiSpan = var.span.into();
-                    let new_sqls = get_sql_from_var_decl(var_decl, span, import_alias);
+                    let new_sqls = get_sql_from_var_decl(var_decl, &span, import_alias);
+                    let num_new_sqls = new_sqls.len();
                     sqls.extend(new_sqls);
+
+                    // We've already found the sqls based on the variable name, we should skip processing further
+                    if num_new_sqls > 0 {
+                        continue;
+                    }
+
+                    // this is when the variable name is not found due to syntax like
+                    // const [rows, i] = await connection.execute....
+                    if let Some(init) = &var_decl.init {
+                        let expr = *init.clone();
+                        get_sql_from_expr(&mut sqls, &None, &expr, &span, import_alias);
+                    }
                 }
             }
             Decl::TsInterface(_) => {}

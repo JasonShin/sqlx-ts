@@ -1,5 +1,25 @@
 
 
+export type TestQueryWithoutVariableDeclarationParams = [];
+
+
+export interface ITestQueryWithoutVariableDeclarationResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface ITestQueryWithoutVariableDeclarationQuery {
+    params: TestQueryWithoutVariableDeclarationParams;
+    result: ITestQueryWithoutVariableDeclarationResult;
+};
+
+
+
+
 export type TestQuery1Params = [];
 
 
@@ -750,6 +770,46 @@ export interface ITestAwaitQueryQuery {
 
 
 
+export type TestAwaitQueryParams = [];
+
+
+export interface ITestAwaitQueryResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface ITestAwaitQueryQuery {
+    params: TestAwaitQueryParams;
+    result: ITestAwaitQueryResult;
+};
+
+
+
+
+export type TestAwaitQuery2Params = [];
+
+
+export interface ITestAwaitQuery2Result {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface ITestAwaitQuery2Query {
+    params: TestAwaitQuery2Params;
+    result: ITestAwaitQuery2Result;
+};
+
+
+
+
 export type TestAwaitQuery2Params = [];
 
 
@@ -785,5 +845,25 @@ export interface IAwaitClientQueryResult {
 export interface IAwaitClientQueryQuery {
     params: AwaitClientQueryParams;
     result: IAwaitClientQueryResult;
+};
+
+
+
+
+export type GetItemsWithRowsParams = [];
+
+
+export interface IGetItemsWithRowsResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface IGetItemsWithRowsQuery {
+    params: GetItemsWithRowsParams;
+    result: IGetItemsWithRowsResult;
 };
 

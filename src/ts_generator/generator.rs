@@ -44,7 +44,6 @@ pub fn get_query_name(sql: &SQL) -> Result<String> {
     }
 
     let var_decl_name = var_decl_name.clone();
-
     if let Some(var_decl_name) = var_decl_name {
         return Ok(var_decl_name.to_case(Case::Pascal));
     }

@@ -17,14 +17,12 @@ pub fn process_block_stmt_as_expr(
     if let Some(body) = block_stmt {
         for stmt in &body.stmts {
             let expr = stmt.as_expr();
-            let decl = stmt.as_decl();
             if let Some(expr) = expr {
                 let expr = &expr.expr;
                 get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
             }
-            if let Some(decl) = decl {
-                recurse_and_find_sql(sqls, stmt, import_alias);
-            }
+
+            let _ = recurse_and_find_sql(sqls, stmt, import_alias);
         }
     }
 }
@@ -179,7 +177,6 @@ pub fn get_sql_from_expr<'a>(
         Expr::Arrow(arrow) => {
             let expr = &arrow.clone().body.expr();
             let block_stmt = &arrow.clone().body.block_stmt();
-
             process_block_stmt_as_expr(&block_stmt, sqls, var_decl_name, span, import_alias);
 
             if let Some(expr) = expr {
@@ -262,7 +259,7 @@ pub fn get_sql_from_expr<'a>(
 
 /// you would normally pass in any var declarator such as
 /// const sql = sql`SELECT * FROM xxx;`
-pub fn get_sql_from_var_decl(var_declarator: &VarDeclarator, span: MultiSpan, import_alias: &String) -> Vec<SQL> {
+pub fn get_sql_from_var_decl(var_declarator: &VarDeclarator, span: &MultiSpan, import_alias: &String) -> Vec<SQL> {
     let mut bag_of_sqls: Vec<SQL> = vec![];
     let var_decl_name = get_var_decl_name(var_declarator);
 
