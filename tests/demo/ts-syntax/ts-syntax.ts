@@ -1,9 +1,11 @@
-/*
 import { sql } from 'sqlx-ts'
 import { QueryTypes, Sequelize } from 'sequelize'
 
 // Array expression with sql, it should skip generating the type as we cannot figure out the name to use
-const [] = sql`SELECT * FROM items`
+const [] = sql`
+-- @name: testQueryWithoutVariableDeclaration
+SELECT * FROM items
+`
 
 // Expression without variable declaration
 sql`
@@ -280,9 +282,8 @@ function *yieldMethod() {
     SELECT * FROM items
   `
 }
-*/
+
 (async () => {
-  /*
   await sql`
     -- @name: testAwaitQuery
     SELECT * FROM items
@@ -291,7 +292,6 @@ function *yieldMethod() {
     -- @name: testAwaitQuery2
     SELECT * FROM items
   `
-  */
 
   const awaitClientQuery = await client.query(sql`
       SELECT * FROM items;
