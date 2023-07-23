@@ -297,9 +297,9 @@ function *yieldMethod() {
       SELECT * FROM items;
   `)
 
-  // const [rows, i] = await connection.execute<Rows<IGetItems2Result>>(sql`
-  //   -- @name: getItemsWithRows
-  //   SELECT * FROM items
-  // `)
+  const [rows, i] = await connection.execute<Rows<IGetItems2Result>>(sql`
+    -- @name: getItemsWithRows
+    SELECT * FROM items
+  `)
 
 })();
