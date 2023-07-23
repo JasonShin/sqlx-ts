@@ -302,4 +302,12 @@ function *yieldMethod() {
     SELECT * FROM items
   `)
 
+  await connection.execute(sql`
+  -- @name: testInsert
+  -- @db: db_mysql
+  INSERT INTO items (food_type, points, time_takes_to_cook, table_id) VALUES (?, ?, 1, 1);
+  `)
+
+  connection.destroy()
+
 })();

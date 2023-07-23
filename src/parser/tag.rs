@@ -20,9 +20,9 @@ pub fn process_block_stmt_as_expr(
             if let Some(expr) = expr {
                 let expr = &expr.expr;
                 get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+            } else {
+                recurse_and_find_sql(sqls, stmt, import_alias);
             }
-
-            let _ = recurse_and_find_sql(sqls, stmt, import_alias);
         }
     }
 }
@@ -67,7 +67,6 @@ pub fn get_sql_from_expr<'a>(
                             span: span.clone(),
                         })
                         .collect();
-
                     sqls.extend(new_sqls.clone());
                 }
             }
@@ -76,8 +75,12 @@ pub fn get_sql_from_expr<'a>(
             get_sql_from_expr(sqls, var_decl_name, &expr.expr, span, import_alias);
         }
         Expr::Call(call_expr) => {
+            let num_args = &call_expr.args.len();
+
             if let Some(callee_expr) = &call_expr.callee.as_expr() {
-                get_sql_from_expr(sqls, var_decl_name, callee_expr, span, import_alias);
+                if num_args == &0 {
+                    get_sql_from_expr(sqls, var_decl_name, callee_expr, span, import_alias);
+                }
             }
             for arg in &call_expr.args {
                 get_sql_from_expr(sqls, var_decl_name, &arg.expr, span, import_alias)
