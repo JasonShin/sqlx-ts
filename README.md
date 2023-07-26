@@ -1,4 +1,4 @@
-<h1 align="center">SQLx-ts</h1>
+<h1 align="center">sqlx-ts</h1>
 
 <div align="center">
     <a href='https://coveralls.io/github/JasonShin/sqlx-ts?branch=main'><img src='https://coveralls.io/repos/github/JasonShin/sqlx-ts/badge.svg?branch=main' alt='Coverage Status' /></a>
@@ -12,15 +12,9 @@
 
 <br />
 
-<div align="center">
-Built to free Node developers from ORMs' unpredictably generated SQL queries
-</div>
+SQLx-ts is a CLI application featuring compile-time checked queries without a DSL and generates types against SQLs to keep your code type-safe
 
-<br />
-
-SQLx-ts is a CLI application featuring compile-time checked queries without a DSL and prevents broken SQL queries being run during runtime.
-
-- **Compile time checked queries** - never ship a broken SQL query to production
+- **Compile time checked queries** - never ship a broken SQL query to production (and [sqlx-ts is not an ORM](https://github.com/JasonShin/sqlx-ts/tree/docs-update#sqlx-ts-is-not-an-orm))
 - **TypeScript type generations** - generates type definitions based on the raw SQLs and you can use them with any MySQL or PostgreSQL driver
 - **Database Agnostic** - support for [PostgreSQL](http://postgresql.org/) and [MySQL](https://www.mysql.com/)
 - **TypeScript and JavaScript** - supports for both [TypeScript](https://www.typescriptlang.org/) and JavaScript
