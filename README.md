@@ -14,10 +14,10 @@
 
 SQLx-ts is a CLI application featuring compile-time checked queries without a DSL and generates types against SQLs to keep your code type-safe
 
-- **Compile time checked queries** - never ship a broken SQL query to production (and [sqlx-ts is not an ORM](https://github.com/JasonShin/sqlx-ts/tree/docs-update#sqlx-ts-is-not-an-orm))
+- **Compile time checked queries** - never ship a broken SQL query to production (and [sqlx-ts is not an ORM](https://github.com/JasonShin/sqlx-ts#sqlx-ts-is-not-an-orm))
 - **TypeScript type generations** - generates type definitions based on the raw SQLs and you can use them with any MySQL or PostgreSQL driver
-- **Database Agnostic** - support for [PostgreSQL](http://postgresql.org/) and [MySQL](https://www.mysql.com/)
-- **TypeScript and JavaScript** - supports for both [TypeScript](https://www.typescriptlang.org/) and JavaScript
+- **Database Agnostic** - support for [PostgreSQL](http://postgresql.org/) and [MySQL](https://www.mysql.com/) (and more DB supports to come)
+- **TypeScript and JavaScript** - supports for both [TypeScript](https://jasonshin.github.io/sqlx-ts/reference-guide/4.typescript-types-generation.html) and [JavaScript](https://github.com/JasonShin/sqlx-ts#using-sqlx-ts-in-vanilla-javascript)
 
 <br>
 <div align="center">
@@ -152,6 +152,10 @@ but it comes with some implications
 - The amount of information that sqlx-ts retrieves depend on the type of the database (e.g. MySQL vs PostgreSQL)
 
 If you are looking for an ORM, you can checkout [Sequelize](https://sequelize.org/) or [Prisma](https://www.prisma.io/).
+
+### Using sqlx-ts in vanilla JavaScript
+
+If you are trying to use sqlx-ts against vanilla JS, the [TypeScript type-generation](https://jasonshin.github.io/sqlx-ts/reference-guide/4.typescript-types-generation.html) feature wouldn't be helpful. You can simply use [SQL Check](https://jasonshin.github.io/sqlx-ts/reference-guide/1.sql-check.html) feature to keep your SQLs in JS code safe and compile-time checked.
 
 ### Motivation
 
