@@ -174,17 +174,29 @@
  </strong>
 </div>
 <br />
-<div align="center">
-Built to free Node developers from ORMs' unpredictably generated SQL queries
-</div>
-<br />
-<p>SQLx-ts is a CLI application featuring compile-time checked queries without a DSL and prevents broken SQL queries being run during runtime.</p>
+<p>SQLx-ts is a CLI application featuring compile-time checked queries without a DSL and generates types against SQLs to keep your code type-safe</p>
 <ul>
-<li><strong>Compile time checked queries</strong> - never ship a broken SQL query to production</li>
+<li><strong>Compile time checked queries</strong> - never ship a broken SQL query to production (and <a href="https://github.com/JasonShin/sqlx-ts#sqlx-ts-is-not-an-orm">sqlx-ts is not an ORM</a>)</li>
 <li><strong>TypeScript type generations</strong> - generates type definitions based on the raw SQLs and you can use them with any MySQL or PostgreSQL driver</li>
-<li><strong>Database Agnostic</strong> - support for <a href="http://postgresql.org/">PostgreSQL</a> and <a href="https://www.mysql.com/">MySQL</a></li>
-<li><strong>TypeScript and JavaScript</strong> - supports for both <a href="https://www.typescriptlang.org/">TypeScript</a> and JavaScript</li>
+<li><strong>Database Agnostic</strong> - support for <a href="http://postgresql.org/">PostgreSQL</a> and <a href="https://www.mysql.com/">MySQL</a> (and more DB supports to come)</li>
+<li><strong>TypeScript and JavaScript</strong> - supports for both <a href="https://jasonshin.github.io/sqlx-ts/reference-guide/4.typescript-types-generation.html">TypeScript</a> and <a href="https://github.com/JasonShin/sqlx-ts#using-sqlx-ts-in-vanilla-javascript">JavaScript</a></li>
 </ul>
+<h3 id="sqlx-ts-is-not-an-orm"><a class="header" href="#sqlx-ts-is-not-an-orm">sqlx-ts is not an ORM!</a></h3>
+<p>sqlx-ts supports <strong>compile-time checked queries</strong> and <strong>generated types against SQLs</strong>. It does not, however, do this by providing DSL (domain-specific language) for building queries. Instead, it provides macros that take regular SQL as input and ensure that it is valid against the target database. The way it works is that sqlx-ts connects to your local or development database at compile-time and have database itself to verify the queries, also generate types based on information_schema. This can have many benefits that typical ORMs cannot provide</p>
+<ul>
+<li>Since sqlx-ts simply sends the queries back to the DB, almost any SQL syntax can be used in sqlx-ts (including things added by database extensions)</li>
+<li>You can easily optimize the queries as the SQLs are not built using a query-builder or an ORM interface</li>
+<li>The generated types work well with almost any database driver or even ORMs if they have good typescript support (that allows you to override input and output types)</li>
+</ul>
+<p>but it comes with some implications</p>
+<ul>
+<li>The amount of information that sqlx-ts retrieves depend on the type of the database (e.g. MySQL vs PostgreSQL)</li>
+</ul>
+<p>If you are looking for an ORM, you can checkout <a href="https://sequelize.org/">Sequelize</a> or <a href="https://www.prisma.io/">Prisma</a>.</p>
+<h3 id="using-sqlx-ts-in-vanilla-javascript"><a class="header" href="#using-sqlx-ts-in-vanilla-javascript">Using sqlx-ts in vanilla JavaScript</a></h3>
+<p>If you are trying to use sqlx-ts against vanilla JS, the <a href="https://jasonshin.github.io/sqlx-ts/reference-guide/4.typescript-types-generation.html">TypeScript type-generation</a> feature wouldn't be helpful. You can simply use <a href="https://jasonshin.github.io/sqlx-ts/reference-guide/1.sql-check.html">SQL Check</a> feature to keep your SQLs in JS code safe and compile-time checked.</p>
+<h3 id="motivation"><a class="header" href="#motivation">Motivation</a></h3>
+<p>I would like to bring the powerful compile-time safety ideas to Node.js. <a href="https://github.com/launchbadge/sqlx">sqlx</a> is a great example of this, as it provides compile-time check of SQLs within your Rust code and Rust itself provides a great environment for tools like sqlx. sqlx-ts is greatly inspired by <a href="https://github.com/launchbadge/sqlx">sqlx</a>, but solves additional problems of generating TypeScript interfaces based on the SQL queries that are present in your code.</p>
 <h1 id="documentation-philosophies"><a class="header" href="#documentation-philosophies">Documentation Philosophies</a></h1>
 <ul>
 <li>Starts with what readers need</li>
