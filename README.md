@@ -143,7 +143,7 @@ $ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | \
 
 ### sqlx-ts is not an ORM!
 
-sqlx-ts supports **compile-time checked queries** and **generated types against SQLs**. It does not, however, do this by providing DSL (domain-specific language) for building queries. Instead, it provides macros that take regular SQL as input and ensure that it is valid against the target database. The way it works is that sqlx-ts connects to your local or development database at compile-time and have database itself to verify the queries, also generate types based on information_schema. This can have many benefits that typical ORMs cannot provide
+sqlx-ts supports **compile-time checked queries** and **generated types against SQLs**. It does not, however, do this by providing DSL (domain-specific language) for building queries. Instead, it provides a macro (almost) that take regular SQL as input and ensures that it is valid against the target database. The way it works is that sqlx-ts connects to your local or development database at compile-time and have database itself to verify the queries, also generate types based on information_schema. This can have many benefits that typical ORMs cannot provide
 - Since sqlx-ts simply sends the queries back to the DB, almost any SQL syntax can be used in sqlx-ts (including things added by database extensions)
 - You can easily optimize the queries as the SQLs are not built using a query-builder or an ORM interface
 - The generated types work well with almost any database driver or even ORMs if they have good typescript support (that allows you to override input and output types)
