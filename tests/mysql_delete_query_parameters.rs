@@ -11,6 +11,14 @@ mod mysql_delete_query_parameters {
     use test_utils::test_utils::TSString;
     use test_utils::{run_test, sandbox::TestConfig};
 
+    run_test!(
+        blah_blah,
+        TestConfig::new("postgres"),
+        r#"
+agojasog
+"#,
+    );
+
     #[rustfmt::skip]
 run_test!(should_pick_query_params_from_binary_ops, TestConfig::new("mysql"),
 

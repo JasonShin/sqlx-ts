@@ -371,6 +371,7 @@ impl TsQuery {
                     .map(|ts_field_type| ts_field_type.to_string())
                     .collect::<Vec<String>>()
                     .join(" | ");
+                // if the type is an enum, process it as an enum
                 format!("{key}: {data_types};")
             })
             .collect();

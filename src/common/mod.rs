@@ -8,7 +8,7 @@ pub mod dotenv;
 pub mod lazy;
 pub mod types;
 
-// Source Parser
+/// Raw String SQL representation scrapped from the TS sources
 #[derive(Debug, Clone)]
 pub struct SQL {
     /// Note that not all sql`` statements belong to a variable expression, therefore we must store it as an option

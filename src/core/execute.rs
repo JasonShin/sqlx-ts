@@ -1,4 +1,4 @@
-use crate::common::lazy::{CLI_ARGS, CONFIG};
+use crate::common::lazy::{CLI_ARGS, CONFIG, DB_SCHEMA};
 use crate::common::types::DatabaseType;
 use crate::common::SQL;
 use crate::core::mysql::prepare as mysql_explain;
@@ -20,7 +20,12 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Resul
         .filter(|x| x.enabled)
         .is_some();
 
+    // if we are processing all queries into a single .queries.ts file
+    // generate enum at this point
+
     for (file_path, sqls) in queries {
+        // if we are processing into colocated .queries.ts
+        // generate enums at this point, we can simply generate all user defined enums here
         let mut sqls_to_write: Vec<String> = vec![];
         for sql in sqls {
             let connection = &CONFIG.get_correct_db_connection(&sql.query);

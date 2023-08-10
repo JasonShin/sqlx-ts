@@ -158,7 +158,7 @@ pub fn translate_expr(
             // TODO: We can also memoize this method
             if let Some(table_details) = table_details {
                 let field = table_details.get(&column_name).unwrap();
-
+                println!("checking field {:?}", field);
                 let field_name = alias.unwrap_or(column_name.as_str());
                 ts_query.insert_result(
                     Some(field_name),

@@ -1,4 +1,4 @@
-use crate::common::lazy::CONFIG;
+use crate::common::lazy::{CONFIG, DB_SCHEMA};
 use crate::common::SQL;
 use crate::ts_generator::generator::generate_ts_interface;
 use crate::ts_generator::types::db_conn::DBConn;
@@ -33,10 +33,11 @@ pub fn prepare(sql: &SQL, should_generate_types: &bool, handler: &Handler) -> Re
     let mut ts_query = None;
 
     if should_generate_types == &true {
-        ts_query = Some(generate_ts_interface(
-            sql,
-            &DBConn::MySQLPooledConn(&mut RefCell::new(&mut conn)),
-        )?);
+        let mysql_conn = &mut RefCell::new(&mut conn);
+        let mysql_conn = &DBConn::MySQLPooledConn(mysql_conn);
+        DB_SCHEMA.fetch_enums(connection_config.db_name.unwrap().as_str(), &mysql_conn);
+
+        ts_query = Some(generate_ts_interface(sql, &mysql_conn)?);
     }
 
     Ok((failed, ts_query))

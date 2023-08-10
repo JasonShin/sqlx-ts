@@ -24,12 +24,17 @@ CREATE TABLE postgres.public.items (
 -- A table of randomness, just to test various field types in PostgreSQL
 -- There is a pretty comprehensive list of data types available in Postgres
 -- found in https://www.geeksforgeeks.org/postgresql-data-types/ -> not the official Postgres doc
+CREATE TYPE FRUIT AS ENUM ('apple', 'banana', 'carrot');
+
 CREATE TABLE postgres.public.random (
 	-- Strings
 	char1 CHAR(2),
 	varchar1 VARCHAR(20),
 	tinyblob1 bytea,
 	text1 TEXT,
+
+    -- enumerated types
+    fruit FRUIT,
 
     -- Numeric
     smallint1 SMALLINT NULL,

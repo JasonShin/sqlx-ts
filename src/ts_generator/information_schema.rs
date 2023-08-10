@@ -4,6 +4,8 @@ use postgres;
 use std::cell::RefCell;
 use std::collections::HashMap;
 
+use crate::common::lazy::CONFIG;
+
 use super::types::db_conn::DBConn;
 use super::types::ts_query::TsFieldType;
 
@@ -11,9 +13,13 @@ use super::types::ts_query::TsFieldType;
 pub struct Field {
     pub field_type: TsFieldType,
     pub is_nullable: bool,
+    // if enum_name existing when processing FIELD, we should use enum_type instead of field_type
+    pub enum_type: Option<String>,
 }
 
 pub type Fields = HashMap<String, Field>;
+
+pub type Enums = HashMap<String, Vec<String>>;
 
 #[derive(Clone, PartialEq)]
 struct ColumnsQueryResultRow {
@@ -79,6 +85,11 @@ impl DBSchema {
                 let field = Field {
                     field_type: TsFieldType::get_ts_field_type_from_postgres_field_type(field_type.to_owned()),
                     is_nullable: is_nullable == "YES",
+                    enum_type: if field_type == "USER DEFINED" {
+                        Some(field_name.clone())
+                    } else {
+                        None
+                    },
                 };
                 fields.insert(field_name.to_owned(), field);
             }
@@ -119,11 +130,68 @@ impl DBSchema {
                 let field = Field {
                     field_type: TsFieldType::get_ts_field_type_from_mysql_field_type(field_type.to_owned()),
                     is_nullable: is_nullable == "YES",
+                    enum_type: if field_type == "enum" {
+                        Some(field_name.clone())
+                    } else {
+                        None
+                    },
                 };
                 fields.insert(field_name.to_owned(), field);
             }
 
             return Some(fields);
+        }
+
+        None
+    }
+
+    pub fn fetch_enums(&self, db_name: &str, conn: &DBConn) -> Option<i32> {
+        match &conn {
+            DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_enums(self, db_name, conn),
+            DBConn::PostgresConn(_) => None,
+        }
+    }
+
+    fn mysql_fetch_enums(&self, db_name: &str, conn: &RefCell<&mut mysql::Conn>) -> Option<i32> {
+        let query = format!(
+            r"
+SELECT col.column_name,
+       col.data_type,
+       trim(LEADING 'enum' FROM col.column_type) AS enum_values
+FROM information_schema.columns col
+JOIN information_schema.tables tab ON tab.table_schema = col.table_schema
+                                   AND tab.table_name = col.table_name
+                                   AND tab.table_type = 'BASE TABLE'
+WHERE col.data_type IN ('enum')
+      AND col.table_schema NOT IN ('information_schema', 'sys',
+                                   'performance_schema', 'mysql')
+     AND col.table_schema = '{}'
+ORDER BY col.table_schema,
+         col.table_name,
+         col.ordinal_position;
+        ",
+            db_name,
+        );
+        let result = conn.borrow_mut().query::<mysql::Row, String>(query);
+
+        if let Ok(rows) = result {
+            for row in &rows {
+                let data_type: String = row.clone().take(1).unwrap();
+                if data_type != "enum" {
+                    continue;
+                }
+
+                let column_name: String = row.clone().take(0).unwrap();
+                let enum_values: String = row.clone().take(2).unwrap();
+                let enum_values = enum_values
+                    // remove curly braces
+                    .replace("(", "")
+                    .replace(")", "")
+                    .split(",")
+                    .map(|x| x.replace("'", ""))
+                    .collect::<Vec<_>>();
+                println!("enum name and values {:?} : {:?}", column_name, enum_values);
+            }
         }
 
         None
