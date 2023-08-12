@@ -145,14 +145,14 @@ impl DBSchema {
         None
     }
 
-    pub fn fetch_enums(&self, db_name: &str, conn: &DBConn) -> Option<i32> {
+    pub fn fetch_enums(&self, db_name: &str, conn: &DBConn) -> Option<Enums> {
         match &conn {
             DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_enums(self, db_name, conn),
             DBConn::PostgresConn(_) => None,
         }
     }
 
-    fn mysql_fetch_enums(&self, db_name: &str, conn: &RefCell<&mut mysql::Conn>) -> Option<i32> {
+    fn mysql_fetch_enums(&self, db_name: &str, conn: &RefCell<&mut mysql::Conn>) -> Option<Enums> {
         let query = format!(
             r"
 SELECT col.column_name,
@@ -175,6 +175,8 @@ ORDER BY col.table_schema,
         let result = conn.borrow_mut().query::<mysql::Row, String>(query);
 
         if let Ok(rows) = result {
+            let mut enums_result: Enums = HashMap::new();
+
             for row in &rows {
                 let data_type: String = row.clone().take(1).unwrap();
                 if data_type != "enum" {
@@ -191,7 +193,10 @@ ORDER BY col.table_schema,
                     .map(|x| x.replace("'", ""))
                     .collect::<Vec<_>>();
                 println!("enum name and values {:?} : {:?}", column_name, enum_values);
+                enums_result.insert(column_name, enum_values);
             }
+
+            return Some(enums_result.clone());
         }
 
         None

@@ -22,6 +22,7 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Resul
 
     // if we are processing all queries into a single .queries.ts file
     // generate enum at this point
+    println!("checking all configs {:?}", &CONFIG.connections);
 
     for (file_path, sqls) in queries {
         // if we are processing into colocated .queries.ts

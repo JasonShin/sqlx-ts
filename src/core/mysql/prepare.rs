@@ -35,7 +35,8 @@ pub fn prepare(sql: &SQL, should_generate_types: &bool, handler: &Handler) -> Re
     if should_generate_types == &true {
         let mysql_conn = &mut RefCell::new(&mut conn);
         let mysql_conn = &DBConn::MySQLPooledConn(mysql_conn);
-        DB_SCHEMA.fetch_enums(connection_config.db_name.unwrap().as_str(), &mysql_conn);
+        let found_enums = DB_SCHEMA.fetch_enums(connection_config.db_name.unwrap().as_str(), &mysql_conn);
+        println!("checking found enums {:?}", found_enums);
 
         ts_query = Some(generate_ts_interface(sql, &mysql_conn)?);
     }
