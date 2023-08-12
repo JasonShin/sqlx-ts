@@ -136,6 +136,13 @@ fn recurse_and_find_sql(mut sqls: &mut Vec<SQL>, stmt: &Stmt, import_alias: &Str
                                 get_sql_from_expr(&mut sqls, &None, &expr.clone(), &span, import_alias);
                             }
                         }
+                        ClassMember::AutoAccessor(auto_accessor) => {
+                            let value = &auto_accessor.value;
+                            if let Some(expr) = &value {
+                                let span: MultiSpan = auto_accessor.span.into();
+                                get_sql_from_expr(&mut sqls, &None, expr, &span, import_alias);
+                            }
+                        }
                         ClassMember::TsIndexSignature(_) => {}
                         ClassMember::Empty(_) => {}
                     }
@@ -180,6 +187,15 @@ fn recurse_and_find_sql(mut sqls: &mut Vec<SQL>, stmt: &Stmt, import_alias: &Str
                                 recurse_and_find_sql(&mut sqls, stmt, import_alias)?;
                             }
                         }
+                    }
+                }
+            }
+            Decl::Using(using) => {
+                for decl in &using.decls {
+                    let init = &decl.init;
+                    if let Some(expr) = init {
+                        let span: &MultiSpan = &using.span.into();
+                        get_sql_from_expr(sqls, &None, expr, span, import_alias);
                     }
                 }
             }

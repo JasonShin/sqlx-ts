@@ -227,6 +227,12 @@ pub fn get_sql_from_expr<'a>(
                         let body = &static_block.body;
                         process_block_stmt_as_expr(&Some(body.clone()), sqls, var_decl_name, span, import_alias)
                     }
+                    ClassMember::AutoAccessor(auto_accessor) => {
+                        let value = &auto_accessor.value;
+                        if let Some(expr) = &value {
+                            get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias)
+                        }
+                    }
                 }
             }
         }
@@ -255,8 +261,9 @@ pub fn get_sql_from_expr<'a>(
         Expr::TsAs(_) => {}
         Expr::TsInstantiation(_) => {}
         Expr::PrivateName(_) => {}
-        Expr::OptChain(opt_chain) => {}
+        Expr::OptChain(_) => {}
         Expr::Invalid(_) => {}
+        Expr::TsSatisfies(_) => {}
     }
 }
 
