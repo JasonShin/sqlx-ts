@@ -312,7 +312,6 @@ function *yieldMethod() {
 
 })();
 
-
 // AutoAccessor
 class AutoAccessorTest {
   accessor autoAccessorProp: string = sql`
