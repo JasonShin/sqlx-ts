@@ -13,7 +13,7 @@ use swc_common::{
     sync::Lrc,
     FileName, MultiSpan, SourceMap,
 };
-use swc_ecma_ast::{ClassMember, Decl, ModuleDecl, ModuleItem, Stmt};
+use swc_ecma_ast::{ClassMember, Decl, Key, ModuleDecl, ModuleItem, Stmt};
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 use tag::{get_sql_from_expr, get_sql_from_var_decl};
 
@@ -24,6 +24,19 @@ fn insert_or_append_sqls(sqls_container: &mut HashMap<PathBuf, Vec<SQL>>, sqls: 
         sqls_container.insert(file_path.clone(), (*value.to_owned()).to_owned());
     } else {
         sqls_container.insert(file_path.clone(), sqls.clone());
+    }
+}
+
+fn get_var_decl_name_from_key(key: &Key) -> Option<String> {
+    match &key {
+        swc_ecma_ast::Key::Private(private) => Some(private.id.sym.to_string()),
+        swc_ecma_ast::Key::Public(public) => match &public {
+            swc_ecma_ast::PropName::Ident(ident) => Some(ident.sym.to_string()),
+            swc_ecma_ast::PropName::Str(val) => Some(val.value.to_string()),
+            swc_ecma_ast::PropName::Num(_) => None,
+            swc_ecma_ast::PropName::Computed(_) => None,
+            swc_ecma_ast::PropName::BigInt(_) => None,
+        },
     }
 }
 
@@ -138,9 +151,12 @@ fn recurse_and_find_sql(mut sqls: &mut Vec<SQL>, stmt: &Stmt, import_alias: &Str
                         }
                         ClassMember::AutoAccessor(auto_accessor) => {
                             let value = &auto_accessor.value;
+                            let key = &auto_accessor.key;
+
                             if let Some(expr) = &value {
                                 let span: MultiSpan = auto_accessor.span.into();
-                                get_sql_from_expr(&mut sqls, &None, expr, &span, import_alias);
+                                let var_decl_name = get_var_decl_name_from_key(&key);
+                                get_sql_from_expr(&mut sqls, &var_decl_name, expr, &span, import_alias);
                             }
                         }
                         ClassMember::TsIndexSignature(_) => {}

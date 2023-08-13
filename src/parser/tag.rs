@@ -229,6 +229,7 @@ pub fn get_sql_from_expr<'a>(
                     }
                     ClassMember::AutoAccessor(auto_accessor) => {
                         let value = &auto_accessor.value;
+                        println!("checking auto accessor {:#?}", auto_accessor.key);
                         if let Some(expr) = &value {
                             get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias)
                         }

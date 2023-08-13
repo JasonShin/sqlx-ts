@@ -843,3 +843,23 @@ export interface ITestInsertQuery {
     result: ITestInsertResult;
 };
 
+
+
+
+export type AutoAccessorPropParams = [];
+
+
+export interface IAutoAccessorPropResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface IAutoAccessorPropQuery {
+    params: AutoAccessorPropParams;
+    result: IAutoAccessorPropResult;
+};
+

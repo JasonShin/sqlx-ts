@@ -311,3 +311,11 @@ function *yieldMethod() {
   connection.destroy()
 
 })();
+
+
+// AutoAccessor
+class AutoAccessorTest {
+  accessor autoAccessorProp: string = sql`
+  SELECT * FROM items;
+  `
+}
