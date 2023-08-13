@@ -2,7 +2,7 @@ use crate::common::SQL;
 use swc_common::MultiSpan;
 use swc_ecma_ast::{BlockStmt, ClassMember, Expr, Pat, Prop, PropOrSpread, SuperProp, VarDeclarator};
 
-use super::recurse_and_find_sql;
+use super::{get_var_decl_name_from_key, recurse_and_find_sql};
 
 /// The method process block statement as expression
 /// It receives a block statement object from Class expression
@@ -227,6 +227,15 @@ pub fn get_sql_from_expr<'a>(
                         let body = &static_block.body;
                         process_block_stmt_as_expr(&Some(body.clone()), sqls, var_decl_name, span, import_alias)
                     }
+                    ClassMember::AutoAccessor(auto_accessor) => {
+                        let value = &auto_accessor.value;
+                        let key = &auto_accessor.key;
+
+                        if let Some(expr) = &value {
+                            let var_decl_name = &get_var_decl_name_from_key(&key);
+                            get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias)
+                        }
+                    }
                 }
             }
         }
@@ -255,8 +264,9 @@ pub fn get_sql_from_expr<'a>(
         Expr::TsAs(_) => {}
         Expr::TsInstantiation(_) => {}
         Expr::PrivateName(_) => {}
-        Expr::OptChain(opt_chain) => {}
+        Expr::OptChain(_) => {}
         Expr::Invalid(_) => {}
+        Expr::TsSatisfies(_) => {}
     }
 }
 

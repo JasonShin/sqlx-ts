@@ -311,3 +311,23 @@ function *yieldMethod() {
   connection.destroy()
 
 })();
+
+// AutoAccessor
+class AutoAccessorTest {
+  accessor autoAccessorProp: string = sql`
+  SELECT * FROM items;
+  `
+}
+
+
+const getResource = () => ({
+  [Symbol.asyncDispose]: async () => {
+    const testAsyncUsing = sql`
+    SELECT * FROM items;
+    `
+  },
+});
+
+{
+  await using resource = getResource();
+}
