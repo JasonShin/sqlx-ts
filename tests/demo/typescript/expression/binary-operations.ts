@@ -47,3 +47,13 @@ SELECT id FROM items;
 -- @name: equal equal equal
 SELECT id FROM items;
 `
+
+1 !== sql`
+-- @name: not equal equal
+SELECT id FROM items;
+`
+
+1 != sql`
+-- @name: not equal
+SELECT id FROM items;
+`

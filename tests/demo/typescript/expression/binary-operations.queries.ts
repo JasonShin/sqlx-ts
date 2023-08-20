@@ -141,3 +141,35 @@ export interface IEqualEqualEqualQuery {
     result: IEqualEqualEqualResult;
 };
 
+
+
+
+export type NotEqualEqualParams = [];
+
+
+export interface INotEqualEqualResult {
+    id: number;
+};
+
+
+export interface INotEqualEqualQuery {
+    params: NotEqualEqualParams;
+    result: INotEqualEqualResult;
+};
+
+
+
+
+export type NotEqualParams = [];
+
+
+export interface INotEqualResult {
+    id: number;
+};
+
+
+export interface INotEqualQuery {
+    params: NotEqualParams;
+    result: INotEqualResult;
+};
+
