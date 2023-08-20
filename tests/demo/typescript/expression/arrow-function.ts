@@ -14,4 +14,5 @@ SELECT id FROM items
 `
 }
 
+// TODO: this one isn't generating types / skips the query checker
 const arrowFunctionDefaultArgument = (x = sql`SELECT * FROM items`) => null
