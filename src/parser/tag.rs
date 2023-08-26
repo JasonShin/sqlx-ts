@@ -142,8 +142,13 @@ pub fn get_sql_from_expr<'a>(
             get_sql_from_expr(sqls, var_decl_name, right, span, import_alias);
         }
         Expr::Assign(assign) => {
-            let expr = &assign.right;
-            return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+            let right_expr = &assign.right;
+            get_sql_from_expr(sqls, var_decl_name, right_expr, span, import_alias);
+            
+            let left_expr = &assign.left;
+            left_expr.as_expr().map(|expr| {
+                get_sql_from_expr(sqls, var_decl_name, &expr, span, import_alias)
+            });
         }
         Expr::Member(member) => {
             let obj = &member.obj;
@@ -159,7 +164,14 @@ pub fn get_sql_from_expr<'a>(
                 }
             }
         }
-        Expr::Cond(_) => {}
+        Expr::Cond(cond) => {
+            let test = &cond.test;
+            let cons = &cond.cons;
+            let alt = &cond.alt;
+            get_sql_from_expr(sqls, var_decl_name, test, span, import_alias);
+            get_sql_from_expr(sqls, var_decl_name, cons, span, import_alias);
+            get_sql_from_expr(sqls, var_decl_name, alt, span, import_alias);
+        }
         Expr::New(expr) => {
             let args = &expr.args;
             let expr = &expr.callee;
