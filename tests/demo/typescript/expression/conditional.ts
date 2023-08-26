@@ -9,4 +9,3 @@ SELECT id FROM items
 -- @name: falsy
 SELECT id FROM items
 `
-

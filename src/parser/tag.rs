@@ -161,8 +161,15 @@ pub fn get_sql_from_expr<'a>(
         }
         Expr::Cond(_) => {}
         Expr::New(expr) => {
+            let args = &expr.args;
             let expr = &expr.callee;
-            return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+            if let Some(args) = &args {
+                for arg in args {
+                    get_sql_from_expr(sqls, var_decl_name, &arg.expr, span, import_alias);
+                }
+            }
+
+            get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
         }
         Expr::Seq(seq) => {
             let exprs = &seq.exprs;
