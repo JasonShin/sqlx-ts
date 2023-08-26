@@ -17,51 +17,9 @@ SELECT * FROM items
 // expressions //
 /////////////////
 
-const query0 = sql`
-SELECT id, points
-FROM items;
-`;
-
-const queryCompount = sql`
-SELECT items.id, tables.id
-FROM items
-JOIN tables ON items.table_id = tables.id;
-`;
-
-const query1 = sql`SELECT * FROM items;`;
-// variable de
-const query2 = sql`
-   SELECT * FROM items;
-`;
-
-///////////////
-// functions //
-///////////////
-function test() {
-  const query3 = sql`
-        SELECT * FROM items;
-    `;
-
-  return sql`
-    -- @name: testQuery
-    INSERT INTO
-    items (food_type, time_takes_to_cook, table_id, points)
-    VALUES ('steak', 1, 1, 20);
-    `;
-}
-
 ///////////////////
 // If statements //
 ///////////////////
-if (true) {
-  const query3 = sql`SELECT * FROM items;`;
-}
-
-function testIfStatement() {
-  if (true) {
-    const query3 = sql`SELECT * FROM items;`;
-  }
-}
 
 //////////////////////
 // Switch Statement //
