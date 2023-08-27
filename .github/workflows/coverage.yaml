@@ -1,16 +1,14 @@
-name: test
+name: coverage
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  schedule:
+    - cron: '0 1 * * *'
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  coverage:
     runs-on: ubuntu-latest
 
     steps:
@@ -34,5 +32,8 @@ jobs:
       - name: Check the docker-compose services running
         run: docker ps -a
 
-      - name: Run tests
-        run: cargo test
+      - name: Install tarpaulin
+        run: cargo install cargo-tarpaulin
+
+      - name: Run coverage
+        run: cargo tarpaulin --tests -o html -b --coveralls ${{ secrets.COVERALLS_KEY }} --engine Llvm
