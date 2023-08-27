@@ -23,7 +23,7 @@ jobs:
             node-version: "lts/fermium"
 
         - name: install dependencies
-          run: npm install
+          run: npm install --ignore-scripts
 
         - name: lint
           run: npm run lint
