@@ -9,19 +9,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [ 14, 15, 16, 17, 18, 19, 20 ]
     defaults:
       run:
         working-directory: ./node
     steps:
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v3
 
         - name: Use Node.js
-          uses: actions/setup-node@v2
+          uses: actions/setup-node@v3
           with:
-            node-version: "lts/fermium"
+            node-version: ${{ matrix.node }}
 
         - name: install dependencies
-          run: npm install --ignore-scripts
+          run: npm ci --ignore-scripts
 
         - name: lint
           run: npm run lint
