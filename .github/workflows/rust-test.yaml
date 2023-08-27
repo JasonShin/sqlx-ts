@@ -1,4 +1,4 @@
-name: test
+name: rust test
 
 on:
   push:
@@ -23,6 +23,17 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
+
+      - run: rustup toolchain install stable --profile minimal
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          # To only cache runs from `master`:
+          save-if: ${{ github.ref == 'refs/heads/master' }}
+          # Specifies what to use as the backend providing cache
+          # Can be set to either "github" or "buildjet"
+          # default: "github"
+          cache-provider: "github"
 
       - name: build docker-compose services for integration tests
         run: docker-compose -f docker-compose.yml up -d
