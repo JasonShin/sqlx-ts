@@ -3,6 +3,26 @@ use crate::{
     ts_generator::types::ts_query::TsFieldType,
 };
 use sqlparser::ast::DataType;
+use sqlparser::ast::Value;
+
+pub fn translate_value(value: &Value) -> TsFieldType {
+    match &value {
+        Value::Number(_, _) => TsFieldType::Number,
+        Value::SingleQuotedString(_) => TsFieldType::String,
+        Value::DollarQuotedString(_) => TsFieldType::String,
+        Value::EscapedStringLiteral(_) => TsFieldType::String,
+        Value::SingleQuotedByteStringLiteral(_) => TsFieldType::String,
+        Value::DoubleQuotedByteStringLiteral(_) => TsFieldType::String,
+        Value::RawStringLiteral(_) => TsFieldType::String,
+        Value::NationalStringLiteral(_) => TsFieldType::String,
+        Value::HexStringLiteral(_) => TsFieldType::String,
+        Value::DoubleQuotedString(_) => TsFieldType::String,
+        Value::Boolean(_) => TsFieldType::Boolean,
+        Value::Null => TsFieldType::Null,
+        Value::Placeholder(_) => TsFieldType::Any,
+        Value::UnQuotedString(_) => TsFieldType::String,
+    }
+}
 
 pub fn translate_data_type(data_type: &DataType) -> TsFieldType {
     match &data_type {

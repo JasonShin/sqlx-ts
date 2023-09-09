@@ -202,7 +202,14 @@ pub fn get_sql_from_expr<'a>(
             process_block_stmt_as_expr(&block_stmt, sqls, var_decl_name, span, import_alias);
 
             if let Some(expr) = expr {
-                return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+                get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+            }
+
+            for param in &arrow.params {
+                let param = param.as_expr();
+                if let Some(expr) = &param {
+                    get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+                }
             }
         }
         Expr::Class(class) => {

@@ -1,5 +1,6 @@
 use crate::common::lazy::{CONFIG, DB_SCHEMA};
 use crate::ts_generator::errors::TsGeneratorError;
+use crate::ts_generator::sql_parser::expressions::translate_data_type::translate_value;
 use crate::ts_generator::sql_parser::expressions::translate_table_with_joins::translate_table_from_expr;
 use crate::ts_generator::sql_parser::expressions::{
     functions::is_string_function, translate_data_type::translate_data_type,
@@ -298,7 +299,14 @@ pub fn translate_expr(
             db_conn,
             is_selection,
         ),
-        Expr::Value(placeholder) => ts_query.insert_param(&TsFieldType::Boolean, &Some(placeholder.to_string())),
+        Expr::Value(placeholder) => {
+            if placeholder.to_string() == "?" {
+                ts_query.insert_param(&TsFieldType::Boolean, &Some("?".to_string()))
+            } else {
+                let ts_field_type = translate_value(&placeholder);
+                ts_query.insert_result(alias, &[ts_field_type], is_selection, expr_for_logging)
+            }
+        },
         Expr::JsonAccess {
             left: _,
             operator: _,
