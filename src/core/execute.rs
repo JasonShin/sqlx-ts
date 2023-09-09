@@ -12,7 +12,6 @@ use std::path::PathBuf;
 use swc_common::errors::Handler;
 
 pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Result<bool> {
-    // TODO: later we will add mysql_explain, sqlite_explain depending on the database type
     let mut failed = false;
     let should_generate_types = &CONFIG
         .generate_types_config

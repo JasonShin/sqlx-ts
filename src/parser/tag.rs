@@ -114,7 +114,6 @@ pub fn get_sql_from_expr<'a>(
                             let body = &getter.body;
                             process_block_stmt_as_expr(body, sqls, var_decl_name, span, import_alias);
                         }
-                        // TODO: add test
                         Prop::Setter(setter) => {
                             let body = &setter.body;
                             process_block_stmt_as_expr(body, sqls, var_decl_name, span, import_alias);
