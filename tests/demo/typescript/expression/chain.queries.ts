@@ -13,3 +13,19 @@ export interface IParentChildQuery {
     result: IParentChildResult;
 };
 
+
+
+
+export type OptionalParentChildParams = [];
+
+
+export interface IOptionalParentChildResult {
+    id: number;
+};
+
+
+export interface IOptionalParentChildQuery {
+    params: OptionalParentChildParams;
+    result: IOptionalParentChildResult;
+};
+
