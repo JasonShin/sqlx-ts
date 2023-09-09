@@ -1,6 +1,6 @@
 use crate::common::SQL;
 use swc_common::MultiSpan;
-use swc_ecma_ast::{BlockStmt, ClassMember, Expr, Pat, Prop, PropOrSpread, SuperProp, VarDeclarator};
+use swc_ecma_ast::{BlockStmt, ClassMember, Expr, OptChainBase, Pat, Prop, PropOrSpread, SuperProp, VarDeclarator};
 
 use super::{get_var_decl_name_from_key, recurse_and_find_sql};
 
@@ -295,6 +295,25 @@ pub fn get_sql_from_expr<'a>(
             let expr = &paren.expr;
             return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
         }
+        Expr::OptChain(opt_chain) => {
+            let expr = &*opt_chain.base;
+            match &expr {
+                OptChainBase::Member(member) => {
+                    let obj = &member.obj;
+                    get_sql_from_expr(sqls, var_decl_name, obj, span, import_alias);
+                }
+                OptChainBase::Call(call) => {
+                    let expr = &call.callee;
+                    get_sql_from_expr(sqls, var_decl_name, &expr, span, import_alias);
+
+                    let args = &call.args;
+                    for arg in args.iter() {
+                        let expr = &arg.expr;
+                        get_sql_from_expr(sqls, var_decl_name, &expr, span, import_alias);
+                    }
+                }
+            }
+        }
         Expr::JSXMember(_) => {}
         Expr::JSXNamespacedName(_) => {}
         Expr::JSXEmpty(_) => {}
@@ -305,7 +324,6 @@ pub fn get_sql_from_expr<'a>(
         Expr::TsAs(_) => {}
         Expr::TsInstantiation(_) => {}
         Expr::PrivateName(_) => {}
-        Expr::OptChain(_) => {}
         Expr::Invalid(_) => {}
         Expr::TsSatisfies(_) => {}
     }
