@@ -192,8 +192,22 @@ pub fn get_sql_from_expr<'a>(
         Expr::Ident(ident) => {}
         Expr::Lit(lit) => {}
         Expr::Tpl(tpl) => {
+            let new_sqls: Vec<SQL> = tpl
+                .quasis
+                .iter()
+                .map(|tpl_element| SQL {
+                    var_decl_name: var_decl_name.to_owned(),
+                    query: tpl_element.raw.to_string(),
+                    span: span.clone(),
+                })
+                .collect();
+
+            if !new_sqls.is_empty() {
+                sqls.extend(new_sqls);
+            }
+
             for expr in &tpl.exprs {
-                get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias)
+                get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
             }
         }
         Expr::Arrow(arrow) => {

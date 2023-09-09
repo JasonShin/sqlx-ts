@@ -182,12 +182,13 @@ fn recurse_and_find_sql(mut sqls: &mut Vec<SQL>, stmt: &Stmt, import_alias: &Str
                     if num_new_sqls > 0 {
                         continue;
                     }
-
+                    // Try to retrieve name of the variable
+                    let name = var_decl.name.as_ident().map(|ident| ident.sym.to_string());
                     // this is when the variable name is not found due to syntax like
                     // const [rows, i] = await connection.execute....
                     if let Some(init) = &var_decl.init {
                         let expr = *init.clone();
-                        get_sql_from_expr(&mut sqls, &None, &expr, &span, import_alias);
+                        get_sql_from_expr(&mut sqls, &name, &expr, &span, import_alias);
                     }
                 }
             }
