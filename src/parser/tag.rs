@@ -21,7 +21,8 @@ pub fn process_block_stmt_as_expr(
                 let expr = &expr.expr;
                 get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
             } else {
-                recurse_and_find_sql(sqls, stmt, import_alias);
+                // TODO: we should be using `?` and return Results
+                recurse_and_find_sql(sqls, stmt, import_alias).unwrap();
             }
         }
     }

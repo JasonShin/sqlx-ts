@@ -164,7 +164,7 @@ const obj = {
 
 const tpl = `${sql`
 -- @name: tplQuery
-SELECT * FROM items
+SELECT id FROM items
 `}`
 
 const arrow = () => sql`

@@ -176,6 +176,7 @@ fn recurse_and_find_sql(mut sqls: &mut Vec<SQL>, stmt: &Stmt, import_alias: &Str
                     let span: MultiSpan = var.span.into();
                     let new_sqls = get_sql_from_var_decl(var_decl, &span, import_alias);
                     let num_new_sqls = new_sqls.len();
+
                     sqls.extend(new_sqls);
 
                     // We've already found the sqls based on the variable name, we should skip processing further
@@ -278,7 +279,10 @@ pub fn parse_source(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Handl
         match item {
             ModuleItem::Stmt(stmt) => {
                 let mut sqls = vec![];
-                recurse_and_find_sql(&mut sqls, stmt, &import_alias).unwrap();
+                recurse_and_find_sql(&mut sqls, stmt, &import_alias)?;
+                // This is to prevent any emptry string queries being inserted into sqls_map
+                // which will be used to run `PREPARE` step and SQL parser logic
+                let sqls: Vec<SQL> = sqls.into_iter().filter(|sql| !sql.query.is_empty()).collect();
                 insert_or_append_sqls(&mut sqls_map, &sqls, path);
             }
             _ => {}
