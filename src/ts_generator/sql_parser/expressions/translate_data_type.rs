@@ -5,22 +5,22 @@ use crate::{
 use sqlparser::ast::DataType;
 use sqlparser::ast::Value;
 
-pub fn translate_value(value: &Value) -> TsFieldType {
+pub fn translate_value(value: &Value) -> Option<TsFieldType> {
     match &value {
-        Value::Number(_, _) => TsFieldType::Number,
-        Value::SingleQuotedString(_) => TsFieldType::String,
-        Value::DollarQuotedString(_) => TsFieldType::String,
-        Value::EscapedStringLiteral(_) => TsFieldType::String,
-        Value::SingleQuotedByteStringLiteral(_) => TsFieldType::String,
-        Value::DoubleQuotedByteStringLiteral(_) => TsFieldType::String,
-        Value::RawStringLiteral(_) => TsFieldType::String,
-        Value::NationalStringLiteral(_) => TsFieldType::String,
-        Value::HexStringLiteral(_) => TsFieldType::String,
-        Value::DoubleQuotedString(_) => TsFieldType::String,
-        Value::Boolean(_) => TsFieldType::Boolean,
-        Value::Null => TsFieldType::Null,
-        Value::Placeholder(_) => TsFieldType::Any,
-        Value::UnQuotedString(_) => TsFieldType::String,
+        Value::Number(_, _) => Some(TsFieldType::Number),
+        Value::SingleQuotedString(_) => Some(TsFieldType::String),
+        Value::DollarQuotedString(_) => Some(TsFieldType::String),
+        Value::EscapedStringLiteral(_) => Some(TsFieldType::String),
+        Value::SingleQuotedByteStringLiteral(_) => Some(TsFieldType::String),
+        Value::DoubleQuotedByteStringLiteral(_) => Some(TsFieldType::String),
+        Value::RawStringLiteral(_) => Some(TsFieldType::String),
+        Value::NationalStringLiteral(_) => Some(TsFieldType::String),
+        Value::HexStringLiteral(_) => Some(TsFieldType::String),
+        Value::DoubleQuotedString(_) => Some(TsFieldType::String),
+        Value::Boolean(_) => Some(TsFieldType::Boolean),
+        Value::Null => Some(TsFieldType::Null),
+        Value::UnQuotedString(_) => Some(TsFieldType::String),
+        Value::Placeholder(_) => None,
     }
 }
 

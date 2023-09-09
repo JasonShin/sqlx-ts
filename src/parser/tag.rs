@@ -144,11 +144,11 @@ pub fn get_sql_from_expr<'a>(
         Expr::Assign(assign) => {
             let right_expr = &assign.right;
             get_sql_from_expr(sqls, var_decl_name, right_expr, span, import_alias);
-            
+
             let left_expr = &assign.left;
-            left_expr.as_expr().map(|expr| {
-                get_sql_from_expr(sqls, var_decl_name, &expr, span, import_alias)
-            });
+            left_expr
+                .as_expr()
+                .map(|expr| get_sql_from_expr(sqls, var_decl_name, &expr, span, import_alias));
         }
         Expr::Member(member) => {
             let obj = &member.obj;

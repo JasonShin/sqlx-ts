@@ -300,13 +300,13 @@ pub fn translate_expr(
             is_selection,
         ),
         Expr::Value(placeholder) => {
-            if placeholder.to_string() == "?" {
-                ts_query.insert_param(&TsFieldType::Boolean, &Some("?".to_string()))
-            } else {
-                let ts_field_type = translate_value(&placeholder);
-                ts_query.insert_result(alias, &[ts_field_type], is_selection, expr_for_logging)
+            let ts_field_type = translate_value(&placeholder);
+
+            if let Some(ts_field_type) = ts_field_type {
+                return ts_query.insert_result(alias, &[ts_field_type], is_selection, expr_for_logging);
             }
-        },
+            ts_query.insert_param(&TsFieldType::Boolean, &Some(placeholder.to_string()))
+        }
         Expr::JsonAccess {
             left: _,
             operator: _,

@@ -13,3 +13,4 @@ export interface ITry2Query {
     result: ITry2Result;
 };
 
+
