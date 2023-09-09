@@ -400,6 +400,38 @@ export interface INestedTestObjectQueryQuery {
 
 
 
+export type TplParams = [];
+
+
+export interface ITplResult {
+    
+};
+
+
+export interface ITplQuery {
+    params: TplParams;
+    result: ITplResult;
+};
+
+
+
+
+export type TplParams = [];
+
+
+export interface ITplResult {
+    
+};
+
+
+export interface ITplQuery {
+    params: TplParams;
+    result: ITplResult;
+};
+
+
+
+
 export type TplQueryParams = [];
 
 
