@@ -404,11 +404,7 @@ export type TplQueryParams = [];
 
 
 export interface ITplQueryResult {
-    food_type: string;
-	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+    id: number;
 };
 
 

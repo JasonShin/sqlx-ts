@@ -400,47 +400,11 @@ export interface INestedTestObjectQueryQuery {
 
 
 
-export type TplParams = [];
-
-
-export interface ITplResult {
-    
-};
-
-
-export interface ITplQuery {
-    params: TplParams;
-    result: ITplResult;
-};
-
-
-
-
-export type TplParams = [];
-
-
-export interface ITplResult {
-    
-};
-
-
-export interface ITplQuery {
-    params: TplParams;
-    result: ITplResult;
-};
-
-
-
-
 export type TplQueryParams = [];
 
 
 export interface ITplQueryResult {
-    food_type: string;
-	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+    id: number;
 };
 
 
