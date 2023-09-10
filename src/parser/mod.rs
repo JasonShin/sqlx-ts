@@ -176,18 +176,20 @@ fn recurse_and_find_sql(mut sqls: &mut Vec<SQL>, stmt: &Stmt, import_alias: &Str
                     let span: MultiSpan = var.span.into();
                     let new_sqls = get_sql_from_var_decl(var_decl, &span, import_alias);
                     let num_new_sqls = new_sqls.len();
+
                     sqls.extend(new_sqls);
 
                     // We've already found the sqls based on the variable name, we should skip processing further
                     if num_new_sqls > 0 {
                         continue;
                     }
-
+                    // Try to retrieve name of the variable
+                    let name = var_decl.name.as_ident().map(|ident| ident.sym.to_string());
                     // this is when the variable name is not found due to syntax like
                     // const [rows, i] = await connection.execute....
                     if let Some(init) = &var_decl.init {
                         let expr = *init.clone();
-                        get_sql_from_expr(&mut sqls, &None, &expr, &span, import_alias);
+                        get_sql_from_expr(&mut sqls, &name, &expr, &span, import_alias);
                     }
                 }
             }
@@ -277,7 +279,10 @@ pub fn parse_source(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Handl
         match item {
             ModuleItem::Stmt(stmt) => {
                 let mut sqls = vec![];
-                recurse_and_find_sql(&mut sqls, stmt, &import_alias).unwrap();
+                recurse_and_find_sql(&mut sqls, stmt, &import_alias)?;
+                // This is to prevent any emptry string queries being inserted into sqls_map
+                // which will be used to run `PREPARE` step and SQL parser logic
+                let sqls: Vec<SQL> = sqls.into_iter().filter(|sql| !sql.query.is_empty()).collect();
                 insert_or_append_sqls(&mut sqls_map, &sqls, path);
             }
             _ => {}
