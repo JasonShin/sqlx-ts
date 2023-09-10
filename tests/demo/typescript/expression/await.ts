@@ -11,7 +11,6 @@ const asyncLambdaAwaited = async () => await sql`SELECT id FROM items`
 
 const asyncLambda = async () => sql`SELECT id FROM items`
 
-// TODO: iif function is not working
 (async function () {
     const iifFunction = sql`SELECT id FROM items;`
 })()

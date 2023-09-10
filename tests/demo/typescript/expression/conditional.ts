@@ -1,6 +1,5 @@
 import { sql } from 'sqlx-ts'
 
-// TODO: the following syntax is not working
 // @ts-ignore
 testData = true === 1 ? sql`
 -- @name: truthy
