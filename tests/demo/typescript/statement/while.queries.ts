@@ -13,3 +13,19 @@ export interface IWhileSqlQuery {
     result: IWhileSqlResult;
 };
 
+
+
+
+export type QueryParams = [];
+
+
+export interface IQueryResult {
+    id: number;
+};
+
+
+export interface IQueryQuery {
+    params: QueryParams;
+    result: IQueryResult;
+};
+

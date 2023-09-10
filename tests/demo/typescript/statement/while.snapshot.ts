@@ -14,3 +14,19 @@ export interface IWhileSqlQuery {
 };
 
 
+
+
+export type QueryParams = [];
+
+
+export interface IQueryResult {
+    id: number;
+};
+
+
+export interface IQueryQuery {
+    params: QueryParams;
+    result: IQueryResult;
+};
+
+

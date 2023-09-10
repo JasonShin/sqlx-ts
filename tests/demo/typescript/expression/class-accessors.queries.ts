@@ -77,3 +77,87 @@ export interface IPublicMethodQueryQuery {
     result: IPublicMethodQueryResult;
 };
 
+
+
+
+export type TestClassPropertyQueryParams = [];
+
+
+export interface ITestClassPropertyQueryResult {
+    id: number;
+};
+
+
+export interface ITestClassPropertyQueryQuery {
+    params: TestClassPropertyQueryParams;
+    result: ITestClassPropertyQueryResult;
+};
+
+
+
+
+export type TestClassConstructorQueryParams = [];
+
+
+export interface ITestClassConstructorQueryResult {
+    id: number;
+};
+
+
+export interface ITestClassConstructorQueryQuery {
+    params: TestClassConstructorQueryParams;
+    result: ITestClassConstructorQueryResult;
+};
+
+
+
+
+export type TestClassMethodQueryParams = [];
+
+
+export interface ITestClassMethodQueryResult {
+    id: number;
+};
+
+
+export interface ITestClassMethodQueryQuery {
+    params: TestClassMethodQueryParams;
+    result: ITestClassMethodQueryResult;
+};
+
+
+
+
+export type TestChildClassConstructorQueryParams = [];
+
+
+export interface ITestChildClassConstructorQueryResult {
+    id: number;
+};
+
+
+export interface ITestChildClassConstructorQueryQuery {
+    params: TestChildClassConstructorQueryParams;
+    result: ITestChildClassConstructorQueryResult;
+};
+
+
+
+
+export type AutoAccessorPropParams = [];
+
+
+export interface IAutoAccessorPropResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface IAutoAccessorPropQuery {
+    params: AutoAccessorPropParams;
+    result: IAutoAccessorPropResult;
+};
+

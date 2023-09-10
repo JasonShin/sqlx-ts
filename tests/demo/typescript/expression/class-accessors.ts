@@ -26,3 +26,43 @@ class SetterGetter {
         const publicMethodQuery = sql`SELECT id FROM items`
     }
 }
+
+class TestClass {
+    private sql1 = sql`
+  -- @name: testClassPropertyQuery
+    SELECT id FROM items
+  `
+    constructor(z: string) {
+        const query = sql`
+    -- @name: testClassConstructorQuery
+    SELECT id FROM items
+    `
+    }
+
+    someMethod() {
+        const query = sql`
+    -- @name: testClassMethodQuery
+    SELECT id FROM items
+    `
+    }
+}
+
+class ChildClass extends TestClass {
+    constructor() {
+        super(sql`
+      -- @name: testChildClassConstructorQuery
+      SELECT id FROM items
+    `)
+    }
+
+    hmm() {
+        let z = this.someMethod
+    }
+}
+
+// AutoAccessor
+class AutoAccessorTest {
+    accessor autoAccessorProp: string = sql`
+  SELECT * FROM items;
+  `
+}
