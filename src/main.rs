@@ -30,6 +30,7 @@ fn main() -> Result<()> {
     set_default_env_var();
     Builder::new()
         .parse_env("SQLX_TS_LOG")
+        .target(env_logger::Target::Stdout)
         .format_module_path(false)
         .format_target(false)
         .format_timestamp(None)
@@ -56,7 +57,7 @@ fn main() -> Result<()> {
         let (sqls, handler) = parse_source(&file_path)?;
         let failed = execute(&sqls, &handler)?;
         if failed {
-            error!("SQLs failed to compile!");
+            info!("SQLs failed to compile!");
             std::process::exit(1)
         }
     }
