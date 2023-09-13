@@ -187,8 +187,8 @@ pub fn translate_expr(
                     let key_name = format!("{}_{}", table_name, ident);
                     let key_name = &alias.unwrap_or_else(|| {
                         warn!(
-                            "Missing alias for a compound identifier, using {} as the key name - expression: {}",
-                            key_name, expr
+                            "Missing an alias for a compound identifier, using {} as the key name. Prefer adding an alias for example: `{} AS {}`",
+                            key_name, expr, ident
                         );
                         key_name.as_str()
                     });
