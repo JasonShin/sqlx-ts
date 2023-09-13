@@ -1,4 +1,4 @@
-use log::{ trace, warn, error, debug, info };
+use log::{ warn };
 use color_eyre::owo_colors::OwoColorize;
 use crate::common::lazy::{CONFIG, DB_SCHEMA};
 use crate::ts_generator::errors::TsGeneratorError;

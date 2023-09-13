@@ -1,3 +1,4 @@
+use log::{info};
 use color_eyre::eyre::Result;
 use convert_case::{Case, Casing};
 use regex::Regex;
@@ -113,7 +114,7 @@ impl TsFieldType {
             "boolean" => Self::Boolean,
             "json" | "jsonb" => Self::Object,
             "ARRAY" | "array" => {
-                println!("Currently we cannot figure out the type information for an array, the feature will be added in the future");
+                info!("Currently we cannot figure out the type information for an array, the feature will be added in the future");
                 Self::Any
             }
             "date" => Self::Date,
