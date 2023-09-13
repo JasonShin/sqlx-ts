@@ -4,17 +4,17 @@ mod parser;
 mod scan_folder;
 mod ts_generator;
 
-extern crate log;
 extern crate clap;
 extern crate dotenv;
+extern crate log;
 
 use crate::core::execute::execute;
 
-use std::env;
-use env_logger::Builder;
-use log::{ info, error };
 use dotenv::dotenv;
+use env_logger::Builder;
+use log::{error, info};
 use sqlx_ts::ts_generator::generator::clear_single_ts_file_if_exists;
+use std::env;
 
 use crate::common::lazy::CLI_ARGS;
 use crate::{parser::parse_source, scan_folder::scan_folder};

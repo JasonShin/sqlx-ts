@@ -1,6 +1,6 @@
-use log::{info};
 use color_eyre::eyre::Result;
 use convert_case::{Case, Casing};
+use log::info;
 use regex::Regex;
 use sqlparser::ast::Expr;
 use std::collections::{BTreeMap, HashMap};

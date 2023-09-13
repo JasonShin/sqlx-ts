@@ -1,5 +1,3 @@
-use log::{ warn };
-use color_eyre::owo_colors::OwoColorize;
 use crate::common::lazy::{CONFIG, DB_SCHEMA};
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::expressions::translate_data_type::translate_value;
@@ -10,7 +8,9 @@ use crate::ts_generator::sql_parser::expressions::{
 use crate::ts_generator::sql_parser::translate_query::translate_query;
 use crate::ts_generator::types::db_conn::DBConn;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
+use color_eyre::owo_colors::OwoColorize;
 use convert_case::{Case, Casing};
+use log::warn;
 use regex::Regex;
 use sqlparser::ast::{Assignment, Expr, TableWithJoins, Value};
 
@@ -186,7 +186,10 @@ pub fn translate_expr(
                     // if the select item is a compound identifier and does not has an alias, we should use `table_name.ident` as the key name
                     let key_name = format!("{}_{}", table_name, ident);
                     let key_name = &alias.unwrap_or_else(|| {
-                        warn!("Missing alias for compound identifier, using {} as the key name - expression: {}", key_name, expr);
+                        warn!(
+                            "Missing alias for compound identifier, using {} as the key name - expression: {}",
+                            key_name, expr
+                        );
                         key_name.as_str()
                     });
 
