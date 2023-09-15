@@ -12,7 +12,7 @@ use crate::core::execute::execute;
 
 use dotenv::dotenv;
 use env_logger::Builder;
-use log::{error, info};
+use log::{info};
 use sqlx_ts::ts_generator::generator::clear_single_ts_file_if_exists;
 use std::env;
 
@@ -57,7 +57,7 @@ fn main() -> Result<()> {
         let (sqls, handler) = parse_source(&file_path)?;
         let failed = execute(&sqls, &handler)?;
         if failed {
-            info!("SQLs failed to compile!");
+            eprint!("SQLs failed to compile!");
             std::process::exit(1)
         }
     }
