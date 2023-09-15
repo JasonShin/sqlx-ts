@@ -1,12 +1,12 @@
 use color_eyre::eyre::Result;
 use convert_case::{Case, Casing};
-use log::info;
 use regex::Regex;
 use sqlparser::ast::Expr;
 use std::collections::{BTreeMap, HashMap};
 use std::fmt::{self};
 
 use crate::common::lazy::CONFIG;
+use crate::common::logger::*;
 use crate::ts_generator::errors::TsGeneratorError;
 
 #[derive(Debug, Clone, Copy)]

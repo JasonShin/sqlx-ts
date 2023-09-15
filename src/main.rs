@@ -6,17 +6,16 @@ mod ts_generator;
 
 extern crate clap;
 extern crate dotenv;
-extern crate log;
 
 use crate::core::execute::execute;
 
 use dotenv::dotenv;
-use env_logger::Builder;
-use log::{info};
 use sqlx_ts::ts_generator::generator::clear_single_ts_file_if_exists;
 use std::env;
+use std::io::{stderr, stdout, Write};
 
 use crate::common::lazy::CLI_ARGS;
+use crate::common::logger::*;
 use crate::{parser::parse_source, scan_folder::scan_folder};
 use color_eyre::{eyre::eyre, eyre::Result};
 
@@ -28,14 +27,8 @@ fn set_default_env_var() {
 
 fn main() -> Result<()> {
     set_default_env_var();
-    Builder::new()
-        .parse_env("SQLX_TS_LOG")
-        .target(env_logger::Target::Stdout)
-        .format_module_path(false)
-        .format_target(false)
-        .format_timestamp(None)
-        .init();
 
+    error!("error message");
     let source_folder = &CLI_ARGS.path;
     let ext = &CLI_ARGS.ext;
 
