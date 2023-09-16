@@ -1,4 +1,4 @@
-use crate::common::types::{DatabaseType, JsExtension};
+use crate::common::types::{DatabaseType, JsExtension, LogLevel};
 use clap::Parser;
 
 impl ToString for JsExtension {
@@ -67,4 +67,8 @@ pub struct Cli {
 
     #[clap(long, short)]
     pub message_format: Option<String>,
+
+    /// log level to be used for the CLI info > warn > error
+    #[clap(arg_enum, long)]
+    pub log_level: Option<LogLevel>,
 }

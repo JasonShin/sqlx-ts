@@ -1,6 +1,6 @@
 use crate::common::dotenv::Dotenv;
 use crate::common::lazy::CLI_ARGS;
-use crate::common::types::DatabaseType;
+use crate::common::types::{DatabaseType, LogLevel};
 use mysql::OptsBuilder;
 use regex::Regex;
 use serde;
@@ -13,6 +13,7 @@ use std::str::FromStr;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct SqlxConfig {
+    pub log_level: Option<LogLevel>,
     pub generate_types: Option<GenerateTypesConfig>,
     pub connections: HashMap<String, DbConnectionConfig>,
 }
@@ -51,6 +52,7 @@ pub struct Config {
     pub generate_types_config: Option<GenerateTypesConfig>,
     pub connections: HashMap<String, DbConnectionConfig>,
     pub ignore_patterns: Vec<String>,
+    pub log_level: LogLevel,
 }
 
 impl Config {
@@ -65,12 +67,14 @@ impl Config {
         let generate_types_config =
             generate_types_config.and_then(|config| if config.enabled { Some(config) } else { None });
         let ignore_patterns = Self::get_ignore_patterns(&default_ignore_config_path);
+        let log_level = Self::get_log_level(file_config_path);
 
         Config {
             dotenv,
             connections,
             generate_types_config,
             ignore_patterns,
+            log_level,
         }
     }
 
@@ -289,5 +293,17 @@ impl Config {
             .user(Some(&conn.db_user))
             .pass(db_pass.clone())
             .db_name(db_name.clone())
+    }
+
+    pub fn get_log_level(file_config_path: &PathBuf) -> LogLevel {
+        let file_based_config = fs::read_to_string(file_config_path);
+        let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
+        let log_level_from_file = file_based_config
+            .as_ref()
+            .ok()
+            .map(|config| config.log_level)
+            .flatten();
+
+        CLI_ARGS.log_level.or(log_level_from_file).unwrap_or(LogLevel::Info)
     }
 }
