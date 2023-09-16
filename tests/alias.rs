@@ -42,9 +42,10 @@ JOIN tables ON items.table_id = tables.id
         Ok(())
     }
 
-
     #[test]
-    #[should_panic(expected = "Impossible to calculate appropriate field names of a wildcard query with multiple tables.")]
+    #[should_panic(
+        expected = "Impossible to calculate appropriate field names of a wildcard query with multiple tables."
+    )]
     fn should_not_warn_on_field_names_of_asterix() {
         let ts_content = r#"
         const someQuery = sql`
@@ -70,7 +71,9 @@ JOIN tables ON items.table_id = tables.id
         cmd.assert()
             .success()
             // check not condition
-            .try_stdout(predicates::str::contains("Impossible to calculate appropriate field names of a wildcard query with multiple tables."))
+            .try_stdout(predicates::str::contains(
+                "Impossible to calculate appropriate field names of a wildcard query with multiple tables.",
+            ))
             .unwrap();
     }
 
@@ -98,9 +101,12 @@ JOIN tables ON items.table_id = tables.id
             .arg("-g");
 
         // ASSERT
-        cmd.assert().success()
-               .stdout(predicates::str::contains("Impossible to calculate appropriate field names of a wildcard query with multiple tables."))
-              .stdout(predicates::str::contains("No SQL errors detected!"));
+        cmd.assert()
+            .success()
+            .stdout(predicates::str::contains(
+                "Impossible to calculate appropriate field names of a wildcard query with multiple tables.",
+            ))
+            .stdout(predicates::str::contains("No SQL errors detected!"));
 
         Ok(())
     }
