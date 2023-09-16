@@ -167,19 +167,20 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="sqlx-ts-cli-opitons"><a class="header" href="#sqlx-ts-cli-opitons">sqlx-ts CLI Opitons</a></h1>
-<div class="table-wrapper"><table><thead><tr><th>Flag</th><th>Description</th></tr></thead><tbody>
-<tr><td>--help</td><td>Help command to display all available</td></tr>
-<tr><td>--config <CONFIG></td><td>Path to file based configuration. Use this flag if you are dealing with multiple database connections. Check here for more details</td></tr>
-<tr><td>--db-host &lt;DB_HOST&gt;</td><td>Primary DB host</td></tr>
-<tr><td>--db-pass &lt;DB_PASS&gt;</td><td>Primary DB password</td></tr>
-<tr><td>--db-port &lt;DB_PORT&gt;</td><td>Primary DB port number</td></tr>
-<tr><td>--db-type &lt;DB_TYPE&gt;</td><td>Type of primary database to connect [default: postgres] [possible values: postgres, mysql]</td></tr>
-<tr><td>--db-user &lt;DB_USER&gt;</td><td>Primary DB user name</td></tr>
-<tr><td>--db-name &lt;DB_NAME&gt;</td><td>Primary DB name</td></tr>
-<tr><td>--ext <Extension></td><td>Javascript Extension to check SQLs against [default: ts] [possible values: ts, js]</td></tr>
-<tr><td>--generate-types &lt;GENERATE_TYPES&gt;</td><td>Flag to enable typescript type generation against SQLs</td></tr>
-<tr><td>--generate-path &lt;GENERATE_PATH&gt;</td><td>Relative path to the type generation (e.g. ./somedir/test.queries.ts)</td></tr>
-<tr><td>-V, --version</td><td>Print version information</td></tr>
+<div class="table-wrapper"><table><thead><tr><th>Flag</th><th>Description</th><th>TS generation</th><th>Future Roadmap</th></tr></thead><tbody>
+<tr><td>--help</td><td>Help command to display all available</td><td>yes</td><td>N/A</td></tr>
+<tr><td>--config</td><td>Path to file based configuration. Use this flag if you are dealing with multiple database connections. Check here for more details</td><td>yes</td><td>N/A</td></tr>
+<tr><td>--db-host</td><td>Primary DB host</td><td>yes</td><td>N/A</td></tr>
+<tr><td>--db-pass</td><td>Primary DB password</td><td>yes</td><td>N/A</td></tr>
+<tr><td>--db-port</td><td>Primary DB port number</td><td>yes</td><td>N/A</td></tr>
+<tr><td>--db-type</td><td>Type of primary database to connect [default: postgres] [possible values: postgres, mysql]</td><td>not yet</td><td>Will be supported in the near future</td></tr>
+<tr><td>--db-user</td><td>Primary DB user name</td><td>N/A</td><td>Will be supported in the near future as this will be a unique feature that sqlx-ts provides</td></tr>
+<tr><td>--db-name</td><td>Primary DB name</td><td></td><td></td></tr>
+<tr><td>--ext</td><td>Javascript Extension to check SQLs against [default: ts] [possible values: ts, js]</td><td></td><td></td></tr>
+<tr><td>--generate-types</td><td>Flag to enable typescript type generation against SQLs</td><td></td><td></td></tr>
+<tr><td>--generate-path</td><td>Relative path to the type generation (e.g. ./somedir/test.queries.ts)</td><td></td><td></td></tr>
+<tr><td>--log-level</td><td>Log level to be used in sqlx-ts (the priority is in info &gt; warn &gt; error order)</td><td></td><td></td></tr>
+<tr><td>-V, --version</td><td>Print version information</td><td></td><td></td></tr>
 </tbody></table>
 </div>
                     </main>
