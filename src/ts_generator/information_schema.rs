@@ -55,7 +55,7 @@ impl DBSchema {
         };
 
         if let Some(result) = &result {
-            &self.tables_cache.insert(table_key, result.clone());
+            let _ = &self.tables_cache.insert(table_key, result.clone());
         }
 
         result
