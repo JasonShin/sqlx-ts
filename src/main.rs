@@ -28,7 +28,6 @@ fn set_default_env_var() {
 fn main() -> Result<()> {
     set_default_env_var();
 
-    error!("error message");
     let source_folder = &CLI_ARGS.path;
     let ext = &CLI_ARGS.ext;
 
