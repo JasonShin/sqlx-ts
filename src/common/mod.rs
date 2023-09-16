@@ -1,3 +1,4 @@
+pub mod logger;
 extern crate core;
 
 use swc_common::MultiSpan;

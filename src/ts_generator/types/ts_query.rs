@@ -6,6 +6,7 @@ use std::collections::{BTreeMap, HashMap};
 use std::fmt::{self};
 
 use crate::common::lazy::CONFIG;
+use crate::common::logger::*;
 use crate::ts_generator::errors::TsGeneratorError;
 
 #[derive(Debug, Clone, Copy)]
@@ -113,7 +114,7 @@ impl TsFieldType {
             "boolean" => Self::Boolean,
             "json" | "jsonb" => Self::Object,
             "ARRAY" | "array" => {
-                println!("Currently we cannot figure out the type information for an array, the feature will be added in the future");
+                info!("Currently we cannot figure out the type information for an array, the feature will be added in the future");
                 Self::Any
             }
             "date" => Self::Date,

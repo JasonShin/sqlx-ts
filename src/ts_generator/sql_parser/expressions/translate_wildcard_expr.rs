@@ -1,4 +1,5 @@
 use crate::common::lazy::DB_SCHEMA;
+use crate::common::logger::warning;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::types::ts_query::TsQuery;
 use crate::ts_generator::types::{db_conn::DBConn, ts_query::TsFieldType};
@@ -54,6 +55,11 @@ pub fn translate_wildcard_expr(
     db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
     let table_with_joins = get_all_table_names_from_expr(query)?;
+
+    if table_with_joins.len() > 1 {
+        warning!("Impossible to calculate appropriate field names of a wildcard query with multiple tables. Please use explicit field names instead. Query: {}", query.to_string());
+    }
+
     let table_with_joins = table_with_joins.iter().map(|s| s.as_ref()).collect();
     let all_fields = DB_SCHEMA.fetch_table(&table_with_joins, db_conn);
     if let Some(all_fields) = all_fields {

@@ -1,4 +1,5 @@
 use crate::common::lazy::{CONFIG, DB_SCHEMA};
+use crate::common::logger::warning;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::expressions::translate_data_type::translate_value;
 use crate::ts_generator::sql_parser::expressions::translate_table_with_joins::translate_table_from_expr;
@@ -183,7 +184,14 @@ pub fn translate_expr(
 
                     // if the select item is a compound identifier and does not has an alias, we should use `table_name.ident` as the key name
                     let key_name = format!("{}_{}", table_name, ident);
-                    let key_name = alias.unwrap_or(key_name.as_str());
+                    let key_name = &alias.unwrap_or_else(|| {
+                        warning!(
+                            "Missing an alias for a compound identifier, using {} as the key name. Prefer adding an alias for example: `{} AS {}`",
+                            key_name, expr, ident
+                        );
+                        key_name.as_str()
+                    });
+
                     ts_query.insert_result(
                         Some(key_name),
                         &[field.field_type.to_owned()],
