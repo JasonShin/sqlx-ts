@@ -61,7 +61,7 @@ pub fn translate_wildcard_expr(
     }
 
     let table_with_joins = table_with_joins.iter().map(|s| s.as_ref()).collect();
-    let all_fields = DB_SCHEMA.fetch_table(&table_with_joins, db_conn);
+    let all_fields = DB_SCHEMA.lock().unwrap().fetch_table(&table_with_joins, db_conn);
     if let Some(all_fields) = all_fields {
         for key in all_fields.keys() {
             let field = all_fields.get(key).unwrap();

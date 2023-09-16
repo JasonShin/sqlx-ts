@@ -3,6 +3,7 @@ use crate::common::config::Config;
 use crate::ts_generator::information_schema::DBSchema;
 use clap::Parser;
 use lazy_static::lazy_static;
+use std::sync::Mutex;
 
 // The file contains all implicitly dependent variables or state that files need for the logic
 // We have a lot of states that we need to drill down into each methods
@@ -14,5 +15,5 @@ lazy_static! {
 
     // This is a holder for shared DBSChema used to fetch information for information_schema table
     // By having a singleton, we can think about caching the result if we are fetching a query too many times
-    pub static ref DB_SCHEMA: DBSchema = DBSchema::new();
+    pub static ref DB_SCHEMA: Mutex<DBSchema> = Mutex::new(DBSchema::new());
 }

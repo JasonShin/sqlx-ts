@@ -15,7 +15,7 @@ use std::env;
 use crate::common::lazy::CLI_ARGS;
 use crate::common::logger::*;
 use crate::{parser::parse_source, scan_folder::scan_folder};
-use color_eyre::{eyre::Result};
+use color_eyre::eyre::Result;
 
 fn set_default_env_var() {
     if env::var("SQLX_TS_LOG").is_err() {

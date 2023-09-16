@@ -41,11 +41,24 @@ impl DBSchema {
     ///
     /// # PostgreSQL Notes
     /// - TABLE_SCHEMA is PostgreSQL is basically 'public' by default. `database_name` is the name of the database itself
-    pub fn fetch_table(&self, table_name: &Vec<&str>, conn: &DBConn) -> Option<Fields> {
-        match &conn {
+    pub fn fetch_table(&mut self, table_name: &Vec<&str>, conn: &DBConn) -> Option<Fields> {
+        let table_key: String = table_name.join(",");
+        let cached_table_result = self.tables_cache.get(table_key.as_str());
+
+        if let Some(cached_table_result) = cached_table_result {
+            return Some(cached_table_result.clone());
+        }
+
+        let result = match &conn {
             DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, table_name, conn),
             DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, table_name, conn),
+        };
+
+        if let Some(result) = &result {
+            &self.tables_cache.insert(table_key, result.clone());
         }
+
+        result
     }
 
     fn postgres_fetch_table(&self, table_names: &Vec<&str>, conn: &RefCell<&mut postgres::Client>) -> Option<Fields> {
