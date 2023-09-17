@@ -43,6 +43,9 @@ fn main() -> Result<()> {
     // If CLI_ARGS.generate_types is true, it will clear the single TS file so `execute` will generate a new one from scratch
     clear_single_ts_file_if_exists()?;
 
+    // retrieve connection here already
+
+
     for file_path in files.iter() {
         let (sqls, handler) = parse_source(&file_path)?;
         let failed = execute(&sqls, &handler)?;

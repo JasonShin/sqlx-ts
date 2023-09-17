@@ -46,6 +46,7 @@ impl DBSchema {
         let cached_table_result = self.tables_cache.get(table_key.as_str());
 
         if let Some(cached_table_result) = cached_table_result {
+            println!("fetched from cache {:?}", table_key.as_str());
             return Some(cached_table_result.clone());
         }
 
@@ -54,9 +55,12 @@ impl DBSchema {
             DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, table_name, conn),
         };
 
+        println!("fetched from DB {:?}", table_key.as_str());
+
         if let Some(result) = &result {
             let _ = &self.tables_cache.insert(table_key, result.clone());
         }
+
 
         result
     }

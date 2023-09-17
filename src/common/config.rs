@@ -28,6 +28,7 @@ pub struct GenerateTypesConfig {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DbConnectionConfig {
+    pub db_conn_name: String,
     #[serde(rename = "DB_TYPE")]
     pub db_type: DatabaseType,
     #[serde(rename = "DB_HOST")]
@@ -230,7 +231,7 @@ impl Config {
     ///     -- @db: postgres
     ///     SELECT * FROM some_table;
     ///
-    /// The method figures out the correct database to connect in order to validate the SQL query
+    /// The method figures out the connection name & correct database to connect in order to validate the SQL query
     ///
     /// If you pass down a query with a annotation to specify a DB
     /// e.g.
@@ -243,23 +244,25 @@ impl Config {
     /// e.g.
     ///     SELECT * FROM some_table;
     ///
-    /// It should return the default connection configured by your configuration settings
-    pub fn get_correct_db_connection(&self, raw_sql: &str) -> DbConnectionConfig {
+    /// It should return the (connection name & default connection) configured by your configuration settings
+    pub fn get_correct_db_connection(&self, raw_sql: &str) -> (String, DbConnectionConfig) {
         let re = Regex::new(r"(/*|//|--) @db: (?P<conn>[\w]+)( */){0,}").unwrap();
         let found_matches = re.captures(raw_sql);
 
         if let Some(found_match) = &found_matches {
             let detected_conn_name = &found_match[2];
-            return self
+            let conn = self
                 .connections
                 .get(detected_conn_name)
                 .unwrap_or_else(|| {
                     panic!("Failed to find a matching connection type - connection name: {detected_conn_name}")
                 })
                 .clone();
+
+            return (detected_conn_name.to_string(), conn);
         }
 
-        self.connections
+        let config = self.connections
             .get("default")
             .expect(
                 r"Failed to find the default connection configuration - check your configuration
@@ -267,7 +270,9 @@ impl Config {
               File based config: https://jasonshin.github.io/sqlx-ts/reference-guide/2.configs-file-based.html
             ",
             )
-            .clone()
+            .clone();
+
+        ("default".to_string(), config)
     }
 
     pub fn get_postgres_cred(&self, conn: &DbConnectionConfig) -> String {
