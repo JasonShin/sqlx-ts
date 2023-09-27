@@ -28,7 +28,6 @@ pub struct GenerateTypesConfig {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DbConnectionConfig {
-    pub db_conn_name: String,
     #[serde(rename = "DB_TYPE")]
     pub db_type: DatabaseType,
     #[serde(rename = "DB_HOST")]

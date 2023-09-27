@@ -1,7 +1,7 @@
-use crate::common::lazy::CONFIG;
+use crate::{common::lazy::CONFIG, core::connection::DBConn};
 use crate::common::SQL;
 use crate::ts_generator::generator::generate_ts_interface;
-use crate::ts_generator::types::db_conn::DBConn;
+use postgres::Client as PostgresConn;
 use crate::ts_generator::types::ts_query::TsQuery;
 use color_eyre::eyre::Result;
 use postgres::{Client, NoTls};
@@ -11,11 +11,7 @@ use swc_common::errors::Handler;
 
 /// Runs the prepare statement on the input SQL. Validates the query is right by directly connecting to the configured database.
 /// It also processes ts interfaces if the configuration is set to `generate_types = true`
-pub fn prepare<'a>(sql: &SQL, should_generate_types: &bool, handler: &Handler) -> Result<(bool, Option<TsQuery>)> {
-    let connection = &CONFIG.get_correct_db_connection(&sql.query);
-    let postgres_cred = &CONFIG.get_postgres_cred(connection);
-    let mut conn = Client::connect(postgres_cred, NoTls).unwrap();
-
+pub fn prepare<'a>(conn: &mut PostgresConn, sql: &SQL, should_generate_types: &bool, handler: &Handler) -> Result<(bool, Option<TsQuery>)> {
     let mut failed = false;
 
     let span = sql.span.to_owned();
@@ -35,7 +31,7 @@ pub fn prepare<'a>(sql: &SQL, should_generate_types: &bool, handler: &Handler) -
     if should_generate_types == &true {
         ts_query = Some(generate_ts_interface(
             sql,
-            &DBConn::PostgresConn(&mut RefCell::new(&mut conn)),
+            &DBConn::PostgresConn(conn),
         )?);
     }
 

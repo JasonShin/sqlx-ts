@@ -6,10 +6,10 @@ use std::{
 };
 
 use super::annotations::extract_param_annotations;
-use super::types::db_conn::DBConn;
 
 use crate::common::lazy::CONFIG;
 use crate::common::SQL;
+use crate::core::connection::DBConn;
 use crate::ts_generator::annotations::extract_result_annotations;
 use crate::ts_generator::sql_parser::translate_stmt::translate_stmt;
 use crate::ts_generator::types::ts_query::TsQuery;

@@ -1,14 +1,17 @@
-use crate::common::lazy::{CLI_ARGS, CONFIG};
+use crate::common::lazy::{CLI_ARGS, CONFIG, DB_CONNECTIONS};
 use crate::common::types::DatabaseType;
 use crate::common::SQL;
 use crate::core::mysql::prepare as mysql_explain;
 use crate::core::postgres::prepare as postgres_explain;
 use crate::ts_generator::generator::{write_colocated_ts_file, write_single_ts_file};
+use super::connection::DBConn;
 
 use color_eyre::eyre::Result;
+use std::borrow::BorrowMut;
 use std::collections::HashMap;
 
 use std::path::PathBuf;
+use std::rc::Rc;
 use swc_common::errors::Handler;
 
 pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Result<bool> {
@@ -22,11 +25,11 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Resul
     for (file_path, sqls) in queries {
         let mut sqls_to_write: Vec<String> = vec![];
         for sql in sqls {
-            let connection = &CONFIG.get_correct_db_connection(&sql.query);
+            let mut connection = &DB_CONNECTIONS.lock().unwrap().get_connection(&sql.query);
 
-            let (explain_failed, ts_query) = match connection.db_type {
-                DatabaseType::Postgres => postgres_explain::prepare(sql, should_generate_types, handler)?,
-                DatabaseType::Mysql => mysql_explain::prepare(sql, should_generate_types, handler)?,
+            let (explain_failed, ts_query) = match connection {
+                DBConn::MySQLPooledConn(conn) => mysql_explain::prepare(&mut conn, sql, should_generate_types, handler)?,
+                DBConn::PostgresConn(conn) => postgres_explain::prepare(&mut conn, sql, should_generate_types, handler)?,
             };
 
             // If any prepare statement fails, we should set the failed flag as true

@@ -1,5 +1,6 @@
 use crate::common::lazy::{CONFIG, DB_SCHEMA};
 use crate::common::logger::warning;
+use crate::core::connection::DBConn;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::expressions::translate_data_type::translate_value;
 use crate::ts_generator::sql_parser::expressions::translate_table_with_joins::translate_table_from_expr;
@@ -7,7 +8,6 @@ use crate::ts_generator::sql_parser::expressions::{
     functions::is_string_function, translate_data_type::translate_data_type,
 };
 use crate::ts_generator::sql_parser::translate_query::translate_query;
-use crate::ts_generator::types::db_conn::DBConn;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
 use convert_case::{Case, Casing};
 use regex::Regex;

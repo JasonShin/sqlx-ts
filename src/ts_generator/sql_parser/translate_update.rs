@@ -1,9 +1,9 @@
 use sqlparser::ast::{Assignment, Expr, TableWithJoins};
 
-use crate::ts_generator::{
+use crate::{ts_generator::{
     errors::TsGeneratorError,
-    types::{db_conn::DBConn, ts_query::TsQuery},
-};
+    types::ts_query::TsQuery,
+}, core::connection::DBConn};
 
 use super::expressions::{
     translate_expr::{translate_assignment, translate_expr},
