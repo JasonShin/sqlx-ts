@@ -25,11 +25,11 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Resul
     for (file_path, sqls) in queries {
         let mut sqls_to_write: Vec<String> = vec![];
         for sql in sqls {
-            let mut connection = &DB_CONNECTIONS.lock().unwrap().get_connection(&sql.query);
+            let mut connection = DB_CONNECTIONS.lock().unwrap().get_connection(&sql.query);
 
             let (explain_failed, ts_query) = match connection {
-                DBConn::MySQLPooledConn(conn) => mysql_explain::prepare(&mut conn, sql, should_generate_types, handler)?,
-                DBConn::PostgresConn(conn) => postgres_explain::prepare(&mut conn, sql, should_generate_types, handler)?,
+                DBConn::MySQLPooledConn(conn) => mysql_explain::prepare(conn, sql, should_generate_types, handler)?,
+                DBConn::PostgresConn(conn) => postgres_explain::prepare(conn, sql, should_generate_types, handler)?,
             };
 
             // If any prepare statement fails, we should set the failed flag as true

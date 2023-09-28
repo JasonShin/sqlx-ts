@@ -52,7 +52,7 @@ impl DBSchema {
             return Some(cached_table_result.clone());
         }
 
-        let result = match conn {
+        let result = match &conn {
             DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, table_name, conn),
             DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, table_name, conn),
         };
@@ -65,7 +65,7 @@ impl DBSchema {
         result
     }
 
-    fn postgres_fetch_table(&self, table_names: &Vec<&str>, conn: &mut postgres::Client) -> Option<Fields> {
+    fn postgres_fetch_table(&self, table_names: &Vec<&str>, conn: &RefCell<&mut postgres::Client>) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))
@@ -86,7 +86,7 @@ impl DBSchema {
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
-        let result = conn.query(&query, &[]);
+        let result = conn.borrow_mut().query(&query, &[]);
 
         if let Ok(result) = result {
             for row in result {
@@ -106,7 +106,7 @@ impl DBSchema {
         None
     }
 
-    fn mysql_fetch_table(&self, table_names: &Vec<&str>, conn: &mut mysql::Conn) -> Option<Fields> {
+    fn mysql_fetch_table(&self, table_names: &Vec<&str>, conn: &RefCell<&mut mysql::Conn>) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))
@@ -126,7 +126,7 @@ impl DBSchema {
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
-        let result = conn.query::<mysql::Row, String>(query);
+        let result = conn.borrow_mut().query::<mysql::Row, String>(query);
 
         if let Ok(result) = result {
             for row in result {

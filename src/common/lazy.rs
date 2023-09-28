@@ -4,8 +4,7 @@ use crate::ts_generator::information_schema::DBSchema;
 use crate::core::connection::DBConnections;
 use clap::Parser;
 use lazy_static::lazy_static;
-use std::rc::Rc;
-use std::sync::Mutex;
+use std::sync::{Mutex};
 
 // The file contains all implicitly dependent variables or state that files need for the logic
 // We have a lot of states that we need to drill down into each methods
