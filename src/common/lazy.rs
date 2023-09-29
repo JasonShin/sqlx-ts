@@ -1,10 +1,10 @@
 use crate::common::cli::Cli;
 use crate::common::config::Config;
-use crate::ts_generator::information_schema::DBSchema;
 use crate::core::connection::DBConnections;
+use crate::ts_generator::information_schema::DBSchema;
 use clap::Parser;
 use lazy_static::lazy_static;
-use std::sync::{Mutex};
+use std::sync::Mutex;
 
 // The file contains all implicitly dependent variables or state that files need for the logic
 // We have a lot of states that we need to drill down into each methods
@@ -18,5 +18,5 @@ lazy_static! {
     // By having a singleton, we can think about caching the result if we are fetching a query too many times
     pub static ref DB_SCHEMA: Mutex<DBSchema> = Mutex::new(DBSchema::new());
 
-    pub static ref DB_CONNECTIONS: Mutex<DBConnections<'static>> = Mutex::new(DBConnections::new());
+    pub static ref DB_CONNECTIONS: Mutex<DBConnections> = Mutex::new(DBConnections::new());
 }

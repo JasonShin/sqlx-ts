@@ -45,7 +45,6 @@ fn main() -> Result<()> {
 
     // retrieve connection here already
 
-
     for file_path in files.iter() {
         let (sqls, handler) = parse_source(&file_path)?;
         let failed = execute(&sqls, &handler)?;

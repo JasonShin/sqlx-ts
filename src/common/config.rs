@@ -261,7 +261,8 @@ impl Config {
             return (detected_conn_name.to_string(), conn);
         }
 
-        let config = self.connections
+        let config = self
+            .connections
             .get("default")
             .expect(
                 r"Failed to find the default connection configuration - check your configuration

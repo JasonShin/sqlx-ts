@@ -1,9 +1,12 @@
 use sqlparser::ast::{Query, SelectItem, SetExpr, TableWithJoins};
 
-use crate::{ts_generator::{
-    errors::TsGeneratorError, sql_parser::expressions::translate_table_with_joins::get_default_table,
-    types::ts_query::TsQuery,
-}, core::connection::DBConn};
+use crate::{
+    core::connection::DBConn,
+    ts_generator::{
+        errors::TsGeneratorError, sql_parser::expressions::translate_table_with_joins::get_default_table,
+        types::ts_query::TsQuery,
+    },
+};
 
 use super::expressions::{
     translate_expr::translate_expr, translate_table_with_joins::translate_table_with_joins,

@@ -1,10 +1,10 @@
 use mysql;
 use mysql::prelude::Queryable;
 use postgres;
+use std::borrow::BorrowMut;
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::ops::DerefMut;
-use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 
 use crate::core::connection::DBConn;
 
@@ -61,11 +61,10 @@ impl DBSchema {
             let _ = &self.tables_cache.insert(table_key, result.clone());
         }
 
-
         result
     }
 
-    fn postgres_fetch_table(&self, table_names: &Vec<&str>, conn: &RefCell<&mut postgres::Client>) -> Option<Fields> {
+    fn postgres_fetch_table(&self, table_names: &Vec<&str>, conn: &Mutex<postgres::Client>) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))
@@ -86,7 +85,7 @@ impl DBSchema {
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
-        let result = conn.borrow_mut().query(&query, &[]);
+        let result = conn.lock().unwrap().borrow_mut().query(&query, &[]);
 
         if let Ok(result) = result {
             for row in result {
@@ -106,7 +105,7 @@ impl DBSchema {
         None
     }
 
-    fn mysql_fetch_table(&self, table_names: &Vec<&str>, conn: &RefCell<&mut mysql::Conn>) -> Option<Fields> {
+    fn mysql_fetch_table(&self, table_names: &Vec<&str>, conn: &Mutex<mysql::Conn>) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))
@@ -126,7 +125,7 @@ impl DBSchema {
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
-        let result = conn.borrow_mut().query::<mysql::Row, String>(query);
+        let result = conn.lock().unwrap().borrow_mut().query::<mysql::Row, String>(query);
 
         if let Ok(result) = result {
             for row in result {

@@ -2,8 +2,8 @@ use crate::common::lazy::DB_SCHEMA;
 use crate::common::logger::warning;
 use crate::core::connection::DBConn;
 use crate::ts_generator::errors::TsGeneratorError;
+use crate::ts_generator::types::ts_query::TsFieldType;
 use crate::ts_generator::types::ts_query::TsQuery;
-use crate::ts_generator::types::{ts_query::TsFieldType};
 use color_eyre::eyre::Result;
 use sqlparser::ast::{Join, Query, SetExpr, TableFactor, TableWithJoins};
 
