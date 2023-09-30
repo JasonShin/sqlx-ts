@@ -26,12 +26,11 @@ pub fn prepare(
     let span = sql.span.to_owned();
     let explain_query = format!("PREPARE stmt FROM \"{}\"", sql.query);
 
-    let conn = match &db_conn {
+    let mut conn = match &db_conn {
         DBConn::MySQLPooledConn(conn) => conn,
         _ => panic!("Invalid connection type"),
     };
-    let mut raw_conn = conn.lock().unwrap();
-    let result: Result<Vec<Row>, _> = raw_conn.borrow_mut().query(explain_query);
+    let result: Result<Vec<Row>, _> = conn.lock().unwrap().borrow_mut().query(explain_query);
 
     if let Err(err) = result {
         handler.span_bug_no_panic(span, err.to_string().as_str());

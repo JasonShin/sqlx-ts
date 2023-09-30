@@ -26,8 +26,9 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Resul
         let mut sqls_to_write: Vec<String> = vec![];
         for sql in sqls {
             let mut connection = DB_CONNECTIONS.lock().unwrap().get_connection(&sql.query);
-            let connection = Arc::into_inner(connection).unwrap();
-            let (explain_failed, ts_query) = match connection {
+            let connection = Arc::clone(&connection);
+            let connection = connection.lock().unwrap();
+            let (explain_failed, ts_query) = match c {
                 DBConn::MySQLPooledConn(conn) => {
                     mysql_explain::prepare(DBConn::MySQLPooledConn(conn), sql, should_generate_types, handler)?
                 }

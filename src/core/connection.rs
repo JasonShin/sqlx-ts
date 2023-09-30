@@ -15,8 +15,14 @@ pub enum DBConn {
     PostgresConn(Mutex<PostgresConn>),
 }
 
+impl DBConn {
+    pub fn conn(self) -> Self {
+        return self
+    }
+}
+
 pub struct DBConnections {
-    conns: HashMap<String, Arc<DBConn>>,
+    conns: HashMap<String, Arc<Mutex<DBConn>>>,
 }
 
 // TODO: Add tests around failed connection
@@ -27,7 +33,7 @@ impl<'a> DBConnections {
 
     /// Returns a connection from the DBConnection map
     /// It also lazily creates a connection if it doesn't exist
-    pub fn get_connection(&mut self, raw_sql: &str) -> Arc<DBConn> {
+    pub fn get_connection(&mut self, raw_sql: &str) -> Arc<Mutex<DBConn>> {
         let (db_conn_name, db_conn_config) = &CONFIG.get_correct_db_connection(raw_sql);
 
         if let Some(conn) = self.conns.get(db_conn_name) {
@@ -46,8 +52,8 @@ impl<'a> DBConnections {
             }
         };
 
-        let _ = &self.conns.insert(db_conn_name.to_owned(), Arc::new(conn));
+        let _ = &self.conns.insert(db_conn_name.to_owned(), Arc::new(Mutex::new(conn)));
         let conn = self.conns.get(db_conn_name).unwrap();
-        conn.clone()
+        conn.to_owned()
     }
 }

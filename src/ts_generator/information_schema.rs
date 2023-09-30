@@ -2,7 +2,6 @@ use mysql;
 use mysql::prelude::Queryable;
 use postgres;
 use std::borrow::BorrowMut;
-use std::cell::RefCell;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 

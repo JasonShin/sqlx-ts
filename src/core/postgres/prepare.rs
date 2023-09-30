@@ -19,21 +19,20 @@ pub fn prepare<'a>(
 ) -> Result<(bool, Option<TsQuery>)> {
     let mut failed = false;
 
-    let conn = match &db_conn {
+    let mut conn = match &db_conn {
         DBConn::PostgresConn(conn) => conn,
         _ => panic!("Invalid connection type"),
     };
     let span = sql.span.to_owned();
     let prepare_query = format!("PREPARE sqlx_stmt AS {}", sql.query);
-    let mut raw_conn = conn.lock().unwrap();
-    let result = raw_conn.borrow_mut().query(prepare_query.as_str(), &[]);
+    let result = conn.lock().unwrap().borrow_mut().query(prepare_query.as_str(), &[]);
 
     if let Err(e) = result {
         handler.span_bug_no_panic(span, e.as_db_error().unwrap().message());
         failed = true;
     } else {
         // We should only deallocate if the prepare statement was executed successfully
-        &raw_conn.borrow_mut().query("DEALLOCATE sqlx_stmt", &[]).unwrap();
+        &conn.lock().unwrap().borrow_mut().query("DEALLOCATE sqlx_stmt", &[]).unwrap();
     }
 
     let mut ts_query = None;
