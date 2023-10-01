@@ -44,7 +44,7 @@ impl<'a> DBConnections<'a> {
     }
 
     pub fn get_connection(&mut self, raw_sql: &str) -> Arc<Mutex<DBConn>> {
-        let (db_conn_name, _db_conn_config) = &CONFIG.get_correct_db_connection(raw_sql);
+        let db_conn_name = &CONFIG.get_correct_db_connection(raw_sql);
 
         let conn = self
             .cache

@@ -196,13 +196,6 @@ impl TsQuery {
         self.annotated_params = annotated_params;
     }
 
-    pub fn set_annotated_insert_params(
-        &mut self,
-        annotated_insert_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
-    ) {
-        self.annotated_insert_params = annotated_insert_params;
-    }
-
     pub fn format_column_name(&self, column_name: &str) -> String {
         let convert_to_camel_case_column_name = &CONFIG
             .generate_types_config

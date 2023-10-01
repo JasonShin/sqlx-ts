@@ -230,7 +230,7 @@ impl Config {
     ///     -- @db: postgres
     ///     SELECT * FROM some_table;
     ///
-    /// The method figures out the connection name & correct database to connect in order to validate the SQL query
+    /// The method figures out the connection name to connect in order to validate the SQL query
     ///
     /// If you pass down a query with a annotation to specify a DB
     /// e.g.
@@ -243,36 +243,18 @@ impl Config {
     /// e.g.
     ///     SELECT * FROM some_table;
     ///
-    /// It should return the (connection name & default connection) configured by your configuration settings
-    pub fn get_correct_db_connection(&self, raw_sql: &str) -> (String, DbConnectionConfig) {
+    /// It should return the connection name that is available based on your connection configurations
+    pub fn get_correct_db_connection(&self, raw_sql: &str) -> String {
         let re = Regex::new(r"(/*|//|--) @db: (?P<conn>[\w]+)( */){0,}").unwrap();
         let found_matches = re.captures(raw_sql);
 
         if let Some(found_match) = &found_matches {
             let detected_conn_name = &found_match[2];
-            let conn = self
-                .connections
-                .get(detected_conn_name)
-                .unwrap_or_else(|| {
-                    panic!("Failed to find a matching connection type - connection name: {detected_conn_name}")
-                })
-                .clone();
 
-            return (detected_conn_name.to_string(), conn);
+            return detected_conn_name.to_string();
         }
 
-        let config = self
-            .connections
-            .get("default")
-            .expect(
-                r"Failed to find the default connection configuration - check your configuration
-              CLI options: https://jasonshin.github.io/sqlx-ts/user-guide/2.1.cli-options.html
-              File based config: https://jasonshin.github.io/sqlx-ts/reference-guide/2.configs-file-based.html
-            ",
-            )
-            .clone();
-
-        ("default".to_string(), config)
+        return "default".to_string();
     }
 
     pub fn get_postgres_cred(&self, conn: &DbConnectionConfig) -> String {
