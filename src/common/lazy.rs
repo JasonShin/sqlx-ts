@@ -23,6 +23,8 @@ lazy_static! {
     // By having a singleton, we can think about caching the result if we are fetching a query too many times
     pub static ref DB_SCHEMA: Mutex<DBSchema> = Mutex::new(DBSchema::new());
 
+    // This variable holds database connections for each connection name that is defined in the config
+    // We are using lazy_static to initialize the connections once and use them throughout the application
     static ref DB_CONN_CACHE: HashMap<String, Arc<Mutex<DBConn>>> = {
         let mut cache = HashMap::new();
         for connection in CONFIG.connections.keys() {
