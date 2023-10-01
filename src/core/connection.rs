@@ -14,7 +14,6 @@ use swc_common::errors::Handler;
 
 /// Enum to hold a specific database connection instance
 pub enum DBConn {
-    // TODO: Maybe we can also pass down db_name through DBConn
     MySQLPooledConn(Mutex<MySQLConn>),
     PostgresConn(Mutex<PostgresConn>),
 }
