@@ -26,8 +26,7 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Resul
         let mut sqls_to_write: Vec<String> = vec![];
         for sql in sqls {
             let mut connection = DB_CONNECTIONS.lock().unwrap();
-            let connection = &connection.get_connection(&sql.query);
-            let connection = Arc::clone(&connection);
+            let connection = &connection.get_connection(&sql.query).clone();
             let connection = &connection.lock().unwrap();
 
             let (explain_failed, ts_query) = &connection.prepare(&sql, &should_generate_types, &handler)?;

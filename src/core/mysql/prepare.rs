@@ -5,11 +5,9 @@ use crate::ts_generator::generator::generate_ts_interface;
 use crate::ts_generator::types::ts_query::TsQuery;
 use color_eyre::eyre::Result;
 use mysql::prelude::*;
-use mysql::Conn as MySQLConn;
 use mysql::*;
 
 use std::borrow::BorrowMut;
-use std::sync::Mutex;
 use swc_common::errors::Handler;
 
 /// Runs the prepare statement on the input SQL.

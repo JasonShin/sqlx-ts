@@ -300,7 +300,7 @@ impl Config {
             .db_name(db_name.clone())
     }
 
-    // todo update this to also factor in env variable
+    // TODO: update this to also factor in env variable
     pub fn get_log_level(file_config_path: &PathBuf) -> LogLevel {
         let file_based_config = fs::read_to_string(file_config_path);
         let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
