@@ -12,7 +12,7 @@ use swc_common::errors::Handler;
 /// Runs the prepare statement on the input SQL. Validates the query is right by directly connecting to the configured database.
 /// It also processes ts interfaces if the configuration is set to `generate_types = true`
 pub fn prepare<'a>(
-    db_conn: DBConn,
+    db_conn: &DBConn,
     sql: &SQL,
     should_generate_types: &bool,
     handler: &Handler,
@@ -32,7 +32,12 @@ pub fn prepare<'a>(
         failed = true;
     } else {
         // We should only deallocate if the prepare statement was executed successfully
-        &conn.lock().unwrap().borrow_mut().query("DEALLOCATE sqlx_stmt", &[]).unwrap();
+        &conn
+            .lock()
+            .unwrap()
+            .borrow_mut()
+            .query("DEALLOCATE sqlx_stmt", &[])
+            .unwrap();
     }
 
     let mut ts_query = None;

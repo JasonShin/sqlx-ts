@@ -29,7 +29,7 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Resul
             let connection = &connection.get_connection(&sql.query);
             let connection = Arc::clone(&connection);
             let connection = &connection.lock().unwrap();
-            
+
             let (explain_failed, ts_query) = &connection.prepare(&sql, &should_generate_types, &handler)?;
             // If any prepare statement fails, we should set the failed flag as true
             // failed = explain_failed;

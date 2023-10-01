@@ -16,7 +16,7 @@ use swc_common::errors::Handler;
 /// Validates the query is right by directly connecting to the configured database.
 /// It also processes ts interfaces if the configuration is set to generate_types = true
 pub fn prepare(
-    db_conn: DBConn,
+    db_conn: &DBConn,
     sql: &SQL,
     should_generate_types: &bool,
     handler: &Handler,
