@@ -153,7 +153,7 @@ impl TsFieldType {
 ///
 /// There are tests under `tests` folder that checks TsQuery generates the
 /// correct type definitions
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TsQuery {
     pub name: String,
     param_order: i32,

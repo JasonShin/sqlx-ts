@@ -25,24 +25,19 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Resul
     for (file_path, sqls) in queries {
         let mut sqls_to_write: Vec<String> = vec![];
         for sql in sqls {
-            let mut connection = DB_CONNECTIONS.lock().unwrap().get_connection(&sql.query);
+            let mut connection = DB_CONNECTIONS.lock().unwrap();
+            let connection = &connection.get_connection(&sql.query);
             let connection = Arc::clone(&connection);
-            let connection = connection.lock().unwrap();
-            let (explain_failed, ts_query) = match c {
-                DBConn::MySQLPooledConn(conn) => {
-                    mysql_explain::prepare(DBConn::MySQLPooledConn(conn), sql, should_generate_types, handler)?
-                }
-                DBConn::PostgresConn(conn) => {
-                    postgres_explain::prepare(DBConn::PostgresConn(conn), sql, should_generate_types, handler)?
-                }
-            };
-
+            let connection = &connection.lock().unwrap();
+            
+            let (explain_failed, ts_query) = &connection.prepare(&sql, &should_generate_types, &handler)?;
             // If any prepare statement fails, we should set the failed flag as true
-            failed = explain_failed;
+            // failed = explain_failed;
 
             if *should_generate_types {
-                let ts_query = ts_query.expect("Failed to generate types from query").to_string();
-                sqls_to_write.push(ts_query);
+                let ts_query = &ts_query.clone().expect("Failed to generate types from query");
+                let ts_query = &ts_query.to_string();
+                sqls_to_write.push(ts_query.to_owned());
             }
         }
 
