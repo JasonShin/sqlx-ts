@@ -1,13 +1,11 @@
 #[cfg(test)]
 mod alias {
     use assert_cmd::prelude::*;
-    use pretty_assertions::assert_eq;
-    use std::env::current_dir;
+
     use std::fs;
     use std::io::Write;
     use std::process::Command;
     use tempfile::tempdir;
-    use walkdir::WalkDir;
 
     #[test]
     fn should_warn_on_clashing_field_names_on_join() -> Result<(), Box<dyn std::error::Error>> {
@@ -21,8 +19,8 @@ JOIN tables ON items.table_id = tables.id
         // SETUP
         let dir = tempdir()?;
         let parent_path = dir.path();
-        let file_path = parent_path.join(format!("index.ts"));
-        let mut temp_file = fs::File::create(&file_path)?;
+        let file_path = parent_path.join("index.ts".to_string());
+        let mut temp_file = fs::File::create(file_path)?;
         writeln!(temp_file, "{}", ts_content)?;
 
         // EXECUTE
@@ -56,8 +54,8 @@ JOIN tables ON items.table_id = tables.id
         // SETUP
         let dir = tempdir().unwrap();
         let parent_path = dir.path();
-        let file_path = parent_path.join(format!("index.ts"));
-        let mut temp_file = fs::File::create(&file_path).unwrap();
+        let file_path = parent_path.join("index.ts".to_string());
+        let mut temp_file = fs::File::create(file_path).unwrap();
         writeln!(temp_file, "{}", ts_content).unwrap();
 
         // EXECUTE
@@ -89,8 +87,8 @@ JOIN tables ON items.table_id = tables.id
         // SETUP
         let dir = tempdir()?;
         let parent_path = dir.path();
-        let file_path = parent_path.join(format!("index.ts"));
-        let mut temp_file = fs::File::create(&file_path)?;
+        let file_path = parent_path.join("index.ts".to_string());
+        let mut temp_file = fs::File::create(file_path)?;
         writeln!(temp_file, "{}", ts_content)?;
 
         // EXECUTE
