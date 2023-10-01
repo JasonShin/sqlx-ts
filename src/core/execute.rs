@@ -31,8 +31,9 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Resul
             let connection = &connection.lock().unwrap();
 
             let (explain_failed, ts_query) = &connection.prepare(&sql, &should_generate_types, &handler)?;
+
             // If any prepare statement fails, we should set the failed flag as true
-            // failed = explain_failed;
+            failed = explain_failed.clone();
 
             if *should_generate_types {
                 let ts_query = &ts_query.clone().expect("Failed to generate types from query");
