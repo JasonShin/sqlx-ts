@@ -7,7 +7,6 @@ use clap::Parser;
 use lazy_static::lazy_static;
 use mysql::Conn as MySQLConn;
 use postgres::{Client as PGClient, NoTls as PGNoTls};
-use std::borrow::BorrowMut;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
