@@ -44,6 +44,8 @@ lazy_static! {
         cache
     };
 
+    // This variable holds a singleton of DBConnections that is used to get a DBConn from the cache
+    // DBConn is used to access the raw connection to the database or run `prepare` statement against each connection
     pub static ref DB_CONNECTIONS: Mutex<DBConnections<'static>> = {
         let db_connections = DBConnections::new(&DB_CONN_CACHE);
         Mutex::new(db_connections)
