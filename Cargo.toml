@@ -20,7 +20,7 @@ swc_ecma_ast = "0.109.1"
 swc_ecma_parser = "0.140.0"
 string_cache = "0.8.7"
 walkdir = "2.4.0"
-clap = { version = "3.2.0", features = ["derive"] }
+clap = { version = "3.2.25", features = ["derive"] }
 serde = { version = "1.0.183", features = ["derive"] }
 serde_json = { version = "1.0.104" }
 sqlparser = { version = "0.33.0" }
