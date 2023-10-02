@@ -25,7 +25,6 @@ struct ColumnsQueryResultRow {
 }
 
 pub struct DBSchema {
-    /// tables cache
     tables_cache: HashMap<String, Fields>,
 }
 
