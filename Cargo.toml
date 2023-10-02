@@ -21,21 +21,21 @@ swc_ecma_parser = "0.140.0"
 string_cache = "0.8.7"
 walkdir = "2.4.0"
 clap = { version = "3.2.25", features = ["derive"] }
-serde = { version = "1.0.183", features = ["derive"] }
-serde_json = { version = "1.0.104" }
+serde = { version = "1.0.188", features = ["derive"] }
+serde_json = { version = "1.0.107" }
 sqlparser = { version = "0.33.0" }
-regex = { version = "1.9.3" }
-postgres = { version = "0.19.5" }
+regex = { version = "1.9.6" }
+postgres = { version = "0.19.7" }
 mysql = { version = "24.0.0" }
 convert_case = "0.6.0"
 lazy_static = { version = "1.4.0" }
-openssl = { version = "0.10.56", features = ["vendored"] }
-colored = "2"
+openssl = { version = "0.10.57", features = ["vendored"] }
+colored = "2.0.4"
 
 [dev-dependencies]
 assert_cmd = "2.0.12"
-predicates = "3.0.3"
-tempfile = "3.7.1"
+predicates = "3.0.4"
+tempfile = "3.8.0"
 test_utils = { path="test-utils" }
 pretty_assertions = "1.4.0"
 rand = "0.8.5"
