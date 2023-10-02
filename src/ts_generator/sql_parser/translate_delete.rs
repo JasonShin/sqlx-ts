@@ -1,6 +1,6 @@
+use crate::core::connection::DBConn;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::expressions::translate_expr::translate_expr;
-use crate::ts_generator::types::db_conn::DBConn;
 use crate::ts_generator::types::ts_query::TsQuery;
 use sqlparser::ast::Expr;
 

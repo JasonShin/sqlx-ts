@@ -9,15 +9,13 @@ extern crate dotenv;
 
 use crate::core::execute::execute;
 
-use dotenv::dotenv;
 use sqlx_ts::ts_generator::generator::clear_single_ts_file_if_exists;
 use std::env;
-use std::io::{stderr, stdout, Write};
 
 use crate::common::lazy::CLI_ARGS;
 use crate::common::logger::*;
 use crate::{parser::parse_source, scan_folder::scan_folder};
-use color_eyre::{eyre::eyre, eyre::Result};
+use color_eyre::eyre::Result;
 
 fn set_default_env_var() {
     if env::var("SQLX_TS_LOG").is_err() {

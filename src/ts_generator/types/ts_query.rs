@@ -153,7 +153,7 @@ impl TsFieldType {
 ///
 /// There are tests under `tests` folder that checks TsQuery generates the
 /// correct type definitions
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TsQuery {
     pub name: String,
     param_order: i32,
@@ -194,13 +194,6 @@ impl TsQuery {
 
     pub fn set_annotated_params(&mut self, annotated_params: BTreeMap<usize, TsFieldType>) {
         self.annotated_params = annotated_params;
-    }
-
-    pub fn set_annotated_insert_params(
-        &mut self,
-        annotated_insert_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
-    ) {
-        self.annotated_insert_params = annotated_insert_params;
     }
 
     pub fn format_column_name(&self, column_name: &str) -> String {

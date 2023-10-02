@@ -1,4 +1,5 @@
-use crate::common::lazy::{CLI_ARGS, CONFIG};
+use super::connection::DBConn;
+use crate::common::lazy::{CLI_ARGS, CONFIG, DB_CONNECTIONS};
 use crate::common::types::DatabaseType;
 use crate::common::SQL;
 use crate::core::mysql::prepare as mysql_explain;
@@ -6,7 +7,9 @@ use crate::core::postgres::prepare as postgres_explain;
 use crate::ts_generator::generator::{write_colocated_ts_file, write_single_ts_file};
 
 use color_eyre::eyre::Result;
+use std::borrow::BorrowMut;
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use std::path::PathBuf;
 use swc_common::errors::Handler;
@@ -22,19 +25,19 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Resul
     for (file_path, sqls) in queries {
         let mut sqls_to_write: Vec<String> = vec![];
         for sql in sqls {
-            let connection = &CONFIG.get_correct_db_connection(&sql.query);
+            let mut connection = DB_CONNECTIONS.lock().unwrap();
+            let connection = &connection.get_connection(&sql.query).clone();
+            let connection = &connection.lock().unwrap();
 
-            let (explain_failed, ts_query) = match connection.db_type {
-                DatabaseType::Postgres => postgres_explain::prepare(sql, should_generate_types, handler)?,
-                DatabaseType::Mysql => mysql_explain::prepare(sql, should_generate_types, handler)?,
-            };
+            let (explain_failed, ts_query) = &connection.prepare(&sql, &should_generate_types, &handler)?;
 
             // If any prepare statement fails, we should set the failed flag as true
-            failed = explain_failed;
+            failed = explain_failed.clone();
 
             if *should_generate_types {
-                let ts_query = ts_query.expect("Failed to generate types from query").to_string();
-                sqls_to_write.push(ts_query);
+                let ts_query = &ts_query.clone().expect("Failed to generate types from query");
+                let ts_query = &ts_query.to_string();
+                sqls_to_write.push(ts_query.to_owned());
             }
         }
 

@@ -1,8 +1,8 @@
 use sqlparser::ast::{Assignment, Expr, TableWithJoins};
 
-use crate::ts_generator::{
-    errors::TsGeneratorError,
-    types::{db_conn::DBConn, ts_query::TsQuery},
+use crate::{
+    core::connection::DBConn,
+    ts_generator::{errors::TsGeneratorError, types::ts_query::TsQuery},
 };
 
 use super::expressions::{

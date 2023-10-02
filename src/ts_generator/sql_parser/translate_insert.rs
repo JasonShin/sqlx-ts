@@ -1,8 +1,9 @@
+use crate::core::connection::DBConn;
 use crate::ts_generator::sql_parser::expressions::translate_expr::get_expr_placeholder;
 use sqlparser::ast::{Ident, Query, SetExpr};
 
 use crate::common::lazy::DB_SCHEMA;
-use crate::ts_generator::{errors::TsGeneratorError, types::db_conn::DBConn, types::ts_query::TsQuery};
+use crate::ts_generator::{errors::TsGeneratorError, types::ts_query::TsQuery};
 
 pub fn translate_insert(
     ts_query: &mut TsQuery,
@@ -11,7 +12,9 @@ pub fn translate_insert(
     table_name: &str,
     conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
-    let table_details = DB_SCHEMA
+    let table_details = &DB_SCHEMA
+        .lock()
+        .unwrap()
         .fetch_table(&vec![table_name], conn)
         // Nearly impossible to panic at this point as we've already validated queries with prepare statements
         .unwrap();

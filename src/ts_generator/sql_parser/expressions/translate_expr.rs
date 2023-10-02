@@ -1,5 +1,6 @@
 use crate::common::lazy::{CONFIG, DB_SCHEMA};
 use crate::common::logger::warning;
+use crate::core::connection::DBConn;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::expressions::translate_data_type::translate_value;
 use crate::ts_generator::sql_parser::expressions::translate_table_with_joins::translate_table_from_expr;
@@ -7,7 +8,6 @@ use crate::ts_generator::sql_parser::expressions::{
     functions::is_string_function, translate_data_type::translate_data_type,
 };
 use crate::ts_generator::sql_parser::translate_query::translate_query;
-use crate::ts_generator::types::db_conn::DBConn;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
 use convert_case::{Case, Casing};
 use regex::Regex;
@@ -124,6 +124,8 @@ pub fn get_sql_query_param(
         let table_names = vec![table_name.as_str()];
         let column_name = column_name.unwrap();
         let columns = DB_SCHEMA
+            .lock()
+            .unwrap()
             .fetch_table(&table_names, db_conn)
             .unwrap_or_else(|| panic!("Failed to fetch columns for table {:?}", table_name));
 
@@ -155,7 +157,7 @@ pub fn translate_expr(
         Expr::Identifier(ident) => {
             let column_name = ident.value.to_string();
             let table_name = single_table_name.expect("Missing table name for identifier");
-            let table_details = &DB_SCHEMA.fetch_table(&vec![table_name], db_conn);
+            let table_details = &DB_SCHEMA.lock().unwrap().fetch_table(&vec![table_name], db_conn);
 
             // TODO: We can also memoize this method
             if let Some(table_details) = table_details {
@@ -178,7 +180,10 @@ pub fn translate_expr(
                 let table_name = translate_table_from_expr(table_with_joins, &expr)
                     .ok_or_else(|| TsGeneratorError::IndentifierWithoutTable(expr.to_string()))?;
 
-                let table_details = &DB_SCHEMA.fetch_table(&vec![table_name.as_str()], db_conn);
+                let table_details = &DB_SCHEMA
+                    .lock()
+                    .unwrap()
+                    .fetch_table(&vec![table_name.as_str()], db_conn);
                 if let Some(table_details) = table_details {
                     let field = table_details.get(&ident).unwrap();
 
@@ -516,7 +521,11 @@ pub fn translate_assignment(
     let value = get_expr_placeholder(&assignment.value);
 
     if value.is_some() {
-        let table_details = &DB_SCHEMA.fetch_table(&vec![table_name], db_conn).unwrap();
+        let table_details = &DB_SCHEMA
+            .lock()
+            .unwrap()
+            .fetch_table(&vec![table_name], db_conn)
+            .unwrap();
         let column_name = translate_column_name_assignment(assignment).unwrap();
         let field = table_details
             .get(&column_name)
