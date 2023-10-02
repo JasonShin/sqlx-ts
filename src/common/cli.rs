@@ -19,14 +19,14 @@ pub struct Cli {
 
     /// Javascript Extension
     #[clap(
-    arg_enum,
+    value_enum,
     long,
     default_value_t=JsExtension::Ts
     )]
     pub ext: JsExtension,
 
     /// Type of primary database to connect
-    #[clap(arg_enum, long)]
+    #[clap(value_enum, long)]
     pub db_type: Option<DatabaseType>,
 
     /// Primary DB host
@@ -69,6 +69,6 @@ pub struct Cli {
     pub message_format: Option<String>,
 
     /// log level to be used for the CLI info > warn > error
-    #[clap(arg_enum, long)]
+    #[clap(value_enum, long)]
     pub log_level: Option<LogLevel>,
 }

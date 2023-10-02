@@ -1,20 +1,20 @@
-use clap::ArgEnum;
+use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
 
-#[derive(ArgEnum, Debug, Clone)]
+#[derive(ValueEnum, Debug, Clone)]
 pub enum JsExtension {
     Ts,
     Js,
 }
 
-#[derive(ArgEnum, Debug, Clone, Serialize, Deserialize)]
+#[derive(ValueEnum, Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum DatabaseType {
     Postgres,
     Mysql,
 }
 
-#[derive(ArgEnum, Debug, Clone, Serialize, Deserialize, Copy)]
+#[derive(ValueEnum, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(rename_all = "lowercase")]
 pub enum LogLevel {
     Info = 3,
