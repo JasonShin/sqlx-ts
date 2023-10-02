@@ -3,7 +3,7 @@ use mysql::prelude::Queryable;
 use postgres;
 use std::borrow::BorrowMut;
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 
 use crate::core::connection::DBConn;
 
