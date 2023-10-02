@@ -11,6 +11,7 @@ use crate::core::execute::execute;
 
 use sqlx_ts::ts_generator::generator::clear_single_ts_file_if_exists;
 use std::env;
+use std::thread;
 
 use crate::common::lazy::CLI_ARGS;
 use crate::common::logger::*;
@@ -23,8 +24,10 @@ fn set_default_env_var() {
     }
 }
 
-fn main() -> Result<()> {
+#[tokio::main(flavor = "current_thread")]
+async fn main() -> Result<()> {
     set_default_env_var();
+    println!("setup default env vars complete");
 
     let source_folder = &CLI_ARGS.path;
     let ext = &CLI_ARGS.ext;
@@ -32,6 +35,7 @@ fn main() -> Result<()> {
     info!("Scanning {:?} for SQLs with extension {:?}", source_folder, ext);
 
     let files = scan_folder(source_folder, ext);
+    println!("scanned folder");
     if files.is_empty() {
         info!(
             "No targets detected, is it an empty folder? - source_folder: {:?}, ext: {:?}",
@@ -43,14 +47,20 @@ fn main() -> Result<()> {
     // If CLI_ARGS.generate_types is true, it will clear the single TS file so `execute` will generate a new one from scratch
     clear_single_ts_file_if_exists()?;
 
-    for file_path in files.iter() {
-        let (sqls, handler) = parse_source(&file_path)?;
-        let failed = execute(&sqls, &handler)?;
-        if failed {
-            eprint!("SQLs failed to compile!");
-            std::process::exit(1)
+    println!("clear single ts file if exists");
+
+    tokio::task::spawn_blocking(move || {
+        for file_path in files.iter() {
+            let (sqls, handler) = parse_source(&file_path).unwrap();
+            let failed = execute(&sqls, &handler).unwrap();
+            if failed {
+                eprint!("SQLs failed to compile!");
+                std::process::exit(1)
+            }
         }
-    }
+    }).await?;
+
+    println!("execute complete");
 
     info!("No SQL errors detected!");
     // NOTE: There are different exit code depending on the platform https://doc.rust-lang.org/std/process/fn.exit.html#platform-specific-behavior
