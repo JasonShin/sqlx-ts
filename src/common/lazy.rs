@@ -5,8 +5,11 @@ use crate::core::connection::{DBConn, DBConnections};
 use crate::ts_generator::information_schema::DBSchema;
 use clap::Parser;
 use lazy_static::lazy_static;
-use mysql::Conn as MySQLConn;
-use postgres::{Client as PGClient, NoTls as PGNoTls};
+use tokio;
+use tokio::runtime::Runtime;
+use sqlx::{mysql, postgres};
+// use mysql::Conn as MySQLConn;
+// use postgres::{Client as PGClient, NoTls as PGNoTls};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
@@ -23,19 +26,26 @@ lazy_static! {
     // This variable holds database connections for each connection name that is defined in the config
     // We are using lazy_static to initialize the connections once and use them throughout the application
     static ref DB_CONN_CACHE: HashMap<String, Arc<Mutex<DBConn>>> = {
+
         let mut cache = HashMap::new();
+        let mut rt = Runtime::new().unwrap();
+        let local = tokio::task::LocalSet::new();
+
         for connection in CONFIG.connections.keys() {
             let connection_config = CONFIG.connections.get(connection).unwrap();
             let db_type = connection_config.db_type.to_owned();
             let conn = match db_type {
                 DatabaseType::Mysql => {
-                    let opts = CONFIG.get_mysql_cred(&connection_config);
-                    let mut conn = MySQLConn::new(opts).unwrap();
-                    DBConn::MySQLPooledConn(Mutex::new(conn))
+                    let url = &CONFIG.get_mysql_cred_str(&connection_config);
+
+                    let pool = local.block_on(&mut rt, mysql::MySqlPoolOptions::new().max_connections(10).connect(url.as_str())).unwrap();
+
+                    DBConn::MySQLPooledConn(Mutex::new(pool))
                 }
                 DatabaseType::Postgres => {
-                    let postgres_cred = &CONFIG.get_postgres_cred(&connection_config);
-                    DBConn::PostgresConn(Mutex::new(PGClient::connect(postgres_cred, PGNoTls).unwrap()))
+                    let url = &CONFIG.get_postgres_cred(&connection_config);
+                    let pool = local.block_on(&mut rt, postgres::PgPoolOptions::new().max_connections(10).connect(url.as_str())).unwrap();
+                    DBConn::PostgresConn(Mutex::new(pool))
                 }
             };
             cache.insert(connection.to_owned(), Arc::new(Mutex::new(conn)));

@@ -271,6 +271,19 @@ impl Config {
         )
     }
 
+    /// This is to follow the spec of connection string for MySQL
+    /// https://dev.mysql.com/doc/connector-j/8.1/en/connector-j-reference-jdbc-url-format.html
+    pub fn get_mysql_cred_str(&self, conn: &DbConnectionConfig) -> String {
+        format!(
+            "mysql://{user}:{pass}@{host}:{port}/{db_name}",
+            user = &conn.db_user,
+            pass = &conn.db_pass.as_ref().unwrap_or(&"".to_string()),
+            host = &conn.db_host,
+            port = &conn.db_port,
+            db_name = &conn.db_name.clone().unwrap_or(conn.db_user.to_owned()),
+        ).to_string()
+    }
+
     pub fn get_mysql_cred(&self, conn: &DbConnectionConfig) -> OptsBuilder {
         let db_pass = &conn.db_pass;
         let db_name = &conn.db_name;
