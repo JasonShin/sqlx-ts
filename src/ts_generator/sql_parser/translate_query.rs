@@ -1,3 +1,4 @@
+use async_recursion::async_recursion;
 use sqlparser::ast::{Query, SelectItem, SetExpr, TableWithJoins};
 
 use crate::{
@@ -14,7 +15,8 @@ use super::expressions::{
 };
 
 /// Translates a query and workout ts_query's results and params
-pub fn translate_query(
+#[async_recursion(?Send)]
+pub async fn translate_query(
     ts_query: &mut TsQuery,
     // this parameter is used to stack table_with_joins while recursing through subqueries
     // If there is only 1 entry of table_with_joins, it means it's processing the top level entity
@@ -60,7 +62,8 @@ pub fn translate_query(
                             ts_query,
                             db_conn,
                             is_selection,
-                        )?;
+                        )
+                        .await?;
                     }
                     SelectItem::ExprWithAlias { expr, alias } => {
                         let alias = alias.to_string();
@@ -75,19 +78,20 @@ pub fn translate_query(
                             ts_query,
                             db_conn,
                             is_selection,
-                        )?;
+                        )
+                        .await?;
                     }
                     SelectItem::QualifiedWildcard(_, _) => {
                         // TODO: If there's are two tables and two qualifieid wildcards are provided
                         // It will simply generate types for both tables' columns
                         // Should we namespace each field based on the table alias? e.g. table1_field1, table2_field1
                         if is_selection {
-                            translate_wildcard_expr(query, ts_query, db_conn)?;
+                            translate_wildcard_expr(query, ts_query, db_conn).await?;
                         }
                     }
                     SelectItem::Wildcard(_) => {
                         if is_selection {
-                            translate_wildcard_expr(query, ts_query, db_conn)?;
+                            translate_wildcard_expr(query, ts_query, db_conn).await?;
                         }
                     }
                 }
@@ -105,7 +109,8 @@ pub fn translate_query(
                     ts_query,
                     db_conn,
                     false,
-                )?;
+                )
+                .await?;
             }
             Ok(())
         }

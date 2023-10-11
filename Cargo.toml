@@ -33,6 +33,7 @@ openssl = { version = "0.10.57", features = ["vendored"] }
 colored = "2.0.4"
 tokio = { version = "1.32.0", features = ["rt", "macros", "default"]}
 sqlx = { version = "0.6.3", features = ["postgres", "mysql", "runtime-tokio-rustls"] }
+async-recursion = "1.0.5"
 
 [dev-dependencies]
 assert_cmd = "2.0.12"

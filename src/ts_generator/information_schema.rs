@@ -1,8 +1,10 @@
 use mysql;
 use mysql::prelude::Queryable;
 use postgres;
+use sqlx::{MySql, Pool, Postgres};
 use std::borrow::BorrowMut;
 use std::collections::HashMap;
+use std::ops::DerefMut;
 use std::sync::Mutex;
 
 use crate::core::connection::DBConn;
@@ -42,7 +44,7 @@ impl DBSchema {
     ///
     /// # PostgreSQL Notes
     /// - TABLE_SCHEMA is PostgreSQL is basically 'public' by default. `database_name` is the name of the database itself
-    pub fn fetch_table(&mut self, table_name: &Vec<&str>, conn: &DBConn) -> Option<Fields> {
+    pub async fn fetch_table(&mut self, table_name: &Vec<&str>, conn: &DBConn) -> Option<Fields> {
         let table_key: String = table_name.join(",");
         let cached_table_result = self.tables_cache.get(table_key.as_str());
 
@@ -62,7 +64,7 @@ impl DBSchema {
         result
     }
 
-    fn postgres_fetch_table(&self, table_names: &Vec<&str>, conn: &Mutex<postgres::Client>) -> Option<Fields> {
+    fn postgres_fetch_table(&self, table_names: &Vec<&str>, conn: &Mutex<Pool<Postgres>>) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))
@@ -103,7 +105,7 @@ impl DBSchema {
         None
     }
 
-    fn mysql_fetch_table(&self, table_names: &Vec<&str>, conn: &Mutex<mysql::Conn>) -> Option<Fields> {
+    fn mysql_fetch_table(&self, table_names: &Vec<&str>, conn: &mut Mutex<Pool<MySql>>) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))

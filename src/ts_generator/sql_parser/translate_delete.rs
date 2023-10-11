@@ -4,7 +4,7 @@ use crate::ts_generator::sql_parser::expressions::translate_expr::translate_expr
 use crate::ts_generator::types::ts_query::TsQuery;
 use sqlparser::ast::Expr;
 
-pub fn translate_delete(
+pub async fn translate_delete(
     ts_query: &mut TsQuery,
     where_conditions: &Expr, // WHERE conditions of the delete statement
     table_name: &str,
@@ -19,4 +19,5 @@ pub fn translate_delete(
         db_conn,
         false,
     )
+    .await
 }

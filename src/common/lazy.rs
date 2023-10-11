@@ -5,9 +5,9 @@ use crate::core::connection::{DBConn, DBConnections};
 use crate::ts_generator::information_schema::DBSchema;
 use clap::Parser;
 use lazy_static::lazy_static;
+use sqlx::{mysql, postgres};
 use tokio;
 use tokio::runtime::Runtime;
-use sqlx::{mysql, postgres};
 // use mysql::Conn as MySQLConn;
 // use postgres::{Client as PGClient, NoTls as PGNoTls};
 use std::collections::HashMap;
@@ -19,6 +19,8 @@ lazy_static! {
     pub static ref CLI_ARGS: Cli = Cli::parse();
     pub static ref CONFIG: Config =  Config::new();
 
+    pub static ref THREAD_RUNTIME: Runtime = Runtime::new().unwrap();
+
     // This is a holder for shared DBSChema used to fetch information for information_schema table
     // By having a singleton, we can think about caching the result if we are fetching a query too many times
     pub static ref DB_SCHEMA: Mutex<DBSchema> = Mutex::new(DBSchema::new());
@@ -28,7 +30,6 @@ lazy_static! {
     static ref DB_CONN_CACHE: HashMap<String, Arc<Mutex<DBConn>>> = {
 
         let mut cache = HashMap::new();
-        let mut rt = Runtime::new().unwrap();
         let local = tokio::task::LocalSet::new();
 
         for connection in CONFIG.connections.keys() {
@@ -38,13 +39,13 @@ lazy_static! {
                 DatabaseType::Mysql => {
                     let url = &CONFIG.get_mysql_cred_str(&connection_config);
 
-                    let pool = local.block_on(&mut rt, mysql::MySqlPoolOptions::new().max_connections(10).connect(url.as_str())).unwrap();
+                    let pool = local.block_on(&mut THREAD_RUNTIME, mysql::MySqlPoolOptions::new().max_connections(10).connect(url.as_str())).unwrap();
 
                     DBConn::MySQLPooledConn(Mutex::new(pool))
                 }
                 DatabaseType::Postgres => {
                     let url = &CONFIG.get_postgres_cred(&connection_config);
-                    let pool = local.block_on(&mut rt, postgres::PgPoolOptions::new().max_connections(10).connect(url.as_str())).unwrap();
+                    let pool = local.block_on(&mut THREAD_RUNTIME, postgres::PgPoolOptions::new().max_connections(10).connect(url.as_str())).unwrap();
                     DBConn::PostgresConn(Mutex::new(pool))
                 }
             };

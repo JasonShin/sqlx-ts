@@ -8,9 +8,7 @@ use std::sync::Arc;
 use std::sync::Mutex;
 
 use color_eyre::Result;
-use mysql::Conn as MySQLConn;
-use postgres::Client as PostgresConn;
-use sqlx::{Pool, MySql, Postgres};
+use sqlx::{MySql, Pool, Postgres};
 use swc_common::errors::Handler;
 
 /// Enum to hold a specific database connection instance
@@ -20,15 +18,19 @@ pub enum DBConn {
 }
 
 impl DBConn {
-    pub fn prepare(
+    pub async fn prepare(
         &self,
         sql: &SQL,
         should_generate_types: &bool,
         handler: &Handler,
     ) -> Result<(bool, Option<TsQuery>)> {
         let (explain_failed, ts_query) = match &self {
-            DBConn::MySQLPooledConn(_conn) => mysql_explain::prepare(&self, sql, should_generate_types, handler)?,
-            DBConn::PostgresConn(_conn) => postgres_explain::prepare(&self, sql, should_generate_types, handler)?,
+            DBConn::MySQLPooledConn(_conn) => {
+                mysql_explain::prepare(&self, sql, should_generate_types, handler).await?
+            }
+            DBConn::PostgresConn(_conn) => {
+                postgres_explain::prepare(&self, sql, should_generate_types, handler).await?
+            }
         };
 
         Ok((explain_failed, ts_query))

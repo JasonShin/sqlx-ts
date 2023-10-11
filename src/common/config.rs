@@ -281,7 +281,8 @@ impl Config {
             host = &conn.db_host,
             port = &conn.db_port,
             db_name = &conn.db_name.clone().unwrap_or(conn.db_user.to_owned()),
-        ).to_string()
+        )
+        .to_string()
     }
 
     pub fn get_mysql_cred(&self, conn: &DbConnectionConfig) -> OptsBuilder {

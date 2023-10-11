@@ -1,19 +1,20 @@
-use crate::common::lazy::{CONFIG, DB_SCHEMA};
+use crate::common::lazy::DB_SCHEMA;
 use crate::common::logger::warning;
 use crate::core::connection::DBConn;
 use crate::ts_generator::errors::TsGeneratorError;
-use crate::ts_generator::sql_parser::expressions::translate_data_type::translate_value;
 use crate::ts_generator::sql_parser::expressions::translate_table_with_joins::translate_table_from_expr;
 use crate::ts_generator::sql_parser::expressions::{
     functions::is_string_function, translate_data_type::translate_data_type,
 };
 use crate::ts_generator::sql_parser::translate_query::translate_query;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
+use async_recursion::async_recursion;
 use convert_case::{Case, Casing};
 use regex::Regex;
 use sqlparser::ast::{Assignment, Expr, TableWithJoins, Value};
 
 use super::functions::{is_date_function, is_numeric_function};
+use color_eyre::Result;
 
 /// Given an expression
 /// e.g.
@@ -140,7 +141,8 @@ pub fn get_sql_query_param(
 }
 
 /// TODO: Add docs about translate expr
-pub fn translate_expr(
+#[async_recursion(?Send)]
+pub async fn translate_expr(
     expr: &Expr,
     single_table_name: &Option<&str>,
     table_with_joins: &Option<Vec<TableWithJoins>>,
@@ -157,7 +159,11 @@ pub fn translate_expr(
         Expr::Identifier(ident) => {
             let column_name = ident.value.to_string();
             let table_name = single_table_name.expect("Missing table name for identifier");
-            let table_details = &DB_SCHEMA.lock().unwrap().fetch_table(&vec![table_name], db_conn);
+            let table_details = &DB_SCHEMA
+                .lock()
+                .unwrap()
+                .fetch_table(&vec![table_name], db_conn)
+                .await;
 
             // TODO: We can also memoize this method
             if let Some(table_details) = table_details {
@@ -183,7 +189,8 @@ pub fn translate_expr(
                 let table_details = &DB_SCHEMA
                     .lock()
                     .unwrap()
-                    .fetch_table(&vec![table_name.as_str()], db_conn);
+                    .fetch_table(&vec![table_name.as_str()], db_conn)
+                    .await;
                 if let Some(table_details) = table_details {
                     let field = table_details.get(&ident).unwrap();
 
@@ -207,21 +214,25 @@ pub fn translate_expr(
             }
             Ok(())
         }
+
         /////////////////////
         // OPERATORS START //
         /////////////////////
         Expr::BinaryOp { left, op: _, right } => {
             let param = get_sql_query_param(left, right, single_table_name, table_with_joins, db_conn);
             if param.is_none() {
-                translate_expr(
-                    &*left,
-                    single_table_name,
-                    table_with_joins,
-                    alias,
-                    ts_query,
-                    db_conn,
-                    is_selection,
-                )?;
+                Box::new(
+                    translate_expr(
+                        &*left,
+                        single_table_name,
+                        table_with_joins,
+                        alias,
+                        ts_query,
+                        db_conn,
+                        is_selection,
+                    )
+                    .await?,
+                );
                 translate_expr(
                     &*right,
                     single_table_name,
@@ -230,7 +241,8 @@ pub fn translate_expr(
                     ts_query,
                     db_conn,
                     is_selection,
-                )?;
+                )
+                .await?;
                 Ok(())
             } else {
                 let (value, index) = param.unwrap();
@@ -238,6 +250,8 @@ pub fn translate_expr(
                 Ok(())
             }
         }
+        /*
+
         Expr::InList { expr, list, negated: _ } => {
             ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, expr_for_logging)?;
             // If the list is just a single `(?)`, then we should return the dynamic
@@ -508,11 +522,12 @@ pub fn translate_expr(
             array_expr: _,
             negated: _,
         } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, &expr_for_logging),
+         */
         _ => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, &expr_for_logging),
     }
 }
 
-pub fn translate_assignment(
+pub async fn translate_assignment(
     assignment: &Assignment,
     table_name: &str,
     ts_query: &mut TsQuery,
@@ -525,6 +540,7 @@ pub fn translate_assignment(
             .lock()
             .unwrap()
             .fetch_table(&vec![table_name], db_conn)
+            .await
             .unwrap();
         let column_name = translate_column_name_assignment(assignment).unwrap();
         let field = table_details

@@ -1,20 +1,14 @@
-use super::connection::DBConn;
 use crate::common::lazy::{CLI_ARGS, CONFIG, DB_CONNECTIONS};
-use crate::common::types::DatabaseType;
 use crate::common::SQL;
-use crate::core::mysql::prepare as mysql_explain;
-use crate::core::postgres::prepare as postgres_explain;
 use crate::ts_generator::generator::{write_colocated_ts_file, write_single_ts_file};
 
 use color_eyre::eyre::Result;
-use std::borrow::BorrowMut;
 use std::collections::HashMap;
-use std::sync::Arc;
 
 use std::path::PathBuf;
 use swc_common::errors::Handler;
 
-pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Result<bool> {
+pub async fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Result<bool> {
     let mut failed = false;
     let should_generate_types = &CONFIG
         .generate_types_config
@@ -29,7 +23,7 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Resul
             let connection = &connection.get_connection(&sql.query).clone();
             let connection = &connection.lock().unwrap();
 
-            let (explain_failed, ts_query) = &connection.prepare(&sql, &should_generate_types, &handler)?;
+            let (explain_failed, ts_query) = &connection.prepare(&sql, &should_generate_types, &handler).await?;
 
             // If any prepare statement fails, we should set the failed flag as true
             failed = explain_failed.clone();

@@ -58,7 +58,8 @@ async fn main() -> Result<()> {
                 std::process::exit(1)
             }
         }
-    }).await?;
+    })
+    .await?;
 
     println!("execute complete");
 
