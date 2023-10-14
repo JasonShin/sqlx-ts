@@ -1,11 +1,8 @@
+use crate::common::lazy::THREAD_RUNTIME;
 use mysql;
-use mysql::prelude::Queryable;
-use postgres;
-use sqlx::{MySql, Pool, Postgres};
-use std::borrow::BorrowMut;
+use sqlx::{MySql, Pool, Postgres, Row};
 use std::collections::HashMap;
-use std::ops::DerefMut;
-use std::sync::Mutex;
+use tokio::task::LocalSet;
 
 use crate::core::connection::DBConn;
 
@@ -44,7 +41,12 @@ impl DBSchema {
     ///
     /// # PostgreSQL Notes
     /// - TABLE_SCHEMA is PostgreSQL is basically 'public' by default. `database_name` is the name of the database itself
-    pub async fn fetch_table(&mut self, table_name: &Vec<&str>, conn: &DBConn) -> Option<Fields> {
+    pub async fn fetch_table(
+        &mut self,
+        thread_local: &LocalSet,
+        table_name: &Vec<&str>,
+        conn: &DBConn,
+    ) -> Option<Fields> {
         let table_key: String = table_name.join(",");
         let cached_table_result = self.tables_cache.get(table_key.as_str());
 
@@ -53,8 +55,8 @@ impl DBSchema {
         }
 
         let result = match &conn {
-            DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, table_name, conn),
-            DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, table_name, conn),
+            DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, &thread_local, table_name, conn),
+            DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, &thread_local, table_name, conn),
         };
 
         if let Some(result) = &result {
@@ -64,7 +66,12 @@ impl DBSchema {
         result
     }
 
-    fn postgres_fetch_table(&self, table_names: &Vec<&str>, conn: &Mutex<Pool<Postgres>>) -> Option<Fields> {
+    fn postgres_fetch_table(
+        &self,
+        thread_local: &LocalSet,
+        table_names: &Vec<&str>,
+        conn: &Pool<Postgres>,
+    ) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))
@@ -85,7 +92,7 @@ impl DBSchema {
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
-        let result = conn.lock().unwrap().borrow_mut().query(&query, &[]);
+        let result = thread_local.block_on(&THREAD_RUNTIME, sqlx::query(&query).fetch_all(conn));
 
         if let Ok(result) = result {
             for row in result {
@@ -105,7 +112,12 @@ impl DBSchema {
         None
     }
 
-    fn mysql_fetch_table(&self, table_names: &Vec<&str>, conn: &mut Mutex<Pool<MySql>>) -> Option<Fields> {
+    fn mysql_fetch_table(
+        &self,
+        thread_local: &LocalSet,
+        table_names: &Vec<&str>,
+        conn: &Pool<MySql>,
+    ) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))
@@ -125,13 +137,13 @@ impl DBSchema {
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
-        let result = conn.lock().unwrap().borrow_mut().query::<mysql::Row, String>(query);
+        let result = thread_local.block_on(&THREAD_RUNTIME, sqlx::query(&query).fetch_all(conn));
 
         if let Ok(result) = result {
             for row in result {
-                let field_name: String = row.clone().take(0).unwrap();
-                let field_type: String = row.clone().take(1).unwrap();
-                let is_nullable: String = row.clone().take(2).unwrap();
+                let field_name: String = row.get::<String, &str>("column_name");
+                let field_type: String = row.get::<String, &str>("data_type");
+                let is_nullable: String = row.get::<String, &str>("is_nullable");
                 let field = Field {
                     field_type: TsFieldType::get_ts_field_type_from_mysql_field_type(field_type.to_owned()),
                     is_nullable: is_nullable == "YES",

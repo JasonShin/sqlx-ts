@@ -8,6 +8,7 @@ use lazy_static::lazy_static;
 use sqlx::{mysql, postgres};
 use tokio;
 use tokio::runtime::Runtime;
+use tokio::task::LocalSet;
 // use mysql::Conn as MySQLConn;
 // use postgres::{Client as PGClient, NoTls as PGNoTls};
 use std::collections::HashMap;
@@ -39,14 +40,14 @@ lazy_static! {
                 DatabaseType::Mysql => {
                     let url = &CONFIG.get_mysql_cred_str(&connection_config);
 
-                    let pool = local.block_on(&mut THREAD_RUNTIME, mysql::MySqlPoolOptions::new().max_connections(10).connect(url.as_str())).unwrap();
+                    let pool = local.block_on(&THREAD_RUNTIME, mysql::MySqlPoolOptions::new().max_connections(10).connect(url.as_str())).unwrap();
 
-                    DBConn::MySQLPooledConn(Mutex::new(pool))
+                    DBConn::MySQLPooledConn(pool)
                 }
                 DatabaseType::Postgres => {
                     let url = &CONFIG.get_postgres_cred(&connection_config);
-                    let pool = local.block_on(&mut THREAD_RUNTIME, postgres::PgPoolOptions::new().max_connections(10).connect(url.as_str())).unwrap();
-                    DBConn::PostgresConn(Mutex::new(pool))
+                    let pool = local.block_on(&THREAD_RUNTIME, postgres::PgPoolOptions::new().max_connections(10).connect(url.as_str())).unwrap();
+                    DBConn::PostgresConn(pool)
                 }
             };
             cache.insert(connection.to_owned(), Arc::new(Mutex::new(conn)));

@@ -6,6 +6,7 @@ use crate::ts_generator::types::ts_query::TsFieldType;
 use crate::ts_generator::types::ts_query::TsQuery;
 use color_eyre::eyre::Result;
 use sqlparser::ast::{Join, Query, SetExpr, TableFactor, TableWithJoins};
+use tokio::task::LocalSet;
 
 pub fn get_all_table_names_from_expr(query: &Query) -> Result<Vec<String>, TsGeneratorError> {
     let body = *query.body.clone();
@@ -53,6 +54,7 @@ pub fn get_all_table_names_from_expr(query: &Query) -> Result<Vec<String>, TsGen
 pub async fn translate_wildcard_expr(
     query: &Query,
     ts_query: &mut TsQuery,
+    thread_local: &LocalSet,
     db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
     let table_with_joins = get_all_table_names_from_expr(query)?;
@@ -65,7 +67,7 @@ pub async fn translate_wildcard_expr(
     let all_fields = DB_SCHEMA
         .lock()
         .unwrap()
-        .fetch_table(&table_with_joins, db_conn)
+        .fetch_table(&thread_local, &table_with_joins, db_conn)
         .await;
     if let Some(all_fields) = all_fields {
         for key in all_fields.keys() {

@@ -1,6 +1,7 @@
 use crate::core::connection::DBConn;
 use crate::ts_generator::sql_parser::expressions::translate_expr::get_expr_placeholder;
 use sqlparser::ast::{Ident, Query, SetExpr};
+use tokio::task::LocalSet;
 
 use crate::common::lazy::DB_SCHEMA;
 use crate::ts_generator::{errors::TsGeneratorError, types::ts_query::TsQuery};
@@ -10,12 +11,13 @@ pub async fn translate_insert(
     columns: &[Ident],
     source: &Query,
     table_name: &str,
+    thread_local: &LocalSet,
     conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
     let table_details = &DB_SCHEMA
         .lock()
         .unwrap()
-        .fetch_table(&vec![table_name], conn)
+        .fetch_table(&thread_local, &vec![table_name], conn)
         .await
         // Nearly impossible to panic at this point as we've already validated queries with prepare statements
         .unwrap();

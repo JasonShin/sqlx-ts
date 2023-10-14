@@ -10,26 +10,28 @@ use std::sync::Mutex;
 use color_eyre::Result;
 use sqlx::{MySql, Pool, Postgres};
 use swc_common::errors::Handler;
+use tokio::task::LocalSet;
 
 /// Enum to hold a specific database connection instance
 pub enum DBConn {
-    MySQLPooledConn(Mutex<Pool<MySql>>),
-    PostgresConn(Mutex<Pool<Postgres>>),
+    MySQLPooledConn(Pool<MySql>),
+    PostgresConn(Pool<Postgres>),
 }
 
 impl DBConn {
     pub async fn prepare(
         &self,
+        thread_local: &LocalSet,
         sql: &SQL,
         should_generate_types: &bool,
         handler: &Handler,
     ) -> Result<(bool, Option<TsQuery>)> {
         let (explain_failed, ts_query) = match &self {
             DBConn::MySQLPooledConn(_conn) => {
-                mysql_explain::prepare(&self, sql, should_generate_types, handler).await?
+                mysql_explain::prepare(&thread_local, &self, sql, should_generate_types, handler).await?
             }
             DBConn::PostgresConn(_conn) => {
-                postgres_explain::prepare(&self, sql, should_generate_types, handler).await?
+                postgres_explain::prepare(&thread_local, &self, sql, should_generate_types, handler).await?
             }
         };
 

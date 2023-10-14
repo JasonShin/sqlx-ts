@@ -1,5 +1,6 @@
 use async_recursion::async_recursion;
 use sqlparser::ast::{Query, SelectItem, SetExpr, TableWithJoins};
+use tokio::task::LocalSet;
 
 use crate::{
     core::connection::DBConn,
@@ -22,6 +23,7 @@ pub async fn translate_query(
     // If there is only 1 entry of table_with_joins, it means it's processing the top level entity
     table_with_joins: &Option<Vec<TableWithJoins>>,
     query: &Query,
+    thread_local: &LocalSet,
     db_conn: &DBConn,
     alias: Option<&str>,
     is_selection: bool,
@@ -60,6 +62,7 @@ pub async fn translate_query(
                             full_table_with_joins,
                             alias,
                             ts_query,
+                            &thread_local,
                             db_conn,
                             is_selection,
                         )
@@ -76,6 +79,7 @@ pub async fn translate_query(
                             full_table_with_joins,
                             Some(alias.as_str()),
                             ts_query,
+                            &thread_local,
                             db_conn,
                             is_selection,
                         )
@@ -86,12 +90,12 @@ pub async fn translate_query(
                         // It will simply generate types for both tables' columns
                         // Should we namespace each field based on the table alias? e.g. table1_field1, table2_field1
                         if is_selection {
-                            translate_wildcard_expr(query, ts_query, db_conn).await?;
+                            translate_wildcard_expr(query, ts_query, &thread_local, db_conn).await?;
                         }
                     }
                     SelectItem::Wildcard(_) => {
                         if is_selection {
-                            translate_wildcard_expr(query, ts_query, db_conn).await?;
+                            translate_wildcard_expr(query, ts_query, &thread_local, db_conn).await?;
                         }
                     }
                 }
@@ -107,6 +111,7 @@ pub async fn translate_query(
                     full_table_with_joins,
                     None,
                     ts_query,
+                    &thread_local,
                     db_conn,
                     false,
                 )
