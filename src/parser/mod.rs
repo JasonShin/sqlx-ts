@@ -245,9 +245,9 @@ pub fn parse_source(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Handl
     let file_path = path.as_os_str().to_str().unwrap().to_string();
     let fm = cm.new_source_file(FileName::Custom(file_path), contents);
     let ts_config: TsConfig = TsConfig {
-        tsx: true,
+        tsx: false,
         decorators: true,
-        dts: true,
+        dts: false,
         no_early_errors: false,
         disallow_ambiguous_jsx_like: false
     };
