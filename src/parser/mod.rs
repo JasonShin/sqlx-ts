@@ -14,6 +14,7 @@ use swc_common::{
     FileName, MultiSpan, SourceMap,
 };
 use swc_ecma_ast::{ClassMember, Decl, Key, ModuleDecl, ModuleItem, Stmt};
+use swc_ecma_parser::TsConfig;
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 use tag::{get_sql_from_expr, get_sql_from_var_decl};
 
@@ -243,8 +244,15 @@ pub fn parse_source(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Handl
 
     let file_path = path.as_os_str().to_str().unwrap().to_string();
     let fm = cm.new_source_file(FileName::Custom(file_path), contents);
+    let ts_config: TsConfig = TsConfig {
+        tsx: false,
+        decorators: true,
+        dts: false,
+        no_early_errors: false,
+        disallow_ambiguous_jsx_like: false
+    };
     let lexer = Lexer::new(
-        Syntax::Typescript(Default::default()),
+        Syntax::Typescript(ts_config),
         Default::default(),
         StringInput::from(&*fm),
         None,
