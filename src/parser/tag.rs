@@ -51,6 +51,7 @@ pub fn get_sql_from_expr<'a>(
     span: &MultiSpan,
     import_alias: &String,
 ) {
+    println!("checking expr {:#?}", expr);
     match &expr {
         Expr::TaggedTpl(tagged_tpl) => {
             let tag = &*tagged_tpl.tag;
