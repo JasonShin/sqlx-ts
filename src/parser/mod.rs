@@ -1,6 +1,6 @@
+mod decl;
 mod import;
 mod tag;
-mod decl;
 
 use std::collections::HashMap;
 use std::{fs, path::PathBuf};
@@ -15,10 +15,10 @@ use swc_common::{
     sync::Lrc,
     FileName, MultiSpan, SourceMap,
 };
-use swc_ecma_ast::{ClassMember, Decl, Key, ModuleDecl, ModuleItem, Stmt};
+use swc_ecma_ast::{Key, ModuleDecl, ModuleItem, Stmt};
 use swc_ecma_parser::TsConfig;
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
-use tag::{get_sql_from_expr, get_sql_from_var_decl};
+use tag::get_sql_from_expr;
 
 fn insert_or_append_sqls(sqls_container: &mut HashMap<PathBuf, Vec<SQL>>, sqls: &Vec<SQL>, file_path: &PathBuf) {
     if sqls_container.contains_key(&*file_path.clone()) {
@@ -142,7 +142,7 @@ pub fn parse_source(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Handl
         decorators: true,
         dts: false,
         no_early_errors: false,
-        disallow_ambiguous_jsx_like: false
+        disallow_ambiguous_jsx_like: false,
     };
     let lexer = Lexer::new(
         Syntax::Typescript(ts_config),
@@ -177,38 +177,44 @@ pub fn parse_source(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Handl
         .unwrap_or_else(|| "sql".to_string());
 
     for item in &_module.body {
-        println!("checking the loop {:#?}", item);
         let mut sqls = vec![];
 
         match item {
             ModuleItem::Stmt(stmt) => {
                 recurse_and_find_sql(&mut sqls, stmt, &import_alias)?;
-                // This is to prevent any emptry string queries being inserted into sqls_map
-                // which will be used to run `PREPARE` step and SQL parser logic
-                let sqls: Vec<SQL> = sqls.into_iter().filter(|sql| !sql.query.is_empty()).collect();
-                insert_or_append_sqls(&mut sqls_map, &sqls, path);
             }
-            ModuleItem::ModuleDecl(decl) => {
-                match decl {
-                    ModuleDecl::Import(import_decl) => {},
-                    ModuleDecl::ExportDecl(export_decl) => {
-                        let decl = export_decl.decl.clone();
-                        process_decl(&mut sqls, &decl, &import_alias);
-                    },
-                    ModuleDecl::ExportNamed(export_named) => {},
-                    ModuleDecl::ExportDefaultDecl(export_default_decl) => {
-                        let decl = export_default_decl.decl.clone();
-                        process_default_decl(&mut sqls, &decl, &import_alias);
-                    },
-                    ModuleDecl::ExportDefaultExpr(_) => todo!(),
-                    ModuleDecl::ExportAll(_) => todo!(),
-                    ModuleDecl::TsImportEquals(_) => todo!(),
-                    ModuleDecl::TsExportAssignment(_) => todo!(),
-                    ModuleDecl::TsNamespaceExport(_) => todo!(),
+            ModuleItem::ModuleDecl(decl) => match decl {
+                ModuleDecl::Import(import_decl) => {
+                    let specifiers = &import_decl.specifiers;
+                    for specifier in specifiers {
+                        match specifier {
+                            swc_ecma_ast::ImportSpecifier::Named(named) => {}
+                            swc_ecma_ast::ImportSpecifier::Default(_) => todo!(),
+                            swc_ecma_ast::ImportSpecifier::Namespace(_) => todo!(),
+                        }
+                    }
                 }
+                ModuleDecl::ExportDecl(export_decl) => {
+                    let decl = export_decl.decl.clone();
+                    process_decl(&mut sqls, &decl, &import_alias)?;
+                }
+                ModuleDecl::ExportNamed(export_named) => {}
+                ModuleDecl::ExportDefaultDecl(export_default_decl) => {
+                    let decl = export_default_decl.decl.clone();
+                    process_default_decl(&mut sqls, &decl, &import_alias)?;
+                }
+                ModuleDecl::ExportDefaultExpr(_) => todo!(),
+                ModuleDecl::ExportAll(_) => todo!(),
+                ModuleDecl::TsImportEquals(_) => todo!(),
+                ModuleDecl::TsExportAssignment(_) => todo!(),
+                ModuleDecl::TsNamespaceExport(_) => todo!(),
             },
-            
         }
+
+        // This is to prevent any emptry string queries being inserted into sqls_map
+        // which will be used to run `PREPARE` step and SQL parser logic
+        let sqls: Vec<SQL> = sqls.into_iter().filter(|sql| !sql.query.is_empty()).collect();
+        insert_or_append_sqls(&mut sqls_map, &sqls, path);
     }
 
     Ok((sqls_map, handler))

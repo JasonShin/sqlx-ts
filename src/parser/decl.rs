@@ -1,10 +1,13 @@
-use swc_common::MultiSpan;
-use swc_ecma_ast::{Decl, ClassMember, DefaultDecl, ClassDecl};
 use color_eyre::eyre::Result;
+use swc_common::MultiSpan;
+use swc_ecma_ast::{ClassDecl, ClassMember, Decl, DefaultDecl};
 
 use crate::common::SQL;
 
-use super::{recurse_and_find_sql, tag::{get_sql_from_expr, get_sql_from_var_decl}, get_var_decl_name_from_key};
+use super::{
+    get_var_decl_name_from_key, recurse_and_find_sql,
+    tag::{get_sql_from_expr, get_sql_from_var_decl},
+};
 
 fn process_class_member(mut sqls: &mut Vec<SQL>, body_stmt: &ClassMember, import_alias: &String) -> Result<()> {
     match body_stmt {
@@ -69,7 +72,7 @@ pub fn process_default_decl(mut sqls: &mut Vec<SQL>, default_decl: &DefaultDecl,
             for body_stmt in class_body {
                 process_class_member(sqls, &body_stmt, import_alias)?;
             }
-        },
+        }
         DefaultDecl::Fn(func) => {
             let body = &func.function.body;
 
@@ -78,15 +81,22 @@ pub fn process_default_decl(mut sqls: &mut Vec<SQL>, default_decl: &DefaultDecl,
                     recurse_and_find_sql(&mut sqls, stmt, import_alias)?;
                 }
             }
-        },
-        DefaultDecl::TsInterfaceDecl(_) => {},
+        }
+        DefaultDecl::TsInterfaceDecl(_) => {}
     }
     Ok(())
-
 }
 
 pub fn process_class_decl(mut sqls: &mut Vec<SQL>, class: &ClassDecl, import_alias: &String) -> Result<()> {
     let class_body = &class.class.body;
+    let class_decorators = &class.class.decorators;
+
+    for decorator in class_decorators {
+        let expr = &decorator.expr;
+        let span: MultiSpan = decorator.span.into();
+        get_sql_from_expr(&mut sqls, &None, expr, &span, import_alias);
+    }
+
     for body_stmt in class_body {
         process_class_member(sqls, &body_stmt, import_alias)?;
     }
