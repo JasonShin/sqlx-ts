@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::{fs, path::PathBuf};
 
 use crate::common::SQL;
-use crate::parser::decl::process_decl;
+use crate::parser::decl::{process_decl, process_default_decl};
 use crate::parser::import::find_sqlx_import_alias;
 use color_eyre::eyre::Result;
 use swc_common::{
@@ -19,7 +19,6 @@ use swc_ecma_ast::{ClassMember, Decl, Key, ModuleDecl, ModuleItem, Stmt};
 use swc_ecma_parser::TsConfig;
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 use tag::{get_sql_from_expr, get_sql_from_var_decl};
-use decl::process_decl;
 
 fn insert_or_append_sqls(sqls_container: &mut HashMap<PathBuf, Vec<SQL>>, sqls: &Vec<SQL>, file_path: &PathBuf) {
     if sqls_container.contains_key(&*file_path.clone()) {
@@ -110,9 +109,9 @@ fn recurse_and_find_sql(mut sqls: &mut Vec<SQL>, stmt: &Stmt, import_alias: &Str
             let body_stmt = *for_of_stmt.body.clone();
             recurse_and_find_sql(&mut sqls, &body_stmt, import_alias)?;
         }
-        Stmt::Decl(decl) => match decl {
+        Stmt::Decl(decl) => {
             process_decl(&mut sqls, decl, import_alias)?;
-        },
+        }
         Stmt::Expr(expr) => {
             let span: MultiSpan = expr.span.into();
             let expr = *expr.expr.clone();
@@ -190,6 +189,23 @@ pub fn parse_source(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Handl
                 insert_or_append_sqls(&mut sqls_map, &sqls, path);
             }
             ModuleItem::ModuleDecl(decl) => {
+                match decl {
+                    ModuleDecl::Import(import_decl) => {},
+                    ModuleDecl::ExportDecl(export_decl) => {
+                        let decl = export_decl.decl.clone();
+                        process_decl(&mut sqls, &decl, &import_alias);
+                    },
+                    ModuleDecl::ExportNamed(export_named) => {},
+                    ModuleDecl::ExportDefaultDecl(export_default_decl) => {
+                        let decl = export_default_decl.decl.clone();
+                        process_default_decl(&mut sqls, &decl, &import_alias);
+                    },
+                    ModuleDecl::ExportDefaultExpr(_) => todo!(),
+                    ModuleDecl::ExportAll(_) => todo!(),
+                    ModuleDecl::TsImportEquals(_) => todo!(),
+                    ModuleDecl::TsExportAssignment(_) => todo!(),
+                    ModuleDecl::TsNamespaceExport(_) => todo!(),
+                }
             },
             
         }
