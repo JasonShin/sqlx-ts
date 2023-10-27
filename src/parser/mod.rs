@@ -15,7 +15,7 @@ use swc_common::{
     sync::Lrc,
     FileName, MultiSpan, SourceMap,
 };
-use swc_ecma_ast::{Key, ModuleDecl, ModuleItem, Stmt};
+use swc_ecma_ast::{ImportSpecifier, Key, ModuleDecl, ModuleItem, Stmt};
 use swc_ecma_parser::TsConfig;
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 use tag::get_sql_from_expr;
@@ -184,27 +184,22 @@ pub fn parse_source(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Handl
                 recurse_and_find_sql(&mut sqls, stmt, &import_alias)?;
             }
             ModuleItem::ModuleDecl(decl) => match decl {
-                ModuleDecl::Import(import_decl) => {
-                    let specifiers = &import_decl.specifiers;
-                    for specifier in specifiers {
-                        match specifier {
-                            swc_ecma_ast::ImportSpecifier::Named(named) => {}
-                            swc_ecma_ast::ImportSpecifier::Default(_) => todo!(),
-                            swc_ecma_ast::ImportSpecifier::Namespace(_) => todo!(),
-                        }
-                    }
-                }
+                ModuleDecl::Import(_) => {}
                 ModuleDecl::ExportDecl(export_decl) => {
                     let decl = export_decl.decl.clone();
                     process_decl(&mut sqls, &decl, &import_alias)?;
                 }
-                ModuleDecl::ExportNamed(export_named) => {}
+                ModuleDecl::ExportNamed(_) => {}
                 ModuleDecl::ExportDefaultDecl(export_default_decl) => {
                     let decl = export_default_decl.decl.clone();
                     process_default_decl(&mut sqls, &decl, &import_alias)?;
                 }
-                ModuleDecl::ExportDefaultExpr(_) => todo!(),
-                ModuleDecl::ExportAll(_) => todo!(),
+                ModuleDecl::ExportDefaultExpr(export_default_expr) => {
+                    let expr = export_default_expr.expr.clone();
+                    let span: MultiSpan = export_default_expr.span.into();
+                    get_sql_from_expr(&mut sqls, &None, &expr, &span, &import_alias)
+                }
+                ModuleDecl::ExportAll(_) => {}
                 ModuleDecl::TsImportEquals(_) => todo!(),
                 ModuleDecl::TsExportAssignment(_) => todo!(),
                 ModuleDecl::TsNamespaceExport(_) => todo!(),
