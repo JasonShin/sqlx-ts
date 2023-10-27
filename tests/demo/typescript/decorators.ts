@@ -10,6 +10,69 @@ function SomeDeco(target: typeof DecoClass, context): typeof DecoClass {
 class DecoClass {
     constructor() {
         console.log('class test')
-        const decoQuery = sql`SELECT id FROM items`
+        const privDecoConstructor = sql`SELECT id FROM items`
+    }
+
+    findAll() {
+        const privDecoMethod = sql`SELECT id FROM items`
+    }
+
+    async findNothing() {
+        const privDecoMethod = sql`SELECT id FROM items`
+    }
+
+    public findPublic() {
+        const pubDecoMethod = sql`SELECT id FROM items`
+    }
+
+    protected findProtected() {
+        const protDecoMethod = sql`SELECT id FROM items`
+    }
+}
+
+export class DecoClass2 {
+    constructor() {
+        console.log('class test')
+        const privDecoConstructor = sql`SELECT id FROM items`
+    }
+
+    findAll() {
+        const privDecoMethod = sql`SELECT id FROM items`
+    }
+
+    async findNothing() {
+        const privDecoMethod = sql`SELECT id FROM items`
+    }
+
+    public findPublic() {
+        const pubDecoMethod = sql`SELECT id FROM items`
+    }
+
+    protected findProtected() {
+        const protDecoMethod = sql`SELECT id FROM items`
+    }
+}
+
+
+export default class DecoClassDefault {
+    constructor() {
+        console.log('class test')
+        const privDecoConstructor = sql`SELECT id FROM items`
+    }
+
+    findAll() {
+        const privDecoMethod = sql`SELECT id FROM items`
+    }
+
+    async findNothing() {
+        const privDecoMethod = sql`SELECT id FROM items`
+    }
+
+    public findPublic() {
+        const pubDecoMethod = sql`SELECT id FROM items`
+    }
+
+    protected findProtected() {
+        const protDecoMethod = sql`SELECT id FROM items`
     }
 }

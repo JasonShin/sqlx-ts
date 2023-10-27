@@ -1,3 +1,4 @@
+mod decl;
 mod import;
 mod tag;
 
@@ -5,6 +6,7 @@ use std::collections::HashMap;
 use std::{fs, path::PathBuf};
 
 use crate::common::SQL;
+use crate::parser::decl::{process_decl, process_default_decl};
 use crate::parser::import::find_sqlx_import_alias;
 use color_eyre::eyre::Result;
 use swc_common::{
@@ -13,10 +15,10 @@ use swc_common::{
     sync::Lrc,
     FileName, MultiSpan, SourceMap,
 };
-use swc_ecma_ast::{ClassMember, Decl, Key, ModuleDecl, ModuleItem, Stmt};
+use swc_ecma_ast::{ImportSpecifier, Key, ModuleDecl, ModuleItem, Stmt};
 use swc_ecma_parser::TsConfig;
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
-use tag::{get_sql_from_expr, get_sql_from_var_decl};
+use tag::get_sql_from_expr;
 
 fn insert_or_append_sqls(sqls_container: &mut HashMap<PathBuf, Vec<SQL>>, sqls: &Vec<SQL>, file_path: &PathBuf) {
     if sqls_container.contains_key(&*file_path.clone()) {
@@ -107,118 +109,9 @@ fn recurse_and_find_sql(mut sqls: &mut Vec<SQL>, stmt: &Stmt, import_alias: &Str
             let body_stmt = *for_of_stmt.body.clone();
             recurse_and_find_sql(&mut sqls, &body_stmt, import_alias)?;
         }
-        Stmt::Decl(decl) => match decl {
-            Decl::Class(class) => {
-                let class_body = &class.class.body;
-                for body_stmt in class_body {
-                    match body_stmt {
-                        ClassMember::Constructor(constructor) => {
-                            if let Some(body) = &constructor.body {
-                                for stmt in &body.stmts {
-                                    recurse_and_find_sql(&mut sqls, stmt, import_alias)?;
-                                }
-                            }
-                        }
-                        ClassMember::Method(class_method) => {
-                            if let Some(body) = &class_method.function.body {
-                                for stmt in &body.stmts {
-                                    recurse_and_find_sql(&mut sqls, stmt, import_alias)?;
-                                }
-                            }
-                        }
-                        ClassMember::PrivateMethod(private_method) => {
-                            if let Some(body) = &private_method.function.body {
-                                for stmt in &body.stmts {
-                                    recurse_and_find_sql(&mut sqls, stmt, import_alias)?;
-                                }
-                            }
-                        }
-                        ClassMember::StaticBlock(static_block) => {
-                            for stmt in &static_block.body.stmts {
-                                recurse_and_find_sql(&mut sqls, stmt, import_alias)?;
-                            }
-                        }
-                        ClassMember::PrivateProp(private_prop) => {
-                            if let Some(expr) = &private_prop.value {
-                                let span: MultiSpan = private_prop.span.into();
-                                get_sql_from_expr(&mut sqls, &None, &expr.clone(), &span, import_alias);
-                            }
-                        }
-                        ClassMember::ClassProp(class_prop) => {
-                            if let Some(expr) = &class_prop.value {
-                                let span: MultiSpan = class_prop.span.into();
-                                get_sql_from_expr(&mut sqls, &None, &expr.clone(), &span, import_alias);
-                            }
-                        }
-                        ClassMember::AutoAccessor(auto_accessor) => {
-                            let value = &auto_accessor.value;
-                            let key = &auto_accessor.key;
-
-                            if let Some(expr) = &value {
-                                let span: MultiSpan = auto_accessor.span.into();
-                                let var_decl_name = get_var_decl_name_from_key(&key);
-                                get_sql_from_expr(&mut sqls, &var_decl_name, expr, &span, import_alias);
-                            }
-                        }
-                        ClassMember::TsIndexSignature(_) => {}
-                        ClassMember::Empty(_) => {}
-                    }
-                }
-            }
-            Decl::Fn(fun) => {
-                if let Some(body) = &fun.function.body {
-                    for stmt in &body.stmts {
-                        recurse_and_find_sql(&mut sqls, stmt, import_alias)?;
-                    }
-                }
-            }
-            Decl::Var(var) => {
-                for var_decl in &var.decls {
-                    let span: MultiSpan = var.span.into();
-                    let new_sqls = get_sql_from_var_decl(var_decl, &span, import_alias);
-                    let num_new_sqls = new_sqls.len();
-
-                    sqls.extend(new_sqls);
-
-                    // We've already found the sqls based on the variable name, we should skip processing further
-                    if num_new_sqls > 0 {
-                        continue;
-                    }
-                    // Try to retrieve name of the variable
-                    let name = var_decl.name.as_ident().map(|ident| ident.sym.to_string());
-                    // this is when the variable name is not found due to syntax like
-                    // const [rows, i] = await connection.execute....
-                    if let Some(init) = &var_decl.init {
-                        let expr = *init.clone();
-                        get_sql_from_expr(&mut sqls, &name, &expr, &span, import_alias);
-                    }
-                }
-            }
-            Decl::TsInterface(_) => {}
-            Decl::TsTypeAlias(_) => {}
-            Decl::TsEnum(_) => {}
-            Decl::TsModule(module) => {
-                for stmt in &module.body {
-                    for block in &stmt.as_ts_module_block() {
-                        for body in &block.body {
-                            let stmt = &body.clone().stmt();
-                            if let Some(stmt) = stmt {
-                                recurse_and_find_sql(&mut sqls, stmt, import_alias)?;
-                            }
-                        }
-                    }
-                }
-            }
-            Decl::Using(using) => {
-                for decl in &using.decls {
-                    let init = &decl.init;
-                    if let Some(expr) = init {
-                        let span: &MultiSpan = &using.span.into();
-                        get_sql_from_expr(sqls, &None, expr, span, import_alias);
-                    }
-                }
-            }
-        },
+        Stmt::Decl(decl) => {
+            process_decl(&mut sqls, decl, import_alias)?;
+        }
         Stmt::Expr(expr) => {
             let span: MultiSpan = expr.span.into();
             let expr = *expr.expr.clone();
@@ -249,7 +142,7 @@ pub fn parse_source(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Handl
         decorators: true,
         dts: false,
         no_early_errors: false,
-        disallow_ambiguous_jsx_like: false
+        disallow_ambiguous_jsx_like: false,
     };
     let lexer = Lexer::new(
         Syntax::Typescript(ts_config),
@@ -284,17 +177,39 @@ pub fn parse_source(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Handl
         .unwrap_or_else(|| "sql".to_string());
 
     for item in &_module.body {
+        let mut sqls = vec![];
+
         match item {
             ModuleItem::Stmt(stmt) => {
-                let mut sqls = vec![];
                 recurse_and_find_sql(&mut sqls, stmt, &import_alias)?;
-                // This is to prevent any emptry string queries being inserted into sqls_map
-                // which will be used to run `PREPARE` step and SQL parser logic
-                let sqls: Vec<SQL> = sqls.into_iter().filter(|sql| !sql.query.is_empty()).collect();
-                insert_or_append_sqls(&mut sqls_map, &sqls, path);
             }
-            _ => {}
+            ModuleItem::ModuleDecl(decl) => match decl {
+                ModuleDecl::Import(_) => {}
+                ModuleDecl::ExportDecl(export_decl) => {
+                    let decl = export_decl.decl.clone();
+                    process_decl(&mut sqls, &decl, &import_alias)?;
+                }
+                ModuleDecl::ExportNamed(_) => {}
+                ModuleDecl::ExportDefaultDecl(export_default_decl) => {
+                    let decl = export_default_decl.decl.clone();
+                    process_default_decl(&mut sqls, &decl, &import_alias)?;
+                }
+                ModuleDecl::ExportDefaultExpr(export_default_expr) => {
+                    let expr = export_default_expr.expr.clone();
+                    let span: MultiSpan = export_default_expr.span.into();
+                    get_sql_from_expr(&mut sqls, &None, &expr, &span, &import_alias)
+                }
+                ModuleDecl::ExportAll(_) => {}
+                ModuleDecl::TsImportEquals(_) => todo!(),
+                ModuleDecl::TsExportAssignment(_) => todo!(),
+                ModuleDecl::TsNamespaceExport(_) => todo!(),
+            },
         }
+
+        // This is to prevent any emptry string queries being inserted into sqls_map
+        // which will be used to run `PREPARE` step and SQL parser logic
+        let sqls: Vec<SQL> = sqls.into_iter().filter(|sql| !sql.query.is_empty()).collect();
+        insert_or_append_sqls(&mut sqls_map, &sqls, path);
     }
 
     Ok((sqls_map, handler))
