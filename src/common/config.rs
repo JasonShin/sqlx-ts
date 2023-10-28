@@ -106,23 +106,27 @@ impl Config {
         let file_based_config = fs::read_to_string(file_config_path);
         let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
 
-        let generate_types = &file_based_config
-            .as_ref()
-            .map(|config| {
-                config.generate_types.to_owned().map(|x| GenerateTypesConfig {
-                    enabled: CLI_ARGS.generate_types || x.enabled,
-                    generate_path: x.generate_path.or(CLI_ARGS.generate_path.to_owned()),
-                    convert_to_camel_case_column_name: x.convert_to_camel_case_column_name,
-                })
-            })
-            // If the file config is not provided, we will return the CLI arg's default values
-            .unwrap_or(Some(GenerateTypesConfig {
-                enabled: CLI_ARGS.generate_types,
-                generate_path: CLI_ARGS.generate_path.to_owned(),
-                convert_to_camel_case_column_name: false,
-            }));
+        let cli_default = GenerateTypesConfig {
+            enabled: CLI_ARGS.generate_types,
+            convert_to_camel_case_column_name: false,
+            generate_path: CLI_ARGS.generate_path.to_owned(),
+        };
 
-        generate_types.to_owned()
+        if let Ok(file_based_config) = &file_based_config {
+            if let Some(generate_types) = &file_based_config.generate_types {
+                let generate_types = generate_types.clone();
+                // If the file config is provided, we will return the file config's default values but CLI config as priority
+                return Some(GenerateTypesConfig {
+                    enabled: CLI_ARGS.generate_types || generate_types.enabled,
+                    generate_path: generate_types.generate_path.or(CLI_ARGS.generate_path.to_owned()),
+                    convert_to_camel_case_column_name: generate_types.convert_to_camel_case_column_name,
+                });
+            }
+            // If the file config is not provided, we will return the CLI arg's default values
+            return Some(cli_default);
+        } else {
+            return Some(cli_default);
+        }
     }
 
     /// Build the initial connection config to be used as a HashMap
