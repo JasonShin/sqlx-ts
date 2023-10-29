@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod cli_test {
-    use std::fs;
-    use std::env::current_dir;
-    use tempfile::tempdir;
-    use std::io::Write;
     use assert_cmd::Command;
+    use std::env::current_dir;
+    use std::fs;
+    use std::io::Write;
+    use tempfile::tempdir;
 
     #[test]
     fn generate_types_work_when_both_cli_and_file_provides_it() -> Result<(), Box<dyn std::error::Error>> {
@@ -15,7 +15,9 @@ mod cli_test {
         let parent_path = dir.path();
         let config_file_path = parent_path.join(".sqlxrc.json");
 
-        if sample_query_path.exists() { fs::remove_file(&sample_query_path)?; }
+        if sample_query_path.exists() {
+            fs::remove_file(&sample_query_path)?;
+        }
         let mut temp_file = fs::File::create(&config_file_path)?;
         let config_content = r#"
 {
@@ -60,7 +62,9 @@ mod cli_test {
         let parent_path = dir.path();
         let config_file_path = parent_path.join(".sqlxrc.json");
 
-        if sample_query_path.exists() { fs::remove_file(&sample_query_path)?; }
+        if sample_query_path.exists() {
+            fs::remove_file(&sample_query_path)?;
+        }
         let mut temp_file = fs::File::create(&config_file_path)?;
         let config_content = r#"
 {
@@ -92,5 +96,4 @@ mod cli_test {
         assert_eq!(sample_query_path.exists(), true);
         Ok(())
     }
-
 }
