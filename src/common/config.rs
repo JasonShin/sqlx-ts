@@ -18,10 +18,15 @@ pub struct SqlxConfig {
     pub connections: HashMap<String, DbConnectionConfig>,
 }
 
+
+pub const fn default_bool<const V: bool>() -> bool {
+    V
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct GenerateTypesConfig {
     pub enabled: bool,
-    #[serde(rename = "convertToCamelCaseColumnName")]
+    #[serde(rename = "convertToCamelCaseColumnName", default="default_bool::<true>")]
     pub convert_to_camel_case_column_name: bool,
     pub generate_path: Option<PathBuf>,
 }
@@ -108,7 +113,7 @@ impl Config {
 
         let cli_default = GenerateTypesConfig {
             enabled: CLI_ARGS.generate_types,
-            convert_to_camel_case_column_name: false,
+            convert_to_camel_case_column_name: true,
             generate_path: CLI_ARGS.generate_path.to_owned(),
         };
 
