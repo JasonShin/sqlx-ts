@@ -70,6 +70,7 @@ impl Config {
         let generate_types_config = Self::generate_types_config(file_config_path);
         let generate_types_config =
             generate_types_config.and_then(|config| if config.enabled { Some(config) } else { None });
+        println!("checking generate types config {:#?}", generate_types_config);
         let ignore_patterns = Self::get_ignore_patterns(&default_ignore_config_path);
         let log_level = Self::get_log_level(file_config_path);
 
@@ -136,7 +137,21 @@ impl Config {
     /// Build the initial connection config to be used as a HashMap
     fn build_configs(dotenv: &Dotenv, file_config_path: &PathBuf) -> HashMap<String, DbConnectionConfig> {
         let file_based_config = fs::read_to_string(file_config_path);
-        let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
+        let file_based_config = &file_based_config.map(|f| {
+            let result = serde_json::from_str::<SqlxConfig>(f.as_str());
+
+            if result.is_err() {
+                panic!(
+                    "{}",
+                    format!(
+                        "Empty or invalid JSON provided for file based configuration - config file: {:?}",
+                        file_config_path
+                    )
+                )
+            }
+
+            result.unwrap()
+        });
 
         let connections = &mut file_based_config
             .as_ref()
