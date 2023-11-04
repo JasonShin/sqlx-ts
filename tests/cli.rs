@@ -15,7 +15,9 @@ mod cli_test {
         let parent_path = dir.path();
         let config_file_path = parent_path.join(".sqlxrc.json");
 
-        if sample_query_path.exists() { fs::remove_file(&sample_query_path)?; }
+        if sample_query_path.exists() {
+            fs::remove_file(&sample_query_path)?;
+        }
         let mut temp_file = fs::File::create(&config_file_path)?;
         let config_content = r#"{}"#;
         writeln!(temp_file, "{}", config_content)?;
@@ -33,9 +35,9 @@ mod cli_test {
             .arg("--db-name=postgres")
             .arg("-g");
 
-        cmd.assert()
-            .failure()
-            .stderr(predicates::str::contains("Empty or invalid JSON provided for file based configuration - config file:"));
+        cmd.assert().failure().stderr(predicates::str::contains(
+            "Empty or invalid JSON provided for file based configuration - config file:",
+        ));
 
         assert_eq!(sample_query_path.exists(), false);
         Ok(())
@@ -50,7 +52,9 @@ mod cli_test {
         let parent_path = dir.path();
         let config_file_path = parent_path.join(".sqlxrc.json");
 
-        if sample_query_path.exists() { fs::remove_file(&sample_query_path)?; }
+        if sample_query_path.exists() {
+            fs::remove_file(&sample_query_path)?;
+        }
         let mut temp_file = fs::File::create(&config_file_path)?;
         let config_content = r#""#;
         writeln!(temp_file, "{}", config_content)?;
@@ -68,9 +72,9 @@ mod cli_test {
             .arg("--db-name=sqlx-ts")
             .arg("-g");
 
-        cmd.assert()
-            .failure()
-            .stderr(predicates::str::contains("Empty or invalid JSON provided for file based configuration - config file:"));
+        cmd.assert().failure().stderr(predicates::str::contains(
+            "Empty or invalid JSON provided for file based configuration - config file:",
+        ));
 
         assert_eq!(sample_query_path.exists(), false);
         Ok(())
