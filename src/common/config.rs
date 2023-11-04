@@ -18,10 +18,14 @@ pub struct SqlxConfig {
     pub connections: HashMap<String, DbConnectionConfig>,
 }
 
+pub const fn default_bool<const V: bool>() -> bool {
+    V
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct GenerateTypesConfig {
     pub enabled: bool,
-    #[serde(rename = "convertToCamelCaseColumnName")]
+    #[serde(rename = "convertToCamelCaseColumnName", default = "default_bool::<true>")]
     pub convert_to_camel_case_column_name: bool,
     pub generate_path: Option<PathBuf>,
 }
@@ -66,6 +70,7 @@ impl Config {
         let generate_types_config = Self::generate_types_config(file_config_path);
         let generate_types_config =
             generate_types_config.and_then(|config| if config.enabled { Some(config) } else { None });
+        println!("checking generate types config {:#?}", generate_types_config);
         let ignore_patterns = Self::get_ignore_patterns(&default_ignore_config_path);
         let log_level = Self::get_log_level(file_config_path);
 
@@ -106,29 +111,47 @@ impl Config {
         let file_based_config = fs::read_to_string(file_config_path);
         let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
 
-        let generate_types = &file_based_config
-            .as_ref()
-            .map(|config| {
-                config.generate_types.to_owned().map(|x| GenerateTypesConfig {
-                    enabled: CLI_ARGS.generate_types || x.enabled,
-                    generate_path: x.generate_path.or(CLI_ARGS.generate_path.to_owned()),
-                    convert_to_camel_case_column_name: x.convert_to_camel_case_column_name,
-                })
-            })
-            // If the file config is not provided, we will return the CLI arg's default values
-            .unwrap_or(Some(GenerateTypesConfig {
-                enabled: CLI_ARGS.generate_types,
-                generate_path: CLI_ARGS.generate_path.to_owned(),
-                convert_to_camel_case_column_name: false,
-            }));
+        let cli_default = GenerateTypesConfig {
+            enabled: CLI_ARGS.generate_types,
+            convert_to_camel_case_column_name: true,
+            generate_path: CLI_ARGS.generate_path.to_owned(),
+        };
 
-        generate_types.to_owned()
+        if let Ok(file_based_config) = &file_based_config {
+            if let Some(generate_types) = &file_based_config.generate_types {
+                let generate_types = generate_types.clone();
+                // If the file config is provided, we will return the file config's default values but CLI config as priority
+                return Some(GenerateTypesConfig {
+                    enabled: CLI_ARGS.generate_types || generate_types.enabled,
+                    generate_path: generate_types.generate_path.or(CLI_ARGS.generate_path.to_owned()),
+                    convert_to_camel_case_column_name: generate_types.convert_to_camel_case_column_name,
+                });
+            }
+            // If the file config is not provided, we will return the CLI arg's default values
+            return Some(cli_default);
+        } else {
+            return Some(cli_default);
+        }
     }
 
     /// Build the initial connection config to be used as a HashMap
     fn build_configs(dotenv: &Dotenv, file_config_path: &PathBuf) -> HashMap<String, DbConnectionConfig> {
         let file_based_config = fs::read_to_string(file_config_path);
-        let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
+        let file_based_config = &file_based_config.map(|f| {
+            let result = serde_json::from_str::<SqlxConfig>(f.as_str());
+
+            if result.is_err() {
+                panic!(
+                    "{}",
+                    format!(
+                        "Empty or invalid JSON provided for file based configuration - config file: {:?}",
+                        file_config_path
+                    )
+                )
+            }
+
+            result.unwrap()
+        });
 
         let connections = &mut file_based_config
             .as_ref()

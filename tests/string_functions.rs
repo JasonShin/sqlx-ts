@@ -70,7 +70,7 @@ r#"
 export type SomeQueryParams = [string];
 
 export interface ISomeQueryResult {
-    ExtractString: string;
+    extractString: string;
 };
 
 export interface ISomeQueryQuery {

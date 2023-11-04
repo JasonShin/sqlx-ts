@@ -19,7 +19,7 @@ JOIN tables ON items.table_id = tables.id
         // SETUP
         let dir = tempdir()?;
         let parent_path = dir.path();
-        let file_path = parent_path.join("index.ts".to_string());
+        let file_path = parent_path.join("index.ts");
         let mut temp_file = fs::File::create(file_path)?;
         writeln!(temp_file, "{}", ts_content)?;
 
@@ -54,7 +54,7 @@ JOIN tables ON items.table_id = tables.id
         // SETUP
         let dir = tempdir().unwrap();
         let parent_path = dir.path();
-        let file_path = parent_path.join("index.ts".to_string());
+        let file_path = parent_path.join("index.ts");
         let mut temp_file = fs::File::create(file_path).unwrap();
         writeln!(temp_file, "{}", ts_content).unwrap();
 
@@ -87,7 +87,7 @@ JOIN tables ON items.table_id = tables.id
         // SETUP
         let dir = tempdir()?;
         let parent_path = dir.path();
-        let file_path = parent_path.join("index.ts".to_string());
+        let file_path = parent_path.join("index.ts");
         let mut temp_file = fs::File::create(file_path)?;
         writeln!(temp_file, "{}", ts_content)?;
 
