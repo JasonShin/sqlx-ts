@@ -39,7 +39,7 @@ mod cli_test {
             "Empty or invalid JSON provided for file based configuration - config file:",
         ));
 
-        assert_eq!(sample_query_path.exists(), false);
+        assert!(!sample_query_path.exists());
         Ok(())
     }
 
@@ -76,7 +76,7 @@ mod cli_test {
             "Empty or invalid JSON provided for file based configuration - config file:",
         ));
 
-        assert_eq!(sample_query_path.exists(), false);
+        assert!(!sample_query_path.exists());
         Ok(())
     }
 
@@ -123,7 +123,7 @@ mod cli_test {
             .success()
             .stdout(predicates::str::contains("No SQL errors detected!"));
 
-        assert_eq!(sample_query_path.exists(), true);
+        assert!(sample_query_path.exists());
         Ok(())
     }
 
@@ -167,7 +167,7 @@ mod cli_test {
             .success()
             .stdout(predicates::str::contains("No SQL errors detected!"));
 
-        assert_eq!(sample_query_path.exists(), true);
+        assert!(sample_query_path.exists());
         Ok(())
     }
 
@@ -214,7 +214,7 @@ mod cli_test {
             .success()
             .stdout(predicates::str::contains("No SQL errors detected!"));
 
-        assert_eq!(sample_query_path.exists(), true);
+        assert!(sample_query_path.exists());
         Ok(())
     }
 }
