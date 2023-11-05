@@ -523,7 +523,7 @@ pub fn translate_assignment(
         let field = table_details
             .get(&column_name)
             .unwrap_or_else(|| panic!("Failed to find the column detail for {column_name}"));
-        ts_query.insert_param(&field.field_type, &value);
+        let _ = ts_query.insert_param(&field.field_type, &value);
     }
     Ok(())
 }

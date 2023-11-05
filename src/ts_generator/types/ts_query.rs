@@ -218,16 +218,16 @@ impl TsQuery {
         expr_for_logging: &str,
     ) -> Result<(), TsGeneratorError> {
         if is_selection {
-            if alias.is_some() {
-                let temp_alias = alias.clone().unwrap();
-                let alias = &self.format_column_name(alias.clone().unwrap());
+            if let Some(alias) = alias {
+                let temp_alias = alias.clone();
+                let alias = &self.format_column_name(alias);
                 let value = &self
                     .annotated_results
                     .get(temp_alias)
                     .cloned()
                     .unwrap_or_else(|| value.to_vec());
 
-                &self.result.insert(alias.to_owned(), value.to_owned());
+                let _ = &self.result.insert(alias.to_owned(), value.to_owned());
             } else {
                 return Err(TsGeneratorError::MissingAliasForFunctions(expr_for_logging.to_string()));
             }

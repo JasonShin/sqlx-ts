@@ -117,11 +117,11 @@ pub fn translate_table_with_joins(
     table_with_joins: &Option<Vec<TableWithJoins>>,
     select_item: &SelectItem,
 ) -> Option<String> {
-    if table_with_joins.is_none() == true {
+    if table_with_joins.is_none() {
         return None;
     }
 
-    let table_with_joins = table_with_joins.as_ref().unwrap().as_ref();
+    let table_with_joins = table_with_joins.as_ref().unwrap();
     let default_table_name = get_default_table(table_with_joins);
 
     match select_item {
