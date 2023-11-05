@@ -214,7 +214,7 @@ pub fn translate_expr(
                 Ok(())
             } else {
                 translate_expr(
-                    &*left,
+                    left,
                     single_table_name,
                     table_with_joins,
                     alias,
@@ -223,7 +223,7 @@ pub fn translate_expr(
                     is_selection,
                 )?;
                 translate_expr(
-                    &*right,
+                    right,
                     single_table_name,
                     table_with_joins,
                     alias,
@@ -288,7 +288,7 @@ pub fn translate_expr(
             Ok(())
         }
         Expr::AnyOp(expr) | Expr::AllOp(expr) => translate_expr(
-            &*expr,
+            expr,
             single_table_name,
             table_with_joins,
             alias,
@@ -297,7 +297,7 @@ pub fn translate_expr(
             is_selection,
         ),
         Expr::UnaryOp { op: _, expr } => translate_expr(
-            &*expr,
+            expr,
             single_table_name,
             table_with_joins,
             alias,
@@ -488,7 +488,7 @@ pub fn translate_expr(
             translate_query(ts_query, table_with_joins, sub_query, db_conn, alias, false)
         }
         Expr::Nested(expr) => translate_expr(
-            &*expr,
+            expr,
             single_table_name,
             table_with_joins,
             alias,

@@ -4,7 +4,9 @@
     clippy::perf,
     clippy::unnecessary_unwrap,
     clippy::bool_comparison,
-    clippy::useless_asref
+    clippy::useless_asref,
+    clippy::borrow_deref_ref,
+    clippy::clone_on_copy
 )]
 #![allow(clippy::ptr_arg)]
 mod common;

@@ -94,7 +94,7 @@ impl TsFieldType {
             TsFieldType::Null => TsFieldType::Array(ArrayItem::Null),
             TsFieldType::Any => TsFieldType::Array(ArrayItem::Any),
             TsFieldType::Never => panic!("Cannot convert never to an array of never"),
-            TsFieldType::Array(arr) => TsFieldType::Array(arr.clone()),
+            TsFieldType::Array(arr) => TsFieldType::Array(*arr),
             TsFieldType::Array2D(_) => todo!(),
         }
     }
