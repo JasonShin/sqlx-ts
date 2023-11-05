@@ -1,4 +1,4 @@
-#![deny(clippy::correctness, clippy::style)]
+#![deny(clippy::correctness, clippy::style, clippy::perf)]
 #![allow(clippy::ptr_arg)]
 mod common;
 mod core;

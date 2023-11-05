@@ -129,11 +129,11 @@ pub fn get_sql_from_expr<'a>(
         Expr::Fn(_) => {}
         Expr::Unary(unary) => {
             let expr = &unary.arg;
-            return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+            get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias)
         }
         Expr::Update(update) => {
             let expr = &update.arg;
-            return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+            get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias)
         }
         Expr::Bin(bin) => {
             let left = &bin.left;
@@ -152,7 +152,7 @@ pub fn get_sql_from_expr<'a>(
         }
         Expr::Member(member) => {
             let obj = &member.obj;
-            return get_sql_from_expr(sqls, var_decl_name, obj, span, import_alias);
+            get_sql_from_expr(sqls, var_decl_name, obj, span, import_alias)
         }
         Expr::SuperProp(s) => {
             let super_prop = &s.prop;
@@ -160,7 +160,7 @@ pub fn get_sql_from_expr<'a>(
                 SuperProp::Ident(_) => {}
                 SuperProp::Computed(comp) => {
                     let expr = &comp.expr;
-                    return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+                    get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias)
                 }
             }
         }
@@ -282,7 +282,7 @@ pub fn get_sql_from_expr<'a>(
         Expr::Yield(yield_expr) => {
             let expr = &yield_expr.arg;
             if let Some(expr) = expr {
-                return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+                get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias)
             }
         }
         Expr::MetaProp(_) => {}

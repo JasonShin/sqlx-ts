@@ -41,7 +41,7 @@ pub fn prepare(
     let mut ts_query = None;
 
     if should_generate_types == &true {
-        ts_query = Some(generate_ts_interface(sql, &db_conn)?);
+        ts_query = Some(generate_ts_interface(sql, db_conn)?);
     }
 
     Ok((failed, ts_query))
