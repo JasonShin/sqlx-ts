@@ -1,3 +1,5 @@
+#![deny(clippy::correctness, clippy::style)]
+#![allow(clippy::ptr_arg)]
 mod common;
 mod core;
 mod parser;
@@ -44,7 +46,7 @@ fn main() -> Result<()> {
     clear_single_ts_file_if_exists()?;
 
     for file_path in files.iter() {
-        let (sqls, handler) = parse_source(&file_path)?;
+        let (sqls, handler) = parse_source(file_path)?;
         let failed = execute(&sqls, &handler)?;
         if failed {
             eprint!("SQLs failed to compile!");

@@ -54,7 +54,7 @@ pub fn translate_query(
                         // Handles SQL Expression and appends result
                         translate_expr(
                             unnamed_expr,
-                            &Some(&table_name.as_str()),
+                            &Some(table_name.as_str()),
                             full_table_with_joins,
                             alias,
                             ts_query,

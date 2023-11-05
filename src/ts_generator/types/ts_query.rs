@@ -84,7 +84,7 @@ impl TsFieldType {
     ///
     /// # Panic
     /// It would panic if you try to insert a never type as an array item
-    pub fn to_array_item(self) -> Self {
+    pub fn to_array_item(&self) -> Self {
         match self {
             TsFieldType::String => TsFieldType::Array(ArrayItem::String),
             TsFieldType::Number => TsFieldType::Array(ArrayItem::Number),
@@ -94,7 +94,7 @@ impl TsFieldType {
             TsFieldType::Null => TsFieldType::Array(ArrayItem::Null),
             TsFieldType::Any => TsFieldType::Array(ArrayItem::Any),
             TsFieldType::Never => panic!("Cannot convert never to an array of never"),
-            TsFieldType::Array(arr) => TsFieldType::Array(arr),
+            TsFieldType::Array(arr) => TsFieldType::Array(arr.clone()),
             TsFieldType::Array2D(_) => todo!(),
         }
     }

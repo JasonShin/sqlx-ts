@@ -37,18 +37,16 @@ use super::functions::{is_date_function, is_numeric_function};
 /// it should return None
 pub fn get_expr_placeholder(expr: &Expr) -> Option<String> {
     let re = Regex::new(r"(\$\d+)").unwrap();
-    if let Expr::Value(value) = &expr {
-        if let Value::Placeholder(placeholder) = value {
-            let indexed_binding_params = re.captures(placeholder);
-            if placeholder == "?" {
-                return Some("?".to_string());
-            } else if indexed_binding_params.is_some() {
-                // Rarely we will get an unwrap issue at this point because invalid syntax should be caught
-                // during `prepare` step
-                let placeholder = indexed_binding_params.unwrap().get(1).unwrap().as_str().to_string();
+    if let Expr::Value(Value::Placeholder(placeholder)) = &expr {
+        let indexed_binding_params = re.captures(placeholder);
+        if placeholder == "?" {
+            return Some("?".to_string());
+        } else if indexed_binding_params.is_some() {
+            // Rarely we will get an unwrap issue at this point because invalid syntax should be caught
+            // during `prepare` step
+            let placeholder = indexed_binding_params.unwrap().get(1).unwrap().as_str().to_string();
 
-                return Some(placeholder);
-            }
+            return Some(placeholder);
         }
     }
 
@@ -168,7 +166,7 @@ pub fn translate_expr(
                     Some(field_name),
                     &[field.field_type.to_owned()],
                     is_selection,
-                    &expr_for_logging,
+                    expr_for_logging,
                 )?
             }
             Ok(())
@@ -177,7 +175,7 @@ pub fn translate_expr(
             if idents.len() == 2 {
                 let ident = idents[1].value.clone();
 
-                let table_name = translate_table_from_expr(table_with_joins, &expr)
+                let table_name = translate_table_from_expr(table_with_joins, expr)
                     .ok_or_else(|| TsGeneratorError::IndentifierWithoutTable(expr.to_string()))?;
 
                 let table_details = &DB_SCHEMA
@@ -201,7 +199,7 @@ pub fn translate_expr(
                         Some(key_name),
                         &[field.field_type.to_owned()],
                         is_selection,
-                        &expr_for_logging,
+                        expr_for_logging,
                     )?;
                 }
             }
@@ -272,7 +270,7 @@ pub fn translate_expr(
             negated: _,
         } => {
             // You do not need an alias as we are processing a subquery within the WHERE clause
-            translate_query(ts_query, &mut None, subquery, db_conn, None, false)?;
+            translate_query(ts_query, &None, subquery, db_conn, None, false)?;
             Ok(())
         }
         Expr::Between {
@@ -313,7 +311,7 @@ pub fn translate_expr(
             is_selection,
         ),
         Expr::Value(placeholder) => {
-            let ts_field_type = translate_value(&placeholder);
+            let ts_field_type = translate_value(placeholder);
 
             if let Some(ts_field_type) = ts_field_type {
                 return ts_query.insert_result(alias, &[ts_field_type], is_selection, expr_for_logging);
@@ -429,7 +427,7 @@ pub fn translate_expr(
         } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),
         Expr::Exists { subquery, negated: _ } => {
             ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, expr_for_logging)?;
-            translate_query(ts_query, &mut None, *&subquery, db_conn, alias, false)
+            translate_query(ts_query, &None, *&subquery, db_conn, alias, false)
         }
         Expr::ListAgg(_)
         | Expr::ArrayAgg(_)
@@ -484,15 +482,15 @@ pub fn translate_expr(
         /////////////////////
         // FUNCTIONS END //
         /////////////////////
-        Expr::CompositeAccess { expr, key: _ } => {
+        Expr::CompositeAccess { expr: _, key: _ } => {
             ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
         }
         Expr::Subquery(sub_query) => {
             // For the first layer of subquery, we consider the first field selected as the result
             if is_selection && table_with_joins.clone().unwrap().len() == 1 {
-                return translate_query(ts_query, &table_with_joins, sub_query, db_conn, alias, true);
+                return translate_query(ts_query, table_with_joins, sub_query, db_conn, alias, true);
             }
-            translate_query(ts_query, &table_with_joins, sub_query, db_conn, alias, false)
+            translate_query(ts_query, table_with_joins, sub_query, db_conn, alias, false)
         }
         Expr::Nested(expr) => translate_expr(
             &*expr,
@@ -507,8 +505,8 @@ pub fn translate_expr(
             expr,
             array_expr: _,
             negated: _,
-        } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, &expr_for_logging),
-        _ => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, &expr_for_logging),
+        } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),
+        _ => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),
     }
 }
 
