@@ -92,7 +92,7 @@ impl Config {
         }
 
         let file_based_ignore_config = &file_based_ignore_config.unwrap();
-        let file_based_ignore_config = file_based_ignore_config.split("\n");
+        let file_based_ignore_config = file_based_ignore_config.split('\n');
         let file_based_ignore_config: Vec<&str> = file_based_ignore_config.clone().collect();
 
         let custom_ignore_configs = &file_based_ignore_config
@@ -128,9 +128,9 @@ impl Config {
                 });
             }
             // If the file config is not provided, we will return the CLI arg's default values
-            return Some(cli_default);
+            Some(cli_default)
         } else {
-            return Some(cli_default);
+            Some(cli_default)
         }
     }
 
@@ -277,7 +277,7 @@ impl Config {
             return detected_conn_name.to_string();
         }
 
-        return "default".to_string();
+        "default".to_string()
     }
 
     pub fn get_postgres_cred(&self, conn: &DbConnectionConfig) -> String {
