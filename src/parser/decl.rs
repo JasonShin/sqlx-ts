@@ -87,7 +87,7 @@ pub fn process_default_decl(sqls: &mut Vec<SQL>, default_decl: &DefaultDecl, imp
     Ok(())
 }
 
-pub fn process_class_decl(mut sqls: &mut Vec<SQL>, class: &ClassDecl, import_alias: &String) -> Result<()> {
+pub fn process_class_decl(sqls: &mut Vec<SQL>, class: &ClassDecl, import_alias: &String) -> Result<()> {
     let class_body = &class.class.body;
     let class_decorators = &class.class.decorators;
 

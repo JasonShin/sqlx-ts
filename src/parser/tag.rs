@@ -44,7 +44,7 @@ pub fn get_var_decl_name(var_declarator: &VarDeclarator) -> Option<String> {
     }
 }
 
-pub fn get_sql_from_expr<'a>(
+pub fn get_sql_from_expr(
     sqls: &mut Vec<SQL>,
     var_decl_name: &Option<String>,
     expr: &Expr,
@@ -189,8 +189,8 @@ pub fn get_sql_from_expr<'a>(
                 get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
             }
         }
-        Expr::Ident(ident) => {}
-        Expr::Lit(lit) => {}
+        Expr::Ident(_ident) => {}
+        Expr::Lit(_lit) => {}
         Expr::Tpl(tpl) => {
             let new_sqls: Vec<SQL> = tpl
                 .quasis

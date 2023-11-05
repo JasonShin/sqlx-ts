@@ -422,7 +422,7 @@ pub fn translate_expr(
         } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),
         Expr::Exists { subquery, negated: _ } => {
             ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, expr_for_logging)?;
-            translate_query(ts_query, &None, *&subquery, db_conn, alias, false)
+            translate_query(ts_query, &None, subquery, db_conn, alias, false)
         }
         Expr::ListAgg(_)
         | Expr::ArrayAgg(_)
@@ -444,9 +444,9 @@ pub fn translate_expr(
             fractional_seconds_precision: _,
         } => ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging),
         Expr::MatchAgainst {
-            columns,
-            match_value,
-            opt_search_modifier,
+            columns: _,
+            match_value: _,
+            opt_search_modifier: _,
         } => ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging),
         /////////////////////
         // OPERATORS ENDS  //
@@ -455,7 +455,7 @@ pub fn translate_expr(
         /////////////////////
         // FUNCTIONS START //
         /////////////////////
-        Expr::IsTrue(query) | Expr::IsFalse(query) | Expr::IsNull(query) | Expr::IsNotNull(query) => {
+        Expr::IsTrue(_query) | Expr::IsFalse(_query) | Expr::IsNull(_query) | Expr::IsNotNull(_query) => {
             ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, expr.to_string().as_str())
         }
         Expr::Function(function) => {
