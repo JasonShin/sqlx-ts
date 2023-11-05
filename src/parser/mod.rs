@@ -167,10 +167,7 @@ pub fn parse_source(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Handl
         .body
         .iter()
         .filter_map(|line| match line {
-            ModuleItem::ModuleDecl(module_decl) => match module_decl {
-                ModuleDecl::Import(module_import_decl) => Some(module_import_decl),
-                _ => None,
-            },
+            ModuleItem::ModuleDecl(ModuleDecl::Import(module_import_decl)) => Some(module_import_decl),
             _ => None,
         })
         .find_map(find_sqlx_import_alias)
