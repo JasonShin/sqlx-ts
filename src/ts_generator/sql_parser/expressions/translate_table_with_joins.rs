@@ -42,9 +42,7 @@ pub fn find_table_name_from_identifier(
                 args: _,
                 with_hints: _,
             } => {
-                if Some(left.to_string()) == alias.to_owned().map(|a| a.to_string())
-                    || left == name.to_string()
-                {
+                if Some(left.to_string()) == alias.to_owned().map(|a| a.to_string()) || left == name.to_string() {
                     // If the identifier matches the alias, then return the table name
                     return Some(name.to_string());
                 }

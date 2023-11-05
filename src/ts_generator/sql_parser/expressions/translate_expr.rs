@@ -117,24 +117,23 @@ pub fn get_sql_query_param(
     // they are valid query parameter to process
     let expr_placeholder = get_expr_placeholder(right);
 
-    if column_name.is_some() && expr_placeholder.is_some() && table_name.is_some() {
-        let table_name = table_name.unwrap();
-        let table_names = vec![table_name.as_str()];
-        let column_name = column_name.unwrap();
-        let columns = DB_SCHEMA
-            .lock()
-            .unwrap()
-            .fetch_table(&table_names, db_conn)
-            .unwrap_or_else(|| panic!("Failed to fetch columns for table {:?}", table_name));
+    match (column_name, expr_placeholder, table_name) {
+        (Some(column_name), Some(expr_placeholder), Some(table_name)) => {
+            let table_names = vec![table_name.as_str()];
+            let columns = DB_SCHEMA
+                .lock()
+                .unwrap()
+                .fetch_table(&table_names, db_conn)
+                .unwrap_or_else(|| panic!("Failed to fetch columns for table {:?}", table_name));
 
-        // get column and return TsFieldType
-        let column = columns
-            .get(column_name.as_str())
-            .unwrap_or_else(|| panic!("Failed toe find the column from the table schema of {:?}", table_name));
-        return Some((column.field_type.to_owned(), expr_placeholder));
+            // get column and return TsFieldType
+            let column = columns
+                .get(column_name.as_str())
+                .unwrap_or_else(|| panic!("Failed toe find the column from the table schema of {:?}", table_name));
+            Some((column.field_type.to_owned(), Some(expr_placeholder)))
+        }
+        _ => None,
     }
-
-    None
 }
 
 /// TODO: Add docs about translate expr
@@ -210,7 +209,10 @@ pub fn translate_expr(
         /////////////////////
         Expr::BinaryOp { left, op: _, right } => {
             let param = get_sql_query_param(left, right, single_table_name, table_with_joins, db_conn);
-            if param.is_none() {
+            if let Some((value, index)) = param {
+                let _ = ts_query.insert_param(&value, &index);
+                Ok(())
+            } else {
                 translate_expr(
                     &*left,
                     single_table_name,
@@ -230,10 +232,6 @@ pub fn translate_expr(
                     is_selection,
                 )?;
                 Ok(())
-            } else {
-                let (value, index) = param.unwrap();
-                ts_query.insert_param(&value, &index);
-                Ok(())
             }
         }
         Expr::InList { expr, list, negated: _ } => {
@@ -252,11 +250,10 @@ pub fn translate_expr(
                     db_conn,
                 );
 
-                if result.is_some() {
-                    let (value, index) = result.unwrap();
+                if let Some((value, index)) = result {
                     let array_item = value.to_array_item();
 
-                    ts_query.insert_param(&array_item, &index);
+                    let _ = ts_query.insert_param(&array_item, &index);
                     return Ok(());
                 } else {
                     return Ok(());
@@ -281,14 +278,12 @@ pub fn translate_expr(
         } => {
             let low = get_sql_query_param(expr, low, single_table_name, table_with_joins, db_conn);
             let high = get_sql_query_param(expr, high, single_table_name, table_with_joins, db_conn);
-            if low.is_some() {
-                let (value, placeholder) = low.unwrap();
-                ts_query.insert_param(&value, &placeholder);
+            if let Some((value, placeholder)) = low {
+                ts_query.insert_param(&value, &placeholder)?;
             }
 
-            if high.is_some() {
-                let (value, placeholder) = high.unwrap();
-                ts_query.insert_param(&value, &placeholder);
+            if let Some((value, placeholder)) = high {
+                ts_query.insert_param(&value, &placeholder)?;
             }
             Ok(())
         }

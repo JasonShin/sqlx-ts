@@ -257,10 +257,8 @@ impl TsQuery {
         let (row, column) = point;
         let annotated_insert_param = self.annotated_insert_params.get(row);
 
-        if annotated_insert_param.is_some() {
-            let _ = self
-                .insert_params
-                .insert(*row, annotated_insert_param.unwrap().clone());
+        if let Some(annotated_insert_param) = annotated_insert_param {
+            let _ = self.insert_params.insert(*row, annotated_insert_param.clone());
         } else {
             let mut row_params = self.insert_params.get_mut(row);
 
@@ -285,8 +283,8 @@ impl TsQuery {
             if placeholder == "?" {
                 let annotated_param = self.annotated_params.get(&(self.param_order as usize));
 
-                if annotated_param.is_some() {
-                    self.params.insert(self.param_order, annotated_param.unwrap().clone());
+                if let Some(annotated_param) = annotated_param {
+                    self.params.insert(self.param_order, annotated_param.clone());
                 } else {
                     self.params.insert(self.param_order, value.clone());
                 }
@@ -296,9 +294,8 @@ impl TsQuery {
                 let indexed_binding_params = re.captures(placeholder);
 
                 // Only runs the code if the placeholder is an indexed binding parameter such as $1 or $2
-                if indexed_binding_params.is_some() {
+                if let Some(indexed_binding_params) = indexed_binding_params {
                     let order = indexed_binding_params
-                        .unwrap()
                         .get(1)
                         .unwrap()
                         .as_str()
@@ -307,8 +304,8 @@ impl TsQuery {
 
                     let annotated_param = self.annotated_params.get(&(order as usize));
 
-                    if annotated_param.is_some() {
-                        self.params.insert(order, annotated_param.unwrap().clone());
+                    if let Some(annotated_param) = annotated_param {
+                        self.params.insert(order, annotated_param.clone());
                     } else {
                         self.params.insert(order, value.clone());
                     }
