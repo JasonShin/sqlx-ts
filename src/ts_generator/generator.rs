@@ -114,7 +114,7 @@ pub fn clear_single_ts_file_if_exists() -> Result<()> {
     Ok(())
 }
 
-pub fn generate_ts_interface<'a>(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery> {
+pub fn generate_ts_interface(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery> {
     let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
 
     let sql_ast = Parser::parse_sql(&dialect, &sql.query)?;

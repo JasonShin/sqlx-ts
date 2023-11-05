@@ -10,20 +10,17 @@ pub fn extract_result_annotations(query: &str) -> HashMap<String, Vec<TsFieldTyp
     for capture in captures {
         let name = capture.get(1);
         let types = capture.get(2);
-        match (name, types) {
-            (Some(name), Some(types)) => {
-                let name = name.as_str().to_string();
-                let types = types
-                    .as_str()
-                    .split('|')
-                    .map(|t| t.trim())
-                    .map(TsFieldType::get_ts_field_from_annotation)
-                    .collect::<Vec<TsFieldType>>();
 
-                result.insert(name, types);
-            }
-            // We should skip the annotation if it does not match the format sqlx-ts is expecting
-            (_, _) => {}
+        if let (Some(name), Some(types)) = (name, types) {
+            let name = name.as_str().to_string();
+            let types = types
+                .as_str()
+                .split('|')
+                .map(|t| t.trim())
+                .map(TsFieldType::get_ts_field_from_annotation)
+                .collect::<Vec<TsFieldType>>();
+
+            result.insert(name, types);
         }
     }
 

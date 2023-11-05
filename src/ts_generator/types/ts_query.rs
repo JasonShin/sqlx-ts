@@ -84,7 +84,7 @@ impl TsFieldType {
     ///
     /// # Panic
     /// It would panic if you try to insert a never type as an array item
-    pub fn to_array_item(self) -> Self {
+    pub fn to_array_item(&self) -> Self {
         match self {
             TsFieldType::String => TsFieldType::Array(ArrayItem::String),
             TsFieldType::Number => TsFieldType::Array(ArrayItem::Number),
@@ -94,7 +94,7 @@ impl TsFieldType {
             TsFieldType::Null => TsFieldType::Array(ArrayItem::Null),
             TsFieldType::Any => TsFieldType::Array(ArrayItem::Any),
             TsFieldType::Never => panic!("Cannot convert never to an array of never"),
-            TsFieldType::Array(arr) => TsFieldType::Array(arr),
+            TsFieldType::Array(arr) => TsFieldType::Array(*arr),
             TsFieldType::Array2D(_) => todo!(),
         }
     }
@@ -218,16 +218,16 @@ impl TsQuery {
         expr_for_logging: &str,
     ) -> Result<(), TsGeneratorError> {
         if is_selection {
-            if alias.is_some() {
-                let temp_alias = alias.clone().unwrap();
-                let alias = &self.format_column_name(alias.clone().unwrap());
+            if let Some(alias) = alias {
+                let temp_alias = alias.clone();
+                let alias = &self.format_column_name(alias);
                 let value = &self
                     .annotated_results
                     .get(temp_alias)
                     .cloned()
                     .unwrap_or_else(|| value.to_vec());
 
-                &self.result.insert(alias.to_owned(), value.to_owned());
+                let _ = &self.result.insert(alias.to_owned(), value.to_owned());
             } else {
                 return Err(TsGeneratorError::MissingAliasForFunctions(expr_for_logging.to_string()));
             }
@@ -257,10 +257,8 @@ impl TsQuery {
         let (row, column) = point;
         let annotated_insert_param = self.annotated_insert_params.get(row);
 
-        if annotated_insert_param.is_some() {
-            let _ = self
-                .insert_params
-                .insert(*row, annotated_insert_param.unwrap().clone());
+        if let Some(annotated_insert_param) = annotated_insert_param {
+            let _ = self.insert_params.insert(*row, annotated_insert_param.clone());
         } else {
             let mut row_params = self.insert_params.get_mut(row);
 
@@ -285,8 +283,8 @@ impl TsQuery {
             if placeholder == "?" {
                 let annotated_param = self.annotated_params.get(&(self.param_order as usize));
 
-                if annotated_param.is_some() {
-                    self.params.insert(self.param_order, annotated_param.unwrap().clone());
+                if let Some(annotated_param) = annotated_param {
+                    self.params.insert(self.param_order, annotated_param.clone());
                 } else {
                     self.params.insert(self.param_order, value.clone());
                 }
@@ -296,9 +294,8 @@ impl TsQuery {
                 let indexed_binding_params = re.captures(placeholder);
 
                 // Only runs the code if the placeholder is an indexed binding parameter such as $1 or $2
-                if indexed_binding_params.is_some() {
+                if let Some(indexed_binding_params) = indexed_binding_params {
                     let order = indexed_binding_params
-                        .unwrap()
                         .get(1)
                         .unwrap()
                         .as_str()
@@ -307,8 +304,8 @@ impl TsQuery {
 
                     let annotated_param = self.annotated_params.get(&(order as usize));
 
-                    if annotated_param.is_some() {
-                        self.params.insert(order, annotated_param.unwrap().clone());
+                    if let Some(annotated_param) = annotated_param {
+                        self.params.insert(order, annotated_param.clone());
                     } else {
                         self.params.insert(order, value.clone());
                     }

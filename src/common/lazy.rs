@@ -29,12 +29,12 @@ lazy_static! {
             let db_type = connection_config.db_type.to_owned();
             let conn = match db_type {
                 DatabaseType::Mysql => {
-                    let opts = CONFIG.get_mysql_cred(&connection_config);
+                    let opts = CONFIG.get_mysql_cred(connection_config);
                     let mut conn = MySQLConn::new(opts).unwrap();
                     DBConn::MySQLPooledConn(Mutex::new(conn))
                 }
                 DatabaseType::Postgres => {
-                    let postgres_cred = &CONFIG.get_postgres_cred(&connection_config);
+                    let postgres_cred = &CONFIG.get_postgres_cred(connection_config);
                     DBConn::PostgresConn(Mutex::new(PGClient::connect(postgres_cred, PGNoTls).unwrap()))
                 }
             };

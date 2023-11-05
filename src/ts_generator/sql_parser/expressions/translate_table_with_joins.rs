@@ -42,9 +42,7 @@ pub fn find_table_name_from_identifier(
                 args: _,
                 with_hints: _,
             } => {
-                if Some(left.to_string()) == alias.to_owned().map(|a| a.to_string())
-                    || left.to_string() == name.to_string()
-                {
+                if Some(left.to_string()) == alias.to_owned().map(|a| a.to_string()) || left == name.to_string() {
                     // If the identifier matches the alias, then return the table name
                     return Some(name.to_string());
                 }
@@ -119,11 +117,11 @@ pub fn translate_table_with_joins(
     table_with_joins: &Option<Vec<TableWithJoins>>,
     select_item: &SelectItem,
 ) -> Option<String> {
-    if &table_with_joins.is_none() == &true {
+    if table_with_joins.is_none() {
         return None;
     }
 
-    let table_with_joins = table_with_joins.as_ref().unwrap().as_ref();
+    let table_with_joins = table_with_joins.as_ref().unwrap();
     let default_table_name = get_default_table(table_with_joins);
 
     match select_item {

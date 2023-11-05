@@ -26,8 +26,8 @@ impl DBConn {
         handler: &Handler,
     ) -> Result<(bool, Option<TsQuery>)> {
         let (explain_failed, ts_query) = match &self {
-            DBConn::MySQLPooledConn(_conn) => mysql_explain::prepare(&self, sql, should_generate_types, handler)?,
-            DBConn::PostgresConn(_conn) => postgres_explain::prepare(&self, sql, should_generate_types, handler)?,
+            DBConn::MySQLPooledConn(_conn) => mysql_explain::prepare(self, sql, should_generate_types, handler)?,
+            DBConn::PostgresConn(_conn) => postgres_explain::prepare(self, sql, should_generate_types, handler)?,
         };
 
         Ok((explain_failed, ts_query))

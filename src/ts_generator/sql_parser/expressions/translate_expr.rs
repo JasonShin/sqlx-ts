@@ -37,18 +37,16 @@ use super::functions::{is_date_function, is_numeric_function};
 /// it should return None
 pub fn get_expr_placeholder(expr: &Expr) -> Option<String> {
     let re = Regex::new(r"(\$\d+)").unwrap();
-    if let Expr::Value(value) = &expr {
-        if let Value::Placeholder(placeholder) = value {
-            let indexed_binding_params = re.captures(placeholder);
-            if placeholder == "?" {
-                return Some("?".to_string());
-            } else if indexed_binding_params.is_some() {
-                // Rarely we will get an unwrap issue at this point because invalid syntax should be caught
-                // during `prepare` step
-                let placeholder = indexed_binding_params.unwrap().get(1).unwrap().as_str().to_string();
+    if let Expr::Value(Value::Placeholder(placeholder)) = &expr {
+        let indexed_binding_params = re.captures(placeholder);
+        if placeholder == "?" {
+            return Some("?".to_string());
+        } else if indexed_binding_params.is_some() {
+            // Rarely we will get an unwrap issue at this point because invalid syntax should be caught
+            // during `prepare` step
+            let placeholder = indexed_binding_params.unwrap().get(1).unwrap().as_str().to_string();
 
-                return Some(placeholder);
-            }
+            return Some(placeholder);
         }
     }
 
@@ -119,24 +117,23 @@ pub fn get_sql_query_param(
     // they are valid query parameter to process
     let expr_placeholder = get_expr_placeholder(right);
 
-    if column_name.is_some() && expr_placeholder.is_some() && table_name.is_some() {
-        let table_name = table_name.unwrap();
-        let table_names = vec![table_name.as_str()];
-        let column_name = column_name.unwrap();
-        let columns = DB_SCHEMA
-            .lock()
-            .unwrap()
-            .fetch_table(&table_names, db_conn)
-            .unwrap_or_else(|| panic!("Failed to fetch columns for table {:?}", table_name));
+    match (column_name, expr_placeholder, table_name) {
+        (Some(column_name), Some(expr_placeholder), Some(table_name)) => {
+            let table_names = vec![table_name.as_str()];
+            let columns = DB_SCHEMA
+                .lock()
+                .unwrap()
+                .fetch_table(&table_names, db_conn)
+                .unwrap_or_else(|| panic!("Failed to fetch columns for table {:?}", table_name));
 
-        // get column and return TsFieldType
-        let column = columns
-            .get(column_name.as_str())
-            .unwrap_or_else(|| panic!("Failed toe find the column from the table schema of {:?}", table_name));
-        return Some((column.field_type.to_owned(), expr_placeholder));
+            // get column and return TsFieldType
+            let column = columns
+                .get(column_name.as_str())
+                .unwrap_or_else(|| panic!("Failed toe find the column from the table schema of {:?}", table_name));
+            Some((column.field_type.to_owned(), Some(expr_placeholder)))
+        }
+        _ => None,
     }
-
-    None
 }
 
 /// TODO: Add docs about translate expr
@@ -168,7 +165,7 @@ pub fn translate_expr(
                     Some(field_name),
                     &[field.field_type.to_owned()],
                     is_selection,
-                    &expr_for_logging,
+                    expr_for_logging,
                 )?
             }
             Ok(())
@@ -177,7 +174,7 @@ pub fn translate_expr(
             if idents.len() == 2 {
                 let ident = idents[1].value.clone();
 
-                let table_name = translate_table_from_expr(table_with_joins, &expr)
+                let table_name = translate_table_from_expr(table_with_joins, expr)
                     .ok_or_else(|| TsGeneratorError::IndentifierWithoutTable(expr.to_string()))?;
 
                 let table_details = &DB_SCHEMA
@@ -201,7 +198,7 @@ pub fn translate_expr(
                         Some(key_name),
                         &[field.field_type.to_owned()],
                         is_selection,
-                        &expr_for_logging,
+                        expr_for_logging,
                     )?;
                 }
             }
@@ -212,29 +209,28 @@ pub fn translate_expr(
         /////////////////////
         Expr::BinaryOp { left, op: _, right } => {
             let param = get_sql_query_param(left, right, single_table_name, table_with_joins, db_conn);
-            if param.is_none() {
-                translate_expr(
-                    &*left,
-                    single_table_name,
-                    table_with_joins,
-                    alias,
-                    ts_query,
-                    db_conn,
-                    is_selection,
-                )?;
-                translate_expr(
-                    &*right,
-                    single_table_name,
-                    table_with_joins,
-                    alias,
-                    ts_query,
-                    db_conn,
-                    is_selection,
-                )?;
+            if let Some((value, index)) = param {
+                let _ = ts_query.insert_param(&value, &index);
                 Ok(())
             } else {
-                let (value, index) = param.unwrap();
-                ts_query.insert_param(&value, &index);
+                translate_expr(
+                    left,
+                    single_table_name,
+                    table_with_joins,
+                    alias,
+                    ts_query,
+                    db_conn,
+                    is_selection,
+                )?;
+                translate_expr(
+                    right,
+                    single_table_name,
+                    table_with_joins,
+                    alias,
+                    ts_query,
+                    db_conn,
+                    is_selection,
+                )?;
                 Ok(())
             }
         }
@@ -254,11 +250,10 @@ pub fn translate_expr(
                     db_conn,
                 );
 
-                if result.is_some() {
-                    let (value, index) = result.unwrap();
+                if let Some((value, index)) = result {
                     let array_item = value.to_array_item();
 
-                    ts_query.insert_param(&array_item, &index);
+                    let _ = ts_query.insert_param(&array_item, &index);
                     return Ok(());
                 } else {
                     return Ok(());
@@ -272,7 +267,7 @@ pub fn translate_expr(
             negated: _,
         } => {
             // You do not need an alias as we are processing a subquery within the WHERE clause
-            translate_query(ts_query, &mut None, subquery, db_conn, None, false)?;
+            translate_query(ts_query, &None, subquery, db_conn, None, false)?;
             Ok(())
         }
         Expr::Between {
@@ -283,19 +278,17 @@ pub fn translate_expr(
         } => {
             let low = get_sql_query_param(expr, low, single_table_name, table_with_joins, db_conn);
             let high = get_sql_query_param(expr, high, single_table_name, table_with_joins, db_conn);
-            if low.is_some() {
-                let (value, placeholder) = low.unwrap();
-                ts_query.insert_param(&value, &placeholder);
+            if let Some((value, placeholder)) = low {
+                ts_query.insert_param(&value, &placeholder)?;
             }
 
-            if high.is_some() {
-                let (value, placeholder) = high.unwrap();
-                ts_query.insert_param(&value, &placeholder);
+            if let Some((value, placeholder)) = high {
+                ts_query.insert_param(&value, &placeholder)?;
             }
             Ok(())
         }
         Expr::AnyOp(expr) | Expr::AllOp(expr) => translate_expr(
-            &*expr,
+            expr,
             single_table_name,
             table_with_joins,
             alias,
@@ -304,7 +297,7 @@ pub fn translate_expr(
             is_selection,
         ),
         Expr::UnaryOp { op: _, expr } => translate_expr(
-            &*expr,
+            expr,
             single_table_name,
             table_with_joins,
             alias,
@@ -313,7 +306,7 @@ pub fn translate_expr(
             is_selection,
         ),
         Expr::Value(placeholder) => {
-            let ts_field_type = translate_value(&placeholder);
+            let ts_field_type = translate_value(placeholder);
 
             if let Some(ts_field_type) = ts_field_type {
                 return ts_query.insert_result(alias, &[ts_field_type], is_selection, expr_for_logging);
@@ -429,7 +422,7 @@ pub fn translate_expr(
         } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),
         Expr::Exists { subquery, negated: _ } => {
             ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, expr_for_logging)?;
-            translate_query(ts_query, &mut None, *&subquery, db_conn, alias, false)
+            translate_query(ts_query, &None, subquery, db_conn, alias, false)
         }
         Expr::ListAgg(_)
         | Expr::ArrayAgg(_)
@@ -451,9 +444,9 @@ pub fn translate_expr(
             fractional_seconds_precision: _,
         } => ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging),
         Expr::MatchAgainst {
-            columns,
-            match_value,
-            opt_search_modifier,
+            columns: _,
+            match_value: _,
+            opt_search_modifier: _,
         } => ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging),
         /////////////////////
         // OPERATORS ENDS  //
@@ -462,7 +455,7 @@ pub fn translate_expr(
         /////////////////////
         // FUNCTIONS START //
         /////////////////////
-        Expr::IsTrue(query) | Expr::IsFalse(query) | Expr::IsNull(query) | Expr::IsNotNull(query) => {
+        Expr::IsTrue(_query) | Expr::IsFalse(_query) | Expr::IsNull(_query) | Expr::IsNotNull(_query) => {
             ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, expr.to_string().as_str())
         }
         Expr::Function(function) => {
@@ -484,18 +477,18 @@ pub fn translate_expr(
         /////////////////////
         // FUNCTIONS END //
         /////////////////////
-        Expr::CompositeAccess { expr, key: _ } => {
+        Expr::CompositeAccess { expr: _, key: _ } => {
             ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
         }
         Expr::Subquery(sub_query) => {
             // For the first layer of subquery, we consider the first field selected as the result
             if is_selection && table_with_joins.clone().unwrap().len() == 1 {
-                return translate_query(ts_query, &table_with_joins, sub_query, db_conn, alias, true);
+                return translate_query(ts_query, table_with_joins, sub_query, db_conn, alias, true);
             }
-            translate_query(ts_query, &table_with_joins, sub_query, db_conn, alias, false)
+            translate_query(ts_query, table_with_joins, sub_query, db_conn, alias, false)
         }
         Expr::Nested(expr) => translate_expr(
-            &*expr,
+            expr,
             single_table_name,
             table_with_joins,
             alias,
@@ -507,8 +500,8 @@ pub fn translate_expr(
             expr,
             array_expr: _,
             negated: _,
-        } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, &expr_for_logging),
-        _ => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, &expr_for_logging),
+        } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),
+        _ => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),
     }
 }
 
@@ -530,7 +523,7 @@ pub fn translate_assignment(
         let field = table_details
             .get(&column_name)
             .unwrap_or_else(|| panic!("Failed to find the column detail for {column_name}"));
-        ts_query.insert_param(&field.field_type, &value);
+        let _ = ts_query.insert_param(&field.field_type, &value);
     }
     Ok(())
 }
