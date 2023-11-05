@@ -148,7 +148,7 @@ pub fn get_sql_from_expr<'a>(
             let left_expr = &assign.left;
             left_expr
                 .as_expr()
-                .map(|expr| get_sql_from_expr(sqls, var_decl_name, &expr, span, import_alias));
+                .map(|expr| get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias));
         }
         Expr::Member(member) => {
             let obj = &member.obj;
@@ -213,7 +213,7 @@ pub fn get_sql_from_expr<'a>(
         Expr::Arrow(arrow) => {
             let expr = &arrow.clone().body.expr();
             let block_stmt = &arrow.clone().body.block_stmt();
-            process_block_stmt_as_expr(&block_stmt, sqls, var_decl_name, span, import_alias);
+            process_block_stmt_as_expr(block_stmt, sqls, var_decl_name, span, import_alias);
 
             if let Some(expr) = expr {
                 get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
@@ -272,7 +272,7 @@ pub fn get_sql_from_expr<'a>(
                         let key = &auto_accessor.key;
 
                         if let Some(expr) = &value {
-                            let var_decl_name = &get_var_decl_name_from_key(&key);
+                            let var_decl_name = &get_var_decl_name_from_key(key);
                             get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
                         }
                     }
@@ -288,11 +288,11 @@ pub fn get_sql_from_expr<'a>(
         Expr::MetaProp(_) => {}
         Expr::Await(await_expr) => {
             let expr = &await_expr.arg;
-            return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+            get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias)
         }
         Expr::Paren(paren) => {
             let expr = &paren.expr;
-            return get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
+            get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias)
         }
         Expr::OptChain(opt_chain) => {
             let expr = &*opt_chain.base;
@@ -303,12 +303,12 @@ pub fn get_sql_from_expr<'a>(
                 }
                 OptChainBase::Call(call) => {
                     let expr = &call.callee;
-                    get_sql_from_expr(sqls, var_decl_name, &expr, span, import_alias);
+                    get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
 
                     let args = &call.args;
                     for arg in args.iter() {
                         let expr = &arg.expr;
-                        get_sql_from_expr(sqls, var_decl_name, &expr, span, import_alias);
+                        get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias);
                     }
                 }
             }
@@ -341,7 +341,7 @@ pub fn get_sql_from_var_decl(var_declarator: &VarDeclarator, span: &MultiSpan, i
 
     if let Some(init) = &var_declarator.init {
         // TODO: make it understand `const someQuery = SQLX.sql`SELECT * FROM lazy_unknown2`;` in js_failure_path1/lazy-loaded.js
-        get_sql_from_expr(&mut bag_of_sqls, &var_decl_name, &init.clone(), &span, import_alias);
+        get_sql_from_expr(&mut bag_of_sqls, &var_decl_name, &init.clone(), span, import_alias);
     }
 
     bag_of_sqls

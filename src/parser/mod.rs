@@ -47,81 +47,81 @@ fn recurse_and_find_sql(mut sqls: &mut Vec<SQL>, stmt: &Stmt, import_alias: &Str
     match stmt {
         Stmt::Block(block) => {
             for stmt in &block.stmts {
-                recurse_and_find_sql(&mut sqls, stmt, import_alias)?;
+                recurse_and_find_sql(sqls, stmt, import_alias)?;
             }
         }
         Stmt::With(with_stmt) => {
             let stmt = *with_stmt.body.clone();
-            recurse_and_find_sql(&mut sqls, &stmt, import_alias)?;
+            recurse_and_find_sql(sqls, &stmt, import_alias)?;
         }
         Stmt::Return(rtn) => {
             if let Some(expr) = &rtn.arg {
                 let span: MultiSpan = rtn.span.into();
-                get_sql_from_expr(&mut sqls, &None, &expr.clone(), &span, import_alias);
+                get_sql_from_expr(sqls, &None, &expr.clone(), &span, import_alias);
             }
         }
         Stmt::If(if_stmt) => {
             let stmt = *if_stmt.cons.clone();
-            recurse_and_find_sql(&mut sqls, &stmt, import_alias)?;
+            recurse_and_find_sql(sqls, &stmt, import_alias)?;
         }
         Stmt::Switch(switch_stmt) => {
             for case in &switch_stmt.cases {
                 for stmt in &case.cons {
-                    recurse_and_find_sql(&mut sqls, stmt, import_alias)?;
+                    recurse_and_find_sql(sqls, stmt, import_alias)?;
                 }
             }
         }
         Stmt::Throw(throw_stmt) => {
             let span: MultiSpan = throw_stmt.span.into();
             let expr = *throw_stmt.arg.clone();
-            get_sql_from_expr(&mut sqls, &None, &expr, &span, import_alias);
+            get_sql_from_expr(sqls, &None, &expr, &span, import_alias);
         }
         Stmt::Try(try_stmt) => {
             // handles statements inside try {}
             for stmt in &try_stmt.block.stmts {
-                recurse_and_find_sql(&mut sqls, stmt, import_alias)?;
+                recurse_and_find_sql(sqls, stmt, import_alias)?;
             }
 
             // handles statements inside catch {}
             if let Some(stmt) = &try_stmt.handler {
                 for stmt in &stmt.body.stmts {
-                    recurse_and_find_sql(&mut sqls, stmt, import_alias)?;
+                    recurse_and_find_sql(sqls, stmt, import_alias)?;
                 }
             }
         }
         Stmt::While(while_stmt) => {
             let body_stmt = *while_stmt.body.clone();
-            recurse_and_find_sql(&mut sqls, &body_stmt, import_alias)?;
+            recurse_and_find_sql(sqls, &body_stmt, import_alias)?;
         }
         Stmt::DoWhile(do_while_stmt) => {
             let body_stmt = *do_while_stmt.body.clone();
-            recurse_and_find_sql(&mut sqls, &body_stmt, import_alias)?;
+            recurse_and_find_sql(sqls, &body_stmt, import_alias)?;
         }
         Stmt::For(for_stmt) => {
             let body_stmt = *for_stmt.body.clone();
-            recurse_and_find_sql(&mut sqls, &body_stmt, import_alias)?;
+            recurse_and_find_sql(sqls, &body_stmt, import_alias)?;
         }
         Stmt::ForIn(for_in_stmt) => {
             let body_stmt = *for_in_stmt.body.clone();
-            recurse_and_find_sql(&mut sqls, &body_stmt, import_alias)?;
+            recurse_and_find_sql(sqls, &body_stmt, import_alias)?;
         }
         Stmt::ForOf(for_of_stmt) => {
             let body_stmt = *for_of_stmt.body.clone();
-            recurse_and_find_sql(&mut sqls, &body_stmt, import_alias)?;
+            recurse_and_find_sql(sqls, &body_stmt, import_alias)?;
         }
         Stmt::Decl(decl) => {
-            process_decl(&mut sqls, decl, import_alias)?;
+            process_decl(sqls, decl, import_alias)?;
         }
         Stmt::Expr(expr) => {
             let span: MultiSpan = expr.span.into();
             let expr = *expr.expr.clone();
-            get_sql_from_expr(&mut sqls, &None, &expr, &span, import_alias);
+            get_sql_from_expr(sqls, &None, &expr, &span, import_alias);
         }
         Stmt::Empty(_) => {}
         Stmt::Debugger(_) => {}
         Stmt::Labeled(labeled) => {
             let body_stmt = *labeled.body.clone();
-            recurse_and_find_sql(&mut sqls, &body_stmt, import_alias)?;
+            recurse_and_find_sql(sqls, &body_stmt, import_alias)?;
         }
         Stmt::Break(_) => {}
         Stmt::Continue(_) => {}
