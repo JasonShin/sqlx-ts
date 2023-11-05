@@ -399,28 +399,35 @@ this name, unless you give it a custom path to override it using <code>--config<
 </code></pre>
 <p>Example <code>sqlxrc.json</code></p>
 <pre><code class="language-json">{
-  &quot;default&quot;: {
-    &quot;DB_TYPE&quot;: &quot;mysql&quot;,
-    &quot;DB_USER&quot;: &quot;root&quot;,
-    &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
-    &quot;DB_PORT&quot;: 3306
+  &quot;generate_types&quot;: {
+    &quot;enabled&quot;: true,
+    &quot;convertToCamelCaseColumnName&quot;: true
   },
-  &quot;postgres&quot;: {
-    &quot;DB_TYPE&quot;: &quot;postgres&quot;,
-    &quot;DB_USER&quot;: &quot;postgres&quot;,
-    &quot;DB_PASS&quot;: &quot;postgres&quot;,
-    &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
-    &quot;DB_PORT&quot;: 4321
-  },
-  &quot;some_other_db&quot;: {
-    &quot;DB_TYPE&quot;: &quot;mysql&quot;,
-    &quot;DB_USER&quot;: &quot;app_user&quot;,
-    &quot;DB_PASS&quot;: &quot;password&quot;,
-    &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
-    &quot;DB_PORT&quot;: 3307
+  &quot;connections&quot;: {
+    &quot;default&quot;: {
+      &quot;DB_TYPE&quot;: &quot;mysql&quot;,
+      &quot;DB_USER&quot;: &quot;root&quot;,
+      &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
+      &quot;DB_PORT&quot;: 3306
+    },
+    &quot;postgres&quot;: {
+      &quot;DB_TYPE&quot;: &quot;postgres&quot;,
+      &quot;DB_USER&quot;: &quot;postgres&quot;,
+      &quot;DB_PASS&quot;: &quot;postgres&quot;,
+      &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
+      &quot;DB_PORT&quot;: 4321
+    },
+    &quot;some_other_db&quot;: {
+      &quot;DB_TYPE&quot;: &quot;mysql&quot;,
+      &quot;DB_USER&quot;: &quot;app_user&quot;,
+      &quot;DB_PASS&quot;: &quot;password&quot;,
+      &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
+      &quot;DB_PORT&quot;: 3307
+    }
   }
 }
 </code></pre>
+<h3 id="required-connections"><a class="header" href="#required-connections">(required) &quot;connections&quot;</a></h3>
 <p>For default database, you must call it <code>default</code> like example above. Any extra DB connections 
 should have its own unique name such as <code>postgres</code> or <code>some_other_db</code></p>
 <p>Along with the configuration above, when writing SQLs in your codebase, you need to provide 
@@ -435,6 +442,22 @@ const postgresSQL = sql`
 `
 </code></pre>
 <p>Then running <code>sqlx-ts</code> compile time query checker along with the </p>
+<h3 id="generate_types"><a class="header" href="#generate_types">generate_types</a></h3>
+<pre><code class="language-json">{
+  &quot;generateTypes: {
+    enabled: true|false,
+    convertToCamelCaseColumnName: true|false
+  },
+  &quot;connections&quot;: {
+    ...
+  }
+}
+</code></pre>
+<p>Support for configuration of generate types operations.</p>
+<ul>
+<li><code>enabled</code> (default: false): enables type generation via config</li>
+<li><code>convertToCamelCaseColumnName</code> (default: true): when generating field name based on table's column name, it will automatically cast to camelCase in TypeScript</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="environment-variables"><a class="header" href="#environment-variables">Environment variables</a></h1>
 <div class="table-wrapper"><table><thead><tr><th>Environment variables</th><th>Description</th></tr></thead><tbody>
 <tr><td>DB_HOST</td><td>Primary DB host</td></tr>
