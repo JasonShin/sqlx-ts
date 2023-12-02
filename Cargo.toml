@@ -29,7 +29,7 @@ postgres = { version = "0.19.7" }
 mysql = { version = "24.0.0" }
 convert_case = "0.6.0"
 lazy_static = { version = "1.4.0" }
-openssl = { version = "0.10.57", features = ["vendored"] }
+openssl = { version = "0.10.60", features = ["vendored"] }
 colored = "2.0.4"
 
 [dev-dependencies]
