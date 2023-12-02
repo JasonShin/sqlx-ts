@@ -2140,7 +2140,7 @@ dependencies = [
 
 [[package]]
 name = "sqlx-ts"
-version = "0.9.0"
+version = "0.9.1"
 dependencies = [
  "assert_cmd",
  "clap",
