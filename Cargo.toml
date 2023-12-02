@@ -1,6 +1,6 @@
 [package]
 name = "sqlx-ts"
-version = "0.8.1"
+version = "0.9.0"
 edition = "2021"
 homepage = "https://github.com/JasonShin/sqlx-ts"
 authors = ['Jason Shin <visualbbasic@gmail.com>']
