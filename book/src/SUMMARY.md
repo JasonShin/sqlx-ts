@@ -5,9 +5,9 @@
 # Guides
 
 - [Introduction](./guides/0.introduction.md)
-- [Getting started](./guides/1.installation.md)
-  - [install with curl](./guides/1.1.install_sh_cli_options.md)
-- [Configuration](./guides/2.getting-started.md)
+- [Getting started](./guides/1.getting-started.md)
+  - [curl approach](./guides/1.1.install_sh_cli_options.md)
+- [Configuration](./guides/2.configuration.md)
   - [CLI Options](./guides/2.1.cli-options.md)
   - [Ignore Patterns](./guides/2.2.ignore-patterns.md)
 
