@@ -9,16 +9,21 @@
   - [curl approach](./guides/1.1.install_sh_cli_options.md)
 - [Configuration](./guides/2.configuration.md)
   - [CLI Options](./guides/2.1.cli-options.md)
-  - [Ignore Patterns](./guides/2.2.ignore-patterns.md)
+  - [.sqlxignore](./guides/2.2.ignore-patterns.md)
+
+# API
+
+- [Connecting to databases](./api/1.connecting-to-db.md)
+  - [CLI options](./api/1.1.cli-options.md)
+  - [environment variables](./api/1.2.environment-variables.md)
+  - [.sqlxrc file](./api/1.3.configs-file-based.md)
+- [.sqlxignore file](./api/2.ignore-patterns.md)
 
 # Reference Guide
 
 - [SQL Check](./reference-guide/1.sql-check.md)
   - [MySQL](./reference-guide/1.1.sql-check-mysql.md)
   - [Postgres](./reference-guide/1.2.sql-check-postgres.md)
-- [Connection Config](./reference-guide/2.connection-config.md)
-  - [File based config for multiple database connections](./reference-guide/2.1.configs-file-based.md)
-  - [Environment variables](./reference-guide/2.2.environment-variables.md)
 - [Type generation](./reference-guide/4.typescript-types-generation.md)
   - [SELECT](./reference-guide/4.1.SELECT.md)
   - [INSERT](./reference-guide/4.2.INSERT.md)
