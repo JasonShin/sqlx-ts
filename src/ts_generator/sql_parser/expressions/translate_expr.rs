@@ -120,16 +120,15 @@ pub async fn get_sql_query_param(
     // they are valid query parameter to process
     let expr_placeholder = get_expr_placeholder(right);
 
-    if column_name.is_some() && expr_placeholder.is_some() && table_name.is_some() {
-        let table_name = table_name.unwrap();
-        let table_names = vec![table_name.as_str()];
-        let column_name = column_name.unwrap();
-        let columns = DB_SCHEMA
-            .lock()
-            .unwrap()
-            .fetch_table(&thread_local, &table_names, db_conn)
-            .await
-            .unwrap_or_else(|| panic!("Failed to fetch columns for table {:?}", table_name));
+    match (column_name, expr_placeholder, table_name) {
+        (Some(column_name), Some(expr_placeholder), Some(table_name)) => {
+            let table_names = vec![table_name.as_str()];
+            let columns = DB_SCHEMA
+                .lock()
+                .unwrap()
+                .fetch_table(&thread_local, &table_names, db_conn)
+                .await
+                .unwrap_or_else(|| panic!("Failed to fetch columns for table {:?}", table_name));
 
             // get column and return TsFieldType
             let column = columns
