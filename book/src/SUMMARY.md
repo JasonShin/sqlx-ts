@@ -22,8 +22,6 @@
 # Reference Guide
 
 - [SQL Check](./reference-guide/1.sql-check.md)
-  - [MySQL](./reference-guide/1.1.sql-check-mysql.md)
-  - [Postgres](./reference-guide/1.2.sql-check-postgres.md)
 - [Type generation](./reference-guide/4.typescript-types-generation.md)
   - [SELECT](./reference-guide/4.1.SELECT.md)
   - [INSERT](./reference-guide/4.2.INSERT.md)
@@ -35,5 +33,4 @@
 # Miscellaneous
 
 - [Troubleshooting](./misc/1.troubleshooting.md)
-- [Documentation Best Practices](./misc/2.documentation-practices.md)
-- [Limitations](./misc/3.limitations.md)
+- [Limitations](./misc/2.limitations.md)
