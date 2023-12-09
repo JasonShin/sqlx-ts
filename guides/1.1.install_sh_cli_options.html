@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>File based config for multiple database connections - sqlx-ts</title>
+        <title>curl approach - sqlx-ts</title>
 
 
         <!-- Custom HTML head -->
@@ -88,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">User Guide</li><li class="chapter-item expanded "><a href="../user-guide/1.installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../user-guide/1.1.install_sh_cli_options.html"><strong aria-hidden="true">1.1.</strong> install.sh CLI Options</a></li></ol></li><li class="chapter-item expanded "><a href="../user-guide/2.getting-started.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../user-guide/2.1.cli-options.html"><strong aria-hidden="true">2.1.</strong> CLI Options</a></li><li class="chapter-item expanded "><a href="../user-guide/2.2.ignore-patterns.html"><strong aria-hidden="true">2.2.</strong> Ignore Patterns</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Reference Guide</li><li class="chapter-item expanded "><a href="../reference-guide/1.sql-check.html"><strong aria-hidden="true">3.</strong> SQL Check</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../reference-guide/1.1.sql-check-mysql.html"><strong aria-hidden="true">3.1.</strong> MySQL</a></li><li class="chapter-item expanded "><a href="../reference-guide/1.2.sql-check-postgres.html"><strong aria-hidden="true">3.2.</strong> Postgres</a></li></ol></li><li class="chapter-item expanded "><a href="../reference-guide/2.connection-config.html"><strong aria-hidden="true">4.</strong> Connection Config</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../reference-guide/2.1.configs-file-based.html" class="active"><strong aria-hidden="true">4.1.</strong> File based config for multiple database connections</a></li><li class="chapter-item expanded "><a href="../reference-guide/2.2.environment-variables.html"><strong aria-hidden="true">4.2.</strong> Environment variables</a></li></ol></li><li class="chapter-item expanded "><a href="../reference-guide/4.typescript-types-generation.html"><strong aria-hidden="true">5.</strong> Type generation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../reference-guide/4.1.SELECT.html"><strong aria-hidden="true">5.1.</strong> SELECT</a></li><li class="chapter-item expanded "><a href="../reference-guide/4.2.INSERT.html"><strong aria-hidden="true">5.2.</strong> INSERT</a></li><li class="chapter-item expanded "><a href="../reference-guide/4.3.DELETE.html"><strong aria-hidden="true">5.3.</strong> DELETE</a></li><li class="chapter-item expanded "><a href="../reference-guide/4.4.UPDATE.html"><strong aria-hidden="true">5.4.</strong> UPDATE</a></li><li class="chapter-item expanded "><a href="../reference-guide/4.5.annotations.html"><strong aria-hidden="true">5.5.</strong> Annotations</a></li></ol></li><li class="chapter-item expanded "><a href="../reference-guide/5.errors.html"><strong aria-hidden="true">6.</strong> Errors</a></li><li class="chapter-item expanded affix "><li class="part-title">Miscellaneous</li><li class="chapter-item expanded "><a href="../misc/1.troubleshooting.html"><strong aria-hidden="true">7.</strong> Troubleshooting</a></li><li class="chapter-item expanded "><a href="../misc/2.documentation-practices.html"><strong aria-hidden="true">8.</strong> Documentation Best Practices</a></li><li class="chapter-item expanded "><a href="../misc/3.limitations.html"><strong aria-hidden="true">9.</strong> Limitations</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Guides</li><li class="chapter-item expanded "><a href="../guides/0.introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../guides/1.getting-started.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../guides/1.1.install_sh_cli_options.html" class="active"><strong aria-hidden="true">2.1.</strong> curl approach</a></li></ol></li><li class="chapter-item expanded "><a href="../guides/2.configuration.html"><strong aria-hidden="true">3.</strong> Configuration</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../guides/2.1.cli-options.html"><strong aria-hidden="true">3.1.</strong> CLI Options</a></li><li class="chapter-item expanded "><a href="../guides/2.2.ignore-patterns.html"><strong aria-hidden="true">3.2.</strong> .sqlxignore</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">API</li><li class="chapter-item expanded "><a href="../api/1.connecting-to-db.html"><strong aria-hidden="true">4.</strong> Connecting to databases</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../api/1.3.configs-file-based.html"><strong aria-hidden="true">4.1.</strong> .sqlxrc file</a></li><li class="chapter-item expanded "><a href="../api/1.1.cli-options.html"><strong aria-hidden="true">4.2.</strong> CLI options</a></li><li class="chapter-item expanded "><a href="../api/1.2.environment-variables.html"><strong aria-hidden="true">4.3.</strong> environment variables</a></li></ol></li><li class="chapter-item expanded "><a href="../api/2.ignore-patterns.html"><strong aria-hidden="true">5.</strong> .sqlxignore file</a></li><li class="chapter-item expanded affix "><li class="part-title">Reference Guide</li><li class="chapter-item expanded "><a href="../reference-guide/1.sql-check.html"><strong aria-hidden="true">6.</strong> SQL Check</a></li><li class="chapter-item expanded "><a href="../reference-guide/4.typescript-types-generation.html"><strong aria-hidden="true">7.</strong> Type generation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../reference-guide/4.1.SELECT.html"><strong aria-hidden="true">7.1.</strong> SELECT</a></li><li class="chapter-item expanded "><a href="../reference-guide/4.2.INSERT.html"><strong aria-hidden="true">7.2.</strong> INSERT</a></li><li class="chapter-item expanded "><a href="../reference-guide/4.3.DELETE.html"><strong aria-hidden="true">7.3.</strong> DELETE</a></li><li class="chapter-item expanded "><a href="../reference-guide/4.4.UPDATE.html"><strong aria-hidden="true">7.4.</strong> UPDATE</a></li><li class="chapter-item expanded "><a href="../reference-guide/4.5.annotations.html"><strong aria-hidden="true">7.5.</strong> Annotations</a></li></ol></li><li class="chapter-item expanded "><a href="../reference-guide/5.errors.html"><strong aria-hidden="true">8.</strong> Errors</a></li><li class="chapter-item expanded affix "><li class="part-title">Miscellaneous</li><li class="chapter-item expanded "><a href="../misc/1.troubleshooting.html"><strong aria-hidden="true">9.</strong> Troubleshooting</a></li><li class="chapter-item expanded "><a href="../misc/2.limitations.html"><strong aria-hidden="true">10.</strong> Limitations</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -173,84 +173,41 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="file-base-configuration-for-connecting-to-multiple-db"><a class="header" href="#file-base-configuration-for-connecting-to-multiple-db">File Base Configuration for connecting to Multiple DB</a></h1>
-<p>If you have a project that you need requires connections to multiple databases, you can support 
-that by using file based configuration.</p>
-<p>By default, configuration file is named <code>.sqlxrc.json</code> and sqlx-ts will try to find a file with 
-this name, unless you give it a custom path to override it using <code>--config</code> CLI option.</p>
-<pre><code class="language-bash">$ sqlx-ts --config &lt;path to a custom .sqlxrc.json&gt;
+                        <h1 id="curl-installation-approach"><a class="header" href="#curl-installation-approach">curl installation approach</a></h1>
+<p>You can decide to install sqlx-ts independently using a simple <code>curl</code> command.</p>
+<p><em><strong>NOTE</strong></em>:  This is not an usual way to install to use sqlx-ts. However, it can be used in an environment without NPM.</p>
+<p>Examples:</p>
+<pre><code class="language-bash"># The following command will install sqlx-ts (v0.9.0) for MacOS (darwin) with M1 CPU (arm64)
+# overwrite the existing sqlx-ts (-f) at the default installation location (pwd)
+curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | bash -s -- \
+    --os darwin
+    --cpu arm64
+    --tag v0.9.0
+    -f
 </code></pre>
-<p>Example <code>sqlxrc.json</code></p>
-<pre><code class="language-json">{
-  &quot;generate_types&quot;: {
-    &quot;enabled&quot;: true,
-    &quot;convertToCamelCaseColumnName&quot;: true
-  },
-  &quot;connections&quot;: {
-    &quot;default&quot;: {
-      &quot;DB_TYPE&quot;: &quot;mysql&quot;,
-      &quot;DB_USER&quot;: &quot;root&quot;,
-      &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
-      &quot;DB_PORT&quot;: 3306
-    },
-    &quot;postgres&quot;: {
-      &quot;DB_TYPE&quot;: &quot;postgres&quot;,
-      &quot;DB_USER&quot;: &quot;postgres&quot;,
-      &quot;DB_PASS&quot;: &quot;postgres&quot;,
-      &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
-      &quot;DB_PORT&quot;: 4321
-    },
-    &quot;some_other_db&quot;: {
-      &quot;DB_TYPE&quot;: &quot;mysql&quot;,
-      &quot;DB_USER&quot;: &quot;app_user&quot;,
-      &quot;DB_PASS&quot;: &quot;password&quot;,
-      &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
-      &quot;DB_PORT&quot;: 3307
-    }
-  }
-}
+<p>You can find more information about the <code>install.sh</code></p>
+<pre><code class="language-bash">curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | bash -s -- \
+    --help
 </code></pre>
-<h3 id="required-connections"><a class="header" href="#required-connections">(required) &quot;connections&quot;</a></h3>
-<p>For default database, you must call it <code>default</code> like example above. Any extra DB connections 
-should have its own unique name such as <code>postgres</code> or <code>some_other_db</code></p>
-<p>Along with the configuration above, when writing SQLs in your codebase, you need to provide 
-supportive comment in your raw SQL, indicate which database the query should point.</p>
-<p>For example,</p>
-<pre><code class="language-typescript">import { sql } from 'sqlx-ts'
-
-const defaultDbSQL = sql`SELECT * FROM test;`
-const postgresSQL = sql`
- -- @db: postgres
- SELECT * FROM other_table;
-`
-</code></pre>
-<p>Then running <code>sqlx-ts</code> compile time query checker along with the </p>
-<h3 id="generate_types"><a class="header" href="#generate_types">generate_types</a></h3>
-<pre><code class="language-json">{
-  &quot;generateTypes: {
-    enabled: true|false,
-    convertToCamelCaseColumnName: true|false
-  },
-  &quot;connections&quot;: {
-    ...
-  }
-}
-</code></pre>
-<p>Support for configuration of generate types operations.</p>
-<ul>
-<li><code>enabled</code> (default: false): enables type generation via config</li>
-<li><code>convertToCamelCaseColumnName</code> (default: true): when generating field name based on table's column name, it will automatically cast to camelCase in TypeScript</li>
-</ul>
-
+<p>You can find the latest releases of sqlx-ts here to find an appropriate value for <code>--tag</code></p>
+<div class="table-wrapper"><table><thead><tr><th>Flag</th><th>Description</th></tr></thead><tbody>
+<tr><td>-h --help</td><td>Help command to display all available</td></tr>
+<tr><td>-f --force</td><td>Force overwriting an existing binary. Useful when you'd like to update or downgrade the binary</td></tr>
+<tr><td>--os</td><td>Your current OS, it's used to determine the type of binary to be installed (one of macos or win32 or linux)</td></tr>
+<tr><td>--artifact</td><td>Specific artifact to install. Please find the artifact name from https://github.com/JasonShin/sqlx-ts/releases (e.g. sqlx_ts_v0.1.0_x86_64-apple-darwin.zip)</td></tr>
+<tr><td>--tag</td><td>Tag (version) of the crate to install (default )</td></tr>
+<tr><td>--to</td><td>Where to install the binary (default to <code>.</code> or <code>pwd</code> current diretory)</td></tr>
+</tbody></table>
+</div>
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../reference-guide/2.connection-config.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../guides/1.getting-started.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../reference-guide/2.2.environment-variables.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../guides/2.configuration.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -260,11 +217,11 @@ const postgresSQL = sql`
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../reference-guide/2.connection-config.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../guides/1.getting-started.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../reference-guide/2.2.environment-variables.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../guides/2.configuration.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
