@@ -247,8 +247,8 @@ pub async fn translate_expr(
                     is_selection,
                 )
                 .await?;
-                Ok(())
             }
+            Ok(())
         }
         /*
 
