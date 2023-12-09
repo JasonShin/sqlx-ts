@@ -1,6 +1,6 @@
 [package]
 name = "sqlx-ts"
-version = "0.5.0"
+version = "0.9.2"
 edition = "2021"
 homepage = "https://github.com/JasonShin/sqlx-ts"
 authors = ['Jason Shin <visualbbasic@gmail.com>']
@@ -29,7 +29,7 @@ postgres = { version = "0.19.7" }
 mysql = { version = "24.0.0" }
 convert_case = "0.6.0"
 lazy_static = { version = "1.4.0" }
-openssl = { version = "0.10.57", features = ["vendored"] }
+openssl = { version = "0.10.60", features = ["vendored"] }
 colored = "2.0.4"
 tokio = { version = "1.32.0", features = ["rt", "macros", "default"]}
 sqlx = { version = "0.6.3", features = ["postgres", "mysql", "runtime-tokio-rustls"] }

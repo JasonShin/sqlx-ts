@@ -1,4 +1,7 @@
-<h1 align="center">SQLx-ts</h1>
+<div align="center">
+<img src="./assets/sqlx-ts-logo.png" width="70%" />
+</div>
+
 <div align="center">
  <strong>
    🧰 The Typescript/Javascript SQL Toolkit
@@ -35,8 +38,6 @@ If you are trying to use sqlx-ts against vanilla JS, the [TypeScript type-genera
 
 I would like to bring the powerful compile-time safety ideas to Node.js. [sqlx](https://github.com/launchbadge/sqlx) is a great example of this, as it provides compile-time check of SQLs within your Rust code and Rust itself provides a great environment for tools like sqlx. sqlx-ts is greatly inspired by [sqlx](https://github.com/launchbadge/sqlx), but solves additional problems of generating TypeScript interfaces based on the SQL queries that are present in your code.
 
-# Documentation Philosophies
-
-- Starts with what readers need
-- Write less, be objective
-- Pages with structures
+<div>
+Introduction
+</div>

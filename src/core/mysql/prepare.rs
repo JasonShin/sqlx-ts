@@ -25,7 +25,7 @@ pub async fn prepare(
     let span = sql.span.to_owned();
     let explain_query = format!("PREPARE stmt FROM \"{}\"", sql.query);
 
-    let mut conn = match &db_conn {
+    let conn = match &db_conn {
         DBConn::MySQLPooledConn(conn) => conn,
         _ => panic!("Invalid connection type"),
     };

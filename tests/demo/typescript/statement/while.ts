@@ -1,7 +1,7 @@
 import { sql } from 'sqlx-ts'
 
 while (true) {
-    const whileSql = `SELECT id FROM items WHERE $1;`
+    const whileSql = sql`SELECT id FROM items WHERE $1;`
 }
 
 let i = 0

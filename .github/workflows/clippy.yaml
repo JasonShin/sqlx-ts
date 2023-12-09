@@ -1,4 +1,4 @@
-name: rust test
+name: clippy
 
 on:
   push:
@@ -10,7 +10,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  clippy:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,6 +26,8 @@ jobs:
 
       - run: rustup toolchain install stable --profile minimal
 
+      - run: rustup component add clippy
+
       - uses: Swatinem/rust-cache@v2
         with:
           # To only cache runs from `master`:
@@ -35,15 +37,5 @@ jobs:
           # default: "github"
           cache-provider: "github"
 
-      - name: build docker-compose services for integration tests
-        run: docker-compose -f docker-compose.yml up -d
-
-      - uses: GuillaumeFalourd/wait-sleep-action@v1
-        with:
-          time: '10' # for 10 seconds
-
-      - name: Check the docker-compose services running
-        run: docker ps -a
-
-      - name: Run tests
-        run: cargo test -- --test-threads=1
+      - name: Run clippy
+        run: cargo clippy

@@ -1,3 +1,16 @@
+#![deny(
+    clippy::correctness,
+    clippy::style,
+    clippy::perf,
+    clippy::unnecessary_unwrap,
+    clippy::bool_comparison,
+    clippy::useless_asref,
+    clippy::borrow_deref_ref,
+    clippy::clone_on_copy,
+    clippy::extra_unused_lifetimes,
+    clippy::explicit_auto_deref
+)]
+#![allow(clippy::ptr_arg)]
 mod common;
 mod core;
 mod parser;

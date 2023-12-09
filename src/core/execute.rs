@@ -29,7 +29,7 @@ pub async fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) ->
                 .await?;
 
             // If any prepare statement fails, we should set the failed flag as true
-            failed = explain_failed.clone();
+            failed = *explain_failed;
 
             if *should_generate_types {
                 let ts_query = &ts_query.clone().expect("Failed to generate types from query");
@@ -39,7 +39,7 @@ pub async fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) ->
         }
 
         if *should_generate_types {
-            let is_sqls_empty = sqls_to_write.len() == 0;
+            let is_sqls_empty = sqls_to_write.is_empty();
             let sqls_to_write = sqls_to_write.join("\n");
 
             if is_sqls_empty {

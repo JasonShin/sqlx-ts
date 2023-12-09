@@ -6,8 +6,8 @@ use regex::Regex;
 use walkdir::WalkDir;
 
 fn pattern_to_regex(pattern: &str) -> Regex {
-    let pattern = pattern.replace(".", "\\.");
-    let pattern = pattern.replace("*", ".*");
+    let pattern = pattern.replace('.', "\\.");
+    let pattern = pattern.replace('*', ".*");
     let pattern = format!("^{}$", pattern);
     Regex::new(&pattern).unwrap()
 }
@@ -15,7 +15,7 @@ fn pattern_to_regex(pattern: &str) -> Regex {
 fn is_match(pattern: &str, path: &Path) -> bool {
     let regex = pattern_to_regex(pattern);
 
-    if pattern.starts_with("!") {
+    if pattern.starts_with('!') {
         !regex.is_match(path.to_str().unwrap())
     } else {
         regex.is_match(path.to_str().unwrap())

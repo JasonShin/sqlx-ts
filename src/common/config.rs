@@ -18,10 +18,14 @@ pub struct SqlxConfig {
     pub connections: HashMap<String, DbConnectionConfig>,
 }
 
+pub const fn default_bool<const V: bool>() -> bool {
+    V
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct GenerateTypesConfig {
     pub enabled: bool,
-    #[serde(rename = "convertToCamelCaseColumnName")]
+    #[serde(rename = "convertToCamelCaseColumnName", default = "default_bool::<true>")]
     pub convert_to_camel_case_column_name: bool,
     pub generate_path: Option<PathBuf>,
 }
@@ -87,7 +91,7 @@ impl Config {
         }
 
         let file_based_ignore_config = &file_based_ignore_config.unwrap();
-        let file_based_ignore_config = file_based_ignore_config.split("\n");
+        let file_based_ignore_config = file_based_ignore_config.split('\n');
         let file_based_ignore_config: Vec<&str> = file_based_ignore_config.clone().collect();
 
         let custom_ignore_configs = &file_based_ignore_config
@@ -106,29 +110,47 @@ impl Config {
         let file_based_config = fs::read_to_string(file_config_path);
         let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
 
-        let generate_types = &file_based_config
-            .as_ref()
-            .map(|config| {
-                config.generate_types.to_owned().map(|x| GenerateTypesConfig {
-                    enabled: CLI_ARGS.generate_types || x.enabled,
-                    generate_path: x.generate_path.or(CLI_ARGS.generate_path.to_owned()),
-                    convert_to_camel_case_column_name: x.convert_to_camel_case_column_name,
-                })
-            })
-            // If the file config is not provided, we will return the CLI arg's default values
-            .unwrap_or(Some(GenerateTypesConfig {
-                enabled: CLI_ARGS.generate_types,
-                generate_path: CLI_ARGS.generate_path.to_owned(),
-                convert_to_camel_case_column_name: false,
-            }));
+        let cli_default = GenerateTypesConfig {
+            enabled: CLI_ARGS.generate_types,
+            convert_to_camel_case_column_name: true,
+            generate_path: CLI_ARGS.generate_path.to_owned(),
+        };
 
-        generate_types.to_owned()
+        if let Ok(file_based_config) = &file_based_config {
+            if let Some(generate_types) = &file_based_config.generate_types {
+                let generate_types = generate_types.clone();
+                // If the file config is provided, we will return the file config's default values but CLI config as priority
+                return Some(GenerateTypesConfig {
+                    enabled: CLI_ARGS.generate_types || generate_types.enabled,
+                    generate_path: generate_types.generate_path.or(CLI_ARGS.generate_path.to_owned()),
+                    convert_to_camel_case_column_name: generate_types.convert_to_camel_case_column_name,
+                });
+            }
+            // If the file config is not provided, we will return the CLI arg's default values
+            Some(cli_default)
+        } else {
+            Some(cli_default)
+        }
     }
 
     /// Build the initial connection config to be used as a HashMap
     fn build_configs(dotenv: &Dotenv, file_config_path: &PathBuf) -> HashMap<String, DbConnectionConfig> {
         let file_based_config = fs::read_to_string(file_config_path);
-        let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
+        let file_based_config = &file_based_config.map(|f| {
+            let result = serde_json::from_str::<SqlxConfig>(f.as_str());
+
+            if result.is_err() {
+                panic!(
+                    "{}",
+                    format!(
+                        "Empty or invalid JSON provided for file based configuration - config file: {:?}",
+                        file_config_path
+                    )
+                )
+            }
+
+            result.unwrap()
+        });
 
         let connections = &mut file_based_config
             .as_ref()
@@ -254,7 +276,7 @@ impl Config {
             return detected_conn_name.to_string();
         }
 
-        return "default".to_string();
+        "default".to_string()
     }
 
     pub fn get_postgres_cred(&self, conn: &DbConnectionConfig) -> String {
