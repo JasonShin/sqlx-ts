@@ -44,6 +44,8 @@ pub struct DbConnectionConfig {
     pub db_pass: Option<String>,
     #[serde(rename = "DB_NAME")]
     pub db_name: Option<String>,
+    #[serde(rename = "PG_SEARCH_PATH")]
+    pub pg_search_path: Option<String>,
 }
 
 /// Config is used to determine connection configurations for primary target Database
@@ -237,6 +239,13 @@ impl Config {
             .or_else(|| dotenv.db_name.clone())
             .or_else(|| default_config.map(|x| x.db_name.clone()).flatten());
 
+        
+        let pg_search_path = &CLI_ARGS
+            .pg_search_path
+            .clone()
+            .or_else(|| dotenv.pg_search_path.clone())
+            .or_else(|| default_config.map(|x| x.pg_search_path.clone()).flatten());
+
         DbConnectionConfig {
             db_type: db_type.to_owned(),
             db_host: db_host.to_owned(),
@@ -244,6 +253,7 @@ impl Config {
             db_user: db_user.to_owned(),
             db_pass: db_pass.to_owned(),
             db_name: db_name.to_owned(),
+            pg_search_path: pg_search_path.to_owned(),
         }
     }
 

@@ -41,7 +41,7 @@ impl DBSchema {
     /// - TABLE_SCHEMA in MySQL is basically the `database_name`, so it requires passing in database name as an argument
     ///
     /// # PostgreSQL Notes
-    /// - TABLE_SCHEMA is PostgreSQL is basically 'public' by default. `database_name` is the name of the database itself
+    /// - PostgresSQL would utilise SEARCH_PATH option to search for the table in the database https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH
     pub fn fetch_table(&mut self, table_name: &Vec<&str>, conn: &DBConn) -> Option<Fields> {
         let table_key: String = table_name.join(",");
         let cached_table_result = self.tables_cache.get(table_key.as_str());
