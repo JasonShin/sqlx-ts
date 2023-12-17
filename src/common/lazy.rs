@@ -43,7 +43,7 @@ lazy_static! {
                     };
                     
                     if &connection_config.pg_search_path.is_some() == &true {
-                        conn.lock().unwrap().execute("SET search_path TO $1", &[&connection_config.pg_search_path]).unwrap();
+                        conn.lock().unwrap().execute("SET search_path TO $1", &[&connection_config.pg_search_path.clone().unwrap().to_string()]).unwrap();
                     }
                     db_conn
                 }
