@@ -364,7 +364,8 @@ this name, unless you give it a custom path to override it using <code>--config<
       &quot;DB_USER&quot;: &quot;postgres&quot;,
       &quot;DB_PASS&quot;: &quot;postgres&quot;,
       &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
-      &quot;DB_PORT&quot;: 4321
+      &quot;DB_PORT&quot;: 4321,
+      &quot;PG_SEARCH_PATH&quot;: &quot;public,myschema&quot;
     },
     &quot;some_other_db&quot;: {
       &quot;DB_TYPE&quot;: &quot;mysql&quot;,
@@ -392,6 +393,15 @@ const postgresSQL = sql`
  SELECT * FROM other_table;
 `
 </code></pre>
+<p>Supported fields of each connection include</p>
+<ul>
+<li><code>DB_TYPE</code>: type of database connection (mysql | postgres)</li>
+<li><code>DB_USER</code>: database user name</li>
+<li><code>DB_PASS</code>: database password</li>
+<li><code>DB_HOST</code>: database host (e.g. 127.0.0.1)</li>
+<li><code>DB_PORT</code>: database port (e.g. 4321)</li>
+<li><code>PG_SEARCH_PATH</code>: PostgreSQL schema search path (default is &quot;$user,public&quot;) <a href="https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH">https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH</a></li>
+</ul>
 <h3 id="generate_types"><a class="header" href="#generate_types">generate_types</a></h3>
 <pre><code class="language-json">{
   &quot;generateTypes: {
@@ -409,22 +419,10 @@ const postgresSQL = sql`
 <li><code>convertToCamelCaseColumnName</code> (default: true): when generating field name based on table's column name, it will automatically cast to camelCase in TypeScript</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="sqlx-ts-cli-opitons"><a class="header" href="#sqlx-ts-cli-opitons">sqlx-ts CLI Opitons</a></h1>
-<div class="table-wrapper"><table><thead><tr><th>Flag</th><th>Description</th><th>TS generation</th><th>Future Roadmap</th></tr></thead><tbody>
-<tr><td>--help</td><td>Help command to display all available</td><td>yes</td><td>N/A</td></tr>
-<tr><td>--config</td><td>Path to file based configuration. Use this flag if you are dealing with multiple database connections. Check here for more details</td><td>yes</td><td>N/A</td></tr>
-<tr><td>--db-host</td><td>Primary DB host</td><td>yes</td><td>N/A</td></tr>
-<tr><td>--db-pass</td><td>Primary DB password</td><td>yes</td><td>N/A</td></tr>
-<tr><td>--db-port</td><td>Primary DB port number</td><td>yes</td><td>N/A</td></tr>
-<tr><td>--db-type</td><td>Type of primary database to connect [default: postgres] [possible values: postgres, mysql]</td><td>not yet</td><td>Will be supported in the near future</td></tr>
-<tr><td>--db-user</td><td>Primary DB user name</td><td>N/A</td><td>Will be supported in the near future as this will be a unique feature that sqlx-ts provides</td></tr>
-<tr><td>--db-name</td><td>Primary DB name</td><td></td><td></td></tr>
-<tr><td>--ext</td><td>Javascript Extension to check SQLs against [default: ts] [possible values: ts, js]</td><td></td><td></td></tr>
-<tr><td>--generate-types</td><td>Flag to enable typescript type generation against SQLs</td><td></td><td></td></tr>
-<tr><td>-g, --generate-path</td><td>Relative path to the type generation (e.g. ./somedir/test.queries.ts)</td><td></td><td></td></tr>
-<tr><td>--log-level</td><td>Log level to be used in sqlx-ts (the priority is in info &gt; warn &gt; error order)</td><td></td><td></td></tr>
-<tr><td>-V, --version</td><td>Print version information</td><td></td><td></td></tr>
-</tbody></table>
-</div><div style="break-before: page; page-break-before: always;"></div><h1 id="environment-variables"><a class="header" href="#environment-variables">Environment variables</a></h1>
+<p>To check the latest CLI options available, please run</p>
+<pre><code class="language-bash">$ sqlx-ts --help
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="environment-variables"><a class="header" href="#environment-variables">Environment variables</a></h1>
 <div class="table-wrapper"><table><thead><tr><th>Environment variables</th><th>Description</th></tr></thead><tbody>
 <tr><td>DB_HOST</td><td>Primary DB host</td></tr>
 <tr><td>DB_PASS</td><td>Primary DB password</td></tr>
@@ -432,6 +430,7 @@ const postgresSQL = sql`
 <tr><td>DB_TYPE</td><td>Type of primary database to connect [default: postgres] [possible values: postgres, mysql]</td></tr>
 <tr><td>DB_USER</td><td>Primary DB user name</td></tr>
 <tr><td>DB_NAME</td><td>Primary DB name</td></tr>
+<tr><td>PG_SEARCH_PATH</td><td>PostgreSQL schema search path (default is &quot;$user,public&quot;) <a href="https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH">https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH</a></td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="sqlxignore"><a class="header" href="#sqlxignore">.sqlxignore</a></h1>
 <p>you can use <code>.sqlxignore</code> file in order to ignore certain files from being processed.</p>

@@ -198,7 +198,8 @@ this name, unless you give it a custom path to override it using <code>--config<
       &quot;DB_USER&quot;: &quot;postgres&quot;,
       &quot;DB_PASS&quot;: &quot;postgres&quot;,
       &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
-      &quot;DB_PORT&quot;: 4321
+      &quot;DB_PORT&quot;: 4321,
+      &quot;PG_SEARCH_PATH&quot;: &quot;public,myschema&quot;
     },
     &quot;some_other_db&quot;: {
       &quot;DB_TYPE&quot;: &quot;mysql&quot;,
@@ -226,6 +227,15 @@ const postgresSQL = sql`
  SELECT * FROM other_table;
 `
 </code></pre>
+<p>Supported fields of each connection include</p>
+<ul>
+<li><code>DB_TYPE</code>: type of database connection (mysql | postgres)</li>
+<li><code>DB_USER</code>: database user name</li>
+<li><code>DB_PASS</code>: database password</li>
+<li><code>DB_HOST</code>: database host (e.g. 127.0.0.1)</li>
+<li><code>DB_PORT</code>: database port (e.g. 4321)</li>
+<li><code>PG_SEARCH_PATH</code>: PostgreSQL schema search path (default is &quot;$user,public&quot;) <a href="https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH">https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH</a></li>
+</ul>
 <h3 id="generate_types"><a class="header" href="#generate_types">generate_types</a></h3>
 <pre><code class="language-json">{
   &quot;generateTypes: {
