@@ -49,6 +49,10 @@ pub struct Cli {
     #[clap(long)]
     pub db_name: Option<String>,
 
+    /// PostgreSQL schema search path (default is "$user,public") https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH
+    #[clap(long)]
+    pub pg_search_path: Option<String>,
+
     /// Folder paths to ignore
     #[clap(long, multiple_values = true)]
     pub ignore: Vec<String>,

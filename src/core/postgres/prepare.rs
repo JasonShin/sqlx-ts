@@ -1,3 +1,4 @@
+use crate::common::lazy::CONFIG;
 use crate::common::SQL;
 use crate::core::connection::DBConn;
 use crate::ts_generator::generator::generate_ts_interface;
@@ -21,7 +22,9 @@ pub fn prepare(
         DBConn::PostgresConn(conn) => conn,
         _ => panic!("Invalid connection type"),
     };
+
     let span = sql.span.to_owned();
+
     let prepare_query = format!("PREPARE sqlx_stmt AS {}", sql.query);
     let result = conn.lock().unwrap().borrow_mut().query(prepare_query.as_str(), &[]);
 

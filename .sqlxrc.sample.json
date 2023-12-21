@@ -6,7 +6,8 @@
       "DB_PORT": 54321,
       "DB_USER": "postgres",
       "DB_PASS": "postgres",
-      "DB_NAME": "postgres"
+      "DB_NAME": "postgres",
+      "PG_SEARCH_PATH": "public,myschema"
     },
     "db_mysql": {
       "DB_TYPE": "mysql",

@@ -1,9 +1,5 @@
-use super::connection::DBConn;
 use crate::common::lazy::{CLI_ARGS, CONFIG, DB_CONNECTIONS};
-use crate::common::types::DatabaseType;
 use crate::common::SQL;
-use crate::core::mysql::prepare as mysql_explain;
-use crate::core::postgres::prepare as postgres_explain;
 use crate::ts_generator::generator::{write_colocated_ts_file, write_single_ts_file};
 
 use color_eyre::eyre::Result;
