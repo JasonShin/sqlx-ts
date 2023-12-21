@@ -36,12 +36,12 @@ lazy_static! {
                 DatabaseType::Postgres => {
                     let postgres_cred = &CONFIG.get_postgres_cred(connection_config);
                     let db_conn = DBConn::PostgresConn(Mutex::new(PGClient::connect(postgres_cred, PGNoTls).unwrap()));
-                    
+
                     let conn = match &db_conn {
                         DBConn::PostgresConn(conn) => conn,
                         _ => panic!("Invalid connection type"),
                     };
-                    
+
                     if &connection_config.pg_search_path.is_some() == &true {
                         let search_path_query = format!("SET search_path TO {}", &connection_config.pg_search_path.clone().unwrap().as_str());
                         conn.lock().unwrap().execute(&search_path_query, &[]).unwrap();

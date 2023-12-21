@@ -1,6 +1,7 @@
 use crate::common::dotenv::Dotenv;
 use crate::common::lazy::CLI_ARGS;
 use crate::common::types::{DatabaseType, LogLevel};
+use crate::core::connection;
 use mysql::OptsBuilder;
 use regex::Regex;
 use serde;
@@ -239,7 +240,6 @@ impl Config {
             .or_else(|| dotenv.db_name.clone())
             .or_else(|| default_config.map(|x| x.db_name.clone()).flatten());
 
-        
         let pg_search_path = &CLI_ARGS
             .pg_search_path
             .clone()
@@ -325,5 +325,17 @@ impl Config {
             .flatten();
 
         CLI_ARGS.log_level.or(log_level_from_file).unwrap_or(LogLevel::Info)
+    }
+
+    pub fn get_pg_search_path(&self, raw_sql: &str) -> Option<String> {
+        let connection = &self.get_correct_db_connection(raw_sql);
+        let connection_config = &self.connections.get(connection);
+
+        if connection_config.is_none() {
+            return None;
+        }
+
+        let connection_config = connection_config.unwrap();
+        connection_config.pg_search_path.clone()
     }
 }
