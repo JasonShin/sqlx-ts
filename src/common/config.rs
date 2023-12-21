@@ -326,16 +326,4 @@ impl Config {
 
         CLI_ARGS.log_level.or(log_level_from_file).unwrap_or(LogLevel::Info)
     }
-
-    pub fn get_pg_search_path(&self, raw_sql: &str) -> Option<String> {
-        let connection = &self.get_correct_db_connection(raw_sql);
-        let connection_config = &self.connections.get(connection);
-
-        if connection_config.is_none() {
-            return None;
-        }
-
-        let connection_config = connection_config.unwrap();
-        connection_config.pg_search_path.clone()
-    }
 }

@@ -22,24 +22,8 @@ pub fn prepare(
         DBConn::PostgresConn(conn) => conn,
         _ => panic!("Invalid connection type"),
     };
-    let searh_path = &CONFIG.get_pg_search_path(&sql.query);
 
     let span = sql.span.to_owned();
-
-    // If postgres connection has search path, configure it now for this connection
-    if searh_path.is_some() {
-        let search_path_query = format!("SET search_path TO {}", &searh_path.clone().unwrap().as_str());
-        let result = conn
-            .lock()
-            .unwrap()
-            .borrow_mut()
-            .query(search_path_query.as_str(), &[]);
-
-        if let Err(e) = result {
-            handler.span_bug_no_panic(span.clone(), e.as_db_error().unwrap().message());
-            failed = true;
-        }
-    }
 
     let prepare_query = format!("PREPARE sqlx_stmt AS {}", sql.query);
     let result = conn.lock().unwrap().borrow_mut().query(prepare_query.as_str(), &[]);

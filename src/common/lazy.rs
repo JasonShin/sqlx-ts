@@ -42,7 +42,8 @@ lazy_static! {
                         _ => panic!("Invalid connection type"),
                     };
 
-                    if &connection_config.pg_search_path.is_some() == &true {
+                    if connection_config.pg_search_path.is_some() {
+                        println!("hmmm setting search path");
                         let search_path_query = format!("SET search_path TO {}", &connection_config.pg_search_path.clone().unwrap().as_str());
                         conn.lock().unwrap().execute(&search_path_query, &[]).unwrap();
                     }
