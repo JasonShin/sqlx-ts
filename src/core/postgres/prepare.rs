@@ -23,7 +23,9 @@ pub async fn prepare(
         DBConn::PostgresConn(conn) => conn,
         _ => panic!("Invalid connection type"),
     };
+
     let span = sql.span.to_owned();
+
     let prepare_query = format!("PREPARE sqlx_stmt AS {}", sql.query);
 
     let result = thread_local.block_on(&THREAD_RUNTIME, sqlx::query(&prepare_query).fetch_all(conn));
