@@ -95,7 +95,6 @@ pub async fn get_sql_query_param(
     right: &Box<Expr>,
     single_table_name: &Option<&str>,
     table_with_joins: &Option<Vec<TableWithJoins>>,
-    thread_local: &LocalSet,
     db_conn: &DBConn,
 ) -> Option<(TsFieldType, Option<String>)> {
     let table_name: Option<String>;
@@ -120,7 +119,7 @@ pub async fn get_sql_query_param(
             let columns = DB_SCHEMA
                 .lock()
                 .unwrap()
-                .fetch_table(&thread_local, &table_names, db_conn)
+                .fetch_table(&table_names, db_conn)
                 .await
                 .unwrap_or_else(|| panic!("Failed to fetch columns for table {:?}", table_name));
 
@@ -182,7 +181,7 @@ pub async fn translate_expr(
                 let table_details = &DB_SCHEMA
                     .lock()
                     .unwrap()
-                    .fetch_table(&thread_local, &vec![table_name.as_str()], db_conn)
+                    .fetch_table(&vec![table_name.as_str()], db_conn)
                     .await;
                 if let Some(table_details) = table_details {
                     let field = table_details.get(&ident).unwrap();
@@ -213,7 +212,7 @@ pub async fn translate_expr(
         /////////////////////
         Expr::BinaryOp { left, op: _, right } => {
             let param =
-                get_sql_query_param(left, right, single_table_name, table_with_joins, &thread_local, db_conn).await;
+                get_sql_query_param(left, right, single_table_name, table_with_joins,  db_conn).await;
             if param.is_none() {
                 Box::new(
                     translate_expr(
@@ -222,7 +221,6 @@ pub async fn translate_expr(
                         table_with_joins,
                         alias,
                         ts_query,
-                        &thread_local,
                         db_conn,
                         is_selection,
                     )
@@ -234,7 +232,6 @@ pub async fn translate_expr(
                     table_with_joins,
                     alias,
                     ts_query,
-                    &thread_local,
                     db_conn,
                     is_selection,
                 )

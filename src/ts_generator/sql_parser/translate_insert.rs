@@ -11,7 +11,6 @@ pub async fn translate_insert(
     columns: &[Ident],
     source: &Query,
     table_name: &str,
-    thread_local: &LocalSet,
     conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
     let table_details = &DB_SCHEMA

@@ -17,7 +17,6 @@ pub async fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) ->
         .is_some();
 
     for (file_path, sqls) in queries {
-        let thread_local = tokio::task::LocalSet::new();
         let mut sqls_to_write: Vec<String> = vec![];
         for sql in sqls {
             let mut connection = DB_CONNECTIONS.lock().unwrap();
@@ -25,7 +24,7 @@ pub async fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) ->
             let connection = &connection.lock().unwrap();
 
             let (explain_failed, ts_query) = &connection
-                .prepare(&thread_local, &sql, &should_generate_types, &handler)
+                .prepare(&sql, &should_generate_types, &handler)
                 .await?;
 
             // If any prepare statement fails, we should set the failed flag as true

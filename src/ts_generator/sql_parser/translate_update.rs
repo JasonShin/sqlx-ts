@@ -34,7 +34,6 @@ pub async fn translate_update(
     assignments: &Vec<Assignment>,
     from: &Option<TableWithJoins>,
     selection: &Option<Expr>,
-    thread_local: &LocalSet,
     db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
     translate_assignments(ts_query, table_with_joins, assignments, db_conn).await?;
