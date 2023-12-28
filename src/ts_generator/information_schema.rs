@@ -1,8 +1,5 @@
-use crate::common::lazy::THREAD_RUNTIME;
-use mysql;
 use sqlx::{MySql, Pool, Postgres, Row};
 use std::collections::HashMap;
-use tokio::task::LocalSet;
 
 use crate::core::connection::DBConn;
 
@@ -54,8 +51,8 @@ impl DBSchema {
         }
 
         let result = match &conn {
-            DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, table_name, conn),
-            DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, table_name, conn),
+            DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, table_name, conn).await,
+            DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, table_name, conn).await,
         };
 
         if let Some(result) = &result {
@@ -67,7 +64,6 @@ impl DBSchema {
 
    async fn postgres_fetch_table(
         &self,
-        thread_local: &LocalSet,
         table_names: &Vec<&str>,
         conn: &Pool<Postgres>,
     ) -> Option<Fields> {
@@ -91,7 +87,7 @@ impl DBSchema {
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
-        let result = sqlx::query(&query).fetch_all(conn).awiat;
+        let result = sqlx::query(&query).fetch_all(conn).await;
 
         if let Ok(result) = result {
             for row in result {
@@ -113,7 +109,6 @@ impl DBSchema {
 
     async fn mysql_fetch_table(
         &self,
-        thread_local: &LocalSet,
         table_names: &Vec<&str>,
         conn: &Pool<MySql>,
     ) -> Option<Fields> {

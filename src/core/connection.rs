@@ -21,17 +21,16 @@ pub enum DBConn {
 impl DBConn {
     pub async fn prepare(
         &self,
-        thread_local: &LocalSet,
         sql: &SQL,
         should_generate_types: &bool,
         handler: &Handler,
     ) -> Result<(bool, Option<TsQuery>)> {
         let (explain_failed, ts_query) = match &self {
             DBConn::MySQLPooledConn(_conn) => {
-                mysql_explain::prepare(&thread_local, &self, sql, should_generate_types, handler).await?
+                mysql_explain::prepare( &self, sql, should_generate_types, handler).await?
             }
             DBConn::PostgresConn(_conn) => {
-                postgres_explain::prepare(&thread_local, &self, sql, should_generate_types, handler).await?
+                postgres_explain::prepare(&self, sql, should_generate_types, handler).await?
             }
         };
 

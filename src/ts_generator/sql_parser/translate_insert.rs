@@ -17,7 +17,7 @@ pub async fn translate_insert(
     let table_details = &DB_SCHEMA
         .lock()
         .unwrap()
-        .fetch_table(&thread_local, &vec![table_name], conn)
+        .fetch_table( &vec![table_name], conn)
         .await
         // Nearly impossible to panic at this point as we've already validated queries with prepare statements
         .unwrap();

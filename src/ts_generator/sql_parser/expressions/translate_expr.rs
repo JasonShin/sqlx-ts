@@ -141,7 +141,6 @@ pub async fn translate_expr(
     table_with_joins: &Option<Vec<TableWithJoins>>,
     alias: Option<&str>,
     ts_query: &mut TsQuery,
-    thread_local: &LocalSet,
     db_conn: &DBConn,
     // is subquery determines if we can safely append result types into ts_query.results
     // subqueries on WHERE expression should no determine the SELECTIONs
@@ -156,7 +155,7 @@ pub async fn translate_expr(
             let table_details = &DB_SCHEMA
                 .lock()
                 .unwrap()
-                .fetch_table(&thread_local, &vec![table_name], db_conn)
+                .fetch_table(&vec![table_name], db_conn)
                 .await;
 
             // TODO: We can also memoize this method

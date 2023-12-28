@@ -50,7 +50,6 @@ pub async fn translate_update(
             &Some(table_with_joins),
             None,
             ts_query,
-            &thread_local,
             db_conn,
             false,
         )
