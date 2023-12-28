@@ -16,7 +16,7 @@ use super::expressions::{
 };
 
 /// Translates a query and workout ts_query's results and params
-#[async_recursion(?Send)]
+#[async_recursion]
 pub async fn translate_query(
     ts_query: &mut TsQuery,
     // this parameter is used to stack table_with_joins while recursing through subqueries

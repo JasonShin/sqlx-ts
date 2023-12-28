@@ -15,14 +15,13 @@ async fn translate_assignments(
     ts_query: &mut TsQuery,
     table_with_joins: &TableWithJoins,
     assignments: &Vec<Assignment>,
-    thread_local: &LocalSet,
     db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
     for assignment in assignments {
         let table = translate_table_from_assignments(&vec![table_with_joins.to_owned()], assignment).expect(
             "Failed to find the table based on assignment {assignment} from table with joins {table_with_joins}",
         );
-        translate_assignment(assignment, table.as_str(), ts_query, &thread_local, db_conn)
+        translate_assignment(assignment, table.as_str(), ts_query, db_conn)
             .await
             .unwrap();
     }
@@ -38,7 +37,7 @@ pub async fn translate_update(
     thread_local: &LocalSet,
     db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
-    translate_assignments(ts_query, table_with_joins, assignments, &thread_local, db_conn).await?;
+    translate_assignments(ts_query, table_with_joins, assignments, db_conn).await?;
 
     if selection.is_some() {
         let table_with_joins = vec![table_with_joins.clone()];

@@ -43,7 +43,6 @@ impl DBSchema {
     /// - PostgresSQL would utilise SEARCH_PATH option to search for the table in the database https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH
     pub async fn fetch_table(
         &mut self,
-        thread_local: &LocalSet,
         table_name: &Vec<&str>,
         conn: &DBConn,
     ) -> Option<Fields> {
@@ -55,8 +54,8 @@ impl DBSchema {
         }
 
         let result = match &conn {
-            DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, &thread_local, table_name, conn),
-            DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, &thread_local, table_name, conn),
+            DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, table_name, conn),
+            DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, table_name, conn),
         };
 
         if let Some(result) = &result {
@@ -66,7 +65,7 @@ impl DBSchema {
         result
     }
 
-    fn postgres_fetch_table(
+   async fn postgres_fetch_table(
         &self,
         thread_local: &LocalSet,
         table_names: &Vec<&str>,
@@ -92,7 +91,7 @@ impl DBSchema {
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
-        let result = thread_local.block_on(&THREAD_RUNTIME, sqlx::query(&query).fetch_all(conn));
+        let result = sqlx::query(&query).fetch_all(conn).awiat;
 
         if let Ok(result) = result {
             for row in result {
@@ -112,7 +111,7 @@ impl DBSchema {
         None
     }
 
-    fn mysql_fetch_table(
+    async fn mysql_fetch_table(
         &self,
         thread_local: &LocalSet,
         table_names: &Vec<&str>,
@@ -137,7 +136,7 @@ impl DBSchema {
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
-        let result = thread_local.block_on(&THREAD_RUNTIME, sqlx::query(&query).fetch_all(conn));
+        let result = sqlx::query(&query).fetch_all(conn).await;
 
         if let Ok(result) = result {
             for row in result {

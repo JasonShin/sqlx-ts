@@ -1,20 +1,14 @@
+use std::future::Future;
 use crate::common::lazy::DB_SCHEMA;
 use crate::common::logger::warning;
 use crate::core::connection::DBConn;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::expressions::translate_table_with_joins::translate_table_from_expr;
-use crate::ts_generator::sql_parser::expressions::{
-    functions::is_string_function, translate_data_type::translate_data_type,
-};
-use crate::ts_generator::sql_parser::translate_query::translate_query;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
-use async_recursion::async_recursion;
-use convert_case::{Case, Casing};
 use regex::Regex;
 use sqlparser::ast::{Assignment, Expr, TableWithJoins, Value};
 use tokio::task::LocalSet;
 
-use super::functions::{is_date_function, is_numeric_function};
 use color_eyre::Result;
 
 /// Given an expression
@@ -141,7 +135,6 @@ pub async fn get_sql_query_param(
 }
 
 /// TODO: Add docs about translate expr
-#[async_recursion(?Send)]
 pub async fn translate_expr(
     expr: &Expr,
     single_table_name: &Option<&str>,
@@ -528,7 +521,6 @@ pub async fn translate_assignment(
     assignment: &Assignment,
     table_name: &str,
     ts_query: &mut TsQuery,
-    thread_local: &LocalSet,
     db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
     let value = get_expr_placeholder(&assignment.value);
@@ -537,7 +529,7 @@ pub async fn translate_assignment(
         let table_details = &DB_SCHEMA
             .lock()
             .unwrap()
-            .fetch_table(&thread_local, &vec![table_name], db_conn)
+            .fetch_table(&vec![table_name], db_conn)
             .await
             .unwrap();
         let column_name = translate_column_name_assignment(assignment).unwrap();
