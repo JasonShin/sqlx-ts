@@ -1,6 +1,5 @@
 use async_recursion::async_recursion;
 use sqlparser::ast::{Query, SelectItem, SetExpr, TableWithJoins};
-use tokio::task::LocalSet;
 
 use crate::{
     core::connection::DBConn,

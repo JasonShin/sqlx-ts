@@ -1,4 +1,4 @@
-use std::future::Future;
+use async_recursion::async_recursion;
 use crate::common::lazy::DB_SCHEMA;
 use crate::common::logger::warning;
 use crate::core::connection::DBConn;
@@ -7,7 +7,6 @@ use crate::ts_generator::sql_parser::expressions::translate_table_with_joins::tr
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
 use regex::Regex;
 use sqlparser::ast::{Assignment, Expr, TableWithJoins, Value};
-use tokio::task::LocalSet;
 
 use color_eyre::Result;
 
@@ -118,7 +117,7 @@ pub async fn get_sql_query_param(
             let table_names = vec![table_name.as_str()];
             let columns = DB_SCHEMA
                 .lock()
-                .unwrap()
+                .await
                 .fetch_table(&table_names, db_conn)
                 .await
                 .unwrap_or_else(|| panic!("Failed to fetch columns for table {:?}", table_name));
@@ -133,7 +132,7 @@ pub async fn get_sql_query_param(
     }
 }
 
-/// TODO: Add docs about translate expr
+#[async_recursion]
 pub async fn translate_expr(
     expr: &Expr,
     single_table_name: &Option<&str>,
@@ -153,7 +152,7 @@ pub async fn translate_expr(
             let table_name = single_table_name.expect("Missing table name for identifier");
             let table_details = &DB_SCHEMA
                 .lock()
-                .unwrap()
+                .await
                 .fetch_table(&vec![table_name], db_conn)
                 .await;
 
@@ -180,7 +179,7 @@ pub async fn translate_expr(
 
                 let table_details = &DB_SCHEMA
                     .lock()
-                    .unwrap()
+                    .await
                     .fetch_table(&vec![table_name.as_str()], db_conn)
                     .await;
                 if let Some(table_details) = table_details {
@@ -524,7 +523,7 @@ pub async fn translate_assignment(
     if value.is_some() {
         let table_details = &DB_SCHEMA
             .lock()
-            .unwrap()
+            .await
             .fetch_table(&vec![table_name], db_conn)
             .await
             .unwrap();

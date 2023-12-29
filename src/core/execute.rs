@@ -19,7 +19,9 @@ pub async fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) ->
     for (file_path, sqls) in queries {
         let mut sqls_to_write: Vec<String> = vec![];
         for sql in sqls {
-            let mut connection = DB_CONNECTIONS.lock().unwrap();
+            let mut connection = DB_CONNECTIONS
+                .lock()
+                .await;
             let connection = &connection.get_connection(&sql.query).clone();
             let connection = &connection.lock().unwrap();
 

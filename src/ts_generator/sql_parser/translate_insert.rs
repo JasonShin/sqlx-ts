@@ -1,7 +1,6 @@
 use crate::core::connection::DBConn;
 use crate::ts_generator::sql_parser::expressions::translate_expr::get_expr_placeholder;
 use sqlparser::ast::{Ident, Query, SetExpr};
-use tokio::task::LocalSet;
 
 use crate::common::lazy::DB_SCHEMA;
 use crate::ts_generator::{errors::TsGeneratorError, types::ts_query::TsQuery};

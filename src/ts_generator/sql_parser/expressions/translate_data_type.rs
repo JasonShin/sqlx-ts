@@ -1,7 +1,4 @@
-use crate::{
-    common::lazy::{CONFIG, DB_SCHEMA},
-    ts_generator::types::ts_query::TsFieldType,
-};
+use crate::ts_generator::types::ts_query::TsFieldType;
 use sqlparser::ast::DataType;
 use sqlparser::ast::Value;
 
