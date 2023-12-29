@@ -1,13 +1,9 @@
-use crate::common::lazy::THREAD_RUNTIME;
 use crate::common::SQL;
 use crate::core::connection::DBConn;
 use crate::ts_generator::generator::generate_ts_interface;
 use crate::ts_generator::types::ts_query::TsQuery;
 use color_eyre::eyre::Result;
-use sqlx::mysql;
-use tokio::task::LocalSet;
 
-use std::borrow::BorrowMut;
 use swc_common::errors::Handler;
 
 /// Runs the prepare statement on the input SQL.

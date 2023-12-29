@@ -1,10 +1,8 @@
-use crate::common::lazy::THREAD_RUNTIME;
 use crate::common::SQL;
 use crate::core::connection::DBConn;
 use crate::ts_generator::generator::generate_ts_interface;
 use crate::ts_generator::types::ts_query::TsQuery;
 use color_eyre::eyre::Result;
-use tokio::task::LocalSet;
 
 use swc_common::errors::Handler;
 
@@ -27,14 +25,15 @@ pub async fn prepare(
 
     let prepare_query = format!("PREPARE sqlx_stmt AS {}", sql.query);
 
-    let result = sqlx::query(&prepare_query).fetch_all(conn).await;
+    let result = sqlx::query(&prepare_query).execute(conn).await;
 
     if let Err(e) = result {
         handler.span_bug_no_panic(span, e.to_string().as_str());
         failed = true;
     } else {
+        println!("checking if the prepare statement was executed successfully {:?}", result);
         // We should only deallocate if the prepare statement was executed successfully
-        sqlx::query("DEALLOCATE sqlx_stmt").fetch_all(conn).await?;
+        sqlx::query("DEALLOCATE sqlx_stmt").execute(conn).await?;
     }
 
     let mut ts_query = None;

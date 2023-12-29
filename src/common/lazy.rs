@@ -6,21 +6,18 @@ use crate::ts_generator::information_schema::DBSchema;
 use clap::Parser;
 use lazy_static::lazy_static;
 use sqlx::{mysql, postgres};
-use tokio;
-use tokio::runtime::Runtime;
-// use mysql::Conn as MySQLConn;
-// use postgres::{Client as PGClient, NoTls as PGNoTls};
+use tokio::sync::Mutex;
+use tokio::task;
+use tokio::runtime::Handle;
+
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::Mutex;
 
 // The file contains all implicitly dependent variables or state that files need for the logic
 // We have a lot of states that we need to drill down into each methods
 lazy_static! {
     pub static ref CLI_ARGS: Cli = Cli::parse();
     pub static ref CONFIG: Config =  Config::new();
-
-    pub static ref THREAD_RUNTIME: Runtime = Runtime::new().unwrap();
 
     // This is a holder for shared DBSChema used to fetch information for information_schema table
     // By having a singleton, we can think about caching the result if we are fetching a query too many times
@@ -29,9 +26,7 @@ lazy_static! {
     // This variable holds database connections for each connection name that is defined in the config
     // We are using lazy_static to initialize the connections once and use them throughout the application
     static ref DB_CONN_CACHE: HashMap<String, Arc<Mutex<DBConn>>> = {
-
         let mut cache = HashMap::new();
-        let local = tokio::task::LocalSet::new();
 
         for connection in CONFIG.connections.keys() {
             let connection_config = CONFIG.connections.get(connection).unwrap();
@@ -40,17 +35,23 @@ lazy_static! {
                 DatabaseType::Mysql => {
                     let url = &CONFIG.get_mysql_cred_str(&connection_config);
 
-                    let pool = local.block_on(&THREAD_RUNTIME, mysql::MySqlPoolOptions::new().max_connections(10).connect(url.as_str())).unwrap();
+                    let pool = task::block_in_place(|| {
+                        Handle::current().block_on(mysql::MySqlPoolOptions::new().max_connections(10).connect(url.as_str()))
+                    }).unwrap();
 
                     DBConn::MySQLPooledConn(pool)
                 }
                 DatabaseType::Postgres => {
                     let url = &CONFIG.get_postgres_cred(&connection_config);
-                    let pool = local.block_on(&THREAD_RUNTIME, postgres::PgPoolOptions::new().max_connections(10).connect(url.as_str())).unwrap();
+                    let pool = task::block_in_place(|| {
+                        Handle::current().block_on(postgres::PgPoolOptions::new().max_connections(10).connect(url.as_str()))
+                    }).unwrap();
 
                     if connection_config.pg_search_path.is_some() {
                         let search_path_query = format!("SET search_path TO {}", &connection_config.pg_search_path.clone().unwrap().as_str());
-                        local.block_on(&THREAD_RUNTIME, sqlx::query(&search_path_query).execute(&pool)).unwrap();
+                        let _ = task::block_in_place(|| {
+                            Handle::current().block_on(sqlx::query(&search_path_query).execute(&pool))
+                        });
                     }
 
                     DBConn::PostgresConn(pool)
