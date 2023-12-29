@@ -24,7 +24,6 @@ use crate::core::execute::execute;
 
 use sqlx_ts::ts_generator::generator::clear_single_ts_file_if_exists;
 use std::env;
-use std::thread;
 
 use crate::common::lazy::CLI_ARGS;
 use crate::common::logger::*;
@@ -37,7 +36,7 @@ fn set_default_env_var() {
     }
 }
 
-#[tokio::main(flavor = "current_thread")]
+#[tokio::main]
 async fn main() -> Result<()> {
     set_default_env_var();
     println!("setup default env vars complete");
