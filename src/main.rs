@@ -62,17 +62,14 @@ async fn main() -> Result<()> {
 
     println!("clear single ts file if exists");
 
-    tokio::task::spawn_blocking(move || {
-        for file_path in files.iter() {
-            let (sqls, handler) = parse_source(&file_path).unwrap();
-            let failed = execute(&sqls, &handler).unwrap();
-            if failed {
-                eprint!("SQLs failed to compile!");
-                std::process::exit(1)
-            }
+    for file_path in files.iter() {
+        let (sqls, handler) = parse_source(&file_path).unwrap();
+        let failed = execute(&sqls, &handler).await.unwrap();
+        if failed {
+            eprint!("SQLs failed to compile!");
+            std::process::exit(1)
         }
-    })
-    .await?;
+    }
 
     println!("execute complete");
 

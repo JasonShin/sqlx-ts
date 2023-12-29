@@ -5,12 +5,11 @@ use crate::core::postgres::prepare as postgres_explain;
 use crate::ts_generator::types::ts_query::TsQuery;
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::sync::Mutex;
+use tokio::sync::Mutex;
 
 use color_eyre::Result;
 use sqlx::{MySql, Pool, Postgres};
 use swc_common::errors::Handler;
-use tokio::task::LocalSet;
 
 /// Enum to hold a specific database connection instance
 pub enum DBConn {

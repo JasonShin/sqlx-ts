@@ -23,7 +23,7 @@ pub async fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) ->
                 .lock()
                 .await;
             let connection = &connection.get_connection(&sql.query).clone();
-            let connection = &connection.lock().unwrap();
+            let connection = &connection.lock().await;
 
             let (explain_failed, ts_query) = &connection
                 .prepare(&sql, &should_generate_types, &handler)

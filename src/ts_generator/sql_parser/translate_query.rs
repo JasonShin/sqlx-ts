@@ -23,7 +23,7 @@ pub async fn translate_query(
     table_with_joins: &Option<Vec<TableWithJoins>>,
     query: &Query,
     db_conn: &DBConn,
-    alias: Option<&str>,
+    alias: Option<&'async_recursion str>,
     is_selection: bool,
 ) -> Result<(), TsGeneratorError> {
     let body = *query.body.clone();
