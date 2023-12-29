@@ -19,15 +19,11 @@ pub async fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) ->
     for (file_path, sqls) in queries {
         let mut sqls_to_write: Vec<String> = vec![];
         for sql in sqls {
-            let mut connection = DB_CONNECTIONS
-                .lock()
-                .await;
+            let mut connection = DB_CONNECTIONS.lock().await;
             let connection = &connection.get_connection(&sql.query).clone();
             let connection = &connection.lock().await;
 
-            let (explain_failed, ts_query) = &connection
-                .prepare(&sql, &should_generate_types, &handler)
-                .await?;
+            let (explain_failed, ts_query) = &connection.prepare(&sql, &should_generate_types, &handler).await?;
 
             // If any prepare statement fails, we should set the failed flag as true
             failed = *explain_failed;

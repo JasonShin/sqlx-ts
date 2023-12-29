@@ -34,8 +34,7 @@ pub async fn prepare(
         failed = true;
     } else {
         // We should only deallocate if the prepare statement was executed successfully
-        sqlx::query("DEALLOCATE sqlx_stmt").fetch_all(conn)
-            .await?;
+        sqlx::query("DEALLOCATE sqlx_stmt").fetch_all(conn).await?;
     }
 
     let mut ts_query = None;

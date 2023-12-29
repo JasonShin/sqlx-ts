@@ -38,11 +38,7 @@ impl DBSchema {
     ///
     /// # PostgreSQL Notes
     /// - PostgresSQL would utilise SEARCH_PATH option to search for the table in the database https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH
-    pub async fn fetch_table(
-        &mut self,
-        table_name: &Vec<&str>,
-        conn: &DBConn,
-    ) -> Option<Fields> {
+    pub async fn fetch_table(&mut self, table_name: &Vec<&str>, conn: &DBConn) -> Option<Fields> {
         let table_key: String = table_name.join(",");
         let cached_table_result = self.tables_cache.get(table_key.as_str());
 
@@ -62,11 +58,7 @@ impl DBSchema {
         result
     }
 
-   async fn postgres_fetch_table(
-        &self,
-        table_names: &Vec<&str>,
-        conn: &Pool<Postgres>,
-    ) -> Option<Fields> {
+    async fn postgres_fetch_table(&self, table_names: &Vec<&str>, conn: &Pool<Postgres>) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))
@@ -107,11 +99,7 @@ impl DBSchema {
         None
     }
 
-    async fn mysql_fetch_table(
-        &self,
-        table_names: &Vec<&str>,
-        conn: &Pool<MySql>,
-    ) -> Option<Fields> {
+    async fn mysql_fetch_table(&self, table_names: &Vec<&str>, conn: &Pool<MySql>) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))

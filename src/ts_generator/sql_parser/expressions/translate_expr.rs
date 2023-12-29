@@ -1,10 +1,10 @@
-use async_recursion::async_recursion;
 use crate::common::lazy::DB_SCHEMA;
 use crate::common::logger::warning;
 use crate::core::connection::DBConn;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::expressions::translate_table_with_joins::translate_table_from_expr;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
+use async_recursion::async_recursion;
 use regex::Regex;
 use sqlparser::ast::{Assignment, Expr, TableWithJoins, Value};
 
@@ -150,11 +150,7 @@ pub async fn translate_expr(
         Expr::Identifier(ident) => {
             let column_name = ident.value.to_string();
             let table_name = single_table_name.expect("Missing table name for identifier");
-            let table_details = &DB_SCHEMA
-                .lock()
-                .await
-                .fetch_table(&vec![table_name], db_conn)
-                .await;
+            let table_details = &DB_SCHEMA.lock().await.fetch_table(&vec![table_name], db_conn).await;
 
             // TODO: We can also memoize this method
             if let Some(table_details) = table_details {
@@ -210,8 +206,7 @@ pub async fn translate_expr(
         // OPERATORS START //
         /////////////////////
         Expr::BinaryOp { left, op: _, right } => {
-            let param =
-                get_sql_query_param(left, right, single_table_name, table_with_joins,  db_conn).await;
+            let param = get_sql_query_param(left, right, single_table_name, table_with_joins, db_conn).await;
             if param.is_none() {
                 Box::new(
                     translate_expr(
