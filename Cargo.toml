@@ -25,8 +25,6 @@ serde = { version = "1.0.188", features = ["derive"] }
 serde_json = { version = "1.0.107" }
 sqlparser = { version = "0.33.0" }
 regex = { version = "1.9.6" }
-postgres = { version = "0.19.7" }
-mysql = { version = "24.0.0" }
 convert_case = "0.6.0"
 lazy_static = { version = "1.4.0" }
 openssl = { version = "0.10.60", features = ["vendored"] }
@@ -34,6 +32,7 @@ colored = "2.0.4"
 tokio = { version = "1.32.0", features = ["rt", "macros", "default"]}
 sqlx = { version = "0.6.3", features = ["postgres", "mysql", "runtime-tokio-rustls"] }
 async-recursion = "1.0.5"
+uuid = { version = "1.6.1", features = ["v4"] }
 
 [dev-dependencies]
 assert_cmd = "2.0.12"

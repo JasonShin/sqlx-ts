@@ -5,6 +5,7 @@ use crate::ts_generator::types::ts_query::TsQuery;
 use color_eyre::eyre::Result;
 
 use swc_common::errors::Handler;
+use uuid::Uuid;
 
 /// Runs the prepare statement on the input SQL. Validates the query is right by directly connecting to the configured database.
 /// It also processes ts interfaces if the configuration is set to `generate_types = true`
@@ -23,17 +24,20 @@ pub async fn prepare(
 
     let span = sql.span.to_owned();
 
-    let prepare_query = format!("PREPARE sqlx_stmt AS {}", sql.query);
+    let id = Uuid::new_v4().to_string().replace("-", "");
+    let prepare_query = format!("PREPARE sqlx_stmt_{} AS {}", id, sql.query);
 
-    let result = sqlx::query(&prepare_query).execute(conn).await;
+    let result = sqlx::query(&prepare_query).persistent(false).execute(conn).await;
 
     if let Err(e) = result {
         handler.span_bug_no_panic(span, e.to_string().as_str());
         failed = true;
     } else {
-        println!("checking if the prepare statement was executed successfully {:?}", result);
         // We should only deallocate if the prepare statement was executed successfully
-        sqlx::query("DEALLOCATE sqlx_stmt").execute(conn).await?;
+        /*let z = sqlx::query("DEALLOCATE sqlx_stmt")
+        .persistent(true)
+        .execute(conn)
+        .await;*/
     }
 
     let mut ts_query = None;

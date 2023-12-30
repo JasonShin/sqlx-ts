@@ -40,7 +40,6 @@ fn set_default_env_var() {
 #[tokio::main]
 async fn main() -> Result<()> {
     set_default_env_var();
-    println!("setup default env vars complete");
 
     let source_folder = &CLI_ARGS.path;
     let ext = &CLI_ARGS.ext;
@@ -48,7 +47,7 @@ async fn main() -> Result<()> {
     info!("Scanning {:?} for SQLs with extension {:?}", source_folder, ext);
 
     let files = scan_folder(source_folder, ext);
-    println!("scanned folder");
+
     if files.is_empty() {
         info!(
             "No targets detected, is it an empty folder? - source_folder: {:?}, ext: {:?}",
@@ -59,8 +58,6 @@ async fn main() -> Result<()> {
 
     // If CLI_ARGS.generate_types is true, it will clear the single TS file so `execute` will generate a new one from scratch
     clear_single_ts_file_if_exists()?;
-
-    println!("clear single ts file if exists");
 
     for file_path in files.iter() {
         let (sqls, handler) = parse_source(&file_path).unwrap();

@@ -6,9 +6,9 @@ use crate::ts_generator::information_schema::DBSchema;
 use clap::Parser;
 use lazy_static::lazy_static;
 use sqlx::{mysql, postgres};
+use tokio::runtime::Handle;
 use tokio::sync::Mutex;
 use tokio::task;
-use tokio::runtime::Handle;
 
 use std::collections::HashMap;
 use std::sync::Arc;
