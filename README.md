@@ -1,10 +1,6 @@
 <h1 align="center">sqlx-ts</h1>
 
 <div align="center">
-    <a href='https://coveralls.io/github/JasonShin/sqlx-ts?branch=main'><img src='https://coveralls.io/repos/github/JasonShin/sqlx-ts/badge.svg?branch=main' alt='Coverage Status' /></a>
-</div>
-
-<div align="center">
  <strong>
    🧰 The Typescript/Javascript SQL Toolkit
  </strong>

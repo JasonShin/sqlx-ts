@@ -4,6 +4,8 @@ use crate::ts_generator::generator::generate_ts_interface;
 use crate::ts_generator::types::ts_query::TsQuery;
 use color_eyre::eyre::Result;
 
+use sqlparser::dialect::{MySqlDialect};
+use sqlparser::parser::Parser as SqlParser;
 use swc_common::errors::Handler;
 
 /// Runs the prepare statement on the input SQL.
@@ -19,13 +21,15 @@ pub async fn prepare(
 
     let span = sql.span.to_owned();
     let explain_query = format!("PREPARE stmt FROM \"{}\"", sql.query);
+    let explain_query= &explain_query.as_str();
 
+    println!("checking mysql prepared query {:?}", explain_query);
     let conn = match &db_conn {
         DBConn::MySQLPooledConn(conn) => conn,
         _ => panic!("Invalid connection type"),
     };
 
-    let result = sqlx::query(&explain_query).fetch_all(conn).await;
+    let result = sqlx::query(&explain_query).execute(conn).await;
 
     if let Err(err) = result {
         handler.span_bug_no_panic(span, err.to_string().as_str());

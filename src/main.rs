@@ -25,7 +25,6 @@ use crate::core::execute::execute;
 use sqlx_ts::ts_generator::generator::clear_single_ts_file_if_exists;
 use std::env;
 
-use crate::common::lazy;
 use crate::common::lazy::CLI_ARGS;
 use crate::common::logger::*;
 use crate::{parser::parse_source, scan_folder::scan_folder};

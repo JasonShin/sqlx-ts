@@ -1,6 +1,6 @@
 
 
-export type TestSequelizeQueryParams = [number];
+export type TestSequelizeQueryParams = [];
 
 
 export interface ITestSequelizeQueryResult {

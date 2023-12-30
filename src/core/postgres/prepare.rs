@@ -26,6 +26,7 @@ pub async fn prepare(
 
     let id = Uuid::new_v4().to_string().replace("-", "");
     let prepare_query = format!("PREPARE sqlx_stmt_{} AS {}", id, sql.query);
+    println!("checking prepared query {:?}", prepare_query);
 
     let result = sqlx::query(&prepare_query).persistent(false).execute(conn).await;
 

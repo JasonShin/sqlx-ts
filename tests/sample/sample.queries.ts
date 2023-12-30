@@ -1,6 +1,6 @@
 
 
-export type SampleSelectQueryParams = [number];
+export type SampleSelectQueryParams = [];
 
 
 export interface ISampleSelectQueryResult {
@@ -33,7 +33,7 @@ export interface ISampleInsertQueryQuery {
 
 
 
-export type SampleUpdateQueryParams = [number, number];
+export type SampleUpdateQueryParams = [number];
 
 
 export interface ISampleUpdateQueryResult {
@@ -49,7 +49,7 @@ export interface ISampleUpdateQueryQuery {
 
 
 
-export type SampleDeleteQueryParams = [number];
+export type SampleDeleteQueryParams = [];
 
 
 export interface ISampleDeleteQueryResult {
