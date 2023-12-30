@@ -1,5 +1,4 @@
 use sqlparser::ast::{Assignment, Expr, TableWithJoins};
-use tokio::task::LocalSet;
 
 use crate::{
     core::connection::DBConn,

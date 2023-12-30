@@ -19,7 +19,6 @@ use color_eyre::eyre::Result;
 use convert_case::{Case, Casing};
 use regex::Regex;
 use sqlparser::{dialect::GenericDialect, parser::Parser};
-use tokio::task::LocalSet;
 
 use super::errors::TsGeneratorError;
 

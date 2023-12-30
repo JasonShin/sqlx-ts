@@ -3,12 +3,16 @@ use crate::common::logger::warning;
 use crate::core::connection::DBConn;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::expressions::translate_table_with_joins::translate_table_from_expr;
+use crate::ts_generator::sql_parser::translate_query::translate_query;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
 use async_recursion::async_recursion;
 use regex::Regex;
 use sqlparser::ast::{Assignment, Expr, TableWithJoins, Value};
 
 use color_eyre::Result;
+
+use super::functions::{is_date_function, is_numeric_function, is_string_function};
+use super::translate_data_type::{translate_data_type, translate_value};
 
 /// Given an expression
 /// e.g.
@@ -233,8 +237,6 @@ pub async fn translate_expr(
             }
             Ok(())
         }
-        /*
-
         Expr::InList { expr, list, negated: _ } => {
             ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, expr_for_logging)?;
             // If the list is just a single `(?)`, then we should return the dynamic
@@ -249,7 +251,8 @@ pub async fn translate_expr(
                     single_table_name,
                     table_with_joins,
                     db_conn,
-                );
+                )
+                .await;
 
                 if let Some((value, index)) = result {
                     let array_item = value.to_array_item();
@@ -268,7 +271,7 @@ pub async fn translate_expr(
             negated: _,
         } => {
             // You do not need an alias as we are processing a subquery within the WHERE clause
-            translate_query(ts_query, &None, subquery, db_conn, None, false)?;
+            translate_query(ts_query, &None, subquery, db_conn, None, false).await?;
             Ok(())
         }
         Expr::Between {
@@ -277,8 +280,8 @@ pub async fn translate_expr(
             low,
             high,
         } => {
-            let low = get_sql_query_param(expr, low, single_table_name, table_with_joins, db_conn);
-            let high = get_sql_query_param(expr, high, single_table_name, table_with_joins, db_conn);
+            let low = get_sql_query_param(expr, low, single_table_name, table_with_joins, db_conn).await;
+            let high = get_sql_query_param(expr, high, single_table_name, table_with_joins, db_conn).await;
             if let Some((value, placeholder)) = low {
                 ts_query.insert_param(&value, &placeholder)?;
             }
@@ -288,24 +291,39 @@ pub async fn translate_expr(
             }
             Ok(())
         }
-        Expr::AnyOp(expr) | Expr::AllOp(expr) => translate_expr(
-            expr,
-            single_table_name,
-            table_with_joins,
-            alias,
-            ts_query,
-            db_conn,
-            is_selection,
-        ),
-        Expr::UnaryOp { op: _, expr } => translate_expr(
-            expr,
-            single_table_name,
-            table_with_joins,
-            alias,
-            ts_query,
-            db_conn,
-            is_selection,
-        ),
+        Expr::AnyOp {
+            left: _,
+            compare_op: _,
+            right: expr,
+        }
+        | Expr::AllOp {
+            left: _,
+            compare_op: _,
+            right: expr,
+        } => {
+            translate_expr(
+                expr,
+                single_table_name,
+                table_with_joins,
+                alias,
+                ts_query,
+                db_conn,
+                is_selection,
+            )
+            .await
+        }
+        Expr::UnaryOp { op: _, expr } => {
+            translate_expr(
+                expr,
+                single_table_name,
+                table_with_joins,
+                alias,
+                ts_query,
+                db_conn,
+                is_selection,
+            )
+            .await
+        }
         Expr::Value(placeholder) => {
             let ts_field_type = translate_value(placeholder);
 
@@ -348,7 +366,21 @@ pub async fn translate_expr(
             // If the pattern has a placeholder, then we should append the param to ts_query
             ts_query.insert_param(&TsFieldType::String, &Some(pattern.to_string()))
         }
-        Expr::TryCast { expr, data_type } | Expr::SafeCast { expr, data_type } | Expr::Cast { expr, data_type } => {
+        Expr::TryCast {
+            expr,
+            data_type,
+            format: _,
+        }
+        | Expr::SafeCast {
+            expr,
+            data_type,
+            format: _,
+        }
+        | Expr::Cast {
+            expr,
+            data_type,
+            format: _,
+        } => {
             let data_type = translate_data_type(data_type);
             ts_query.insert_result(alias, &[data_type.clone()], is_selection, expr_for_logging)?;
             ts_query.insert_param(&data_type, &Some(expr.to_string()))?;
@@ -377,6 +409,7 @@ pub async fn translate_expr(
             expr,
             substring_from,
             substring_for,
+            special,
         } => {
             ts_query.insert_result(alias, &[TsFieldType::String], is_selection, expr_for_logging)?;
             ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()))
@@ -385,6 +418,7 @@ pub async fn translate_expr(
             expr,
             trim_where: _,
             trim_what: _,
+            trim_characters: _,
         } => {
             ts_query.insert_result(alias, &[TsFieldType::String], is_selection, expr_for_logging)?;
             ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()))
@@ -423,7 +457,7 @@ pub async fn translate_expr(
         } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),
         Expr::Exists { subquery, negated: _ } => {
             ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, expr_for_logging)?;
-            translate_query(ts_query, &None, subquery, db_conn, alias, false)
+            translate_query(ts_query, &None, subquery, db_conn, alias, false).await
         }
         Expr::ListAgg(_)
         | Expr::ArrayAgg(_)
@@ -437,13 +471,7 @@ pub async fn translate_expr(
         Expr::ArrayIndex { obj, indexes } => {
             ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
         }
-        Expr::Interval {
-            value: _,
-            leading_field: _,
-            leading_precision: _,
-            last_field: _,
-            fractional_seconds_precision: _,
-        } => ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging),
+        Expr::Interval(_) => ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging),
         Expr::MatchAgainst {
             columns: _,
             match_value: _,
@@ -484,25 +512,27 @@ pub async fn translate_expr(
         Expr::Subquery(sub_query) => {
             // For the first layer of subquery, we consider the first field selected as the result
             if is_selection && table_with_joins.clone().unwrap().len() == 1 {
-                return translate_query(ts_query, table_with_joins, sub_query, db_conn, alias, true);
+                return translate_query(ts_query, table_with_joins, sub_query, db_conn, alias, true).await;
             }
-            translate_query(ts_query, table_with_joins, sub_query, db_conn, alias, false)
+            translate_query(ts_query, table_with_joins, sub_query, db_conn, alias, false).await
         }
-        Expr::Nested(expr) => translate_expr(
-            expr,
-            single_table_name,
-            table_with_joins,
-            alias,
-            ts_query,
-            db_conn,
-            is_selection,
-        ),
+        Expr::Nested(expr) => {
+            translate_expr(
+                expr,
+                single_table_name,
+                table_with_joins,
+                alias,
+                ts_query,
+                db_conn,
+                is_selection,
+            )
+            .await
+        }
         Expr::InUnnest {
             expr,
             array_expr: _,
             negated: _,
         } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, &expr_for_logging),
-         */
         _ => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, &expr_for_logging),
     }
 }

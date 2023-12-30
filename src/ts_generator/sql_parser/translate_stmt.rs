@@ -8,7 +8,8 @@ use crate::ts_generator::sql_parser::translate_update::translate_update;
 use crate::ts_generator::types::ts_query::TsQuery;
 
 use sqlparser::ast::Statement;
-use tokio::task::LocalSet;
+
+use super::expressions::translate_table_with_joins::get_default_table;
 
 pub async fn translate_stmt(
     ts_query: &mut TsQuery,
@@ -32,18 +33,25 @@ pub async fn translate_stmt(
             table: _,
             on: _,
             returning: _,
+            ignore: _,
         } => {
             let table_name = table_name.to_string();
             let table_name = table_name.as_str();
-            translate_insert(ts_query, columns, source, table_name, db_conn).await?;
+            if source.is_some() {
+                let source = *source.to_owned().unwrap();
+                translate_insert(ts_query, columns, &source, table_name, db_conn).await?;
+            }
         }
         Statement::Delete {
-            table_name,
             selection,
             using: _,
             returning: _,
+            tables: _,
+            from,
+            order_by: _,
+            limit: _,
         } => {
-            let table_name = table_name.to_string();
+            let table_name = get_default_table(&from);
             let table_name = table_name.as_str();
             let selection = selection.to_owned().unwrap();
             translate_delete(ts_query, &selection, table_name, db_conn).await?;

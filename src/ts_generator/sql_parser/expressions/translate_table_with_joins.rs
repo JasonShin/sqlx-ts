@@ -9,6 +9,8 @@ pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
                 alias: _,
                 args: _,
                 with_hints: _,
+                version: _,
+                partitions: _,
             } => Some(name.to_string()),
             _ => None,
         })
@@ -41,6 +43,8 @@ pub fn find_table_name_from_identifier(
                 alias,
                 args: _,
                 with_hints: _,
+                version: _,
+                partitions: _,
             } => {
                 if Some(left.to_string()) == alias.to_owned().map(|a| a.to_string()) || left == name.to_string() {
                     // If the identifier matches the alias, then return the table name
@@ -62,6 +66,8 @@ pub fn find_table_name_from_identifier(
                 alias,
                 args: _,
                 with_hints: _,
+                version,
+                partitions,
             } => {
                 let alias = alias.to_owned().map(|x| x.to_string());
                 let name = name.to_string();

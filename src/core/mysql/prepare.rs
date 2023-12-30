@@ -4,7 +4,7 @@ use crate::ts_generator::generator::generate_ts_interface;
 use crate::ts_generator::types::ts_query::TsQuery;
 use color_eyre::eyre::Result;
 
-use sqlparser::dialect::{MySqlDialect};
+use sqlparser::dialect::{GenericDialect, MySqlDialect};
 use sqlparser::parser::Parser as SqlParser;
 use swc_common::errors::Handler;
 
@@ -21,7 +21,7 @@ pub async fn prepare(
 
     let span = sql.span.to_owned();
     let explain_query = format!("PREPARE stmt FROM \"{}\"", sql.query);
-    let explain_query= &explain_query.as_str();
+    let explain_query = &explain_query.as_str();
 
     println!("checking mysql prepared query {:?}", explain_query);
     let conn = match &db_conn {
