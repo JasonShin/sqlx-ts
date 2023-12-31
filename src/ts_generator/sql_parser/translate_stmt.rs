@@ -49,8 +49,8 @@ pub fn translate_stmt(
             order_by: _,
             limit: _,
         } => {
-            let table_name = get_default_table(&from);
-            let table_name = &table_name.as_str();
+            let table_name = get_default_table(from);
+            let table_name = table_name.as_str();
             let selection = selection.to_owned().unwrap();
             translate_delete(ts_query, &selection, table_name, db_conn)?;
         }

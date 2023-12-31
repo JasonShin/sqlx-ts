@@ -12,7 +12,7 @@ pub fn find_sqlx_import_alias(import_decl: &ImportDecl) -> Option<String> {
                 if let Some(imported) = &import_named_specifier.imported {
                     match imported {
                         ModuleExportName::Ident(ident) => {
-                            if ident.sym.to_string() == "sql" {
+                            if ident.sym == "sql" {
                                 name = Some(import_named_specifier.local.sym.to_string())
                             }
                         }
