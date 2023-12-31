@@ -52,7 +52,7 @@ pub async fn translate_stmt(
             let table_name = get_default_table(from);
             let table_name = table_name.as_str();
             let selection = selection.to_owned().unwrap();
-            translate_delete(ts_query, &selection, table_name, db_conn)?;
+            translate_delete(ts_query, &selection, table_name, db_conn).await?;
         }
         Statement::Update {
             table,

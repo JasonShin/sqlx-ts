@@ -2,7 +2,7 @@ use mysql_async::prelude::*;
 use postgres;
 use std::borrow::BorrowMut;
 use std::collections::HashMap;
-use std::sync::Mutex;
+use tokio::sync::Mutex;
 
 use crate::core::connection::DBConn;
 
@@ -82,7 +82,7 @@ impl DBSchema {
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
-        let result = conn.lock().unwrap().borrow_mut().query(&query, &[]);
+        let result = conn.lock().await.borrow_mut().query(&query, &[]);
 
         if let Ok(result) = result {
             for row in result {
@@ -123,7 +123,7 @@ impl DBSchema {
 
         let mut fields: HashMap<String, Field> = HashMap::new();
         // TODO: replace with proper error types
-        let mut conn = conn.lock().unwrap().get_conn().await.unwrap();
+        let mut conn = conn.lock().await.get_conn().await.unwrap();
         let result = conn.query::<mysql_async::Row, String>(query).await;
 
         if let Ok(result) = result {

@@ -114,7 +114,7 @@ pub fn clear_single_ts_file_if_exists() -> Result<()> {
     Ok(())
 }
 
-pub fn generate_ts_interface(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery> {
+pub async fn generate_ts_interface(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery> {
     let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
 
     let sql_ast = Parser::parse_sql(&dialect, &sql.query)?;
@@ -128,7 +128,7 @@ pub fn generate_ts_interface(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery> {
 
     for sql_statement in &sql_ast {
         // The loot level statements cannot have any alias
-        translate_stmt(&mut ts_query, sql_statement, None, db_conn)?;
+        translate_stmt(&mut ts_query, sql_statement, None, db_conn).await?;
     }
 
     Ok(ts_query)

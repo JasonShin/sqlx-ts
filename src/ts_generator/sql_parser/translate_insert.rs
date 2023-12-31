@@ -14,7 +14,7 @@ pub async fn translate_insert(
 ) -> Result<(), TsGeneratorError> {
     let table_details = &DB_SCHEMA
         .lock()
-        .unwrap()
+        .await
         .fetch_table(&vec![table_name], conn)
         .await
         // Nearly impossible to panic at this point as we've already validated queries with prepare statements

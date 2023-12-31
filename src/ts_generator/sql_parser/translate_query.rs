@@ -60,7 +60,7 @@ pub async fn translate_query(
                             ts_query,
                             db_conn,
                             is_selection,
-                        )?;
+                        ).await?;
                     }
                     SelectItem::ExprWithAlias { expr, alias } => {
                         let alias = alias.to_string();
@@ -75,7 +75,7 @@ pub async fn translate_query(
                             ts_query,
                             db_conn,
                             is_selection,
-                        )?;
+                        ).await?;
                     }
                     SelectItem::QualifiedWildcard(_, _) => {
                         // TODO: If there's are two tables and two qualifieid wildcards are provided
@@ -105,7 +105,7 @@ pub async fn translate_query(
                     ts_query,
                     db_conn,
                     false,
-                )?;
+                ).await?;
             }
             Ok(())
         }

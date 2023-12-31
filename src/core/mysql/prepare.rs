@@ -26,7 +26,7 @@ pub async fn prepare(
         DBConn::MySQLPooledConn(conn) => conn,
         _ => panic!("Invalid connection type"),
     };
-    let mut conn = conn.lock().unwrap().get_conn().await.unwrap();
+    let mut conn = conn.lock().await.get_conn().await.unwrap();
     let result: Result<Vec<Row>, _> = conn.query(explain_query).await;
 
     if let Err(err) = result {
@@ -37,7 +37,7 @@ pub async fn prepare(
     let mut ts_query = None;
 
     if should_generate_types == &true {
-        ts_query = Some(generate_ts_interface(sql, db_conn)?);
+        ts_query = Some(generate_ts_interface(sql, db_conn).await?);
     }
 
     Ok((failed, ts_query))

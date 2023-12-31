@@ -10,7 +10,7 @@ use super::expressions::{
     translate_table_with_joins::{get_default_table, translate_table_from_assignments},
 };
 
-fn translate_assignments(
+async fn translate_assignments(
     ts_query: &mut TsQuery,
     table_with_joins: &TableWithJoins,
     assignments: &Vec<Assignment>,
@@ -20,7 +20,7 @@ fn translate_assignments(
         let table = translate_table_from_assignments(&vec![table_with_joins.to_owned()], assignment).expect(
             "Failed to find the table based on assignment {assignment} from table with joins {table_with_joins}",
         );
-        translate_assignment(assignment, table.as_str(), ts_query, db_conn).unwrap();
+        translate_assignment(assignment, table.as_str(), ts_query, db_conn).await.unwrap();
     }
     Ok(())
 }
@@ -33,7 +33,7 @@ pub async fn translate_update(
     selection: &Option<Expr>,
     db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
-    translate_assignments(ts_query, table_with_joins, assignments, db_conn)?;
+    translate_assignments(ts_query, table_with_joins, assignments, db_conn).await?;
 
     if selection.is_some() {
         let table_with_joins = vec![table_with_joins.clone()];

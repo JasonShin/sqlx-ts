@@ -5,17 +5,16 @@ use crate::core::postgres::prepare as postgres_explain;
 use crate::ts_generator::types::ts_query::TsQuery;
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::sync::Mutex;
+use tokio::sync::Mutex;
 
 use color_eyre::Result;
-use mysql::Conn as MySQLConn;
-use mysql_async::Pool;
+use mysql_async::Pool as MySQLPool;
 use postgres::Client as PostgresConn;
 use swc_common::errors::Handler;
 
 /// Enum to hold a specific database connection instance
 pub enum DBConn {
-    MySQLPooledConn(Mutex<Pool>),
+    MySQLPooledConn(Mutex<MySQLPool>),
     PostgresConn(Mutex<PostgresConn>),
 }
 
@@ -28,7 +27,7 @@ impl DBConn {
     ) -> Result<(bool, Option<TsQuery>)> {
         let (explain_failed, ts_query) = match &self {
             DBConn::MySQLPooledConn(_conn) => mysql_explain::prepare(self, sql, should_generate_types, handler).await?,
-            DBConn::PostgresConn(_conn) => postgres_explain::prepare(self, sql, should_generate_types, handler)?,
+            DBConn::PostgresConn(_conn) => postgres_explain::prepare(self, sql, should_generate_types, handler).await?,
         };
 
         Ok((explain_failed, ts_query))

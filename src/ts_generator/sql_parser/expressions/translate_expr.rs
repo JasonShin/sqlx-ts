@@ -94,7 +94,7 @@ pub fn translate_column_name_assignment(assignment: &Assignment) -> Option<Strin
 ///
 /// some_field = $1
 /// some_table.some_field = $1
-pub fn get_sql_query_param(
+pub async fn get_sql_query_param(
     left: &Box<Expr>,
     right: &Box<Expr>,
     single_table_name: &Option<&str>,
@@ -122,8 +122,9 @@ pub fn get_sql_query_param(
             let table_names = vec![table_name.as_str()];
             let columns = DB_SCHEMA
                 .lock()
-                .unwrap()
+                .await
                 .fetch_table(&table_names, db_conn)
+                .await
                 .unwrap_or_else(|| panic!("Failed to fetch columns for table {:?}", table_name));
 
             // get column and return TsFieldType
@@ -156,8 +157,8 @@ pub async fn translate_expr(
             let table_name = single_table_name.expect("Missing table name for identifier");
             let table_details = &DB_SCHEMA
                 .lock()
-                .unwrap()
-                .fetch_table(&vec![table_name], db_conn)
+                .await
+                .fetch_table(&vec![table_name], &db_conn)
                 .await;
 
             // TODO: We can also memoize this method
@@ -183,7 +184,7 @@ pub async fn translate_expr(
 
                 let table_details = &DB_SCHEMA
                     .lock()
-                    .unwrap()
+                    .await
                     .fetch_table(&vec![table_name.as_str()], db_conn)
                     .await;
                 if let Some(table_details) = table_details {
@@ -213,7 +214,7 @@ pub async fn translate_expr(
         // OPERATORS START //
         /////////////////////
         Expr::BinaryOp { left, op: _, right } => {
-            let param = get_sql_query_param(left, right, single_table_name, table_with_joins, db_conn);
+            let param = get_sql_query_param(left, right, single_table_name, table_with_joins, db_conn).await;
             if let Some((value, index)) = param {
                 let _ = ts_query.insert_param(&value, &index);
                 Ok(())
@@ -253,7 +254,7 @@ pub async fn translate_expr(
                     single_table_name,
                     table_with_joins,
                     db_conn,
-                );
+                ).await;
 
                 if let Some((value, index)) = result {
                     let array_item = TsFieldType::Array(Box::new(value));
@@ -281,8 +282,8 @@ pub async fn translate_expr(
             low,
             high,
         } => {
-            let low = get_sql_query_param(expr, low, single_table_name, table_with_joins, db_conn);
-            let high = get_sql_query_param(expr, high, single_table_name, table_with_joins, db_conn);
+            let low = get_sql_query_param(expr, low, single_table_name, table_with_joins, db_conn).await;
+            let high = get_sql_query_param(expr, high, single_table_name, table_with_joins, db_conn).await;
             if let Some((value, placeholder)) = low {
                 ts_query.insert_param(&value, &placeholder)?;
             }
@@ -309,7 +310,7 @@ pub async fn translate_expr(
             ts_query,
             db_conn,
             is_selection,
-        ),
+        ).await,
         Expr::UnaryOp { op: _, expr } => translate_expr(
             expr,
             single_table_name,
@@ -318,7 +319,7 @@ pub async fn translate_expr(
             ts_query,
             db_conn,
             is_selection,
-        ),
+        ).await,
         Expr::Value(placeholder) => {
             let ts_field_type = translate_value(placeholder);
 
@@ -519,7 +520,7 @@ pub async fn translate_expr(
             ts_query,
             db_conn,
             is_selection,
-        ),
+        ).await,
         Expr::InUnnest {
             expr,
             array_expr: _,
@@ -529,7 +530,7 @@ pub async fn translate_expr(
     }
 }
 
-pub fn translate_assignment(
+pub async fn translate_assignment(
     assignment: &Assignment,
     table_name: &str,
     ts_query: &mut TsQuery,
@@ -540,7 +541,7 @@ pub fn translate_assignment(
     if value.is_some() {
         let table_details = &DB_SCHEMA
             .lock()
-            .unwrap()
+            .await
             .fetch_table(&vec![table_name], db_conn)
             .await
             .unwrap();
