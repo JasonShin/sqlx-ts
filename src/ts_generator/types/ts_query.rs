@@ -37,6 +37,7 @@ impl fmt::Display for TsFieldType {
             TsFieldType::Never => write!(f, "never"),
             TsFieldType::Array(ts_field_type) => {
                 let ts_field_type = ts_field_type.clone();
+                let ts_field_type = *ts_field_type;
                 write!(f, "{ts_field_type}[]")
             }
             TsFieldType::Array2D(nested_array) => {
