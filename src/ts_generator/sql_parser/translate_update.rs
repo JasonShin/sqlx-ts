@@ -25,7 +25,7 @@ fn translate_assignments(
     Ok(())
 }
 
-pub fn translate_update(
+pub async fn translate_update(
     ts_query: &mut TsQuery,
     table_with_joins: &TableWithJoins,
     assignments: &Vec<Assignment>,
@@ -48,7 +48,7 @@ pub fn translate_update(
             ts_query,
             db_conn,
             false,
-        )?;
+        ).await?;
     }
     Ok(())
 }

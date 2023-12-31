@@ -1,19 +1,17 @@
+use mysql_async::{ Row, prelude::* };
 use crate::common::lazy::{CONFIG, DB_CONNECTIONS};
 use crate::common::SQL;
 use crate::core::connection::DBConn;
 use crate::ts_generator::generator::generate_ts_interface;
 use crate::ts_generator::types::ts_query::TsQuery;
 use color_eyre::eyre::Result;
-use mysql::prelude::*;
-use mysql::*;
 
-use std::borrow::BorrowMut;
 use swc_common::errors::Handler;
 
 /// Runs the prepare statement on the input SQL.
 /// Validates the query is right by directly connecting to the configured database.
 /// It also processes ts interfaces if the configuration is set to generate_types = true
-pub fn prepare(
+pub async fn prepare(
     db_conn: &DBConn,
     sql: &SQL,
     should_generate_types: &bool,
@@ -28,7 +26,8 @@ pub fn prepare(
         DBConn::MySQLPooledConn(conn) => conn,
         _ => panic!("Invalid connection type"),
     };
-    let result: Result<Vec<Row>, _> = conn.lock().unwrap().borrow_mut().query(explain_query);
+    let mut conn = conn.lock().unwrap().get_conn().await.unwrap();
+    let result: Result<Vec<Row>, _> = conn.query(explain_query).await;
 
     if let Err(err) = result {
         handler.span_bug_no_panic(span, err.to_string().as_str());

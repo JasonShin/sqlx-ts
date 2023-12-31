@@ -41,7 +41,7 @@ impl DBSchema {
     ///
     /// # PostgreSQL Notes
     /// - PostgresSQL would utilise SEARCH_PATH option to search for the table in the database https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH
-    pub fn fetch_table(&mut self, table_name: &Vec<&str>, conn: &DBConn) -> Option<Fields> {
+    pub async fn fetch_table(&mut self, table_name: &Vec<&str>, conn: &DBConn) -> Option<Fields> {
         let table_key: String = table_name.join(",");
         let cached_table_result = self.tables_cache.get(table_key.as_str());
 
@@ -50,8 +50,8 @@ impl DBSchema {
         }
 
         let result = match &conn {
-            DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, table_name, conn),
-            DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, table_name, conn),
+            DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, table_name, conn).await,
+            DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, table_name, conn).await,
         };
 
         if let Some(result) = &result {
@@ -61,7 +61,7 @@ impl DBSchema {
         result
     }
 
-    fn postgres_fetch_table(&self, table_names: &Vec<&str>, conn: &Mutex<postgres::Client>) -> Option<Fields> {
+    async fn postgres_fetch_table(&self, table_names: &Vec<&str>, conn: &Mutex<postgres::Client>) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))

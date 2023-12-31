@@ -5,7 +5,7 @@ use sqlparser::ast::{Ident, Query, SetExpr};
 use crate::common::lazy::DB_SCHEMA;
 use crate::ts_generator::{errors::TsGeneratorError, types::ts_query::TsQuery};
 
-pub fn translate_insert(
+pub async fn translate_insert(
     ts_query: &mut TsQuery,
     columns: &[Ident],
     source: &Query,
@@ -16,6 +16,7 @@ pub fn translate_insert(
         .lock()
         .unwrap()
         .fetch_table(&vec![table_name], conn)
+        .await
         // Nearly impossible to panic at this point as we've already validated queries with prepare statements
         .unwrap();
 
