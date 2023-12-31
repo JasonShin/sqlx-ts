@@ -15,15 +15,15 @@ documentation = "https://jasonshin.github.io/sqlx-ts/"
 color-eyre = "0.6.2"
 thiserror = "1.0.49"
 dotenv = "0.15.0"
-swc_common = { version = "0.32.1", features = ["tty-emitter"] }
-swc_ecma_ast = "0.109.1"
-swc_ecma_parser = "0.140.0"
+swc_common = { version = "0.33.12", features = ["tty-emitter"] }
+swc_ecma_ast = "0.110.15"
+swc_ecma_parser = "0.141.34"
 string_cache = "0.8.7"
 walkdir = "2.4.0"
 clap = { version = "3.2.25", features = ["derive"] }
 serde = { version = "1.0.188", features = ["derive"] }
 serde_json = { version = "1.0.107" }
-sqlparser = { version = "0.33.0" }
+sqlparser = { version = "0.41.0" }
 regex = { version = "1.9.6" }
 postgres = { version = "0.19.7" }
 mysql = { version = "24.0.0" }

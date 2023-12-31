@@ -12,7 +12,7 @@ pub fn get_all_table_names_from_expr(query: &Query) -> Result<Vec<String>, TsGen
     let table_with_joins: TableWithJoins = match body {
         SetExpr::Select(select) => Ok(select
             .from
-            .get(0)
+            .first()
             .ok_or(TsGeneratorError::WildcardStatementWithoutTargetTables(
                 query.to_string(),
             ))?

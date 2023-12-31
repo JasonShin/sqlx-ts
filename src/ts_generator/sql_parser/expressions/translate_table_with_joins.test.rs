@@ -19,22 +19,19 @@ mod tests {
 
         let sql_ast = Parser::parse_sql(&dialect, sql).unwrap();
         let stmt = sql_ast[0].clone();
-        match stmt {
-            Statement::Query(query) => {
-                let body = *query.body;
-                match body {
-                    SetExpr::Select(select) => {
-                        let select_item = select.projection[0].clone();
-                        let table_with_joins = select.from;
+        if let Statement::Query(query) = stmt {
+            let body = *query.body;
+            match body {
+                SetExpr::Select(select) => {
+                    let select_item = select.projection[0].clone();
+                    let table_with_joins = select.from;
 
-                        let result = translate_table_with_joins(&Some(table_with_joins), &select_item);
+                    let result = translate_table_with_joins(&Some(table_with_joins), &select_item);
 
-                        assert_eq!(Some("items".to_string()), result)
-                    }
-                    _ => (),
+                    assert_eq!(Some("items".to_string()), result)
                 }
+                _ => (),
             }
-            _ => (),
         }
     }
 

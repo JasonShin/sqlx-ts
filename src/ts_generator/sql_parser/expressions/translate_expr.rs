@@ -74,7 +74,7 @@ pub fn translate_column_name_expr(expr: &Expr) -> Option<String> {
 }
 
 pub fn translate_column_name_assignment(assignment: &Assignment) -> Option<String> {
-    let left = assignment.id.get(0);
+    let left = assignment.id.first();
     let right = assignment.id.get(1);
 
     if left.is_some() && right.is_some() {
@@ -240,7 +240,7 @@ pub fn translate_expr(
             // If the list contains multiple `(?, ?...)` then we should return a fixed length array
             if list.len() == 1 {
                 let right = list
-                    .get(0)
+                    .first()
                     .expect("Failed to find the first list item from the IN query");
                 let result = get_sql_query_param(
                     expr,
@@ -251,7 +251,7 @@ pub fn translate_expr(
                 );
 
                 if let Some((value, index)) = result {
-                    let array_item = value.to_array_item();
+                    let array_item = TsFieldType::Array(Box::new(value));
 
                     let _ = ts_query.insert_param(&array_item, &index);
                     return Ok(());
@@ -287,7 +287,16 @@ pub fn translate_expr(
             }
             Ok(())
         }
-        Expr::AnyOp(expr) | Expr::AllOp(expr) => translate_expr(
+        Expr::AnyOp {
+            left,
+            compare_op,
+            right: expr,
+        }
+        | Expr::AllOp {
+            left,
+            compare_op,
+            right: expr,
+        } => translate_expr(
             expr,
             single_table_name,
             table_with_joins,
@@ -347,7 +356,21 @@ pub fn translate_expr(
             // If the pattern has a placeholder, then we should append the param to ts_query
             ts_query.insert_param(&TsFieldType::String, &Some(pattern.to_string()))
         }
-        Expr::TryCast { expr, data_type } | Expr::SafeCast { expr, data_type } | Expr::Cast { expr, data_type } => {
+        Expr::TryCast {
+            expr,
+            data_type,
+            format: _,
+        }
+        | Expr::SafeCast {
+            expr,
+            data_type,
+            format: _,
+        }
+        | Expr::Cast {
+            expr,
+            data_type,
+            format: _,
+        } => {
             let data_type = translate_data_type(data_type);
             ts_query.insert_result(alias, &[data_type.clone()], is_selection, expr_for_logging)?;
             ts_query.insert_param(&data_type, &Some(expr.to_string()))?;
@@ -376,6 +399,7 @@ pub fn translate_expr(
             expr,
             substring_from,
             substring_for,
+            special: _,
         } => {
             ts_query.insert_result(alias, &[TsFieldType::String], is_selection, expr_for_logging)?;
             ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()))
@@ -384,6 +408,7 @@ pub fn translate_expr(
             expr,
             trim_where: _,
             trim_what: _,
+            trim_characters: _,
         } => {
             ts_query.insert_result(alias, &[TsFieldType::String], is_selection, expr_for_logging)?;
             ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()))
@@ -436,13 +461,7 @@ pub fn translate_expr(
         Expr::ArrayIndex { obj, indexes } => {
             ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
         }
-        Expr::Interval {
-            value: _,
-            leading_field: _,
-            leading_precision: _,
-            last_field: _,
-            fractional_seconds_precision: _,
-        } => ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging),
+        Expr::Interval(_) => ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging),
         Expr::MatchAgainst {
             columns: _,
             match_value: _,

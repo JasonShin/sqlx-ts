@@ -2,13 +2,15 @@ use sqlparser::ast::{Assignment, Expr, Join, SelectItem, TableFactor, TableWithJ
 
 pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
     table_with_joins
-        .get(0)
+        .first()
         .and_then(|x| match &x.relation {
             TableFactor::Table {
                 name,
                 alias: _,
                 args: _,
                 with_hints: _,
+                version: _,
+                partitions: _,
             } => Some(name.to_string()),
             _ => None,
         })
@@ -20,7 +22,7 @@ pub fn find_table_name_from_identifier(
     identifiers: &Vec<String>, // can be the actual identifier or an alias
 ) -> Option<String> {
     let left = identifiers
-        .get(0)
+        .first()
         .expect("The first identifier must exist in order to find the table name")
         .to_owned();
     let right = identifiers.get(1);
@@ -41,6 +43,8 @@ pub fn find_table_name_from_identifier(
                 alias,
                 args: _,
                 with_hints: _,
+                version: _,
+                partitions: _,
             } => {
                 if Some(left.to_string()) == alias.to_owned().map(|a| a.to_string()) || left == name.to_string() {
                     // If the identifier matches the alias, then return the table name
@@ -62,6 +66,8 @@ pub fn find_table_name_from_identifier(
                 alias,
                 args: _,
                 with_hints: _,
+                version: _,
+                partitions: _,
             } => {
                 let alias = alias.to_owned().map(|x| x.to_string());
                 let name = name.to_string();
@@ -103,7 +109,7 @@ pub fn translate_table_from_assignments(
     table_with_joins: &Vec<TableWithJoins>,
     assignment: &Assignment,
 ) -> Option<String> {
-    let identifier = assignment.id.get(0);
+    let identifier = assignment.id.first();
     match identifier {
         Some(identifier) => find_table_name_from_identifier(table_with_joins, &vec![identifier.value.to_string()]),
         None => Some(get_default_table(table_with_joins)),

@@ -1,24 +1,12 @@
 use color_eyre::eyre::Result;
 use convert_case::{Case, Casing};
 use regex::Regex;
-use sqlparser::ast::Expr;
 use std::collections::{BTreeMap, HashMap};
 use std::fmt::{self};
 
 use crate::common::lazy::CONFIG;
 use crate::common::logger::*;
 use crate::ts_generator::errors::TsGeneratorError;
-
-#[derive(Debug, Clone, Copy)]
-pub enum ArrayItem {
-    String,
-    Number,
-    Boolean,
-    Object,
-    Date,
-    Null,
-    Any,
-}
 
 type Array2DContent = Vec<Vec<TsFieldType>>;
 
@@ -32,7 +20,7 @@ pub enum TsFieldType {
     Null,
     Any,
     Array2D(Array2DContent),
-    Array(ArrayItem),
+    Array(Box<TsFieldType>),
     Never,
 }
 
@@ -47,15 +35,11 @@ impl fmt::Display for TsFieldType {
             TsFieldType::Any => write!(f, "any"),
             TsFieldType::Null => write!(f, "null"),
             TsFieldType::Never => write!(f, "never"),
-            TsFieldType::Array(ts_field_type) => match ts_field_type {
-                ArrayItem::String => write!(f, "Array<string>"),
-                ArrayItem::Number => write!(f, "Array<number>"),
-                ArrayItem::Boolean => write!(f, "Array<boolean>"),
-                ArrayItem::Object => write!(f, "Array<object>"),
-                ArrayItem::Date => write!(f, "Array<Date>"),
-                ArrayItem::Null => write!(f, "Array<null>"),
-                ArrayItem::Any => write!(f, "Array<any>"),
-            },
+            TsFieldType::Array(ts_field_type) => {
+                let ts_field_type = ts_field_type.clone();
+                let ts_field_type = *ts_field_type;
+                write!(f, "Array<{ts_field_type}>")
+            }
             TsFieldType::Array2D(nested_array) => {
                 let result = nested_array
                     .iter()
@@ -78,27 +62,6 @@ impl fmt::Display for TsFieldType {
 }
 
 impl TsFieldType {
-    /// Converts TsFieldType to an ArrayItem type
-    /// This is needed to declare type of each items within an array and it was introduced to avoid
-    /// recursive typing if we were to use Array<TsFieldType>
-    ///
-    /// # Panic
-    /// It would panic if you try to insert a never type as an array item
-    pub fn to_array_item(&self) -> Self {
-        match self {
-            TsFieldType::String => TsFieldType::Array(ArrayItem::String),
-            TsFieldType::Number => TsFieldType::Array(ArrayItem::Number),
-            TsFieldType::Boolean => TsFieldType::Array(ArrayItem::Boolean),
-            TsFieldType::Object => TsFieldType::Array(ArrayItem::Object),
-            TsFieldType::Date => TsFieldType::Date,
-            TsFieldType::Null => TsFieldType::Array(ArrayItem::Null),
-            TsFieldType::Any => TsFieldType::Array(ArrayItem::Any),
-            TsFieldType::Never => panic!("Cannot convert never to an array of never"),
-            TsFieldType::Array(arr) => TsFieldType::Array(*arr),
-            TsFieldType::Array2D(_) => todo!(),
-        }
-    }
-
     /// The method is to convert the data_type field that you get from PostgreSQL as strings into TsFieldType
     /// so when we stringify TsFieldType, we can correctly translate the data_type into the corresponding TypeScript
     /// data type
