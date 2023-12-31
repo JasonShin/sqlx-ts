@@ -9,6 +9,8 @@ use crate::ts_generator::types::ts_query::TsQuery;
 
 use sqlparser::ast::Statement;
 
+use super::expressions::translate_table_with_joins::get_default_table;
+
 pub fn translate_stmt(
     ts_query: &mut TsQuery,
     sql_statement: &Statement,
@@ -31,19 +33,24 @@ pub fn translate_stmt(
             table: _,
             on: _,
             returning: _,
+            ignore: _,
         } => {
+            let source = *source.to_owned().unwrap();
             let table_name = table_name.to_string();
             let table_name = table_name.as_str();
-            translate_insert(ts_query, columns, source, table_name, db_conn)?;
+            translate_insert(ts_query, columns, &source, table_name, db_conn)?;
         }
         Statement::Delete {
-            table_name,
+            tables: _,
             selection,
             using: _,
             returning: _,
+            from,
+            order_by: _,
+            limit: _,
         } => {
-            let table_name = table_name.to_string();
-            let table_name = table_name.as_str();
+            let table_name = get_default_table(&from);
+            let table_name = &table_name.as_str();
             let selection = selection.to_owned().unwrap();
             translate_delete(ts_query, &selection, table_name, db_conn)?;
         }

@@ -23,7 +23,7 @@ walkdir = "2.4.0"
 clap = { version = "3.2.25", features = ["derive"] }
 serde = { version = "1.0.188", features = ["derive"] }
 serde_json = { version = "1.0.107" }
-sqlparser = { version = "0.33.0" }
+sqlparser = { version = "0.41.0" }
 regex = { version = "1.9.6" }
 postgres = { version = "0.19.7" }
 mysql = { version = "24.0.0" }

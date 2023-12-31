@@ -1,7 +1,4 @@
-use crate::{
-    common::lazy::{CONFIG, DB_SCHEMA},
-    ts_generator::types::ts_query::TsFieldType,
-};
+use crate::ts_generator::types::ts_query::TsFieldType;
 use sqlparser::ast::DataType;
 use sqlparser::ast::Value;
 
@@ -69,11 +66,32 @@ pub fn translate_data_type(data_type: &DataType) -> TsFieldType {
         DataType::JSON => TsFieldType::Object,
         DataType::Regclass => TsFieldType::String,
         DataType::Text => TsFieldType::String,
-        DataType::String => TsFieldType::String,
+        DataType::String(_) => TsFieldType::String,
         DataType::Bytea => TsFieldType::String,
         DataType::Custom(_, _) => TsFieldType::Any,
-        DataType::Array(_) => todo!(),
-        DataType::Enum(_) => todo!(),
-        DataType::Set(_) => todo!(),
+        DataType::Array(array_element_type_def) => match array_element_type_def {
+            sqlparser::ast::ArrayElemTypeDef::None => TsFieldType::Array(Box::new(TsFieldType::Any)),
+            sqlparser::ast::ArrayElemTypeDef::AngleBracket(data_type) => {
+                TsFieldType::Array(Box::new(translate_data_type(data_type)))
+            }
+            sqlparser::ast::ArrayElemTypeDef::SquareBracket(data_type) => {
+                TsFieldType::Array(Box::new(translate_data_type(data_type)))
+            }
+        },
+        DataType::Enum(_) => TsFieldType::Array(Box::new(TsFieldType::String)),
+        DataType::Set(_) => TsFieldType::Array(Box::new(TsFieldType::String)),
+        DataType::Bytes(_) => TsFieldType::String,
+        DataType::Int2(_) => TsFieldType::Number,
+        DataType::UnsignedInt2(_) => TsFieldType::Number,
+        DataType::Int4(_) => TsFieldType::Number,
+        DataType::Int64 => TsFieldType::Number,
+        DataType::UnsignedInt4(_) => TsFieldType::Number,
+        DataType::Int8(_) => TsFieldType::Number,
+        DataType::UnsignedInt8(_) => TsFieldType::Number,
+        DataType::Float4 => TsFieldType::Number,
+        DataType::Float64 => TsFieldType::Number,
+        DataType::Float8 => TsFieldType::Number,
+        DataType::Bool => TsFieldType::Boolean,
+        DataType::Struct(_) => TsFieldType::Object,
     }
 }
