@@ -74,7 +74,7 @@ pub fn translate_column_name_expr(expr: &Expr) -> Option<String> {
 }
 
 pub fn translate_column_name_assignment(assignment: &Assignment) -> Option<String> {
-    let left = assignment.id.get(0);
+    let left = assignment.id.first();
     let right = assignment.id.get(1);
 
     if left.is_some() && right.is_some() {
@@ -240,7 +240,7 @@ pub fn translate_expr(
             // If the list contains multiple `(?, ?...)` then we should return a fixed length array
             if list.len() == 1 {
                 let right = list
-                    .get(0)
+                    .first()
                     .expect("Failed to find the first list item from the IN query");
                 let result = get_sql_query_param(
                     expr,
