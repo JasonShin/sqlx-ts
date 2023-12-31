@@ -22,7 +22,7 @@ pub fn find_table_name_from_identifier(
     identifiers: &Vec<String>, // can be the actual identifier or an alias
 ) -> Option<String> {
     let left = identifiers
-        .get(0)
+        .first()
         .expect("The first identifier must exist in order to find the table name")
         .to_owned();
     let right = identifiers.get(1);
@@ -109,7 +109,7 @@ pub fn translate_table_from_assignments(
     table_with_joins: &Vec<TableWithJoins>,
     assignment: &Assignment,
 ) -> Option<String> {
-    let identifier = assignment.id.get(0);
+    let identifier = assignment.id.first();
     match identifier {
         Some(identifier) => find_table_name_from_identifier(table_with_joins, &vec![identifier.value.to_string()]),
         None => Some(get_default_table(table_with_joins)),
