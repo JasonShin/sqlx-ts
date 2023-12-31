@@ -9,12 +9,13 @@ use std::sync::Mutex;
 
 use color_eyre::Result;
 use mysql::Conn as MySQLConn;
+use mysql_async::Pool;
 use postgres::Client as PostgresConn;
 use swc_common::errors::Handler;
 
 /// Enum to hold a specific database connection instance
 pub enum DBConn {
-    MySQLPooledConn(Mutex<MySQLConn>),
+    MySQLPooledConn(Mutex<Pool>),
     PostgresConn(Mutex<PostgresConn>),
 }
 

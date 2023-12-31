@@ -1,5 +1,4 @@
-use mysql;
-use mysql::prelude::Queryable;
+use mysql_async::prelude::*;
 use postgres;
 use std::borrow::BorrowMut;
 use std::collections::HashMap;
@@ -103,7 +102,7 @@ impl DBSchema {
         None
     }
 
-    fn mysql_fetch_table(&self, table_names: &Vec<&str>, conn: &Mutex<mysql::Conn>) -> Option<Fields> {
+    async fn mysql_fetch_table(&self, table_names: &Vec<&str>, conn: &Mutex<mysql_async::Pool>) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))
@@ -123,7 +122,9 @@ impl DBSchema {
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
-        let result = conn.lock().unwrap().borrow_mut().query::<mysql::Row, String>(query);
+        // TODO: replace with proper error types
+        let mut conn = conn.lock().unwrap().get_conn().await.unwrap();
+        let result = conn.query::<mysql_async::Row, String>(query).await;
 
         if let Ok(result) = result {
             for row in result {

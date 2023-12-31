@@ -3,9 +3,9 @@ use crate::common::config::Config;
 use crate::common::types::DatabaseType;
 use crate::core::connection::{DBConn, DBConnections};
 use crate::ts_generator::information_schema::DBSchema;
+use mysql_async;
 use clap::Parser;
 use lazy_static::lazy_static;
-use mysql::Conn as MySQLConn;
 use postgres::{Client as PGClient, NoTls as PGNoTls};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -29,9 +29,10 @@ lazy_static! {
             let db_type = connection_config.db_type.to_owned();
             let conn = match db_type {
                 DatabaseType::Mysql => {
-                    let opts = CONFIG.get_mysql_cred(connection_config);
-                    let mut conn = MySQLConn::new(opts).unwrap();
-                    DBConn::MySQLPooledConn(Mutex::new(conn))
+                    let mysql_cred = CONFIG.get_mysql_cred_str(connection_config);
+                    let mysql_cred = mysql_cred.as_str();
+                    let pool = mysql_async::Pool::new(mysql_cred);
+                    DBConn::MySQLPooledConn(Mutex::new(pool))
                 }
                 DatabaseType::Postgres => {
                     let postgres_cred = &CONFIG.get_postgres_cred(connection_config);

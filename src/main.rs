@@ -36,7 +36,8 @@ fn set_default_env_var() {
     }
 }
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     set_default_env_var();
 
     let source_folder = &CLI_ARGS.path;
