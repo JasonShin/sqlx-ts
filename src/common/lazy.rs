@@ -7,9 +7,8 @@ use mysql_async;
 use clap::Parser;
 use lazy_static::lazy_static;
 use postgres::{Client as PGClient, NoTls as PGNoTls};
-use std::collections::HashMap;
-use std::sync::Arc;
-use tokio::sync::Mutex;
+use std::{ sync::Arc, collections::HashMap };
+use tokio::{ sync::Mutex, task };
 
 // The file contains all implicitly dependent variables or state that files need for the logic
 // We have a lot of states that we need to drill down into each methods
