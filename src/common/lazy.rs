@@ -7,8 +7,8 @@ use crate::core::postgres::pool::PostgresConnectionManager;
 use crate::ts_generator::information_schema::DBSchema;
 use clap::Parser;
 use lazy_static::lazy_static;
-use std::{ sync::Arc, collections::HashMap };
-use tokio::{ sync::Mutex, task, runtime::Handle };
+use std::{collections::HashMap, sync::Arc};
+use tokio::{runtime::Handle, sync::Mutex, task};
 
 // The file contains all implicitly dependent variables or state that files need for the logic
 // We have a lot of states that we need to drill down into each methods
@@ -57,7 +57,7 @@ lazy_static! {
                         }
                         db_conn
                     }))
-                    
+
                 }
             };
             cache.insert(connection.to_owned(), Arc::new(Mutex::new(conn)));

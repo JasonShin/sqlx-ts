@@ -3,16 +3,16 @@ use crate::common::SQL;
 use crate::core::mysql::prepare as mysql_explain;
 use crate::core::postgres::prepare as postgres_explain;
 use crate::ts_generator::types::ts_query::TsQuery;
+use bb8::Pool;
 use std::collections::HashMap;
 use std::sync::Arc;
-use bb8::Pool;
 use tokio::sync::Mutex;
 
 use color_eyre::Result;
 use swc_common::errors::Handler;
 
-use super::postgres::pool::PostgresConnectionManager;
 use super::mysql::pool::MySqlConnectionManager;
+use super::postgres::pool::PostgresConnectionManager;
 
 /// Enum to hold a specific database connection instance
 pub enum DBConn {

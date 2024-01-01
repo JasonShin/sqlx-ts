@@ -1,6 +1,6 @@
 use async_trait::async_trait;
-use mysql_async::{ prelude::*, Conn, Error, Opts };
-use tokio::{ task, runtime::Handle };
+use mysql_async::{prelude::*, Conn, Error, Opts};
+use tokio::{runtime::Handle, task};
 
 #[derive(Clone, Debug)]
 pub struct MySqlConnectionManager {
@@ -28,8 +28,6 @@ impl bb8::ManageConnection for MySqlConnectionManager {
     }
 
     fn has_broken(&self, conn: &mut Self::Connection) -> bool {
-        task::block_in_place(|| Handle::current().block_on(async {
-            conn.ping().await.is_err()
-        }))
+        task::block_in_place(|| Handle::current().block_on(async { conn.ping().await.is_err() }))
     }
 }

@@ -1,6 +1,6 @@
-use mysql_async::{ prelude::* };
 use bb8::Pool;
 use mysql_async::prelude::Queryable;
+use mysql_async::prelude::*;
 use std::collections::HashMap;
 use tokio::sync::Mutex;
 
@@ -63,7 +63,11 @@ impl DBSchema {
         result
     }
 
-    async fn postgres_fetch_table(&self, table_names: &Vec<&str>, conn: &Mutex<Pool<PostgresConnectionManager>>) -> Option<Fields> {
+    async fn postgres_fetch_table(
+        &self,
+        table_names: &Vec<&str>,
+        conn: &Mutex<Pool<PostgresConnectionManager>>,
+    ) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))
@@ -106,7 +110,11 @@ impl DBSchema {
         None
     }
 
-    async fn mysql_fetch_table(&self, table_names: &Vec<&str>, conn: &Mutex<Pool<MySqlConnectionManager>>) -> Option<Fields> {
+    async fn mysql_fetch_table(
+        &self,
+        table_names: &Vec<&str>,
+        conn: &Mutex<Pool<MySqlConnectionManager>>,
+    ) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))

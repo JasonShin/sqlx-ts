@@ -20,7 +20,9 @@ async fn translate_assignments(
         let table = translate_table_from_assignments(&vec![table_with_joins.to_owned()], assignment).expect(
             "Failed to find the table based on assignment {assignment} from table with joins {table_with_joins}",
         );
-        translate_assignment(assignment, table.as_str(), ts_query, db_conn).await.unwrap();
+        translate_assignment(assignment, table.as_str(), ts_query, db_conn)
+            .await
+            .unwrap();
     }
     Ok(())
 }
@@ -48,7 +50,8 @@ pub async fn translate_update(
             ts_query,
             db_conn,
             false,
-        ).await?;
+        )
+        .await?;
     }
     Ok(())
 }

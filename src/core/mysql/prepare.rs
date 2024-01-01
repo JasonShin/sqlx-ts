@@ -1,9 +1,9 @@
-use mysql_async::{ Row, prelude::* };
 use crate::common::SQL;
 use crate::core::connection::DBConn;
 use crate::ts_generator::generator::generate_ts_interface;
 use crate::ts_generator::types::ts_query::TsQuery;
 use color_eyre::eyre::Result;
+use mysql_async::{prelude::*, Row};
 
 use swc_common::errors::Handler;
 

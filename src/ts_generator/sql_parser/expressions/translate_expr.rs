@@ -1,3 +1,4 @@
+use super::functions::{is_date_function, is_numeric_function};
 use crate::common::lazy::DB_SCHEMA;
 use crate::common::logger::warning;
 use crate::core::connection::DBConn;
@@ -10,10 +11,9 @@ use crate::ts_generator::sql_parser::expressions::{
 use crate::ts_generator::sql_parser::translate_query::translate_query;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
 use async_recursion::async_recursion;
+use color_eyre::Result;
 use regex::Regex;
 use sqlparser::ast::{Assignment, Expr, TableWithJoins, Value};
-use color_eyre::Result;
-use super::functions::{is_date_function, is_numeric_function};
 
 /// Given an expression
 /// e.g.
@@ -155,11 +155,7 @@ pub async fn translate_expr(
         Expr::Identifier(ident) => {
             let column_name = ident.value.to_string();
             let table_name = single_table_name.expect("Missing table name for identifier");
-            let table_details = &DB_SCHEMA
-                .lock()
-                .await
-                .fetch_table(&vec![table_name], &db_conn)
-                .await;
+            let table_details = &DB_SCHEMA.lock().await.fetch_table(&vec![table_name], &db_conn).await;
 
             // TODO: We can also memoize this method
             if let Some(table_details) = table_details {
@@ -227,7 +223,8 @@ pub async fn translate_expr(
                     ts_query,
                     db_conn,
                     is_selection,
-                ).await?;
+                )
+                .await?;
                 translate_expr(
                     right,
                     single_table_name,
@@ -236,7 +233,8 @@ pub async fn translate_expr(
                     ts_query,
                     db_conn,
                     is_selection,
-                ).await?;
+                )
+                .await?;
                 Ok(())
             }
         }
@@ -254,7 +252,8 @@ pub async fn translate_expr(
                     single_table_name,
                     table_with_joins,
                     db_conn,
-                ).await;
+                )
+                .await;
 
                 if let Some((value, index)) = result {
                     let array_item = TsFieldType::Array(Box::new(value));
@@ -302,24 +301,30 @@ pub async fn translate_expr(
             left,
             compare_op,
             right: expr,
-        } => translate_expr(
-            expr,
-            single_table_name,
-            table_with_joins,
-            alias,
-            ts_query,
-            db_conn,
-            is_selection,
-        ).await,
-        Expr::UnaryOp { op: _, expr } => translate_expr(
-            expr,
-            single_table_name,
-            table_with_joins,
-            alias,
-            ts_query,
-            db_conn,
-            is_selection,
-        ).await,
+        } => {
+            translate_expr(
+                expr,
+                single_table_name,
+                table_with_joins,
+                alias,
+                ts_query,
+                db_conn,
+                is_selection,
+            )
+            .await
+        }
+        Expr::UnaryOp { op: _, expr } => {
+            translate_expr(
+                expr,
+                single_table_name,
+                table_with_joins,
+                alias,
+                ts_query,
+                db_conn,
+                is_selection,
+            )
+            .await
+        }
         Expr::Value(placeholder) => {
             let ts_field_type = translate_value(placeholder);
 
@@ -512,15 +517,18 @@ pub async fn translate_expr(
             }
             translate_query(ts_query, table_with_joins, sub_query, db_conn, alias, false).await
         }
-        Expr::Nested(expr) => translate_expr(
-            expr,
-            single_table_name,
-            table_with_joins,
-            alias,
-            ts_query,
-            db_conn,
-            is_selection,
-        ).await,
+        Expr::Nested(expr) => {
+            translate_expr(
+                expr,
+                single_table_name,
+                table_with_joins,
+                alias,
+                ts_query,
+                db_conn,
+                is_selection,
+            )
+            .await
+        }
         Expr::InUnnest {
             expr,
             array_expr: _,

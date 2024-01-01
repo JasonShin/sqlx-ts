@@ -1,9 +1,8 @@
-pub use postgres;
 pub use bb8;
 
+use async_trait::async_trait;
 use tokio;
 use tokio_postgres::{Client, Error, NoTls};
-use async_trait::async_trait;
 
 pub struct PostgresConnectionManager {
     conn_url: String,
@@ -16,8 +15,7 @@ impl PostgresConnectionManager {
 }
 
 #[async_trait]
-impl bb8::ManageConnection for PostgresConnectionManager
-{
+impl bb8::ManageConnection for PostgresConnectionManager {
     type Connection = Client;
     type Error = Error;
 

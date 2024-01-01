@@ -2,7 +2,6 @@ use crate::common::dotenv::Dotenv;
 use crate::common::lazy::CLI_ARGS;
 use crate::common::types::{DatabaseType, LogLevel};
 use crate::core::connection;
-use mysql::OptsBuilder;
 use regex::Regex;
 use serde;
 use serde::{Deserialize, Serialize};
@@ -315,17 +314,6 @@ impl Config {
             // https://docs.rs/postgres/latest/postgres/config/struct.Config.html#keys
             db_name = &conn.db_name.clone().unwrap_or(conn.db_user.to_owned()),
         )
-    }
-
-    pub fn get_mysql_cred(&self, conn: &DbConnectionConfig) -> OptsBuilder {
-        let db_pass = &conn.db_pass;
-        let db_name = &conn.db_name;
-        OptsBuilder::new()
-            .ip_or_hostname(Some(&conn.db_host))
-            .tcp_port(conn.db_port)
-            .user(Some(&conn.db_user))
-            .pass(db_pass.clone())
-            .db_name(db_name.clone())
     }
 
     // TODO: update this to also factor in env variable

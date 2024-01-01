@@ -18,5 +18,6 @@ pub async fn translate_delete(
         ts_query,
         db_conn,
         false,
-    ).await
+    )
+    .await
 }
