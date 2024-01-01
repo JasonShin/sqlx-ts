@@ -1,5 +1,4 @@
 use mysql_async::{ Row, prelude::* };
-use crate::common::lazy::{CONFIG, DB_CONNECTIONS};
 use crate::common::SQL;
 use crate::core::connection::DBConn;
 use crate::ts_generator::generator::generate_ts_interface;
@@ -26,8 +25,9 @@ pub async fn prepare(
         DBConn::MySQLPooledConn(conn) => conn,
         _ => panic!("Invalid connection type"),
     };
-    let mut conn = conn.lock().await.get_conn().await.unwrap();
-    let result: Result<Vec<Row>, _> = conn.query(explain_query).await;
+    let conn = conn.lock().await;
+    let mut conn = conn.get().await.unwrap();
+    let result = conn.query::<Row, String>(explain_query).await;
 
     if let Err(err) = result {
         handler.span_bug_no_panic(span, err.to_string().as_str());

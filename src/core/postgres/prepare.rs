@@ -26,7 +26,11 @@ pub async fn prepare(
     let span = sql.span.to_owned();
 
     let prepare_query = format!("PREPARE sqlx_stmt AS {}", sql.query);
-    let result = conn.lock().await.borrow_mut().query(prepare_query.as_str(), &[]);
+    let conn = conn.lock().await;
+    let conn = conn.get().await.unwrap();
+    let result = conn
+        .query(prepare_query.as_str(), &[])
+        .await;
 
     if let Err(e) = result {
         handler.span_bug_no_panic(span, e.as_db_error().unwrap().message());
@@ -34,10 +38,8 @@ pub async fn prepare(
     } else {
         // We should only deallocate if the prepare statement was executed successfully
         let _ = &conn
-            .lock()
-            .await
-            .borrow_mut()
             .query("DEALLOCATE sqlx_stmt", &[])
+            .await
             .unwrap();
     }
 

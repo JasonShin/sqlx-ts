@@ -142,7 +142,7 @@ pub async fn translate_expr(
     expr: &Expr,
     single_table_name: &Option<&str>,
     table_with_joins: &Option<Vec<TableWithJoins>>,
-    alias: Option<&str>,
+    alias: Option<&'async_recursion str>,
     ts_query: &mut TsQuery,
     db_conn: &DBConn,
     // is subquery determines if we can safely append result types into ts_query.results

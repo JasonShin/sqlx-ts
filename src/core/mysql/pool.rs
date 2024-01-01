@@ -1,4 +1,6 @@
-use mysql::{ prelude::*, Conn, Error };
+use async_trait::async_trait;
+use mysql_async::{ prelude::*, Conn, Error, Opts };
+use tokio::{ task, runtime::Handle };
 
 #[derive(Clone, Debug)]
 pub struct MySqlConnectionManager {
@@ -11,20 +13,23 @@ impl MySqlConnectionManager {
     }
 }
 
-impl r2d2::ManageConnection for MySqlConnectionManager {
+#[async_trait]
+impl bb8::ManageConnection for MySqlConnectionManager {
     type Connection = Conn;
     type Error = Error;
 
-    fn connect(&self) -> Result<Self::Connection, Self::Error> {
-        Conn::new(self.conn_url.as_str())
+    async fn connect(&self) -> Result<Self::Connection, Self::Error> {
+        let conn_opts = Opts::from_url(self.conn_url.as_str())?;
+        Conn::new(conn_opts).await
     }
 
-    fn is_valid(&self, conn: &mut Self::Connection) -> Result<(), Self::Error> {
-        conn.query("SELECT version()").map(|_: Vec<String>| ())
+    async fn is_valid(&self, conn: &mut Self::Connection) -> Result<(), Self::Error> {
+        conn.query("SELECT version()").await.map(|_: Vec<String>| ())
     }
 
     fn has_broken(&self, conn: &mut Self::Connection) -> bool {
-        self.is_valid(conn).is_err()
+        task::block_in_place(|| Handle::current().block_on(async {
+            conn.ping().await.is_err()
+        }))
     }
 }
-

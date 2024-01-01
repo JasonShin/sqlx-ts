@@ -2,13 +2,13 @@ use crate::common::cli::Cli;
 use crate::common::config::Config;
 use crate::common::types::DatabaseType;
 use crate::core::connection::{DBConn, DBConnections};
+use crate::core::mysql::pool::MySqlConnectionManager;
+use crate::core::postgres::pool::PostgresConnectionManager;
 use crate::ts_generator::information_schema::DBSchema;
-use mysql_async;
 use clap::Parser;
 use lazy_static::lazy_static;
-use postgres::{Client as PGClient, NoTls as PGNoTls};
 use std::{ sync::Arc, collections::HashMap };
-use tokio::{ sync::Mutex, task };
+use tokio::{ sync::Mutex, task, runtime::Handle };
 
 // The file contains all implicitly dependent variables or state that files need for the logic
 // We have a lot of states that we need to drill down into each methods
@@ -29,25 +29,35 @@ lazy_static! {
             let db_type = connection_config.db_type.to_owned();
             let conn = match db_type {
                 DatabaseType::Mysql => {
-                    let mysql_cred = CONFIG.get_mysql_cred_str(connection_config);
-                    let mysql_cred = mysql_cred.as_str();
-                    let pool = mysql_async::Pool::new(mysql_cred);
-                    DBConn::MySQLPooledConn(Mutex::new(pool))
+                    task::block_in_place(|| Handle::current().block_on(async {
+                        let mysql_cred = CONFIG.get_mysql_cred_str(connection_config);
+                        let mysql_cred = mysql_cred.as_str();
+                        let manager = MySqlConnectionManager::new(mysql_cred.to_string());
+                        let pool = bb8::Pool::builder().max_size(10).build(manager).await.unwrap();
+                        DBConn::MySQLPooledConn(Mutex::new(pool))
+                    }))
                 }
                 DatabaseType::Postgres => {
-                    let postgres_cred = &CONFIG.get_postgres_cred(connection_config);
-                    let db_conn = DBConn::PostgresConn(Mutex::new(PGClient::connect(postgres_cred, PGNoTls).unwrap()));
+                    task::block_in_place(|| Handle::current().block_on(async {
+                        let postgres_cred = CONFIG.get_postgres_cred(connection_config);
+                        let manager = PostgresConnectionManager::new(postgres_cred);
+                        let pool = bb8::Pool::builder().max_size(10).build(manager).await.unwrap();
+                        let db_conn = DBConn::PostgresConn(Mutex::new(pool));
 
-                    let conn = match &db_conn {
-                        DBConn::PostgresConn(conn) => conn,
-                        _ => panic!("Invalid connection type"),
-                    };
+                        let conn = match &db_conn {
+                            DBConn::PostgresConn(conn) => conn,
+                            _ => panic!("Invalid connection type"),
+                        };
 
-                    if connection_config.pg_search_path.is_some() {
-                        let search_path_query = format!("SET search_path TO {}", &connection_config.pg_search_path.clone().unwrap().as_str());
-                        conn.lock().unwrap().execute(&search_path_query, &[]).unwrap();
-                    }
-                    db_conn
+                        if connection_config.pg_search_path.is_some() {
+                            let search_path_query = format!("SET search_path TO {}", &connection_config.pg_search_path.clone().unwrap().as_str());
+                            let conn = conn.lock().await;
+                            let mut conn = conn.get().await.unwrap();
+                            conn.execute(&search_path_query, &[]).await.unwrap();
+                        }
+                        db_conn
+                    }))
+                    
                 }
             };
             cache.insert(connection.to_owned(), Arc::new(Mutex::new(conn)));

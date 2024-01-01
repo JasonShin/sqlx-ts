@@ -1,10 +1,12 @@
-use mysql_async::prelude::*;
-use postgres;
-use std::borrow::BorrowMut;
+use mysql_async::{ prelude::* };
+use bb8::Pool;
+use mysql_async::prelude::Queryable;
 use std::collections::HashMap;
 use tokio::sync::Mutex;
 
 use crate::core::connection::DBConn;
+use crate::core::mysql::pool::MySqlConnectionManager;
+use crate::core::postgres::pool::PostgresConnectionManager;
 
 use super::types::ts_query::TsFieldType;
 
@@ -61,7 +63,7 @@ impl DBSchema {
         result
     }
 
-    async fn postgres_fetch_table(&self, table_names: &Vec<&str>, conn: &Mutex<postgres::Client>) -> Option<Fields> {
+    async fn postgres_fetch_table(&self, table_names: &Vec<&str>, conn: &Mutex<Pool<PostgresConnectionManager>>) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))
@@ -82,7 +84,9 @@ impl DBSchema {
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
-        let result = conn.lock().await.borrow_mut().query(&query, &[]);
+        let conn = conn.lock().await;
+        let conn = conn.get().await.unwrap();
+        let result = conn.query(&query, &[]).await;
 
         if let Ok(result) = result {
             for row in result {
@@ -102,7 +106,7 @@ impl DBSchema {
         None
     }
 
-    async fn mysql_fetch_table(&self, table_names: &Vec<&str>, conn: &Mutex<mysql_async::Pool>) -> Option<Fields> {
+    async fn mysql_fetch_table(&self, table_names: &Vec<&str>, conn: &Mutex<Pool<MySqlConnectionManager>>) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))
@@ -122,8 +126,8 @@ impl DBSchema {
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
-        // TODO: replace with proper error types
-        let mut conn = conn.lock().await.get_conn().await.unwrap();
+        let conn = conn.lock().await;
+        let mut conn = conn.get().await.unwrap();
         let result = conn.query::<mysql_async::Row, String>(query).await;
 
         if let Ok(result) = result {

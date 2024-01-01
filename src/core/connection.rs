@@ -5,17 +5,19 @@ use crate::core::postgres::prepare as postgres_explain;
 use crate::ts_generator::types::ts_query::TsQuery;
 use std::collections::HashMap;
 use std::sync::Arc;
+use bb8::Pool;
 use tokio::sync::Mutex;
 
 use color_eyre::Result;
-use mysql_async::Pool as MySQLPool;
-use postgres::Client as PostgresConn;
 use swc_common::errors::Handler;
+
+use super::postgres::pool::PostgresConnectionManager;
+use super::mysql::pool::MySqlConnectionManager;
 
 /// Enum to hold a specific database connection instance
 pub enum DBConn {
-    MySQLPooledConn(Mutex<MySQLPool>),
-    PostgresConn(Mutex<PostgresConn>),
+    MySQLPooledConn(Mutex<Pool<MySqlConnectionManager>>),
+    PostgresConn(Mutex<Pool<PostgresConnectionManager>>),
 }
 
 impl DBConn {
