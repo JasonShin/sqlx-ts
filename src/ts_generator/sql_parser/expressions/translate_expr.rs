@@ -1,4 +1,5 @@
-use crate::common::lazy::{CONFIG, DB_SCHEMA};
+use super::functions::{is_date_function, is_numeric_function};
+use crate::common::lazy::DB_SCHEMA;
 use crate::common::logger::warning;
 use crate::core::connection::DBConn;
 use crate::ts_generator::errors::TsGeneratorError;
@@ -9,11 +10,10 @@ use crate::ts_generator::sql_parser::expressions::{
 };
 use crate::ts_generator::sql_parser::translate_query::translate_query;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
-use convert_case::{Case, Casing};
+use async_recursion::async_recursion;
+use color_eyre::Result;
 use regex::Regex;
 use sqlparser::ast::{Assignment, Expr, TableWithJoins, Value};
-
-use super::functions::{is_date_function, is_numeric_function};
 
 /// Given an expression
 /// e.g.
@@ -94,7 +94,7 @@ pub fn translate_column_name_assignment(assignment: &Assignment) -> Option<Strin
 ///
 /// some_field = $1
 /// some_table.some_field = $1
-pub fn get_sql_query_param(
+pub async fn get_sql_query_param(
     left: &Box<Expr>,
     right: &Box<Expr>,
     single_table_name: &Option<&str>,
@@ -122,8 +122,9 @@ pub fn get_sql_query_param(
             let table_names = vec![table_name.as_str()];
             let columns = DB_SCHEMA
                 .lock()
-                .unwrap()
+                .await
                 .fetch_table(&table_names, db_conn)
+                .await
                 .unwrap_or_else(|| panic!("Failed to fetch columns for table {:?}", table_name));
 
             // get column and return TsFieldType
@@ -136,12 +137,12 @@ pub fn get_sql_query_param(
     }
 }
 
-/// TODO: Add docs about translate expr
-pub fn translate_expr(
+#[async_recursion]
+pub async fn translate_expr(
     expr: &Expr,
     single_table_name: &Option<&str>,
     table_with_joins: &Option<Vec<TableWithJoins>>,
-    alias: Option<&str>,
+    alias: Option<&'async_recursion str>,
     ts_query: &mut TsQuery,
     db_conn: &DBConn,
     // is subquery determines if we can safely append result types into ts_query.results
@@ -150,11 +151,12 @@ pub fn translate_expr(
 ) -> Result<(), TsGeneratorError> {
     let binding = expr.to_string();
     let expr_for_logging = &binding.as_str();
+
     match expr {
         Expr::Identifier(ident) => {
             let column_name = ident.value.to_string();
             let table_name = single_table_name.expect("Missing table name for identifier");
-            let table_details = &DB_SCHEMA.lock().unwrap().fetch_table(&vec![table_name], db_conn);
+            let table_details = &DB_SCHEMA.lock().await.fetch_table(&vec![table_name], db_conn).await;
 
             // TODO: We can also memoize this method
             if let Some(table_details) = table_details {
@@ -179,8 +181,10 @@ pub fn translate_expr(
 
                 let table_details = &DB_SCHEMA
                     .lock()
-                    .unwrap()
-                    .fetch_table(&vec![table_name.as_str()], db_conn);
+                    .await
+                    .fetch_table(&vec![table_name.as_str()], db_conn)
+                    .await;
+
                 if let Some(table_details) = table_details {
                     let field = table_details.get(&ident).unwrap();
 
@@ -208,7 +212,7 @@ pub fn translate_expr(
         // OPERATORS START //
         /////////////////////
         Expr::BinaryOp { left, op: _, right } => {
-            let param = get_sql_query_param(left, right, single_table_name, table_with_joins, db_conn);
+            let param = get_sql_query_param(left, right, single_table_name, table_with_joins, db_conn).await;
             if let Some((value, index)) = param {
                 let _ = ts_query.insert_param(&value, &index);
                 Ok(())
@@ -221,7 +225,8 @@ pub fn translate_expr(
                     ts_query,
                     db_conn,
                     is_selection,
-                )?;
+                )
+                .await?;
                 translate_expr(
                     right,
                     single_table_name,
@@ -230,7 +235,8 @@ pub fn translate_expr(
                     ts_query,
                     db_conn,
                     is_selection,
-                )?;
+                )
+                .await?;
                 Ok(())
             }
         }
@@ -248,7 +254,8 @@ pub fn translate_expr(
                     single_table_name,
                     table_with_joins,
                     db_conn,
-                );
+                )
+                .await;
 
                 if let Some((value, index)) = result {
                     let array_item = TsFieldType::Array(Box::new(value));
@@ -267,7 +274,7 @@ pub fn translate_expr(
             negated: _,
         } => {
             // You do not need an alias as we are processing a subquery within the WHERE clause
-            translate_query(ts_query, &None, subquery, db_conn, None, false)?;
+            translate_query(ts_query, &None, subquery, db_conn, None, false).await?;
             Ok(())
         }
         Expr::Between {
@@ -276,8 +283,8 @@ pub fn translate_expr(
             low,
             high,
         } => {
-            let low = get_sql_query_param(expr, low, single_table_name, table_with_joins, db_conn);
-            let high = get_sql_query_param(expr, high, single_table_name, table_with_joins, db_conn);
+            let low = get_sql_query_param(expr, low, single_table_name, table_with_joins, db_conn).await;
+            let high = get_sql_query_param(expr, high, single_table_name, table_with_joins, db_conn).await;
             if let Some((value, placeholder)) = low {
                 ts_query.insert_param(&value, &placeholder)?;
             }
@@ -296,24 +303,30 @@ pub fn translate_expr(
             left,
             compare_op,
             right: expr,
-        } => translate_expr(
-            expr,
-            single_table_name,
-            table_with_joins,
-            alias,
-            ts_query,
-            db_conn,
-            is_selection,
-        ),
-        Expr::UnaryOp { op: _, expr } => translate_expr(
-            expr,
-            single_table_name,
-            table_with_joins,
-            alias,
-            ts_query,
-            db_conn,
-            is_selection,
-        ),
+        } => {
+            translate_expr(
+                expr,
+                single_table_name,
+                table_with_joins,
+                alias,
+                ts_query,
+                db_conn,
+                is_selection,
+            )
+            .await
+        }
+        Expr::UnaryOp { op: _, expr } => {
+            translate_expr(
+                expr,
+                single_table_name,
+                table_with_joins,
+                alias,
+                ts_query,
+                db_conn,
+                is_selection,
+            )
+            .await
+        }
         Expr::Value(placeholder) => {
             let ts_field_type = translate_value(placeholder);
 
@@ -447,7 +460,7 @@ pub fn translate_expr(
         } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),
         Expr::Exists { subquery, negated: _ } => {
             ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, expr_for_logging)?;
-            translate_query(ts_query, &None, subquery, db_conn, alias, false)
+            translate_query(ts_query, &None, subquery, db_conn, alias, false).await
         }
         Expr::ListAgg(_)
         | Expr::ArrayAgg(_)
@@ -502,19 +515,22 @@ pub fn translate_expr(
         Expr::Subquery(sub_query) => {
             // For the first layer of subquery, we consider the first field selected as the result
             if is_selection && table_with_joins.clone().unwrap().len() == 1 {
-                return translate_query(ts_query, table_with_joins, sub_query, db_conn, alias, true);
+                return translate_query(ts_query, table_with_joins, sub_query, db_conn, alias, true).await;
             }
-            translate_query(ts_query, table_with_joins, sub_query, db_conn, alias, false)
+            translate_query(ts_query, table_with_joins, sub_query, db_conn, alias, false).await
         }
-        Expr::Nested(expr) => translate_expr(
-            expr,
-            single_table_name,
-            table_with_joins,
-            alias,
-            ts_query,
-            db_conn,
-            is_selection,
-        ),
+        Expr::Nested(expr) => {
+            translate_expr(
+                expr,
+                single_table_name,
+                table_with_joins,
+                alias,
+                ts_query,
+                db_conn,
+                is_selection,
+            )
+            .await
+        }
         Expr::InUnnest {
             expr,
             array_expr: _,
@@ -524,7 +540,7 @@ pub fn translate_expr(
     }
 }
 
-pub fn translate_assignment(
+pub async fn translate_assignment(
     assignment: &Assignment,
     table_name: &str,
     ts_query: &mut TsQuery,
@@ -535,8 +551,9 @@ pub fn translate_assignment(
     if value.is_some() {
         let table_details = &DB_SCHEMA
             .lock()
-            .unwrap()
+            .await
             .fetch_table(&vec![table_name], db_conn)
+            .await
             .unwrap();
         let column_name = translate_column_name_assignment(assignment).unwrap();
         let field = table_details

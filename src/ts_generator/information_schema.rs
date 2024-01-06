@@ -1,11 +1,12 @@
-use mysql;
-use mysql::prelude::Queryable;
-use postgres;
-use std::borrow::BorrowMut;
+use bb8::Pool;
+use mysql_async::prelude::Queryable;
+use mysql_async::prelude::*;
 use std::collections::HashMap;
-use std::sync::Mutex;
+use tokio::sync::Mutex;
 
 use crate::core::connection::DBConn;
+use crate::core::mysql::pool::MySqlConnectionManager;
+use crate::core::postgres::pool::PostgresConnectionManager;
 
 use super::types::ts_query::TsFieldType;
 
@@ -42,7 +43,7 @@ impl DBSchema {
     ///
     /// # PostgreSQL Notes
     /// - PostgresSQL would utilise SEARCH_PATH option to search for the table in the database https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH
-    pub fn fetch_table(&mut self, table_name: &Vec<&str>, conn: &DBConn) -> Option<Fields> {
+    pub async fn fetch_table(&mut self, table_name: &Vec<&str>, conn: &DBConn) -> Option<Fields> {
         let table_key: String = table_name.join(",");
         let cached_table_result = self.tables_cache.get(table_key.as_str());
 
@@ -51,8 +52,8 @@ impl DBSchema {
         }
 
         let result = match &conn {
-            DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, table_name, conn),
-            DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, table_name, conn),
+            DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, table_name, conn).await,
+            DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, table_name, conn).await,
         };
 
         if let Some(result) = &result {
@@ -62,7 +63,11 @@ impl DBSchema {
         result
     }
 
-    fn postgres_fetch_table(&self, table_names: &Vec<&str>, conn: &Mutex<postgres::Client>) -> Option<Fields> {
+    async fn postgres_fetch_table(
+        &self,
+        table_names: &Vec<&str>,
+        conn: &Mutex<Pool<PostgresConnectionManager>>,
+    ) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))
@@ -83,7 +88,10 @@ impl DBSchema {
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
-        let result = conn.lock().unwrap().borrow_mut().query(&query, &[]);
+        
+        let conn = conn.lock().await;
+        let conn = conn.get().await.unwrap();
+        let result = conn.query(&query, &[]).await;
 
         if let Ok(result) = result {
             for row in result {
@@ -103,7 +111,11 @@ impl DBSchema {
         None
     }
 
-    fn mysql_fetch_table(&self, table_names: &Vec<&str>, conn: &Mutex<mysql::Conn>) -> Option<Fields> {
+    async fn mysql_fetch_table(
+        &self,
+        table_names: &Vec<&str>,
+        conn: &Mutex<Pool<MySqlConnectionManager>>,
+    ) -> Option<Fields> {
         let table_names = table_names
             .iter()
             .map(|x| format!("'{x}'"))
@@ -123,7 +135,9 @@ impl DBSchema {
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
-        let result = conn.lock().unwrap().borrow_mut().query::<mysql::Row, String>(query);
+        let conn = conn.lock().await;
+        let mut conn = conn.get().await.unwrap();
+        let result = conn.query::<mysql_async::Row, String>(query).await;
 
         if let Ok(result) = result {
             for row in result {

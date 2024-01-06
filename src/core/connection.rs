@@ -3,31 +3,33 @@ use crate::common::SQL;
 use crate::core::mysql::prepare as mysql_explain;
 use crate::core::postgres::prepare as postgres_explain;
 use crate::ts_generator::types::ts_query::TsQuery;
+use bb8::Pool;
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::sync::Mutex;
+use tokio::sync::Mutex;
 
 use color_eyre::Result;
-use mysql::Conn as MySQLConn;
-use postgres::Client as PostgresConn;
 use swc_common::errors::Handler;
+
+use super::mysql::pool::MySqlConnectionManager;
+use super::postgres::pool::PostgresConnectionManager;
 
 /// Enum to hold a specific database connection instance
 pub enum DBConn {
-    MySQLPooledConn(Mutex<MySQLConn>),
-    PostgresConn(Mutex<PostgresConn>),
+    MySQLPooledConn(Mutex<Pool<MySqlConnectionManager>>),
+    PostgresConn(Mutex<Pool<PostgresConnectionManager>>),
 }
 
 impl DBConn {
-    pub fn prepare(
+    pub async fn prepare(
         &self,
         sql: &SQL,
         should_generate_types: &bool,
         handler: &Handler,
     ) -> Result<(bool, Option<TsQuery>)> {
         let (explain_failed, ts_query) = match &self {
-            DBConn::MySQLPooledConn(_conn) => mysql_explain::prepare(self, sql, should_generate_types, handler)?,
-            DBConn::PostgresConn(_conn) => postgres_explain::prepare(self, sql, should_generate_types, handler)?,
+            DBConn::MySQLPooledConn(_conn) => mysql_explain::prepare(self, sql, should_generate_types, handler).await?,
+            DBConn::PostgresConn(_conn) => postgres_explain::prepare(self, sql, should_generate_types, handler).await?,
         };
 
         Ok((explain_failed, ts_query))

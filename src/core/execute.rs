@@ -3,14 +3,12 @@ use crate::common::SQL;
 use crate::ts_generator::generator::{write_colocated_ts_file, write_single_ts_file};
 
 use color_eyre::eyre::Result;
-use std::borrow::BorrowMut;
 use std::collections::HashMap;
-use std::sync::Arc;
 
 use std::path::PathBuf;
 use swc_common::errors::Handler;
 
-pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Result<bool> {
+pub async fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Result<bool> {
     let mut failed = false;
     let should_generate_types = &CONFIG
         .generate_types_config
@@ -21,11 +19,11 @@ pub fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Resul
     for (file_path, sqls) in queries {
         let mut sqls_to_write: Vec<String> = vec![];
         for sql in sqls {
-            let mut connection = DB_CONNECTIONS.lock().unwrap();
+            let mut connection = DB_CONNECTIONS.lock().await;
             let connection = &connection.get_connection(&sql.query).clone();
-            let connection = &connection.lock().unwrap();
+            let connection = &connection.lock().await;
 
-            let (explain_failed, ts_query) = &connection.prepare(sql, should_generate_types, handler)?;
+            let (explain_failed, ts_query) = &connection.prepare(sql, should_generate_types, handler).await?;
 
             // If any prepare statement fails, we should set the failed flag as true
             failed = *explain_failed;

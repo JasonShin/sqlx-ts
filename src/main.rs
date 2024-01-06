@@ -36,7 +36,8 @@ fn set_default_env_var() {
     }
 }
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     set_default_env_var();
 
     let source_folder = &CLI_ARGS.path;
@@ -58,7 +59,7 @@ fn main() -> Result<()> {
 
     for file_path in files.iter() {
         let (sqls, handler) = parse_source(file_path)?;
-        let failed = execute(&sqls, &handler)?;
+        let failed = execute(&sqls, &handler).await?;
         if failed {
             eprint!("SQLs failed to compile!");
             std::process::exit(1)

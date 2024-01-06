@@ -11,7 +11,7 @@ use sqlparser::ast::Statement;
 
 use super::expressions::translate_table_with_joins::get_default_table;
 
-pub fn translate_stmt(
+pub async fn translate_stmt(
     ts_query: &mut TsQuery,
     sql_statement: &Statement,
     alias: Option<&str>, // If the statement is originated from a subquery, it must have an alias provided
@@ -19,7 +19,7 @@ pub fn translate_stmt(
 ) -> Result<(), TsGeneratorError> {
     match sql_statement {
         Statement::Query(query) => {
-            translate_query(ts_query, &None, query, db_conn, alias, true)?;
+            translate_query(ts_query, &None, query, db_conn, alias, true).await?;
         }
         Statement::Insert {
             or: _,
@@ -38,7 +38,7 @@ pub fn translate_stmt(
             let source = *source.to_owned().unwrap();
             let table_name = table_name.to_string();
             let table_name = table_name.as_str();
-            translate_insert(ts_query, columns, &source, table_name, db_conn)?;
+            translate_insert(ts_query, columns, &source, table_name, db_conn).await?;
         }
         Statement::Delete {
             tables: _,
@@ -52,7 +52,7 @@ pub fn translate_stmt(
             let table_name = get_default_table(from);
             let table_name = table_name.as_str();
             let selection = selection.to_owned().unwrap();
-            translate_delete(ts_query, &selection, table_name, db_conn)?;
+            translate_delete(ts_query, &selection, table_name, db_conn).await?;
         }
         Statement::Update {
             table,
@@ -61,7 +61,7 @@ pub fn translate_stmt(
             selection,
             returning: _,
         } => {
-            translate_update(ts_query, table, assignments, from, selection, db_conn)?;
+            translate_update(ts_query, table, assignments, from, selection, db_conn).await?;
         }
         _ => {}
     }
