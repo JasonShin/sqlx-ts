@@ -51,9 +51,11 @@ lazy_static! {
 
                         if connection_config.pg_search_path.is_some() {
                             let search_path_query = format!("SET search_path TO {}", &connection_config.pg_search_path.clone().unwrap().as_str());
-                            let conn = conn.lock().await;
-                            let conn = conn.get().await.unwrap();
-                            conn.execute(&search_path_query, &[]).await.unwrap();
+                            {
+                                let conn = conn.lock().await;
+                                let conn = conn.get().await.unwrap();
+                                conn.execute(&search_path_query, &[]).await.unwrap();
+                            }
                         }
                         db_conn
                     }))

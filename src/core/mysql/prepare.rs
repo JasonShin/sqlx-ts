@@ -18,20 +18,23 @@ pub async fn prepare(
 ) -> Result<(bool, Option<TsQuery>)> {
     let mut failed = false;
 
-    let span = sql.span.to_owned();
-    let explain_query = format!("PREPARE stmt FROM \"{}\"", sql.query);
 
     let conn = match &db_conn {
         DBConn::MySQLPooledConn(conn) => conn,
         _ => panic!("Invalid connection type"),
     };
-    let conn = conn.lock().await;
-    let mut conn = conn.get().await.unwrap();
-    let result = conn.query::<Row, String>(explain_query).await;
 
-    if let Err(err) = result {
-        handler.span_bug_no_panic(span, err.to_string().as_str());
-        failed = true;
+    {
+        let explain_query = format!("PREPARE stmt FROM \"{}\"", sql.query);
+        let span = sql.span.to_owned();
+        let conn = conn.lock().await;
+        let mut conn = conn.get().await.unwrap();
+        let result = conn.query::<Row, String>(explain_query).await;
+
+        if let Err(err) = result {
+            handler.span_bug_no_panic(span, err.to_string().as_str());
+            failed = true;
+        }
     }
 
     let mut ts_query = None;

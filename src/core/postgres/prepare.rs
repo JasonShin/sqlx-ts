@@ -23,19 +23,21 @@ pub async fn prepare(
         _ => panic!("Invalid connection type"),
     };
 
-    let span = sql.span.to_owned();
+    {
+        let span = sql.span.to_owned();
 
-    let prepare_query = format!("PREPARE sqlx_stmt AS {}", sql.query);
-    let conn = conn.lock().await;
-    let conn = conn.get().await.unwrap();
-    let result = conn.query(prepare_query.as_str(), &[]).await;
+        let prepare_query = format!("PREPARE sqlx_stmt AS {}", sql.query);
+        let conn = conn.lock().await;
+        let conn = conn.get().await.unwrap();
+        let result = conn.query(prepare_query.as_str(), &[]).await;
 
-    if let Err(e) = result {
-        handler.span_bug_no_panic(span, e.as_db_error().unwrap().message());
-        failed = true;
-    } else {
-        // We should only deallocate if the prepare statement was executed successfully
-        let _ = &conn.query("DEALLOCATE sqlx_stmt", &[]).await.unwrap();
+        if let Err(e) = result {
+            handler.span_bug_no_panic(span, e.as_db_error().unwrap().message());
+            failed = true;
+        } else {
+            // We should only deallocate if the prepare statement was executed successfully
+            let _ = &conn.query("DEALLOCATE sqlx_stmt", &[]).await.unwrap();
+        }
     }
 
     let mut ts_query = None;

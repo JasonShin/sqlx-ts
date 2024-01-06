@@ -151,6 +151,7 @@ pub async fn translate_expr(
 ) -> Result<(), TsGeneratorError> {
     let binding = expr.to_string();
     let expr_for_logging = &binding.as_str();
+
     match expr {
         Expr::Identifier(ident) => {
             let column_name = ident.value.to_string();
@@ -183,6 +184,7 @@ pub async fn translate_expr(
                     .await
                     .fetch_table(&vec![table_name.as_str()], db_conn)
                     .await;
+
                 if let Some(table_details) = table_details {
                     let field = table_details.get(&ident).unwrap();
 
