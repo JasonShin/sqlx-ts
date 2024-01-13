@@ -12,6 +12,17 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        db:
+          - mysql: 8
+          - mysql: 5.7
+          - mysql: 5.6
+          - postgres: 16
+          - postgres: 15
+          - postgres: 14
+          - postgres: 13
+          - postgres: 12
 
     steps:
       - name: Checkout sources
@@ -37,6 +48,9 @@ jobs:
 
       - name: build docker-compose services for integration tests
         run: docker-compose -f docker-compose.yml up -d
+        env:
+          MYSQL_VERSION: ${{ matrix.db.mysql }}
+          PG_VERSION: ${{ matrix.db.postgres }}
 
       - uses: GuillaumeFalourd/wait-sleep-action@v1
         with:
