@@ -453,12 +453,15 @@ pub async fn translate_expr(
         Expr::AggregateExpressionWithFilter { expr, filter } => {
             ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
         }
+        // Case statement can get extremely complex, we will just return any for now
         Expr::Case {
             operand: _,
             conditions: _,
             results: _,
             else_result: _,
-        } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),
+        } => {
+            ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
+        },
         Expr::Exists { subquery, negated: _ } => {
             ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, expr_for_logging)?;
             translate_query(ts_query, &None, subquery, db_conn, alias, false).await

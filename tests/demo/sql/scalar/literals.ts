@@ -21,4 +21,12 @@ const dot1 = sql`SELECT items.id FROM items`
 const dot2 = sql`SELECT items.* FROM items`
 const dot3 = sql`SELECT items.id, items.* FROM items`
 const dot4 = sql`SELECT ROW(items.*, 42) AS something FROM items`
-
+// CASE EXPR
+const case1 = sql`SELECT CASE WHEN true THEN 1 ELSE 0 END AS num FROM items`
+// CONVERT - not supported yet
+// const convert1 = sql`SELECT CONVERT(1, int) AS num FROM items`
+// OPERATIONS
+const operation1 = sql`SELECT id + id FROM items`
+const operation2 = sql`SELECT id + id * id FROM items`
+const operation3 = sql`SELECT id + id * id / id FROM items`
+const operation4 = sql`SELECT id - id * id / id + id FROM items`
