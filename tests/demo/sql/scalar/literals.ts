@@ -30,3 +30,8 @@ const operation1 = sql`SELECT id + id FROM items`
 const operation2 = sql`SELECT id + id * id FROM items`
 const operation3 = sql`SELECT id + id * id / id FROM items`
 const operation4 = sql`SELECT id - id * id / id + id FROM items`
+// UNARY OP
+const unary1 = sql`SELECT -id FROM items`
+const unary2 = sql`SELECT +id FROM items`
+const unary4 = sql`SELECT NOT occupied FROM tables`
+const unary5 = sql`SELECT NOT NOT occupied FROM tables`
