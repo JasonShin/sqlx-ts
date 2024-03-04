@@ -152,6 +152,7 @@ pub async fn translate_expr(
     let binding = expr.to_string();
     let expr_for_logging = &binding.as_str();
 
+    println!("checking expr {:?}", expr);
     match expr {
         Expr::Identifier(ident) => {
             let column_name = ident.value.to_string();

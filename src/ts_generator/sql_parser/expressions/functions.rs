@@ -41,6 +41,8 @@ pub static STRING_FUNCTIONS: &[&str] = &[
     "TRIM",
     "UCASE",
     "UPPER",
+    // We cannot really handle ROW method's type, so we will just ignore it and return string
+    "ROW"
 ];
 
 pub static DATE_FUNCTIONS: &[&str] = &[

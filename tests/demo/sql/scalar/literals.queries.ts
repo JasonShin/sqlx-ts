@@ -221,3 +221,19 @@ export interface IDat1Query {
     result: IDat1Result;
 };
 
+
+
+
+export type Dat2Params = [];
+
+
+export interface IDat2Result {
+    dat: number;
+};
+
+
+export interface IDat2Query {
+    params: Dat2Params;
+    result: IDat2Result;
+};
+

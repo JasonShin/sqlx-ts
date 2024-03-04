@@ -22,6 +22,7 @@ pub fn translate_value(value: &Value) -> Option<TsFieldType> {
 }
 
 pub fn translate_data_type(data_type: &DataType) -> TsFieldType {
+    println!("checking data type {:?}", data_type);
     match &data_type {
         DataType::Character(_) => TsFieldType::String,
         DataType::Char(_) => TsFieldType::String,
