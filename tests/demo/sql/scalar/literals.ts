@@ -30,8 +30,42 @@ const operation1 = sql`SELECT id + id FROM items`
 const operation2 = sql`SELECT id + id * id FROM items`
 const operation3 = sql`SELECT id + id * id / id FROM items`
 const operation4 = sql`SELECT id - id * id / id + id FROM items`
-// UNARY OP
+// UNARY OPERATIONS
 const unary1 = sql`SELECT -id FROM items`
 const unary2 = sql`SELECT +id FROM items`
 const unary4 = sql`SELECT NOT occupied FROM tables`
 const unary5 = sql`SELECT NOT NOT occupied FROM tables`
+// CAST
+const cast1 = sql`SELECT CAST('1' AS int) AS num FROM items`
+const cast2 = sql`SELECT CAST('1' AS double precision) AS num FROM items`
+const cast3 = sql`SELECT CAST('1' AS float(8)) AS num FROM items`
+const cast4 = sql`SELECT CAST('1' AS decimal(15,2)) AS num FROM items`
+// UNARY OPERATORS
+const unaryOp1 = sql`SELECT id IN (1, 2, 3) AS test FROM items`
+const unaryOp2 = sql`SELECT id NOT IN (1, 2, 3) AS test FROM items`
+const unaryOp3 = sql`SELECT id IS NULL AS test FROM items`
+const unaryOp4 = sql`SELECT id IS NOT NULL AS test FROM items`
+const unaryOp5 = sql`SELECT occupied IS TRUE AS test FROM tables`
+const unaryOp6 = sql`SELECT occupied IS NOT TRUE AS test FROM tables`
+const unaryOp7 = sql`SELECT occupied IS FALSE AS test FROM tables`
+const unaryOp8 = sql`SELECT occupied IS NOT FALSE AS test FROM tables`
+const unaryOp9 = sql`SELECT occupied IS UNKNOWN AS test FROM tables`
+const unaryOp10 = sql`SELECT occupied IS NOT UNKNOWN AS test FROM tables`
+// BINARY OPERATORS
+const binaryOp1 = sql`SELECT id = 1 AS test FROM items`
+const binaryOp2 = sql`SELECT id <> 1 AS test FROM items`
+const binaryOp3 = sql`SELECT id < 1 AS test FROM items`
+const binaryOp4 = sql`SELECT id <= 1 AS test FROM items`
+const binaryOp5 = sql`SELECT id > 1 AS test FROM items`
+const binaryOp6 = sql`SELECT id >= 1 AS test FROM items`
+const binaryOp7 = sql`SELECT id + 1 AS test FROM items`
+const binaryOp8 = sql`SELECT id - 1 AS test FROM items`
+const binaryOp9 = sql`SELECT id * 1 AS test FROM items`
+const binaryOp10 = sql`SELECT id / 1 AS test FROM items`
+const binaryOp11 = sql`SELECT id % 1 AS test FROM items`
+const binaryOp13 = sql`SELECT id & 1 AS test FROM items`
+const binaryOp14 = sql`SELECT id | 1 AS test FROM items`
+const binaryOp16 = sql`SELECT id << 1 AS test FROM items`
+const binaryOp17 = sql`SELECT id >> 1 AS test FROM items`
+const binaryOp18 = sql`SELECT id ^ 1 AS test FROM items`
+// BINARY OP
