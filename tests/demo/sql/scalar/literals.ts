@@ -51,6 +51,9 @@ const unaryOp7 = sql`SELECT occupied IS FALSE AS test FROM tables`
 const unaryOp8 = sql`SELECT occupied IS NOT FALSE AS test FROM tables`
 const unaryOp9 = sql`SELECT occupied IS UNKNOWN AS test FROM tables`
 const unaryOp10 = sql`SELECT occupied IS NOT UNKNOWN AS test FROM tables`
+const unaryOp11 = sql`SELECT NOT (id IN (1, 2, 3)) AS test FROM items`
+const unaryOp12 = sql`SELECT id LIKE time_takes_to_cook AS test FROM items`
+const unaryOp13 = sql`SELECT EXTRACT(DAY FROM date1) AS some_day FROM random`
 // BINARY OPERATORS
 const binaryOp1 = sql`SELECT id = 1 AS test FROM items`
 const binaryOp2 = sql`SELECT id <> 1 AS test FROM items`
@@ -68,4 +71,3 @@ const binaryOp14 = sql`SELECT id | 1 AS test FROM items`
 const binaryOp16 = sql`SELECT id << 1 AS test FROM items`
 const binaryOp17 = sql`SELECT id >> 1 AS test FROM items`
 const binaryOp18 = sql`SELECT id ^ 1 AS test FROM items`
-// BINARY OP

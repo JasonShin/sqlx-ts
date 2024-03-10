@@ -397,7 +397,7 @@ pub async fn translate_expr(
             Ok(())
         }
         Expr::Extract { field, expr } => {
-            ts_query.insert_result(alias, &[TsFieldType::Date], is_selection, expr_for_logging)?;
+            ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging)?;
             ts_query.insert_param(&TsFieldType::String, &Some(field.to_string()))?;
             ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()))?;
             Ok(())
@@ -501,6 +501,7 @@ pub async fn translate_expr(
             if is_string_function(function) {
                 ts_query.insert_result(Some(alias), &[TsFieldType::String], is_selection, expr_for_logging)?;
             } else if is_numeric_function(function) {
+                println!("found a numeric func");
                 ts_query.insert_result(Some(alias), &[TsFieldType::Number], is_selection, expr_for_logging)?;
             } else if is_date_function(function) {
                 ts_query.insert_result(Some(alias), &[TsFieldType::String], is_selection, expr_for_logging)?;

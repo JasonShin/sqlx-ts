@@ -3,6 +3,8 @@ pub static NUMERIC_FUNCTIONS: &[&str] = &[
     "ABS", "ACOS", "ASIN", "ATAN", "ATAN2", "AVG", "CEIL", "CEILING", "COS", "COT", "COUNT", "DEGREES", "DIV", "EXP",
     "FLOOR", "GREATEST", "LEAST", "LN", "LOG", "LOG10", "LOG2", "MAX", "MIN", "MOD", "PI", "POW", "POWER", "RADIANS",
     "RAND", "ROUND", "SIGN", "SIN", "SQRT", "SUM", "TAN", "TRUNCATE", "TRUNC",
+    // Date functions retruning a number
+    "EXTRACT",
 ];
 
 pub static STRING_FUNCTIONS: &[&str] = &[
@@ -62,7 +64,6 @@ pub static DATE_FUNCTIONS: &[&str] = &[
     "DAYOFMONTH",
     "DAYOFWEEK",
     "DAYOFYEAR",
-    "EXTRACT",
     "FROM_DAYS",
     "HOUR",
     "LAST_DAY",
