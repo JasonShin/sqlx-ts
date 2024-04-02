@@ -506,6 +506,7 @@ pub async fn translate_expr(
             } else if is_date_function(function) {
                 ts_query.insert_result(Some(alias), &[TsFieldType::String], is_selection, expr_for_logging)?;
             } else {
+                println!("checking hrmm {:?}", function);
                 return Err(TsGeneratorError::FunctionUnknown(expr.to_string()));
             }
 

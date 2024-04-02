@@ -53,7 +53,13 @@ const unaryOp9 = sql`SELECT occupied IS UNKNOWN AS test FROM tables`
 const unaryOp10 = sql`SELECT occupied IS NOT UNKNOWN AS test FROM tables`
 const unaryOp11 = sql`SELECT NOT (id IN (1, 2, 3)) AS test FROM items`
 const unaryOp12 = sql`SELECT id LIKE time_takes_to_cook AS test FROM items`
-const unaryOp13 = sql`SELECT EXTRACT(DAY FROM date1) AS some_day FROM random`
+const unaryOp13 = sql`SELECT EXTRACT(DAY FROM created_at) AS some_day FROM items`
+const unaryOp14 = sql`SELECT SUBSTRING(food_type, 5, 3) AS some_str FROM items`
+const unaryOp15 = sql`SELECT POSITION('a' IN food_type) AS some_pos FROM items`
+const unaryOp16 = sql`SELECT CHAR_LENGTH(food_type) AS some_len FROM items`
+const unaryOp17 = sql`SELECT COALESCE(food_type, 'no type') AS some_type FROM items`
+const unaryOp18 = sql`SELECT NULLIF(food_type, 'no type') AS some_type FROM items`
+const unaryOp19 = sql`SELECT id IS DISTINCT FROM 1 AS test FROM items`
 // BINARY OPERATORS
 const binaryOp1 = sql`SELECT id = 1 AS test FROM items`
 const binaryOp2 = sql`SELECT id <> 1 AS test FROM items`
