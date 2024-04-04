@@ -17,7 +17,7 @@ run_test!(should_pick_query_params_from_single_row_of_values, TestConfig::new("m
 //// TS query ////
 r#"
 const someInputQuery = sql`
-INSERT INTO items (id, food_type, time_takes_to_cook, table_id, points)
+INSERT INTO items (id, "food_type", time_takes_to_cook, table_id, points)
 VALUES
 (?, ?, 2, 1, 2);
 `
@@ -45,7 +45,7 @@ r#"
 import { sql } from "sqlx-ts";
 
 const someInputQuery = sql`
-INSERT INTO items (id, food_type, time_takes_to_cook, table_id, points)
+INSERT INTO items (id, "food_type", time_takes_to_cook, table_id, points)
 VALUES
 (?, ?, 2, 1, 2),
 (1, 'test', ?, ?, ?);
