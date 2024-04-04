@@ -34,12 +34,12 @@ pub async fn translate_insert(
                     let placeholder = get_expr_placeholder(value);
 
                     if placeholder.is_some() {
-                        let match_col = columns
+                        let match_col = &columns
                             .get(column)
                             .unwrap_or_else(|| {
                                 panic!("Matching column of idx {column} is not found while processing insert params")
                             })
-                            .to_string();
+                            .value;
 
                         let field = table_details.get(match_col.as_str()).unwrap_or_else(|| {
                             panic!("Column {match_col} is not found while processing insert params")

@@ -17,7 +17,7 @@ run_test!(should_pick_query_params_from_single_row_of_values, TestConfig::new("p
 //// TS query ////
 r#"
 const someInputQuery = sql`
-INSERT INTO items (id, food_type, time_takes_to_cook, table_id, points)
+INSERT INTO items (id, "food_type", time_takes_to_cook, table_id, points)
 VALUES
 ($2, $1, 2, $3, 2);
 `
@@ -43,7 +43,7 @@ run_test!(should_pick_query_params_from_multiple_rows_of_values, TestConfig::new
 //// TS query ////
 r#"
 const someInputQuery = sql`
-INSERT INTO items (id, food_type, time_takes_to_cook, table_id, points)
+INSERT INTO items (id, "food_type", time_takes_to_cook, table_id, points)
 VALUES
 ($2, $1, 2, $3, 2),
 ($5, 'test', $4, $7, $6);
