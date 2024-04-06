@@ -188,17 +188,17 @@
 <h2 id="example-2-single-database-connection-using-sqlxrcjson-file"><a class="header" href="#example-2-single-database-connection-using-sqlxrcjson-file">Example 2: single database connection using <code>.sqlxrc.json</code> file</a></h2>
 <p>Create a file called <code>.sqlxrc.json</code>  at the root level of your project where you will run sqlx-ts binary</p>
 <pre><code class="language-json">{
-  &quot;generateTypes&quot;: {
-    &quot;enabled&quot;: true
+  "generateTypes": {
+    "enabled": true
   },
-  &quot;connections&quot;: {
-    &quot;default&quot;: {
-      &quot;DB_TYPE&quot;: &quot;postgres&quot;,
-      &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
-      &quot;DB_PORT&quot;: 54321,
-      &quot;DB_USER&quot;: &quot;postgres&quot;,
-      &quot;DB_PASS&quot;: &quot;postgres&quot;,
-      &quot;DB_NAME&quot;: &quot;postgres&quot;
+  "connections": {
+    "default": {
+      "DB_TYPE": "postgres",
+      "DB_HOST": "127.0.0.1",
+      "DB_PORT": 54321,
+      "DB_USER": "postgres",
+      "DB_PASS": "postgres",
+      "DB_NAME": "postgres"
     }
   }
 }
@@ -209,24 +209,24 @@
 <h2 id="example-3-multiple-database-connections-using-sqlxrcjson-file"><a class="header" href="#example-3-multiple-database-connections-using-sqlxrcjson-file">Example 3: Multiple database connections using <code>.sqlxrc.json</code> file</a></h2>
 <p>Create a file called <code>.sqlxrc.json</code>  at the root level of your project where you will run sqlx-ts binary</p>
 <pre><code class="language-json">{
-  &quot;generateTypes&quot;: {
-    &quot;enabled&quot;: true
+  "generateTypes": {
+    "enabled": true
   },
-  &quot;connections&quot;: {
-    &quot;default&quot;: {
-      &quot;DB_TYPE&quot;: &quot;postgres&quot;,
-      &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
-      &quot;DB_PORT&quot;: 4321,
-      &quot;DB_USER&quot;: &quot;postgres&quot;,
-      &quot;DB_PASS&quot;: &quot;postgres&quot;,
-      &quot;DB_NAME&quot;: &quot;postgres&quot;
+  "connections": {
+    "default": {
+      "DB_TYPE": "postgres",
+      "DB_HOST": "127.0.0.1",
+      "DB_PORT": 4321,
+      "DB_USER": "postgres",
+      "DB_PASS": "postgres",
+      "DB_NAME": "postgres"
     },
-    &quot;mysql&quot;: {
-      &quot;DB_TYPE&quot;: &quot;mysql&quot;,
-      &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
-      &quot;DB_PORT&quot;: 3306,
-      &quot;DB_USER&quot;: &quot;root&quot;,
-      &quot;DB_NAME&quot;: &quot;mysql&quot;
+    "mysql": {
+      "DB_TYPE": "mysql",
+      "DB_HOST": "127.0.0.1",
+      "DB_PORT": 3306,
+      "DB_USER": "root",
+      "DB_NAME": "mysql"
     }
   }
 }
@@ -235,7 +235,7 @@
 <pre><code class="language-bash">cargo run ./src/app --config .sqlxrc.json
 </code></pre>
 <h3 id="notes"><a class="header" href="#notes">Notes</a></h3>
-<p>By default, sql check operation ignores <code>node_modules</code>. Any extra ignore paths can be specified 
+<p>By default, sql check operation ignores <code>node_modules</code>. Any extra ignore paths can be specified
 using <code>--ignore=&lt;path&gt;</code>.</p>
 
                     </main>

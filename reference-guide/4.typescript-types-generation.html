@@ -224,7 +224,7 @@ export interface ISimpleQueryQuery{
     result: ISimpleQueryResult;
 }
 </code></pre>
-<p>sqlx-ts will pick up name of the variable and use it when generating the type definitions. You can override 
+<p>sqlx-ts will pick up name of the variable and use it when generating the type definitions. You can override
 the type name by setting the <code>@name</code> annotation, you can read more in the section <a href="#annotations">below</a>.</p>
 <h2 id="configuration"><a class="header" href="#configuration">Configuration</a></h2>
 <p>You can configure type generation in <code>.sqlxrc.json</code>; available configurations:</p>
@@ -237,7 +237,7 @@ We need configurations for following:</p>
 <h2 id="qa"><a class="header" href="#qa">Q/A</a></h2>
 <h5 id="why-doesnt-sqlx-support-named-parameterised-queries-eg-select--from-items-where-point--point"><a class="header" href="#why-doesnt-sqlx-support-named-parameterised-queries-eg-select--from-items-where-point--point">Why doesn't SQLx support named parameterised queries? <code>e.g. SELECT * FROM items WHERE point = :point</code></a></h5>
 <p>We believe that there is no official way in Typescript to ensure the value level type-safety yet and providing named parameter does not guarantee
-the true type safetiness that we are trying to achieve. Furthermore, name parameter is not the syntax supported by native database drivers, but 
+the true type safetiness that we are trying to achieve. Furthermore, name parameter is not the syntax supported by native database drivers, but
 they are an additional syntax supported by popular ORM libraries such as Sequelize.</p>
 <p>The closest type safety that exists in TypeScript world is by emulating Opaque type e.g. https://github.com/sindresorhus/type-fest/blob/main/source/opaque.d.ts.
 In the future, sqlx-ts will support Opaque type overrides natively to solve this matter.</p>

@@ -274,17 +274,17 @@ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | bash -s -- \
 <h2 id="example-2-single-database-connection-using-sqlxrcjson-file"><a class="header" href="#example-2-single-database-connection-using-sqlxrcjson-file">Example 2: single database connection using <code>.sqlxrc.json</code> file</a></h2>
 <p>Create a file called <code>.sqlxrc.json</code>  at the root level of your project where you will run sqlx-ts binary</p>
 <pre><code class="language-json">{
-  &quot;generateTypes&quot;: {
-    &quot;enabled&quot;: true
+  "generateTypes": {
+    "enabled": true
   },
-  &quot;connections&quot;: {
-    &quot;default&quot;: {
-      &quot;DB_TYPE&quot;: &quot;postgres&quot;,
-      &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
-      &quot;DB_PORT&quot;: 54321,
-      &quot;DB_USER&quot;: &quot;postgres&quot;,
-      &quot;DB_PASS&quot;: &quot;postgres&quot;,
-      &quot;DB_NAME&quot;: &quot;postgres&quot;
+  "connections": {
+    "default": {
+      "DB_TYPE": "postgres",
+      "DB_HOST": "127.0.0.1",
+      "DB_PORT": 54321,
+      "DB_USER": "postgres",
+      "DB_PASS": "postgres",
+      "DB_NAME": "postgres"
     }
   }
 }
@@ -295,24 +295,24 @@ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | bash -s -- \
 <h2 id="example-3-multiple-database-connections-using-sqlxrcjson-file"><a class="header" href="#example-3-multiple-database-connections-using-sqlxrcjson-file">Example 3: Multiple database connections using <code>.sqlxrc.json</code> file</a></h2>
 <p>Create a file called <code>.sqlxrc.json</code>  at the root level of your project where you will run sqlx-ts binary</p>
 <pre><code class="language-json">{
-  &quot;generateTypes&quot;: {
-    &quot;enabled&quot;: true
+  "generateTypes": {
+    "enabled": true
   },
-  &quot;connections&quot;: {
-    &quot;default&quot;: {
-      &quot;DB_TYPE&quot;: &quot;postgres&quot;,
-      &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
-      &quot;DB_PORT&quot;: 4321,
-      &quot;DB_USER&quot;: &quot;postgres&quot;,
-      &quot;DB_PASS&quot;: &quot;postgres&quot;,
-      &quot;DB_NAME&quot;: &quot;postgres&quot;
+  "connections": {
+    "default": {
+      "DB_TYPE": "postgres",
+      "DB_HOST": "127.0.0.1",
+      "DB_PORT": 4321,
+      "DB_USER": "postgres",
+      "DB_PASS": "postgres",
+      "DB_NAME": "postgres"
     },
-    &quot;mysql&quot;: {
-      &quot;DB_TYPE&quot;: &quot;mysql&quot;,
-      &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
-      &quot;DB_PORT&quot;: 3306,
-      &quot;DB_USER&quot;: &quot;root&quot;,
-      &quot;DB_NAME&quot;: &quot;mysql&quot;
+    "mysql": {
+      "DB_TYPE": "mysql",
+      "DB_HOST": "127.0.0.1",
+      "DB_PORT": 3306,
+      "DB_USER": "root",
+      "DB_NAME": "mysql"
     }
   }
 }
@@ -321,7 +321,7 @@ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | bash -s -- \
 <pre><code class="language-bash">cargo run ./src/app --config .sqlxrc.json
 </code></pre>
 <h3 id="notes"><a class="header" href="#notes">Notes</a></h3>
-<p>By default, sql check operation ignores <code>node_modules</code>. Any extra ignore paths can be specified 
+<p>By default, sql check operation ignores <code>node_modules</code>. Any extra ignore paths can be specified
 using <code>--ignore=&lt;path&gt;</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="connecting-to-databases"><a class="header" href="#connecting-to-databases">Connecting to databases</a></h1>
 <p><code>sqlx-ts</code> supports the following approach connect to the database</p>
@@ -330,57 +330,57 @@ using <code>--ignore=&lt;path&gt;</code>.</p>
 <li><a href="api/./1.1.cli-options.html">CLI options</a></li>
 <li><a href="api/./1.2.environment-variables.html">Environment variables</a></li>
 </ol>
-<p>If you provide database host by a CLI option and an environment variable, CLI option will take 
+<p>If you provide database host by a CLI option and an environment variable, CLI option will take
 the priority over the environment variable.</p>
 <h3 id="1-file-based-config"><a class="header" href="#1-file-based-config">1. File based config</a></h3>
-<p>If your project needs connections to multiple databases for SQL check, you have to use the file 
+<p>If your project needs connections to multiple databases for SQL check, you have to use the file
 based config and specify connection details for those databases. <a href="api/./1.3.configs-file-based.html">Please check here for more details</a></p>
 <h3 id="2-cli-options"><a class="header" href="#2-cli-options">2. CLI options</a></h3>
 <p>You can only configure the primary database connection through CLI options. <a href="api/./1.1.cli-options.html">Please check here for more details</a></p>
 <h3 id="3-environment-variables"><a class="header" href="#3-environment-variables">3. Environment variables</a></h3>
 <p>You can only configure the primary database connection through environment variables. <a href="api/./1.2.environment-variables.html">Please check here for more details</a></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="file-base-configuration-for-connecting-to-multiple-db"><a class="header" href="#file-base-configuration-for-connecting-to-multiple-db">File Base Configuration for connecting to Multiple DB</a></h1>
-<p>If you have a project that you need requires connections to multiple databases, you can support 
+<p>If you have a project that you need requires connections to multiple databases, you can support
 that by using file based configuration.</p>
-<p>By default, configuration file is named <code>.sqlxrc.json</code> and sqlx-ts will try to find a file with 
+<p>By default, configuration file is named <code>.sqlxrc.json</code> and sqlx-ts will try to find a file with
 this name, unless you give it a custom path to override it using <code>--config</code> CLI option.</p>
 <pre><code class="language-bash">$ sqlx-ts --config &lt;path to a custom .sqlxrc.json&gt;
 </code></pre>
 <p>Example <code>sqlxrc.json</code></p>
 <pre><code class="language-json">{
-  &quot;generate_types&quot;: {
-    &quot;enabled&quot;: true,
-    &quot;convertToCamelCaseColumnName&quot;: true
+  "generate_types": {
+    "enabled": true,
+    "convertToCamelCaseColumnName": true
   },
-  &quot;connections&quot;: {
-    &quot;default&quot;: {
-      &quot;DB_TYPE&quot;: &quot;mysql&quot;,
-      &quot;DB_USER&quot;: &quot;root&quot;,
-      &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
-      &quot;DB_PORT&quot;: 3306
+  "connections": {
+    "default": {
+      "DB_TYPE": "mysql",
+      "DB_USER": "root",
+      "DB_HOST": "127.0.0.1",
+      "DB_PORT": 3306
     },
-    &quot;postgres&quot;: {
-      &quot;DB_TYPE&quot;: &quot;postgres&quot;,
-      &quot;DB_USER&quot;: &quot;postgres&quot;,
-      &quot;DB_PASS&quot;: &quot;postgres&quot;,
-      &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
-      &quot;DB_PORT&quot;: 4321,
-      &quot;PG_SEARCH_PATH&quot;: &quot;public,myschema&quot;
+    "postgres": {
+      "DB_TYPE": "postgres",
+      "DB_USER": "postgres",
+      "DB_PASS": "postgres",
+      "DB_HOST": "127.0.0.1",
+      "DB_PORT": 4321,
+      "PG_SEARCH_PATH": "public,myschema"
     },
-    &quot;some_other_db&quot;: {
-      &quot;DB_TYPE&quot;: &quot;mysql&quot;,
-      &quot;DB_USER&quot;: &quot;app_user&quot;,
-      &quot;DB_PASS&quot;: &quot;password&quot;,
-      &quot;DB_HOST&quot;: &quot;127.0.0.1&quot;,
-      &quot;DB_PORT&quot;: 3307
+    "some_other_db": {
+      "DB_TYPE": "mysql",
+      "DB_USER": "app_user",
+      "DB_PASS": "password",
+      "DB_HOST": "127.0.0.1",
+      "DB_PORT": 3307
     }
   }
 }
 </code></pre>
-<h3 id="required-connections"><a class="header" href="#required-connections">(required) &quot;connections&quot;</a></h3>
-<p>For default database, you must call it <code>default</code> like example above. Any extra DB connections 
+<h3 id="required-connections"><a class="header" href="#required-connections">(required) "connections"</a></h3>
+<p>For default database, you must call it <code>default</code> like example above. Any extra DB connections
 should have its own unique name such as <code>postgres</code> or <code>some_other_db</code></p>
-<p>Along with the configuration above, when writing SQLs in your codebase, you need to provide 
+<p>Along with the configuration above, when writing SQLs in your codebase, you need to provide
 supportive comment in your raw SQL, indicate which database the query should point.</p>
 <p>For example,</p>
 <pre><code class="language-typescript">import { sql } from 'sqlx-ts'
@@ -400,15 +400,15 @@ const postgresSQL = sql`
 <li><code>DB_PASS</code>: database password</li>
 <li><code>DB_HOST</code>: database host (e.g. 127.0.0.1)</li>
 <li><code>DB_PORT</code>: database port (e.g. 4321)</li>
-<li><code>PG_SEARCH_PATH</code>: PostgreSQL schema search path (default is &quot;$user,public&quot;) <a href="https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH">https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH</a></li>
+<li><code>PG_SEARCH_PATH</code>: PostgreSQL schema search path (default is "$user,public") <a href="https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH">https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH</a></li>
 </ul>
 <h3 id="generate_types"><a class="header" href="#generate_types">generate_types</a></h3>
 <pre><code class="language-json">{
-  &quot;generateTypes: {
+  "generateTypes: {
     enabled: true|false,
     convertToCamelCaseColumnName: true|false
   },
-  &quot;connections&quot;: {
+  "connections": {
     ...
   }
 }
@@ -430,7 +430,7 @@ const postgresSQL = sql`
 <tr><td>DB_TYPE</td><td>Type of primary database to connect [default: postgres] [possible values: postgres, mysql]</td></tr>
 <tr><td>DB_USER</td><td>Primary DB user name</td></tr>
 <tr><td>DB_NAME</td><td>Primary DB name</td></tr>
-<tr><td>PG_SEARCH_PATH</td><td>PostgreSQL schema search path (default is &quot;$user,public&quot;) <a href="https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH">https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH</a></td></tr>
+<tr><td>PG_SEARCH_PATH</td><td>PostgreSQL schema search path (default is "$user,public") <a href="https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH">https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH</a></td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="sqlxignore"><a class="header" href="#sqlxignore">.sqlxignore</a></h1>
 <p>you can use <code>.sqlxignore</code> file in order to ignore certain files from being processed.</p>
@@ -445,9 +445,9 @@ const postgresSQL = sql`
 <li>The second one ignores all files that has <code>.something.</code> as part of the file path / name</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="sql-check"><a class="header" href="#sql-check">SQL Check</a></h1>
-<p>Checking SQL is the core functionality of sqlx-ts. It is the default command when you run 
+<p>Checking SQL is the core functionality of sqlx-ts. It is the default command when you run
 <code>sqlx-ts</code> binary as well.</p>
-<p>By default, you pass in connection options to connect to the primary database. You can configure how 
+<p>By default, you pass in connection options to connect to the primary database. You can configure how
 sqlx-ts figures out database connection configurations by checking out the <a href="reference-guide/../guides/2.configuration.html">configuration page</a></p>
 <h2 id="running-sqlx-ts-to-check-sqls"><a class="header" href="#running-sqlx-ts-to-check-sqls">Running sqlx-ts to check SQLs</a></h2>
 <pre><code class="language-bash">sqlx-ts &lt;path-to-node-project&gt; \
@@ -507,7 +507,7 @@ export interface ISimpleQueryQuery{
     result: ISimpleQueryResult;
 }
 </code></pre>
-<p>sqlx-ts will pick up name of the variable and use it when generating the type definitions. You can override 
+<p>sqlx-ts will pick up name of the variable and use it when generating the type definitions. You can override
 the type name by setting the <code>@name</code> annotation, you can read more in the section <a href="reference-guide/4.typescript-types-generation.html#annotations">below</a>.</p>
 <h2 id="configuration-1"><a class="header" href="#configuration-1">Configuration</a></h2>
 <p>You can configure type generation in <code>.sqlxrc.json</code>; available configurations:</p>
@@ -520,7 +520,7 @@ We need configurations for following:</p>
 <h2 id="qa"><a class="header" href="#qa">Q/A</a></h2>
 <h5 id="why-doesnt-sqlx-support-named-parameterised-queries-eg-select--from-items-where-point--point"><a class="header" href="#why-doesnt-sqlx-support-named-parameterised-queries-eg-select--from-items-where-point--point">Why doesn't SQLx support named parameterised queries? <code>e.g. SELECT * FROM items WHERE point = :point</code></a></h5>
 <p>We believe that there is no official way in Typescript to ensure the value level type-safety yet and providing named parameter does not guarantee
-the true type safetiness that we are trying to achieve. Furthermore, name parameter is not the syntax supported by native database drivers, but 
+the true type safetiness that we are trying to achieve. Furthermore, name parameter is not the syntax supported by native database drivers, but
 they are an additional syntax supported by popular ORM libraries such as Sequelize.</p>
 <p>The closest type safety that exists in TypeScript world is by emulating Opaque type e.g. https://github.com/sindresorhus/type-fest/blob/main/source/opaque.d.ts.
 In the future, sqlx-ts will support Opaque type overrides natively to solve this matter.</p>
@@ -763,7 +763,7 @@ to override the result to a type that you anticipate.</p>
 -- @result points: number | null
 SELECT
     id,
-    JSON_EXTRACT(items.c, &quot;$.points&quot;) as points
+    JSON_EXTRACT(items.c, "$.points") as points
 FROM items
 `
 </code></pre>
@@ -787,7 +787,7 @@ Based on this, we can exhaustively handle all SQL syntax and narrow down the pat
 If you ever use following SQL syntax, it is encouraged to override the type using @result annotation.</p>
 </blockquote>
 <h2 id="overriding-params"><a class="header" href="#overriding-params">Overriding params</a></h2>
-<p>Overriding generated type for a param works by adding an annotation <code>-- @param &lt;index&gt;: type</code>. </p>
+<p>Overriding generated type for a param works by adding an annotation <code>-- @param &lt;index&gt;: type</code>.</p>
 <ul>
 <li><code>index</code> is the position of the query parameter within your SQL</li>
 <li>type is the type to override</li>

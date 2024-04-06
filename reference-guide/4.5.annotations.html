@@ -213,7 +213,7 @@ to override the result to a type that you anticipate.</p>
 -- @result points: number | null
 SELECT
     id,
-    JSON_EXTRACT(items.c, &quot;$.points&quot;) as points
+    JSON_EXTRACT(items.c, "$.points") as points
 FROM items
 `
 </code></pre>
@@ -237,7 +237,7 @@ Based on this, we can exhaustively handle all SQL syntax and narrow down the pat
 If you ever use following SQL syntax, it is encouraged to override the type using @result annotation.</p>
 </blockquote>
 <h2 id="overriding-params"><a class="header" href="#overriding-params">Overriding params</a></h2>
-<p>Overriding generated type for a param works by adding an annotation <code>-- @param &lt;index&gt;: type</code>. </p>
+<p>Overriding generated type for a param works by adding an annotation <code>-- @param &lt;index&gt;: type</code>.</p>
 <ul>
 <li><code>index</code> is the position of the query parameter within your SQL</li>
 <li>type is the type to override</li>
