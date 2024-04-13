@@ -1,4 +1,8 @@
 {
+  "generateTypes": {
+    "convertToCamelCaseColumnName": true,
+    "generatePath": "tests/staging/hmm.ts"
+  },
   "connections": {
     "default": {
       "DB_TYPE": "postgres",

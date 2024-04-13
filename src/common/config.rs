@@ -14,6 +14,7 @@ use std::str::FromStr;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct SqlxConfig {
     pub log_level: Option<LogLevel>,
+    #[serde(rename = "generateTypes")]
     pub generate_types: Option<GenerateTypesConfig>,
     pub connections: HashMap<String, DbConnectionConfig>,
 }
@@ -24,8 +25,9 @@ pub const fn default_bool<const V: bool>() -> bool {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct GenerateTypesConfig {
+    #[serde(default = "default_bool::<false>")]
     pub enabled: bool,
-    #[serde(rename = "convertToCamelCaseColumnName", default = "default_bool::<true>")]
+    #[serde(rename = "convertToCamelCaseColumnName", default = "default_bool::<false>")]
     pub convert_to_camel_case_column_name: bool,
     pub generate_path: Option<PathBuf>,
 }
@@ -117,8 +119,6 @@ impl Config {
             convert_to_camel_case_column_name: false,
             generate_path: CLI_ARGS.generate_path.to_owned(),
         };
-
-        println!("checking generate path {:?}", CLI_ARGS.generate_path.to_owned());
 
         if let Ok(file_based_config) = &file_based_config {
             if let Some(generate_types) = &file_based_config.generate_types {
