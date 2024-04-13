@@ -114,9 +114,11 @@ impl Config {
 
         let cli_default = GenerateTypesConfig {
             enabled: CLI_ARGS.generate_types,
-            convert_to_camel_case_column_name: true,
+            convert_to_camel_case_column_name: false,
             generate_path: CLI_ARGS.generate_path.to_owned(),
         };
+
+        println!("checking generate path {:?}", CLI_ARGS.generate_path.to_owned());
 
         if let Ok(file_based_config) = &file_based_config {
             if let Some(generate_types) = &file_based_config.generate_types {
