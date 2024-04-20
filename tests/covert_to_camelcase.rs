@@ -14,7 +14,7 @@ mod string_functions_tests {
     use test_utils::{run_test, sandbox::TestConfig};
 
     #[rustfmt::skip]
-run_test!(retain_original, TestConfig::new("postgres"),
+run_test!(retain_original, TestConfig::new("postgres", None),
 //// TS query ////
 r#"
 const someQuery = sql`
@@ -44,7 +44,7 @@ export interface ISomeQueryQuery {
 );
 
     #[rustfmt::skip]
-run_test!(camelcase, TestConfig::new("postgres"),
+run_test!(camelcase, TestConfig::new("postgres", None),
 
 //// TS query ////
 r#"

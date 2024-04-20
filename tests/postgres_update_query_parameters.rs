@@ -12,7 +12,7 @@ mod postgres_update_query_parameters {
     use test_utils::{run_test, sandbox::TestConfig};
 
     #[rustfmt::skip]
-run_test!(should_pick_query_params_from_single_row_of_values, TestConfig::new("postgres"),
+run_test!(should_pick_query_params_from_single_row_of_values, TestConfig::new("postgres", None),
 
 //// TS query ////
 r#"

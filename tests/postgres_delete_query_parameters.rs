@@ -12,7 +12,7 @@ mod mysql_delete_query_parameters {
     use test_utils::{run_test, sandbox::TestConfig};
 
     #[rustfmt::skip]
-run_test!(should_pick_query_params_from_binary_ops, TestConfig::new("postgres"),
+run_test!(should_pick_query_params_from_binary_ops, TestConfig::new("postgres", None),
 
 //// TS query ////
 r#"
@@ -39,7 +39,7 @@ export interface ISomeDeleteQueryQuery {
 "#);
 
     #[rustfmt::skip]
-run_test!(should_pick_query_params_from_subquery, TestConfig::new("postgres"),
+run_test!(should_pick_query_params_from_subquery, TestConfig::new("postgres", None),
 
 //// TS query ////
 r#"

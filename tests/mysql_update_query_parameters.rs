@@ -12,7 +12,7 @@ mod mysql_update_query_parameters {
     use test_utils::{run_test, sandbox::TestConfig};
 
     #[rustfmt::skip]
-run_test!(should_pick_query_params_from_single_row_of_values, TestConfig::new("mysql"),
+run_test!(should_pick_query_params_from_single_row_of_values, TestConfig::new("mysql", None),
 
 //// TS query ////
 r#"
@@ -39,7 +39,7 @@ export interface ISomeUpdateQueryQuery {
 "#);
 
     #[rustfmt::skip]
-run_test!(should_pick_query_params_from_multiple_rows_of_values, TestConfig::new("mysql"),
+run_test!(should_pick_query_params_from_multiple_rows_of_values, TestConfig::new("mysql", None),
 
 //// TS query ////
 r#"

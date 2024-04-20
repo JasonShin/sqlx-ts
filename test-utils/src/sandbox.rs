@@ -49,7 +49,7 @@ pub struct TestConfig {
 }
 
 impl TestConfig {
-    pub fn new(db_type: &str) -> Self {
+    pub fn new(db_type: &str, config_file: Option<SqlxConfig>) -> Self {
         if db_type == "mysql" {
             return TestConfig {
                 db_type: "mysql".into(),
@@ -59,7 +59,7 @@ impl TestConfig {
                 db_user: "root".to_string(),
                 db_pass: None,
                 db_name: "sqlx-ts".to_string(),
-                config_file: None,
+                config_file,
             }
         }
         TestConfig {
@@ -70,7 +70,7 @@ impl TestConfig {
             db_user: "postgres".to_string(),
             db_pass: Some("postgres".to_string()),
             db_name: "postgres".to_string(),
-            config_file: None,
+            config_file,
         }
     }
 
@@ -134,7 +134,11 @@ $(
       let file_path = parent_path.join(format!("index.{js_extension}"));
 
       let mut temp_file = fs::File::create(&file_path)?;
-      println!("checking file path in sandbox {:?}", &file_path);
+      if &test_config.config_file.is_some() == &true {
+        println!("checking file path in sandbox {:?}", &test_config.config_file);
+      } else {
+        println!("config file is none");
+      }
       writeln!(temp_file, "{}", ts_content)?;
       let file_result = fs::read_to_string(&file_path)?;
       
