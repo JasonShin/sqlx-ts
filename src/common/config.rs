@@ -27,6 +27,7 @@ pub const fn default_bool<const V: bool>() -> bool {
 pub struct GenerateTypesConfig {
     #[serde(default = "default_bool::<false>")]
     pub enabled: bool,
+    #[deprecated]
     #[serde(rename = "convertToCamelCaseColumnName", default = "default_bool::<false>")]
     pub convert_to_camel_case_column_name: bool,
     pub generate_path: Option<PathBuf>,

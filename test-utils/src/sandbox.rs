@@ -1,3 +1,41 @@
+use serde;
+use std::collections::HashMap;
+use std::path::PathBuf;
+use serde::{Deserialize, Serialize};
+
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SqlxConfig {
+    pub generate_types: Option<GenerateTypesConfig>,
+    pub connections: HashMap<String, DbConnectionConfig>
+}
+
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct GenerateTypesConfig {
+    pub enabled: bool,
+    pub convert_to_camel_case_column_names: bool,
+    pub generate_path: Option<PathBuf>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum DatabaseType {
+    Postgres,
+    Mysql,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct DbConnectionConfig {
+    pub db_type: String,
+    pub db_host: String,
+    pub db_port: u16,
+    pub db_user: String,
+    pub db_pass: Option<String>,
+    pub db_name: Option<String>,
+    pub pg_search_path: Option<String>,
+}
+
 #[derive(Clone, Debug)]
 pub struct TestConfig {
     pub db_type: String,
@@ -7,6 +45,7 @@ pub struct TestConfig {
     pub db_user: String,
     pub db_pass: Option<String>,
     pub db_name: String,
+    pub config_file: Option<SqlxConfig>,
 }
 
 impl TestConfig {
@@ -20,6 +59,7 @@ impl TestConfig {
                 db_user: "root".to_string(),
                 db_pass: None,
                 db_name: "sqlx-ts".to_string(),
+                config_file: None,
             }
         }
         TestConfig {
@@ -30,6 +70,7 @@ impl TestConfig {
             db_user: "postgres".to_string(),
             db_pass: Some("postgres".to_string()),
             db_name: "postgres".to_string(),
+            config_file: None,
         }
     }
 
@@ -93,6 +134,7 @@ $(
       let file_path = parent_path.join(format!("index.{js_extension}"));
 
       let mut temp_file = fs::File::create(&file_path)?;
+      println!("checking file path in sandbox {:?}", &file_path);
       writeln!(temp_file, "{}", ts_content)?;
       let file_result = fs::read_to_string(&file_path)?;
       

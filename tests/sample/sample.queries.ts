@@ -5,7 +5,7 @@ export type SampleSelectQueryParams = [number];
 
 export interface ISampleSelectQueryResult {
     points: number;
-	someId: number;
+	some_id: number;
 };
 
 

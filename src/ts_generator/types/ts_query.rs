@@ -165,7 +165,6 @@ impl TsQuery {
             .to_owned()
             .map(|x| x.convert_to_camel_case_column_name);
 
-        println!("convert to camel case format column name {:?}", convert_to_camel_case_column_name);
         match convert_to_camel_case_column_name {
             Some(true) => column_name.to_case(Case::Camel),
             Some(false) | None => column_name.to_string(),
@@ -185,7 +184,6 @@ impl TsQuery {
             if let Some(alias) = alias {
                 let temp_alias = alias.clone();
                 let alias = &self.format_column_name(alias);
-                println!("checking alias {:?}", alias);
                 let value = &self
                     .annotated_results
                     .get(temp_alias)

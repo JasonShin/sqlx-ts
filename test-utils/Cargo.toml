@@ -12,5 +12,7 @@ categories = ["command-line-utilities"]
 documentation = "https://jasonshin.github.io/sqlx-ts/"
 
 [dependencies]
+serde = { version = "1.0.188", features = ["derive"] }
+serde_json = { version = "1.0.107" }
 regex = { version = "1.5" }
 tempfile = "3.3.0"
