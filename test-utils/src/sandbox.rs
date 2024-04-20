@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct SqlxConfig {
+pub struct SqlxConfigFile {
     pub generate_types: Option<GenerateTypesConfig>,
     pub connections: HashMap<String, DbConnectionConfig>
 }
@@ -134,11 +134,6 @@ $(
       let file_path = parent_path.join(format!("index.{js_extension}"));
 
       let mut temp_file = fs::File::create(&file_path)?;
-      if &test_config.config_file.is_some() == &true {
-        println!("checking file path in sandbox {:?}", &test_config.config_file);
-      } else {
-        println!("config file is none");
-      }
       writeln!(temp_file, "{}", ts_content)?;
       let file_result = fs::read_to_string(&file_path)?;
       
@@ -157,6 +152,15 @@ $(
       if (db_pass.is_some()) {
         let db_pass = db_pass.unwrap();
         cmd.arg(format!("--db-pass={db_pass}"));
+      }
+
+      if &test_config.config_file.is_some() == &true {
+        let config_file = test_config.config_file.unwrap();
+        let config_file_path = parent_path.join("sqlx-ts.json");
+        let mut config_file = fs::File::create(&config_file_path)?;
+        let config_file_content = serde_json::to_string(&config_file)?;
+        writeln!(config_file, "{}", config_file_content)?;
+        cmd.arg(format!("--config={config_file_path}"));
       }
 
       cmd.assert()

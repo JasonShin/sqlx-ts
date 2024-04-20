@@ -11,10 +11,15 @@ mod string_functions_tests {
 
     use pretty_assertions::assert_eq;
     use test_utils::test_utils::TSString;
-    use test_utils::{run_test, sandbox::TestConfig};
+    use test_utils::{run_test, sandbox::{TestConfig, SqlxConfig}};
 
     #[rustfmt::skip]
-run_test!(retain_original, TestConfig::new("postgres", None),
+run_test!(retain_original, TestConfig::new("postgres", SqlxConfig {
+    generate_types: {
+        convert_to_camel_case: false,
+    },
+    connections: HashMap::new(),
+}),
 //// TS query ////
 r#"
 const someQuery = sql`
