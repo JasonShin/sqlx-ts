@@ -8,18 +8,21 @@ mod string_functions_tests {
     use std::io::Write;
     use std::process::Command;
     use tempfile::tempdir;
+    use std::collections::HashMap;
 
     use pretty_assertions::assert_eq;
     use test_utils::test_utils::TSString;
-    use test_utils::{run_test, sandbox::{TestConfig, SqlxConfig}};
+    use test_utils::{run_test, sandbox::{TestConfig, SqlxConfigFile, GenerateTypesConfig}};
 
     #[rustfmt::skip]
-run_test!(retain_original, TestConfig::new("postgres", SqlxConfig {
-    generate_types: {
-        convert_to_camel_case: false,
-    },
+run_test!(retain_original, TestConfig::new("postgres", Some(SqlxConfigFile {
+    generate_types: Some(GenerateTypesConfig {
+        enabled: true,
+        convert_to_camel_case_column_names: false,
+        generate_path: None,
+    }),
     connections: HashMap::new(),
-}),
+})),
 //// TS query ////
 r#"
 const someQuery = sql`

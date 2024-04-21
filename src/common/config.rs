@@ -77,7 +77,6 @@ impl Config {
             generate_types_config.and_then(|config| if config.enabled { Some(config) } else { None });
         let ignore_patterns = Self::get_ignore_patterns(&default_ignore_config_path);
         let log_level = Self::get_log_level(file_config_path);
-
         Config {
             dotenv,
             connections,

@@ -45,11 +45,11 @@ pub struct TestConfig {
     pub db_user: String,
     pub db_pass: Option<String>,
     pub db_name: String,
-    pub config_file: Option<SqlxConfig>,
+    pub config_file: Option<SqlxConfigFile>,
 }
 
 impl TestConfig {
-    pub fn new(db_type: &str, config_file: Option<SqlxConfig>) -> Self {
+    pub fn new(db_type: &str, config_file: Option<SqlxConfigFile>) -> Self {
         if db_type == "mysql" {
             return TestConfig {
                 db_type: "mysql".into(),
