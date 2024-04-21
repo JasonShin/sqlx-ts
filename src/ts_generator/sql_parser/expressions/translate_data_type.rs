@@ -64,6 +64,7 @@ pub fn translate_data_type(data_type: &DataType) -> TsFieldType {
         DataType::Timestamp(_, _) => TsFieldType::String,
         DataType::Interval => TsFieldType::Any,
         DataType::JSON => TsFieldType::Object,
+        DataType::JSONB => TsFieldType::Object,
         DataType::Regclass => TsFieldType::String,
         DataType::Text => TsFieldType::String,
         DataType::String(_) => TsFieldType::String,
@@ -93,5 +94,6 @@ pub fn translate_data_type(data_type: &DataType) -> TsFieldType {
         DataType::Float8 => TsFieldType::Number,
         DataType::Bool => TsFieldType::Boolean,
         DataType::Struct(_) => TsFieldType::Object,
+        DataType::Unspecified => TsFieldType::Any,
     }
 }
