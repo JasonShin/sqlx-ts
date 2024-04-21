@@ -1,6 +1,8 @@
 use crate::common::SQL;
 use swc_common::MultiSpan;
-use swc_ecma_ast::{BlockStmt, ClassMember, Expr, OptChainBase, Pat, Prop, PropOrSpread, SuperProp, VarDeclarator};
+use swc_ecma_ast::{
+    AssignTarget, BlockStmt, ClassMember, Expr, OptChainBase, Pat, Prop, PropOrSpread, SuperProp, VarDeclarator,
+};
 
 use super::{get_var_decl_name_from_key, recurse_and_find_sql};
 
@@ -144,11 +146,15 @@ pub fn get_sql_from_expr(
         Expr::Assign(assign) => {
             let right_expr = &assign.right;
             get_sql_from_expr(sqls, var_decl_name, right_expr, span, import_alias);
+            /*
+            We will be ignore processing assign.left. The patterns include
 
-            let left_expr = &assign.left;
-            left_expr
-                .as_expr()
-                .map(|expr| get_sql_from_expr(sqls, var_decl_name, expr, span, import_alias));
+                const left = sql``
+                const [a, b, c] = sql``
+                const { a, b } = sql``
+
+            None of these `left` pattern can possibly include a valid `sql` templated strings
+            */
         }
         Expr::Member(member) => {
             let obj = &member.obj;

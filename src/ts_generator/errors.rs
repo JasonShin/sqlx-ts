@@ -25,6 +25,8 @@ pub enum TsGeneratorError {
     FunctionUnknown(String),
     #[error("[E011] table name was not found while processing an identifier - query: `{0}`")]
     IndentifierWithoutTable(String),
+    #[error("[E012] Failed to handle a from statement without the `FROM` keyword - query: `{0}`")]
+    FromWithoutKeyword(String),
     #[error("Unknown error: `{0}`")]
     Unknown(String),
 }
