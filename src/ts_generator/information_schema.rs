@@ -88,7 +88,7 @@ impl DBSchema {
         );
 
         let mut fields: HashMap<String, Field> = HashMap::new();
-        
+
         let conn = conn.lock().await;
         let conn = conn.get().await.unwrap();
         let result = conn.query(&query, &[]).await;

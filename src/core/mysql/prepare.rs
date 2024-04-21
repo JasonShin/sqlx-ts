@@ -18,7 +18,6 @@ pub async fn prepare(
 ) -> Result<(bool, Option<TsQuery>)> {
     let mut failed = false;
 
-
     let conn = match &db_conn {
         DBConn::MySQLPooledConn(conn) => conn,
         _ => panic!("Invalid connection type"),

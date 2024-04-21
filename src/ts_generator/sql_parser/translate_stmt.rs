@@ -7,7 +7,7 @@ use crate::ts_generator::sql_parser::translate_query::translate_query;
 use crate::ts_generator::sql_parser::translate_update::translate_update;
 use crate::ts_generator::types::ts_query::TsQuery;
 
-use sqlparser::ast::{Statement, FromTable};
+use sqlparser::ast::{FromTable, Statement};
 
 use super::expressions::translate_table_with_joins::get_default_table;
 
@@ -52,17 +52,15 @@ pub async fn translate_stmt(
             from,
             order_by: _,
             limit: _,
-        } => {
-            match &from {
-                FromTable::WithFromKeyword(from) => {
-                    let table_name = get_default_table(from);
-                    let table_name = table_name.as_str();
-                    let selection = selection.to_owned().unwrap();
-                    translate_delete(ts_query, &selection, table_name, db_conn).await?;
-                },
-                FromTable::WithoutKeyword(_) => Err(TsGeneratorError::FromWithoutKeyword(sql_statement.to_string())),
+        } => match &from {
+            FromTable::WithFromKeyword(from) => {
+                let table_name = get_default_table(from);
+                let table_name = table_name.as_str();
+                let selection = selection.to_owned().unwrap();
+                translate_delete(ts_query, &selection, table_name, db_conn).await?;
             }
-        }
+            FromTable::WithoutKeyword(_) => Err(TsGeneratorError::FromWithoutKeyword(sql_statement.to_string()))?,
+        },
         Statement::Update {
             table,
             assignments,
