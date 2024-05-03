@@ -19,7 +19,6 @@ run_test!(retain_original, TestConfig::new("postgres", Some(SqlxConfigFile {
     generate_types: Some(GenerateTypesConfig {
         enabled: true,
         convert_to_camel_case_column_names: false,
-        generate_path: None,
     }),
     connections: HashMap::new(),
 })),

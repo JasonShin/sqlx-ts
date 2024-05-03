@@ -1,6 +1,5 @@
 use serde;
 use std::collections::HashMap;
-use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 
 
@@ -15,7 +14,6 @@ pub struct SqlxConfigFile {
 pub struct GenerateTypesConfig {
     pub enabled: bool,
     pub convert_to_camel_case_column_names: bool,
-    pub generate_path: Option<PathBuf>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -157,9 +155,10 @@ $(
       if &test_config.config_file.is_some() == &true {
         let config_file = test_config.config_file.unwrap();
         let config_file_path = parent_path.join("sqlx-ts.json");
-        let mut config_file = fs::File::create(&config_file_path)?;
         let config_file_content = serde_json::to_string(&config_file)?;
-        writeln!(config_file, "{}", config_file_content)?;
+        let mut config_file_to_write = fs::File::create(&config_file_path)?;
+        config_file_to_write.write(config_file_content.as_bytes())?;
+        let config_file_path = format!("{:?}", config_file_path.to_str().unwrap());
         cmd.arg(format!("--config={config_file_path}"));
       }
 
