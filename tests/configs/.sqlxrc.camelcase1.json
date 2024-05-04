@@ -1,6 +1,6 @@
 {
   "generateTypes": {
-    "convertToCamelCaseColumnName": true
+    "convertToCamelCaseColumnName": false
   },
   "connections": {
     "default": {

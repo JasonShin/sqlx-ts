@@ -2,6 +2,7 @@
 mod string_functions_tests {
     use assert_cmd::prelude::*;
     use predicates::prelude::*;
+    use std::env;
     use std::fs;
     use std::io::Write;
     use std::process::Command;
@@ -12,7 +13,7 @@ mod string_functions_tests {
     use test_utils::{run_test, sandbox::TestConfig};
 
     #[rustfmt::skip]
-run_test!(overlay, TestConfig::new("postgres"),
+run_test!(overlay, TestConfig::new("postgres", None),
 
 //// TS query ////
 r#"
@@ -39,7 +40,7 @@ export interface ISomeQueryQuery {
 );
 
     #[rustfmt::skip]
-run_test!(trim, TestConfig::new("postgres"),
+run_test!(trim, TestConfig::new("postgres", None),
 
 //// TS query ////
 "const someQuery = sql`SELECT TRIM($1) AS test FROM items;`",
@@ -60,7 +61,7 @@ export interface ISomeQueryQuery {
 );
 
     #[rustfmt::skip]
-run_test!(substring, TestConfig::new("postgres"),
+run_test!(substring, TestConfig::new("postgres", None),
 
 //// TS query ////"
 "const someQuery = sql`SELECT SUBSTRING($1, 5, 6) AS ExtractString FROM items;`",
@@ -70,7 +71,7 @@ r#"
 export type SomeQueryParams = [string];
 
 export interface ISomeQueryResult {
-    extractString: string;
+    ExtractString: string;
 };
 
 export interface ISomeQueryQuery {
@@ -81,7 +82,7 @@ export interface ISomeQueryQuery {
 );
 
     #[rustfmt::skip]
-run_test!(like, TestConfig::new("postgres"),
+run_test!(like, TestConfig::new("postgres", None),
 
 //// TS query ////"
 "const someQuery = sql`SELECT id FROM items WHERE food_type LIKE $1;`",

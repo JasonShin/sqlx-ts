@@ -1,7 +1,4 @@
 {
-  "generateTypes": {
-    "convertToCamelCaseColumnName": true
-  },
   "connections": {
     "default": {
       "DB_TYPE": "postgres",

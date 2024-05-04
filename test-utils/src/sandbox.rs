@@ -1,3 +1,17 @@
+use serde;
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct DbConnectionConfig {
+    pub db_type: String,
+    pub db_host: String,
+    pub db_port: u16,
+    pub db_user: String,
+    pub db_pass: Option<String>,
+    pub db_name: Option<String>,
+    pub pg_search_path: Option<String>,
+}
+
 #[derive(Clone, Debug)]
 pub struct TestConfig {
     pub db_type: String,
@@ -7,10 +21,11 @@ pub struct TestConfig {
     pub db_user: String,
     pub db_pass: Option<String>,
     pub db_name: String,
+    pub config_file_name: Option<String>,
 }
 
 impl TestConfig {
-    pub fn new(db_type: &str) -> Self {
+    pub fn new(db_type: &str, config_file_name: Option<String>) -> Self {
         if db_type == "mysql" {
             return TestConfig {
                 db_type: "mysql".into(),
@@ -20,6 +35,7 @@ impl TestConfig {
                 db_user: "root".to_string(),
                 db_pass: None,
                 db_name: "sqlx-ts".to_string(),
+                config_file_name,
             }
         }
         TestConfig {
@@ -30,6 +46,7 @@ impl TestConfig {
             db_user: "postgres".to_string(),
             db_pass: Some("postgres".to_string()),
             db_name: "postgres".to_string(),
+            config_file_name,
         }
     }
 
@@ -86,6 +103,7 @@ $(
       let db_user = test_config.db_user;
       let db_pass = test_config.db_pass;
       let db_name = test_config.db_name;
+      let config_file_name = test_config.config_file_name;
       
       // SETUP
       let dir = tempdir()?;
@@ -107,6 +125,14 @@ $(
           .arg(format!("--db-user={db_user}"))
           .arg(format!("--db-name={db_name}"))
           .arg("-g");
+
+      if (config_file_name.is_some()) {
+        let cwd = env::current_dir()?;
+        let config_file_name = format!("{}", config_file_name.unwrap());
+        let config_path = cwd.join(format!("tests/configs/{config_file_name}"));
+        let config_path = config_path.display();
+        cmd.arg(format!("--config={config_path}"));
+      }
 
       if (db_pass.is_some()) {
         let db_pass = db_pass.unwrap();

@@ -3,6 +3,7 @@ mod mysql_insert_query_parameters {
     use assert_cmd::prelude::*;
     use predicates::prelude::*;
     use pretty_assertions::assert_eq;
+    use std::env;
     use std::fs;
     use std::io::Write;
     use std::process::Command;
@@ -12,7 +13,7 @@ mod mysql_insert_query_parameters {
     use test_utils::{run_test, sandbox::TestConfig};
 
     #[rustfmt::skip]
-run_test!(should_pick_query_params_from_single_row_of_values, TestConfig::new("mysql"),
+run_test!(should_pick_query_params_from_single_row_of_values, TestConfig::new("mysql", None),
 
 //// TS query ////
 r#"
@@ -38,7 +39,7 @@ export interface ISomeInputQueryQuery {
 "#);
 
     #[rustfmt::skip]
-run_test!(should_pick_query_params_from_multiple_rows_of_values, TestConfig::new("mysql"),
+run_test!(should_pick_query_params_from_multiple_rows_of_values, TestConfig::new("mysql", None),
 
 //// TS query ////
 r#"

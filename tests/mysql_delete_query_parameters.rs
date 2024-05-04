@@ -3,6 +3,7 @@ mod mysql_delete_query_parameters {
     use assert_cmd::prelude::*;
     use predicates::prelude::*;
     use pretty_assertions::assert_eq;
+    use std::env;
     use std::fs;
     use std::io::Write;
     use std::process::Command;
@@ -12,7 +13,7 @@ mod mysql_delete_query_parameters {
     use test_utils::{run_test, sandbox::TestConfig};
 
     #[rustfmt::skip]
-run_test!(should_pick_query_params_from_binary_ops, TestConfig::new("mysql"),
+run_test!(should_pick_query_params_from_binary_ops, TestConfig::new("mysql", None),
 
 //// TS query ////
 r#"
@@ -39,7 +40,7 @@ export interface ISomeDeleteQueryQuery {
 "#);
 
     #[rustfmt::skip]
-run_test!(should_pick_query_params_from_subquery, TestConfig::new("mysql"),
+run_test!(should_pick_query_params_from_subquery, TestConfig::new("mysql", None),
 
 //// TS query ////
 r#"
