@@ -1,12 +1,15 @@
+
 use crate::common::types::{DatabaseType, JsExtension, LogLevel};
+use std::fmt;
 use clap::Parser;
 
-impl ToString for JsExtension {
-    fn to_string(&self) -> String {
-        match self {
+impl fmt::Display for JsExtension {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let extension = match self {
             JsExtension::Ts => ".ts".to_string(),
             JsExtension::Js => ".js".to_string(),
-        }
+        };
+        write!(f, "{}", extension)
     }
 }
 
