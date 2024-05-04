@@ -47,15 +47,15 @@ export interface ISomeQueryQuery {
 );
 
     #[rustfmt::skip]
-run_test!(camelcase, TestConfig::new("postgres", None),
+run_test!(convert_camelcase, TestConfig::new("postgres", Some(".sqlxrc.camelcase2.json".to_string())),
 
 //// TS query ////
 r#"
 const someQuery = sql`
 SELECT
-    id AS hello_world1,
-    id AS helloWorld2,
-    id AS HelloWorld3
+    food_type,
+    id AS HelloWorld1,
+    id AS hello_world2
 FROM items;
 `
 "#,
@@ -65,9 +65,9 @@ r#"
 export type SomeQueryParams = [];
 
 export interface ISomeQueryResult {
+    foodType: string;
     helloWorld1: number;
     helloWorld2: number;
-    helloWorld3: number;
 };
 
 export interface ISomeQueryQuery {
