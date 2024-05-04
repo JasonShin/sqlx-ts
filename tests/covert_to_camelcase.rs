@@ -76,4 +76,36 @@ export interface ISomeQueryQuery {
 };
 "#
 );
+
+
+    #[rustfmt::skip]
+run_test!(retain_original_on_missing_config, TestConfig::new("postgres", Some(".sqlxrc.camelcase3.json".to_string())),
+
+//// TS query ////
+r#"
+const someQuery = sql`
+SELECT
+    food_type,
+    id AS HelloWorld1,
+    id AS hello_world2
+FROM items;
+`
+"#,
+
+//// Generated TS interfaces ////
+r#"
+export type SomeQueryParams = [];
+
+export interface ISomeQueryResult {
+    HelloWorld1: number;
+    food_type: string;
+    hello_world2: number;
+};
+
+export interface ISomeQueryQuery {
+    params: SomeQueryParams;
+    result: ISomeQueryResult;
+};
+"#
+);
 }

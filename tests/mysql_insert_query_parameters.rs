@@ -3,6 +3,7 @@ mod mysql_insert_query_parameters {
     use assert_cmd::prelude::*;
     use predicates::prelude::*;
     use pretty_assertions::assert_eq;
+    use std::env;
     use std::fs;
     use std::io::Write;
     use std::process::Command;
