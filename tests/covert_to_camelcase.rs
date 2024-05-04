@@ -9,7 +9,7 @@ mod string_functions_tests {
     use std::io::Write;
     use std::process::Command;
     use tempfile::tempdir;
-    use std::collections::HashMap;
+    
 
     use pretty_assertions::assert_eq;
     use test_utils::test_utils::TSString;
