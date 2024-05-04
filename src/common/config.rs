@@ -120,7 +120,6 @@ impl Config {
             generate_path: CLI_ARGS.generate_path.to_owned(),
         };
 
-        println!("checking before generate types config from file based config");
         if let Ok(file_based_config) = &file_based_config {
             if let Some(generate_types) = &file_based_config.generate_types {
                 let generate_types = generate_types.clone();

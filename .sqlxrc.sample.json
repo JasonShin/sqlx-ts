@@ -1,7 +1,6 @@
 {
   "generateTypes": {
-    "convertToCamelCaseColumnName": true,
-    "generatePath": "tests/staging/hmm.ts"
+    "convertToCamelCaseColumnName": true
   },
   "connections": {
     "default": {
