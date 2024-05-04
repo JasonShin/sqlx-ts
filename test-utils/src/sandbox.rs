@@ -1,14 +1,5 @@
 use serde;
-use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
-
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum DatabaseType {
-    Postgres,
-    Mysql,
-}
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DbConnectionConfig {
