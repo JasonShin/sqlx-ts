@@ -12,7 +12,7 @@
 # API
 
 - [Connecting to databases](./api/1.connecting-to-db.md)
-  - [.sqlxrc file](./api/1.3.configs-file-based.md)
+  - [.sqlxrc.json file](./api/1.3.configs-file-based.md)
   - [CLI options](./api/1.1.cli-options.md)
   - [environment variables](./api/1.2.environment-variables.md)
 - [.sqlxignore file](./api/2.ignore-patterns.md)
