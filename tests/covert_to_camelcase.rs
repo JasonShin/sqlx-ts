@@ -1,5 +1,5 @@
 /// Test suites for converting any case to camelCase if generateTypes.convertToCamelCase is true
-/// 
+///
 #[cfg(test)]
 mod string_functions_tests {
     use assert_cmd::prelude::*;
@@ -9,12 +9,10 @@ mod string_functions_tests {
     use std::io::Write;
     use std::process::Command;
     use tempfile::tempdir;
-    
 
     use pretty_assertions::assert_eq;
     use test_utils::test_utils::TSString;
     use test_utils::{run_test, sandbox::TestConfig};
-
 
     #[rustfmt::skip]
 run_test!(retain_original, TestConfig::new("postgres", Some(".sqlxrc.camelcase1.json".to_string())),
@@ -76,7 +74,6 @@ export interface ISomeQueryQuery {
 };
 "#
 );
-
 
     #[rustfmt::skip]
 run_test!(retain_original_on_missing_config, TestConfig::new("postgres", Some(".sqlxrc.camelcase3.json".to_string())),
