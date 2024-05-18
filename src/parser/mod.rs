@@ -15,7 +15,7 @@ use swc_common::{
     sync::Lrc,
     FileName, MultiSpan, SourceMap,
 };
-use swc_ecma_ast::{ImportSpecifier, Key, ModuleDecl, ModuleItem, Stmt};
+use swc_ecma_ast::{Key, ModuleDecl, ModuleItem, Stmt};
 use swc_ecma_parser::TsConfig;
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 use tag::get_sql_from_expr;
@@ -43,7 +43,7 @@ fn get_var_decl_name_from_key(key: &Key) -> Option<String> {
     }
 }
 
-fn recurse_and_find_sql(mut sqls: &mut Vec<SQL>, stmt: &Stmt, import_alias: &String) -> Result<()> {
+fn recurse_and_find_sql(sqls: &mut Vec<SQL>, stmt: &Stmt, import_alias: &String) -> Result<()> {
     match stmt {
         Stmt::Block(block) => {
             for stmt in &block.stmts {

@@ -182,7 +182,7 @@ impl TsQuery {
     ) -> Result<(), TsGeneratorError> {
         if is_selection {
             if let Some(alias) = alias {
-                let temp_alias = alias.clone();
+                let temp_alias = alias;
                 let alias = &self.format_column_name(alias);
                 let value = &self
                     .annotated_results

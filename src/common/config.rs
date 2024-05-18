@@ -1,7 +1,6 @@
 use crate::common::dotenv::Dotenv;
 use crate::common::lazy::CLI_ARGS;
 use crate::common::types::{DatabaseType, LogLevel};
-use crate::core::connection;
 use regex::Regex;
 use serde;
 use serde::{Deserialize, Serialize};
@@ -62,6 +61,12 @@ pub struct Config {
     pub connections: HashMap<String, DbConnectionConfig>,
     pub ignore_patterns: Vec<String>,
     pub log_level: LogLevel,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Config {
@@ -325,8 +330,7 @@ impl Config {
         let log_level_from_file = file_based_config
             .as_ref()
             .ok()
-            .map(|config| config.log_level)
-            .flatten();
+            .and_then(|config| config.log_level);
 
         CLI_ARGS.log_level.or(log_level_from_file).unwrap_or(LogLevel::Info)
     }

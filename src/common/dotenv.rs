@@ -12,6 +12,12 @@ pub struct Dotenv {
     pub pg_search_path: Option<String>,
 }
 
+impl Default for Dotenv {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Dotenv {
     pub fn new() -> Dotenv {
         Dotenv {
