@@ -1,7 +1,7 @@
 use crate::common::SQL;
 use swc_common::MultiSpan;
 use swc_ecma_ast::{
-    AssignTarget, BlockStmt, ClassMember, Expr, OptChainBase, Pat, Prop, PropOrSpread, SuperProp, VarDeclarator,
+    BlockStmt, ClassMember, Expr, OptChainBase, Pat, Prop, PropOrSpread, SuperProp, VarDeclarator,
 };
 
 use super::{get_var_decl_name_from_key, recurse_and_find_sql};

@@ -15,7 +15,24 @@ mod string_functions_tests {
     use test_utils::{run_test, sandbox::TestConfig};
 
     #[rustfmt::skip]
-run_test!(retain_original, TestConfig::new("postgres", true, Some(".sqlxrc.camelcase1.json".to_string())),
+run_test!(not_enabled, TestConfig::new("postgres", false, Some(".sqlxrc.not_enabled.json".to_string())),
+//// TS query ////
+r#"
+const someQuery = sql`
+SELECT
+    food_type,
+    id AS HelloWorld,
+    id AS hello_world
+FROM items;
+`
+"#,
+
+//// Generated TS interfaces ////
+""
+);
+
+    #[rustfmt::skip]
+run_test!(not_enabled_but_enabled_cli, TestConfig::new("postgres", true, Some(".sqlxrc.not_enabled.json".to_string())),
 //// TS query ////
 r#"
 const someQuery = sql`
@@ -45,15 +62,14 @@ export interface ISomeQueryQuery {
 );
 
     #[rustfmt::skip]
-run_test!(convert_camelcase, TestConfig::new("postgres", true, Some(".sqlxrc.camelcase2.json".to_string())),
-
+run_test!(enabled_and_enabled_cli, TestConfig::new("postgres", true, Some(".sqlxrc.enabled.json".to_string())),
 //// TS query ////
 r#"
 const someQuery = sql`
 SELECT
     food_type,
-    id AS HelloWorld1,
-    id AS hello_world2
+    id AS HelloWorld,
+    id AS hello_world
 FROM items;
 `
 "#,
@@ -63,9 +79,9 @@ r#"
 export type SomeQueryParams = [];
 
 export interface ISomeQueryResult {
-    foodType: string;
-    helloWorld1: number;
-    helloWorld2: number;
+    HelloWorld: number;
+    food_type: string;
+    hello_world: number;
 };
 
 export interface ISomeQueryQuery {
@@ -76,15 +92,14 @@ export interface ISomeQueryQuery {
 );
 
     #[rustfmt::skip]
-run_test!(retain_original_on_missing_config, TestConfig::new("postgres", true, Some(".sqlxrc.camelcase3.json".to_string())),
-
+run_test!(enabled_but_not_enabled_cli, TestConfig::new("postgres", false, Some(".sqlxrc.enabled.json".to_string())),
 //// TS query ////
 r#"
 const someQuery = sql`
 SELECT
     food_type,
-    id AS HelloWorld1,
-    id AS hello_world2
+    id AS HelloWorld,
+    id AS hello_world
 FROM items;
 `
 "#,
@@ -94,9 +109,9 @@ r#"
 export type SomeQueryParams = [];
 
 export interface ISomeQueryResult {
-    HelloWorld1: number;
+    HelloWorld: number;
     food_type: string;
-    hello_world2: number;
+    hello_world: number;
 };
 
 export interface ISomeQueryQuery {

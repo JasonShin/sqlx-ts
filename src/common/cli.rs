@@ -1,7 +1,6 @@
-
 use crate::common::types::{DatabaseType, JsExtension, LogLevel};
-use std::fmt;
 use clap::Parser;
+use std::fmt;
 
 impl fmt::Display for JsExtension {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

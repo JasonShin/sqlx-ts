@@ -29,6 +29,12 @@ pub struct DBSchema {
     tables_cache: HashMap<String, Fields>,
 }
 
+impl Default for DBSchema {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DBSchema {
     pub fn new() -> DBSchema {
         DBSchema {

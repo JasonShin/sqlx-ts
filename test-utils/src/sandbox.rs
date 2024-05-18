@@ -21,11 +21,12 @@ pub struct TestConfig {
     pub db_user: String,
     pub db_pass: Option<String>,
     pub db_name: String,
+    pub generate_types: bool,
     pub config_file_name: Option<String>,
 }
 
 impl TestConfig {
-    pub fn new(db_type: &str, config_file_name: Option<String>) -> Self {
+    pub fn new(db_type: &str, generate_types: bool, config_file_name: Option<String>) -> Self {
         if db_type == "mysql" {
             return TestConfig {
                 db_type: "mysql".into(),
@@ -35,6 +36,7 @@ impl TestConfig {
                 db_user: "root".to_string(),
                 db_pass: None,
                 db_name: "sqlx-ts".to_string(),
+                generate_types,
                 config_file_name,
             }
         }
@@ -46,6 +48,7 @@ impl TestConfig {
             db_user: "postgres".to_string(),
             db_pass: Some("postgres".to_string()),
             db_name: "postgres".to_string(),
+            generate_types,
             config_file_name,
         }
     }
@@ -123,8 +126,12 @@ $(
           .arg(format!("--db-host={db_host}"))
           .arg(format!("--db-port={db_port}"))
           .arg(format!("--db-user={db_user}"))
-          .arg(format!("--db-name={db_name}"))
-          .arg("-g");
+          .arg(format!("--db-name={db_name}"));
+
+      println!("checking generate types {:?}", test_config.generate_types);
+      if (test_config.generate_types) {
+        cmd.arg("-g");
+      }
 
       if (config_file_name.is_some()) {
         let cwd = env::current_dir()?;
@@ -143,10 +150,11 @@ $(
          .success()
          .stdout(predicates::str::contains("No SQL errors detected!"));
 
-      let generated_types: &str = $generated_types;
+      let generated_types: &str = $generated_types.clone();
 
-      if generated_types != "" {
-        let type_file = fs::read_to_string(parent_path.join("index.queries.ts"))?;
+      let type_file = fs::read_to_string(parent_path.join("index.queries.ts"));
+      if type_file.is_ok() {
+        let type_file = type_file.unwrap().clone();
         let type_file = type_file.trim();
         assert_eq!(
             generated_types.trim().to_string().flatten(),

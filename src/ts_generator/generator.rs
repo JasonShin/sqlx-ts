@@ -83,7 +83,7 @@ pub fn write_single_ts_file(sqls_to_write: String) -> Result<()> {
     let mut file_to_write = OpenOptions::new()
         .create(true)
         .read(true)
-        .write(true)
+        
         .append(true)
         .open(&output)?;
 
