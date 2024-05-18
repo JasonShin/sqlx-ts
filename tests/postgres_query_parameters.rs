@@ -13,7 +13,7 @@ mod postgres_query_paramters_tests {
     use test_utils::{run_test, sandbox::TestConfig};
 
     #[rustfmt::skip]
-run_test!(should_pick_query_params_from_flat_list_of_binary_ops, TestConfig::new("postgres", None),
+run_test!(should_pick_query_params_from_flat_list_of_binary_ops, TestConfig::new("postgres", true, None),
 
 //// TS query ////
 r#"
