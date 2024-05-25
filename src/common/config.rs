@@ -159,8 +159,9 @@ impl Config {
                 panic!(
                     "{}",
                     format!(
-                        "Empty or invalid JSON provided for file based configuration - config file: {:?}",
-                        file_config_path
+                        "Empty or invalid JSON provided for file based configuration - config file: {:?}, error: {:?}",
+                        file_config_path,
+                        result,
                     )
                 )
             }
