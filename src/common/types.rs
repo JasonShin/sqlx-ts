@@ -1,5 +1,6 @@
 use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
+use convert_case::{Case, Casing};
 
 #[derive(ValueEnum, Debug, Clone)]
 pub enum JsExtension {
@@ -12,6 +13,32 @@ pub enum JsExtension {
 pub enum DatabaseType {
     Postgres,
     Mysql,
+}
+
+#[derive(ValueEnum, Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum NamingConvention {
+    Upper,
+    Lower,
+    Title,
+    Camel,
+    Pascal,
+    Snake,
+    Kebab,
+}
+
+impl NamingConvention {
+    pub fn convert(&self, value: &str) -> String {
+        match &self {
+            NamingConvention::Upper => value.to_case(Case::Upper),
+            NamingConvention::Lower => value.to_case(Case::Lower),
+            NamingConvention::Title => value.to_case(Case::Title),
+            NamingConvention::Camel => value.to_case(Case::Camel),
+            NamingConvention::Pascal => value.to_case(Case::Pascal),
+            NamingConvention::Snake => value.to_case(Case::Snake),
+            NamingConvention::Kebab => value.to_case(Case::Kebab),
+        }
+    }
 }
 
 #[derive(ValueEnum, Debug, Clone, Serialize, Deserialize, Copy)]

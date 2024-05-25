@@ -9,6 +9,9 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
+use convert_case::Case;
+
+use super::types::NamingConvention;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct SqlxConfig {
@@ -29,6 +32,8 @@ pub struct GenerateTypesConfig {
     #[deprecated]
     #[serde(rename = "convertToCamelCaseColumnName", default = "default_bool::<false>")]
     pub convert_to_camel_case_column_name: bool,
+    #[serde(rename = "columnNamingConvention")]
+    pub column_naming_convention: Option<NamingConvention>,
     pub generate_path: Option<PathBuf>,
 }
 
@@ -122,6 +127,7 @@ impl Config {
         let cli_default = GenerateTypesConfig {
             enabled: CLI_ARGS.generate_types,
             convert_to_camel_case_column_name: false,
+            column_naming_convention: None,
             generate_path: CLI_ARGS.generate_path.to_owned(),
         };
 
@@ -132,6 +138,7 @@ impl Config {
                 return Some(GenerateTypesConfig {
                     enabled: CLI_ARGS.generate_types || generate_types.enabled,
                     generate_path: generate_types.generate_path.or(CLI_ARGS.generate_path.to_owned()),
+                    column_naming_convention: generate_types.column_naming_convention,
                     convert_to_camel_case_column_name: generate_types.convert_to_camel_case_column_name,
                 });
             }

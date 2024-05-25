@@ -165,9 +165,19 @@ impl TsQuery {
             .to_owned()
             .map(|x| x.convert_to_camel_case_column_name);
 
-        match convert_to_camel_case_column_name {
-            Some(true) => column_name.to_case(Case::Camel),
-            Some(false) | None => column_name.to_string(),
+        let column_naming_convention = &CONFIG.generate_types_config
+            .to_owned()
+            .map(|x| x.column_naming_convention)
+            .flatten();
+        
+        if &column_naming_convention.is_some() == &true {
+            let column_name_convention = &column_naming_convention.clone().unwrap();
+            column_name_convention.convert(column_name)
+        } else {
+            match convert_to_camel_case_column_name {
+                Some(true) => column_name.to_case(Case::Camel),
+                Some(false) | None => column_name.to_string(),
+            }
         }
     }
 
