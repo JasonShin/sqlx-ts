@@ -167,8 +167,7 @@ impl TsQuery {
 
         let column_naming_convention = &CONFIG.generate_types_config
             .to_owned()
-            .map(|x| x.column_naming_convention)
-            .flatten();
+            .and_then(|x| x.column_naming_convention);
         
         if &column_naming_convention.is_some() == &true {
             let column_name_convention = &column_naming_convention.clone().unwrap();

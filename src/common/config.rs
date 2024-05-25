@@ -9,7 +9,6 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
-use convert_case::Case;
 
 use super::types::NamingConvention;
 
