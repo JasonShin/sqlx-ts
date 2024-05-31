@@ -144,7 +144,7 @@ pub fn translate_table_with_joins(
         SelectItem::Wildcard(_) => Some(default_table_name),
         SelectItem::ExprWithAlias { expr, alias: _ } => match &expr {
             Expr::Identifier(_) => {
-                // if the select item is not a compount identifier with an expression, just return the default table name
+                // if the select item is not a compound identifier with an expression, just return the default table name
                 Some(default_table_name)
             }
             Expr::CompoundIdentifier(compound_identifier) => {

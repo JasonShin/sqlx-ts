@@ -49,7 +49,7 @@ pub static DATE_FUNCTIONS: &[&str] = &[
     "CURDATE",
     "CURRENT_DATE",
     "CURRENT_TIME",
-    "CURRENT_TIMESTEMP",
+    "CURRENT_TIMESTAMP",
     "CURTIME",
     "DATE",
     "DATE_ADD",
