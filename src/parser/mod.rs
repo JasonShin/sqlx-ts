@@ -203,7 +203,7 @@ pub fn parse_source(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Handl
             },
         }
 
-        // This is to prevent any emptry string queries being inserted into sqls_map
+        // This is to prevent any empty string queries being inserted into sqls_map
         // which will be used to run `PREPARE` step and SQL parser logic
         let sqls: Vec<SQL> = sqls.into_iter().filter(|sql| !sql.query.is_empty()).collect();
         insert_or_append_sqls(&mut sqls_map, &sqls, path);

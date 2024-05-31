@@ -24,7 +24,7 @@ pub enum TsGeneratorError {
     #[error("[E010] Unknown function detected while processing a SELECT clause - query: `{0}`")]
     FunctionUnknown(String),
     #[error("[E011] table name was not found while processing an identifier - query: `{0}`")]
-    IndentifierWithoutTable(String),
+    IdentifierWithoutTable(String),
     #[error("[E012] Failed to handle a from statement without the `FROM` keyword - query: `{0}`")]
     FromWithoutKeyword(String),
     #[error("Unknown error: `{0}`")]

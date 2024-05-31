@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod postgres_query_paramters_tests {
+mod postgres_query_parameters_tests {
     use assert_cmd::prelude::*;
     use predicates::prelude::*;
     use std::env;
