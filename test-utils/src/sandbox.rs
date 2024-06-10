@@ -23,12 +23,14 @@ pub struct TestConfig {
     pub db_user: String,
     pub db_pass: Option<String>,
     pub db_name: String,
+    pub generate_path: Option<PathBuf>,
     pub generate_types: bool,
     pub config_file_name: Option<String>,
 }
 
 impl TestConfig {
     pub fn new(db_type: &str, generate_types: bool, generate_path: Option<PathBuf>, config_file_name: Option<String>) -> Self {
+        let generate_path = generate_path.clone();
         if db_type == "mysql" {
             return TestConfig {
                 db_type: "mysql".into(),
@@ -38,6 +40,7 @@ impl TestConfig {
                 db_user: "root".to_string(),
                 db_pass: None,
                 db_name: "sqlx-ts".to_string(),
+                generate_path,
                 generate_types,
                 config_file_name,
             }
@@ -50,6 +53,7 @@ impl TestConfig {
             db_user: "postgres".to_string(),
             db_pass: Some("postgres".to_string()),
             db_name: "postgres".to_string(),
+            generate_path,
             generate_types,
             config_file_name,
         }
@@ -109,6 +113,7 @@ $(
       let db_pass = test_config.db_pass;
       let db_name = test_config.db_name;
       let config_file_name = test_config.config_file_name;
+      let generate_path = test_config.generate_path;
       
       // SETUP
       let dir = tempdir()?;
@@ -130,7 +135,12 @@ $(
           .arg(format!("--db-user={db_user}"))
           .arg(format!("--db-name={db_name}"));
 
-      println!("checking generate types {:?}", test_config.generate_types);
+      if generate_path.is_some() {
+        let generate_path = generate_path.clone().unwrap();
+        let generate_path = generate_path.display();
+        cmd.arg(format!("--generate-path={generate_path}"));
+      }
+
       if (test_config.generate_types) {
         cmd.arg("-g");
       }
