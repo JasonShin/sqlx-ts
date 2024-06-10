@@ -13,7 +13,7 @@ mod postgres_insert_query_parameters {
     use test_utils::{run_test, sandbox::TestConfig};
 
     #[rustfmt::skip]
-run_test!(should_pick_query_params_from_single_row_of_values, TestConfig::new("postgres", true, None),
+run_test!(should_pick_query_params_from_single_row_of_values, TestConfig::new("postgres", true, None, None),
 
 //// TS query ////
 r#"
@@ -39,7 +39,7 @@ export interface ISomeInputQueryQuery {
 "#);
 
     #[rustfmt::skip]
-run_test!(should_pick_query_params_from_multiple_rows_of_values, TestConfig::new("postgres", true, None),
+run_test!(should_pick_query_params_from_multiple_rows_of_values, TestConfig::new("postgres", true, None, None),
 
 //// TS query ////
 r#"

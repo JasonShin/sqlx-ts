@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use serde;
 use serde::{Deserialize, Serialize};
 
@@ -26,7 +28,7 @@ pub struct TestConfig {
 }
 
 impl TestConfig {
-    pub fn new(db_type: &str, generate_types: bool, config_file_name: Option<String>) -> Self {
+    pub fn new(db_type: &str, generate_types: bool, generate_path: Option<PathBuf>, config_file_name: Option<String>) -> Self {
         if db_type == "mysql" {
             return TestConfig {
                 db_type: "mysql".into(),
