@@ -1,7 +1,7 @@
 /// Test suites for converting any case to camelCase if generateTypes.convertToCamelCase is true
 ///
 #[cfg(test)]
-mod string_functions_tests {
+mod sqlxrc_file {
     use assert_cmd::prelude::*;
     use predicates::prelude::*;
     use std::env;
@@ -15,7 +15,7 @@ mod string_functions_tests {
     use test_utils::{run_test, sandbox::TestConfig};
 
     #[rustfmt::skip]
-run_test!(not_enabled, TestConfig::new("postgres", false, Some(".sqlxrc.not_enabled.json".to_string())),
+run_test!(not_enabled, TestConfig::new("postgres", false, None, Some(".sqlxrc.not_enabled.json".to_string())),
 //// TS query ////
 r#"
 const someQuery = sql`
@@ -32,7 +32,7 @@ FROM items;
 );
 
     #[rustfmt::skip]
-run_test!(not_enabled_but_enabled_cli, TestConfig::new("postgres", true, Some(".sqlxrc.not_enabled.json".to_string())),
+run_test!(not_enabled_but_enabled_cli, TestConfig::new("postgres", true, None, Some(".sqlxrc.not_enabled.json".to_string())),
 //// TS query ////
 r#"
 const someQuery = sql`
@@ -62,7 +62,7 @@ export interface ISomeQueryQuery {
 );
 
     #[rustfmt::skip]
-run_test!(enabled_and_enabled_cli, TestConfig::new("postgres", true, Some(".sqlxrc.enabled.json".to_string())),
+run_test!(enabled_and_enabled_cli, TestConfig::new("postgres", true, None, Some(".sqlxrc.enabled.json".to_string())),
 //// TS query ////
 r#"
 const someQuery = sql`
@@ -92,7 +92,7 @@ export interface ISomeQueryQuery {
 );
 
     #[rustfmt::skip]
-run_test!(enabled_but_not_enabled_cli, TestConfig::new("postgres", false, Some(".sqlxrc.enabled.json".to_string())),
+run_test!(enabled_but_not_enabled_cli, TestConfig::new("postgres", false, None, Some(".sqlxrc.enabled.json".to_string())),
 //// TS query ////
 r#"
 const someQuery = sql`

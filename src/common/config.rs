@@ -327,10 +327,7 @@ impl Config {
     pub fn get_log_level(file_config_path: &PathBuf) -> LogLevel {
         let file_based_config = fs::read_to_string(file_config_path);
         let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
-        let log_level_from_file = file_based_config
-            .as_ref()
-            .ok()
-            .and_then(|config| config.log_level);
+        let log_level_from_file = file_based_config.as_ref().ok().and_then(|config| config.log_level);
 
         CLI_ARGS.log_level.or(log_level_from_file).unwrap_or(LogLevel::Info)
     }
