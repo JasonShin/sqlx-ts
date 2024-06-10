@@ -135,8 +135,11 @@ $(
           .arg(format!("--db-user={db_user}"))
           .arg(format!("--db-name={db_name}"));
 
-      if generate_path.is_some() {
-        let generate_path = generate_path.clone().unwrap();
+      if &generate_path.is_some() == &true {
+        let generate_path = generate_path.clone();
+        let generate_path = generate_path.unwrap();
+        let generate_path = generate_path.as_path();
+        let generate_path = parent_path.join(generate_path);
         let generate_path = generate_path.display();
         cmd.arg(format!("--generate-path={generate_path}"));
       }
@@ -164,6 +167,18 @@ $(
 
       let generated_types: &str = $generated_types.clone();
 
+      if generate_path.is_some() {
+        let generate_path = parent_path.join(generate_path.unwrap().as_path());
+        let type_file = fs::read_to_string(generate_path);
+        let type_file = type_file.unwrap();
+
+        assert_eq!(
+            generated_types.trim().to_string().flatten(),
+            type_file.trim().to_string().flatten()
+        );
+        return Ok(());
+      }
+
       let type_file = fs::read_to_string(parent_path.join("index.queries.ts"));
       if type_file.is_ok() {
         let type_file = type_file.unwrap().clone();
@@ -172,6 +187,8 @@ $(
             generated_types.trim().to_string().flatten(),
             type_file.to_string().flatten()
         );
+      } else {
+        panic!("Type file not found!");
       }
       Ok(())
     }
