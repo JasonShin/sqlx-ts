@@ -1,7 +1,7 @@
 /// Test suites for converting any case to camelCase if generateTypes.convertToCamelCase is true
 ///
 #[cfg(test)]
-mod string_functions_tests {
+mod sqlxrc_file {
     use assert_cmd::prelude::*;
     use predicates::prelude::*;
     use std::env;
