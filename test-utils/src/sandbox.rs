@@ -187,8 +187,6 @@ $(
             generated_types.trim().to_string().flatten(),
             type_file.to_string().flatten()
         );
-      } else {
-        panic!("Type file not found!");
       }
       Ok(())
     }
