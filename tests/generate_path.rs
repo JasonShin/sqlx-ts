@@ -15,7 +15,7 @@ mod generate_path_tests {
     use test_utils::{run_test, sandbox::TestConfig};
 
     #[rustfmt::skip]
-run_test!(retain_original, TestConfig::new("postgres", true, Some(".sqlxrc.camelcase1.json".to_string())),
+run_test!(retain_original, TestConfig::new("postgres", true, None, Some(".sqlxrc.camelcase1.json".to_string())),
 //// TS query ////
 r#"
 const someQuery = sql`
