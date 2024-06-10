@@ -13,7 +13,7 @@ mod mysql_query_parameters_tests {
     use test_utils::{run_test, sandbox::TestConfig};
 
     #[rustfmt::skip]
-run_test!(should_pick_query_params_from_flat_list_of_binary_ops, TestConfig::new("mysql", true, None),
+run_test!(should_pick_query_params_from_flat_list_of_binary_ops, TestConfig::new("mysql", true, None, None),
 
 //// TS query ////
 r#"
@@ -45,7 +45,7 @@ export interface ISomeQueryQuery {
 "#);
 
     #[rustfmt::skip]
-run_test!(should_pick_query_params_from_in_list, TestConfig::new("mysql", true, None),
+run_test!(should_pick_query_params_from_in_list, TestConfig::new("mysql", true, None, None),
 
 //// TS query ////
 r#"
@@ -75,7 +75,7 @@ export interface ISomeQueryQuery {
 "#);
 
     #[rustfmt::skip]
-run_test!(should_pick_query_params_from_in_subqueries, TestConfig::new("mysql", true, None),
+run_test!(should_pick_query_params_from_in_subqueries, TestConfig::new("mysql", true,  None, None),
 
 //// TS query ////
 r#"

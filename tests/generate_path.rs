@@ -45,7 +45,7 @@ export interface ISomeQueryQuery {
 );
 
     #[rustfmt::skip]
-run_test!(convert_camelcase, TestConfig::new("postgres", true, Some(".sqlxrc.camelcase2.json".to_string())),
+run_test!(convert_camelcase, TestConfig::new("postgres", true, None, Some(".sqlxrc.camelcase2.json".to_string())),
 
 //// TS query ////
 r#"
@@ -76,7 +76,7 @@ export interface ISomeQueryQuery {
 );
 
     #[rustfmt::skip]
-run_test!(retain_original_on_missing_config, TestConfig::new("postgres", true, Some(".sqlxrc.camelcase3.json".to_string())),
+run_test!(retain_original_on_missing_config, TestConfig::new("postgres", true, None, Some(".sqlxrc.camelcase3.json".to_string())),
 
 //// TS query ////
 r#"
