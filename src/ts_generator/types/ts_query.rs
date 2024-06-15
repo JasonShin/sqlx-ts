@@ -170,7 +170,7 @@ impl TsQuery {
             .to_owned()
             .and_then(|x| x.column_naming_convention);
 
-        if &column_naming_convention.is_some() == &true {
+        if column_naming_convention.is_some() {
             let column_name_convention = &column_naming_convention.clone().unwrap();
             column_name_convention.convert(column_name)
         } else {
