@@ -1,7 +1,6 @@
 {
   "generateTypes": {
-    "columnNamingConvention": "camel",
-    "convertToCamelCaseColumnName": false
+    "columnNamingConvention": "camel"
   },
   "connections": {
     "default": {
