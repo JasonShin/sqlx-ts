@@ -165,7 +165,8 @@ impl TsQuery {
             .to_owned()
             .map(|x| x.convert_to_camel_case_column_name);
 
-        let column_naming_convention = &CONFIG.generate_types_config
+        let column_naming_convention = &CONFIG
+            .generate_types_config
             .to_owned()
             .and_then(|x| x.column_naming_convention);
 

@@ -159,8 +159,7 @@ impl Config {
                     "{}",
                     format!(
                         "Empty or invalid JSON provided for file based configuration - config file: {:?}, error: {:?}",
-                        file_config_path,
-                        result,
+                        file_config_path, result,
                     )
                 )
             }

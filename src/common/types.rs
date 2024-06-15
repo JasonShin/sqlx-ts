@@ -1,6 +1,6 @@
 use clap::ValueEnum;
-use serde::{Deserialize, Serialize};
 use convert_case::{Case, Casing};
+use serde::{Deserialize, Serialize};
 
 #[derive(ValueEnum, Debug, Clone)]
 pub enum JsExtension {
