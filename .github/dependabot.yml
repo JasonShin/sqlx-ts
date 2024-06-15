@@ -23,7 +23,7 @@ updates:
           - "*"
 
   - package-ecosystem: "npm"
-    directory: "/"
+    directory: "node/"
     schedule:
       interval: "daily"
     rebase-strategy: "auto"
