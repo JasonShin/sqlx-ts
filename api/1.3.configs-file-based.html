@@ -240,7 +240,7 @@ const postgresSQL = sql`
 <pre><code class="language-json">{
   "generateTypes: {
     enabled: true|false,
-    convertToCamelCaseColumnName: true|false
+    columnNamingConvention: "upper | lower | title | camel | pascal | snake | kebab"
   },
   "connections": {
     ...
@@ -250,7 +250,11 @@ const postgresSQL = sql`
 <p>Support for configuration of generate types operations.</p>
 <ul>
 <li><code>enabled</code> (default: false): enables type generation via config</li>
-<li><code>convertToCamelCaseColumnName</code> (default: false): when generating field name based on table's column name, it will automatically cast to camelCase in TypeScript</li>
+<li><code>columnNamingConvention</code> (optional): When generating field name based on table's column name, you can pass in a type of naming convention to be used
+<ul>
+<li>oneOf: upper | lower | title | camel | pascal | snake | kebab</li>
+</ul>
+</li>
 </ul>
 
                     </main>
