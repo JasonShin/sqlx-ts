@@ -1,7 +1,6 @@
 {
   "generateTypes": {
-    "columnNamingConvention": "pascal",
-    "convertToCamelCaseColumnName": true
+    "columnNamingConvention": "camel"
   },
   "connections": {
     "default": {
