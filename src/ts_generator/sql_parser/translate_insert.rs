@@ -66,6 +66,7 @@ pub async fn translate_insert_returning(
     returning: &Vec<SelectItem>,
     table_name: &str,
     conn: &DBConn,
+    query_for_logging: &str,
 ) {
     let table_details = &DB_SCHEMA
         .lock()
@@ -79,17 +80,30 @@ pub async fn translate_insert_returning(
         match &select_item {
             SelectItem::UnnamedExpr(unnamed_expr) => {
                 // ts_query.insert_result(alias, value, is_selection, expr_for_logging)
-                println!("checking unnamed_expr {:#?}", unnamed_expr);
+                let name = unnamed_expr.to_string();
+                let name = name.as_str();
+                let match_col = table_details
+                    .get(name)
+                    .unwrap_or_else(|| panic!("Column {name} is not found while processing insert params"));
+                let value = vec![match_col.field_type.clone()];
+                ts_query.insert_result(Some(name), &value, true, query_for_logging);
             }
             SelectItem::ExprWithAlias { expr, alias } => {
                 let name = expr.to_string();
-                let match_col = table_details.get(name.as_str()).unwrap_or_else(|| {
-                    panic!("Column {name} is not found while processing insert params")
-                });
+                let match_col = table_details
+                    .get(name.as_str())
+                    .unwrap_or_else(|| panic!("Column {name} is not found while processing insert params"));
                 let alias = alias.to_string();
                 let alias = alias.as_str();
                 let value = vec![match_col.field_type.clone()];
-                ts_query.insert_result(Some(alias), &value, true, "");
+                ts_query.insert_result(Some(alias), &value, true, query_for_logging);
+            }
+            SelectItem::Wildcard(wildcard) => {
+                let keys = table_details.keys();
+                for key in keys {
+                    let value = vec![table_details.get(key).unwrap().field_type.clone()];
+                    ts_query.insert_result(Some(key), &value, true, query_for_logging);
+                }
             }
             _ => {}
         }

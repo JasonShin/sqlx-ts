@@ -1,5 +1,5 @@
-use crate::{core::connection::DBConn, ts_generator::sql_parser::translate_insert::translate_insert_returning};
 use crate::ts_generator::errors::TsGeneratorError;
+use crate::{core::connection::DBConn, ts_generator::sql_parser::translate_insert::translate_insert_returning};
 
 use crate::ts_generator::sql_parser::translate_delete::translate_delete;
 use crate::ts_generator::sql_parser::translate_insert::translate_insert;
@@ -42,13 +42,13 @@ pub async fn translate_stmt(
             let source = *source.to_owned().unwrap();
             let table_name = table_name.to_string();
             let table_name = table_name.as_str();
-            println!("checking returning {:#?}", returning);
+            let query_for_logging = sql_statement.to_string();
+            let query_for_logging = &query_for_logging.as_str();
             translate_insert(ts_query, columns, &source, table_name, db_conn).await?;
             if returning.is_some() {
                 let returning = returning.clone();
                 let returning = &returning.unwrap();
-                translate_insert_returning(ts_query, &returning, table_name, db_conn).await;
-
+                translate_insert_returning(ts_query, &returning, table_name, db_conn, query_for_logging).await;
             }
         }
         Statement::Delete {
