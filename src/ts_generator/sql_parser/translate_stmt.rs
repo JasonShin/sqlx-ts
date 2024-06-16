@@ -48,7 +48,7 @@ pub async fn translate_stmt(
             if returning.is_some() {
                 let returning = returning.clone();
                 let returning = &returning.unwrap();
-                translate_insert_returning(ts_query, &returning, table_name, db_conn, query_for_logging).await;
+                translate_insert_returning(ts_query, returning, table_name, db_conn, query_for_logging).await;
             }
         }
         Statement::Delete {
