@@ -1,5 +1,13 @@
 use sqlparser::ast::{Assignment, Expr, Join, SelectItem, TableFactor, TableWithJoins};
 
+fn get_trimmed_table_name(table_name: String, quote_style: Option<char>) -> String {
+    if quote_style.is_some() {
+        return table_name.trim_start_matches(quote_style.unwrap()).trim_end_matches(quote_style.unwrap()).to_string()
+    }
+
+    table_name.to_owned()
+}
+
 pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
   table_with_joins
     .first()
@@ -11,7 +19,11 @@ pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
         with_hints: _,
         version: _,
         partitions: _,
-      } => Some(name.to_string()),
+      } => {
+                let quote_style = name.0[0].quote_style;
+
+                Some(get_trimmed_table_name(name.to_string(), quote_style))
+            },
       _ => None,
     })
     .expect("The query does not have a default table, impossible to generate types")
@@ -47,8 +59,9 @@ pub fn find_table_name_from_identifier(
         partitions: _,
       } => {
         if Some(left.to_string()) == alias.to_owned().map(|a| a.to_string()) || left == name.to_string() {
-          // If the identifier matches the alias, then return the table name
-          return Some(name.to_string());
+          let quote_style = name.0[0].quote_style;
+                    // If the identifier matches the alias, then return the table name
+                    return Some(get_trimmed_table_name(name.to_string(), quote_style));
         }
       }
       _ => unimplemented!(),

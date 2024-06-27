@@ -130,7 +130,7 @@ pub async fn get_sql_query_param(
       // get column and return TsFieldType
       let column = columns
         .get(column_name.as_str())
-        .unwrap_or_else(|| panic!("Failed toe find the column from the table schema of {:?}", table_name));
+        .unwrap_or_else(|| panic!("Failed to find the column from the table schema of {:?}", table_name));
       Some((column.field_type.to_owned(), Some(expr_placeholder)))
     }
     _ => None,
