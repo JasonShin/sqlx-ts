@@ -68,7 +68,7 @@ pub fn find_table_name_from_identifier(
   for join in &joins.clone() {
     match &join.relation {
       TableFactor::Table {
-        name,
+        name: objectName,
         alias,
         args: _,
         with_hints: _,
@@ -76,10 +76,11 @@ pub fn find_table_name_from_identifier(
         partitions: _,
       } => {
         let alias = alias.to_owned().map(|x| x.to_string());
-        let name = name.to_string();
+        let name = objectName.to_string();
 
         if Some(left.to_owned()) == alias || left == name {
-          return Some(name);
+          let quote_style = objectName.0[0].quote_style;
+                    return Some(name.trim_table_name(quote_style));
         }
       }
       _ => unimplemented!(),

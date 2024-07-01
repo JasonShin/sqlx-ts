@@ -72,7 +72,6 @@ pub async fn translate_wildcard_expr(
   }
 
     let table_with_joins = table_with_joins.iter().map(|s| s.as_ref()).collect();
-    println!("checking table with joins {:?}", table_with_joins);
     let all_fields = DB_SCHEMA.lock().await.fetch_table(&table_with_joins, db_conn).await;
 
     if let Some(all_fields) = all_fields {
