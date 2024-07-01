@@ -1,5 +1,6 @@
 use crate::common::lazy::DB_SCHEMA;
 use crate::common::logger::warning;
+use crate::common::table_name::TrimQuotes;
 use crate::core::connection::DBConn;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::types::ts_query::TsFieldType;
@@ -23,7 +24,10 @@ pub fn get_all_table_names_from_expr(query: &Query) -> Result<Vec<String>, TsGen
   }?;
 
   let primary_table_name = match table_with_joins.relation {
-    TableFactor::Table { name, .. } => Ok(name.to_string()),
+    TableFactor::Table { name, .. } => {
+            let quote_style = name.0[0].quote_style;
+            Ok(name.to_string().trim_table_name(quote_style))
+        },
     _ => Err(TsGeneratorError::WildcardStatementUnsupportedTableExpr(
       query.to_string(),
     )),
@@ -35,7 +39,11 @@ pub fn get_all_table_names_from_expr(query: &Query) -> Result<Vec<String>, TsGen
     .filter_map(|join| {
       let Join { relation, .. } = join;
       match relation {
-        TableFactor::Table { name, .. } => Some(name.to_string()),
+        TableFactor::Table { name, .. } => {
+                    let quote_style = name.0[0].quote_style;
+
+                    Some(name.to_string().trim_table_name(quote_style))
+                },
         _ => unimplemented!(),
       }
     })
@@ -64,6 +72,7 @@ pub async fn translate_wildcard_expr(
   }
 
     let table_with_joins = table_with_joins.iter().map(|s| s.as_ref()).collect();
+    println!("checking table with joins {:?}", table_with_joins);
     let all_fields = DB_SCHEMA.lock().await.fetch_table(&table_with_joins, db_conn).await;
 
     if let Some(all_fields) = all_fields {
