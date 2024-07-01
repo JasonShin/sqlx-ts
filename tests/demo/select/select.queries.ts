@@ -205,3 +205,19 @@ export interface ISql13Query {
     result: ISql13Result;
 };
 
+
+
+
+export type Sql14Params = [number];
+
+
+export interface ISql14Result {
+    
+};
+
+
+export interface ISql14Query {
+    params: Sql14Params;
+    result: ISql14Result;
+};
+
