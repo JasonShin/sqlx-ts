@@ -8,6 +8,7 @@ pub mod config;
 pub mod dotenv;
 pub mod lazy;
 pub mod types;
+pub mod table_name;
 
 // Source Parser
 #[allow(clippy::upper_case_acronyms)]
