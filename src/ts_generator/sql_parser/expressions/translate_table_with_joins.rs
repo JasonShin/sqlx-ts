@@ -1,4 +1,5 @@
 use sqlparser::ast::{Assignment, Expr, Join, SelectItem, TableFactor, TableWithJoins};
+use crate::common::table_name::TrimQuotes;
 
 fn get_trimmed_table_name(table_name: String, quote_style: Option<char>) -> String {
     if quote_style.is_some() {
@@ -22,7 +23,7 @@ pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
       } => {
                 let quote_style = name.0[0].quote_style;
 
-                Some(get_trimmed_table_name(name.to_string(), quote_style))
+                Some(name.to_string().trim_table_name(quote_style.unwrap()))
             },
       _ => None,
     })
@@ -61,7 +62,7 @@ pub fn find_table_name_from_identifier(
         if Some(left.to_string()) == alias.to_owned().map(|a| a.to_string()) || left == name.to_string() {
           let quote_style = name.0[0].quote_style;
                     // If the identifier matches the alias, then return the table name
-                    return Some(get_trimmed_table_name(name.to_string(), quote_style));
+                    return Some(name.to_string().trim_table_name(quote_style.unwrap()));
         }
       }
       _ => unimplemented!(),

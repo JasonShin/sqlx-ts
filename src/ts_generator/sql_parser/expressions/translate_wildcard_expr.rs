@@ -63,15 +63,16 @@ pub async fn translate_wildcard_expr(
     warning!("Impossible to calculate appropriate field names of a wildcard query with multiple tables. Please use explicit field names instead. Query: {}", query.to_string());
   }
 
-  let table_with_joins = table_with_joins.iter().map(|s| s.as_ref()).collect();
-  let all_fields = DB_SCHEMA.lock().await.fetch_table(&table_with_joins, db_conn).await;
-  if let Some(all_fields) = all_fields {
-    for key in all_fields.keys() {
-      let field = all_fields.get(key).unwrap();
-      let mut field_types = vec![field.field_type.clone()];
-      if field.is_nullable {
-        field_types.push(TsFieldType::Null);
-      }
+    let table_with_joins = table_with_joins.iter().map(|s| s.as_ref()).collect();
+    let all_fields = DB_SCHEMA.lock().await.fetch_table(&table_with_joins, db_conn).await;
+
+    if let Some(all_fields) = all_fields {
+        for key in all_fields.keys() {
+            let field = all_fields.get(key).unwrap();
+            let mut field_types = vec![field.field_type.clone()];
+            if field.is_nullable {
+                field_types.push(TsFieldType::Null);
+            }
 
       ts_query.result.insert(key.to_owned(), field_types);
     }
