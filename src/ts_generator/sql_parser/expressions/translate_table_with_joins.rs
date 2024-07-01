@@ -1,3 +1,4 @@
+use crate::common::table_name::TrimQuotes;
 use sqlparser::ast::{Assignment, Expr, Join, SelectItem, TableFactor, TableWithJoins};
 
 pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
@@ -11,7 +12,11 @@ pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
                 with_hints: _,
                 version: _,
                 partitions: _,
-            } => Some(name.to_string()),
+            } => {
+                let quote_style = name.0[0].quote_style;
+
+                Some(name.to_string().trim_table_name(quote_style))
+            }
             _ => None,
         })
         .expect("The query does not have a default table, impossible to generate types")
@@ -47,8 +52,9 @@ pub fn find_table_name_from_identifier(
                 partitions: _,
             } => {
                 if Some(left.to_string()) == alias.to_owned().map(|a| a.to_string()) || left == name.to_string() {
+                    let quote_style = name.0[0].quote_style;
                     // If the identifier matches the alias, then return the table name
-                    return Some(name.to_string());
+                    return Some(name.to_string().trim_table_name(quote_style));
                 }
             }
             _ => unimplemented!(),
@@ -62,7 +68,7 @@ pub fn find_table_name_from_identifier(
     for join in &joins.clone() {
         match &join.relation {
             TableFactor::Table {
-                name,
+                name: objectName,
                 alias,
                 args: _,
                 with_hints: _,
@@ -70,10 +76,11 @@ pub fn find_table_name_from_identifier(
                 partitions: _,
             } => {
                 let alias = alias.to_owned().map(|x| x.to_string());
-                let name = name.to_string();
+                let name = objectName.to_string();
 
                 if Some(left.to_owned()) == alias || left == name {
-                    return Some(name);
+                    let quote_style = objectName.0[0].quote_style;
+                    return Some(name.trim_table_name(quote_style));
                 }
             }
             _ => unimplemented!(),
