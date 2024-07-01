@@ -27,7 +27,7 @@ pub fn get_all_table_names_from_expr(query: &Query) -> Result<Vec<String>, TsGen
     TableFactor::Table { name, .. } => {
             let quote_style = name.0[0].quote_style;
             Ok(name.to_string().trim_table_name(quote_style))
-        },
+        }
     _ => Err(TsGeneratorError::WildcardStatementUnsupportedTableExpr(
       query.to_string(),
     )),
@@ -43,7 +43,7 @@ pub fn get_all_table_names_from_expr(query: &Query) -> Result<Vec<String>, TsGen
                     let quote_style = name.0[0].quote_style;
 
                     Some(name.to_string().trim_table_name(quote_style))
-                },
+                }
         _ => unimplemented!(),
       }
     })

@@ -1,5 +1,5 @@
-use sqlparser::ast::{Assignment, Expr, Join, SelectItem, TableFactor, TableWithJoins};
 use crate::common::table_name::TrimQuotes;
+use sqlparser::ast::{Assignment, Expr, Join, SelectItem, TableFactor, TableWithJoins};
 
 pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
   table_with_joins
@@ -16,7 +16,7 @@ pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
                 let quote_style = name.0[0].quote_style;
 
                 Some(name.to_string().trim_table_name(quote_style))
-            },
+            }
       _ => None,
     })
     .expect("The query does not have a default table, impossible to generate types")
