@@ -68,3 +68,8 @@ SELECT *
 FROM items
 WHERE food_type LIKE $1
 `
+
+// SELECT with quoted table names
+const sql14 = sql`
+SELECT * FROM "items" WHERE id = $1
+`
