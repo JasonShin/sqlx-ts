@@ -6,6 +6,7 @@ use crate::ts_generator::sql_parser::translate_insert::translate_insert;
 use crate::ts_generator::sql_parser::translate_query::translate_query;
 use crate::ts_generator::sql_parser::translate_update::translate_update;
 use crate::ts_generator::types::ts_query::TsQuery;
+use crate::common::table_name::TrimQuotes;
 
 use sqlparser::ast::{FromTable, Statement};
 
@@ -40,7 +41,9 @@ pub async fn translate_stmt(
       insert_alias: _,
     } => {
       let source = *source.to_owned().unwrap();
-      let table_name = table_name.to_string();
+      let quote_style = table_name.0[0].quote_style;
+            let table_name = table_name.to_string();
+            let table_name = table_name.trim_table_name(quote_style);
       let table_name = table_name.as_str();
       let query_for_logging = sql_statement.to_string();
       let query_for_logging = &query_for_logging.as_str();

@@ -17,3 +17,9 @@ INSERT INTO items
 VALUES (1, 'korean', 20, 1, 5)
 RETURNING id as id1;
 `
+
+const quoted = sql`
+INSERT INTO "items"
+VALUES (1, 'korean', 20, 1, 5)
+RETURNING id as id1;
+`
