@@ -1,4 +1,6 @@
 use crate::common::table_name::TrimQuotes;
+use crate::common::table_name::TrimQuotes;
+use openssl::x509;
 use sqlparser::ast::{Assignment, Expr, Join, SelectItem, TableFactor, TableWithJoins};
 
 pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
@@ -28,7 +30,8 @@ pub fn find_table_name_from_identifier(
 ) -> Option<String> {
   let left = identifiers
     .first()
-    .expect("The first identifier must exist in order to find the table name")
+    .map(|x| x.trim_table_name(quote_style))
+        .expect("The first identifier must exist in order to find the table name")
     .to_owned();
   let right = identifiers.get(1);
   let default_table_name = get_default_table(table_with_joins);
@@ -105,7 +108,10 @@ pub fn translate_table_from_expr(table_with_joins: &Option<Vec<TableWithJoins>>,
     Expr::Identifier(_) => Some(get_default_table(table_with_joins)),
     Expr::CompoundIdentifier(compound_identifier) => {
       // Assumes that [0] of the compound identifiers is the alias that points to the table
-      let identifiers = &compound_identifier.iter().map(|x| x.to_string()).collect();
+      let identifiers = &compound_identifier.iter().map(|x| {
+                let quote_style = x.quote_style;
+                x.to_string().trim_table_name(quote_style)
+            }).collect();
       find_table_name_from_identifier(table_with_joins, identifiers)
     }
     _ => None,
@@ -137,32 +143,33 @@ pub fn translate_table_with_joins(
   let table_with_joins = table_with_joins.as_ref().unwrap();
   let default_table_name = get_default_table(table_with_joins);
 
-  match select_item {
-    SelectItem::UnnamedExpr(expr) => {
-      match expr {
-        Expr::CompoundIdentifier(compound_identifier) => {
-          // Assumes that [0] of the compound identifiers is the alias that points to the table
-          let identifiers = &compound_identifier.iter().map(|x| x.to_string()).collect();
-          find_table_name_from_identifier(table_with_joins, identifiers)
+  println!("checking select item: {:?}", select_item);
+    match select_item {
+        SelectItem::UnnamedExpr(expr) => {
+            match expr {
+                Expr::CompoundIdentifier(compound_identifier) => {
+                    // Assumes that [0] of the compound identifiers is the alias that points to the table
+                    let identifiers = &compound_identifier.iter().map(|x| x.to_string()).collect();
+                    find_table_name_from_identifier(table_with_joins, identifiers)
+                }
+                _ => Some(default_table_name),
+            }
         }
-        _ => Some(default_table_name),
-      }
+        SelectItem::Wildcard(_) => Some(default_table_name),
+        SelectItem::ExprWithAlias { expr, alias: _ } => match &expr {
+            Expr::Identifier(_) => {
+                // if the select item is not a compound identifier with an expression, just return the default table name
+                Some(default_table_name)
+            }
+            Expr::CompoundIdentifier(compound_identifier) => {
+                let identifiers = &compound_identifier.iter().map(|x| x.to_string()).collect();
+                find_table_name_from_identifier(table_with_joins, identifiers)
+            }
+            _ => Some(default_table_name),
+        },
+        // This condition would never reach because translate_table_with_joins is only used when processing non wildcard select items
+        SelectItem::QualifiedWildcard(_, _) => {
+            unimplemented!("QualifiedWildcard is not supported yet when translating table with joins")
+        }
     }
-    SelectItem::Wildcard(_) => Some(default_table_name),
-    SelectItem::ExprWithAlias { expr, alias: _ } => match &expr {
-      Expr::Identifier(_) => {
-        // if the select item is not a compound identifier with an expression, just return the default table name
-        Some(default_table_name)
-      }
-      Expr::CompoundIdentifier(compound_identifier) => {
-        let identifiers = &compound_identifier.iter().map(|x| x.to_string()).collect();
-        find_table_name_from_identifier(table_with_joins, identifiers)
-      }
-      _ => Some(default_table_name),
-    },
-    // This condition would never reach because translate_table_with_joins is only used when processing non wildcard select items
-    SelectItem::QualifiedWildcard(_, _) => {
-      unimplemented!("QualifiedWildcard is not supported yet when translating table with joins")
-    }
-  }
 }

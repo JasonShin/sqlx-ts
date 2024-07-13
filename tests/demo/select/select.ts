@@ -73,3 +73,9 @@ WHERE food_type LIKE $1
 const sql14 = sql`
 SELECT * FROM "items" WHERE id = $1
 `
+
+const sql15 = sql`
+SELECT items.id, tables.id
+FROM "items"
+JOIN "tables" ON "items"."table_id" = "tables"."id"
+`
