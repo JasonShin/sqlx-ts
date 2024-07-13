@@ -1,5 +1,5 @@
 use crate::common::table_name::TrimQuotes;
-use openssl::x509;
+use openssl::{error::Error, x509};
 use sqlparser::ast::{Assignment, Expr, Join, SelectItem, TableFactor, TableWithJoins};
 
 pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
@@ -52,13 +52,16 @@ pub fn find_table_name_from_identifier(
         version: _,
         partitions: _,
       } => {
-        if Some(left.to_string()) == alias.to_owned().map(|a| a.to_string()) || left == name.to_string() {
-          let quote_style = name.0[0].quote_style;
+        let alias_quote_style = alias.to_owned().map(|a| a.name.quote_style).flatten();
+                let alias: Option<String> = alias.to_owned().map(|a| a.name.to_string().trim_table_name(alias_quote_style));
+                let name_quote_style = name.0[0].quote_style;
+                let name = name.to_string().trim_table_name(name_quote_style);
+                if Some(left.to_string()) == alias.to_owned() || left == name {
                     // If the identifier matches the alias, then return the table name
-                    return Some(name.to_string().trim_table_name(quote_style));
+                    return Some(name.to_owned());
         }
       }
-      _ => unimplemented!(),
+      _ => Errors::TableFactorWhileProcessingTableWithJoins(relation.to_string()),
     }
   }
 
@@ -76,15 +79,16 @@ pub fn find_table_name_from_identifier(
         version: _,
         partitions: _,
       } => {
-        let alias = alias.to_owned().map(|x| x.to_string());
-        let name = objectName.to_string();
+        let alias_quote_style = alias.to_owned().map(|a| a.name.quote_style).flatten();
+                let alias = alias.to_owned().map(|x| x.to_string().trim_table_name(alias_quote_style));
+                let name_quote_style = objectName.0[0].quote_style;
+        let name = objectName.to_string().trim_table_name(name_quote_style);
 
-        if Some(left.to_owned()) == alias || left == name {
-          let quote_style = objectName.0[0].quote_style;
-                    return Some(name.trim_table_name(quote_style));
+                if Some(left.to_owned()) == alias || left == name {
+                    return Some(name);
         }
-      }
-      _ => unimplemented!(),
+      },
+      _ => Errors::TableFactorWhileProcessingTableWithJoins(join.to_string()),
     }
   }
   None
@@ -160,7 +164,11 @@ pub fn translate_table_with_joins(
                 Some(default_table_name)
             }
             Expr::CompoundIdentifier(compound_identifier) => {
-                let identifiers = &compound_identifier.iter().map(|x| x.to_string()).collect();
+                let identifiers = &compound_identifier.iter().map(|x| {
+                    let quote_style = x.quote_style;
+                    x.to_string().trim_table_name(quote_style)
+                }).collect();
+                println!("checking CompoundIdentifier {:?}", identifiers);
                 find_table_name_from_identifier(table_with_joins, identifiers)
             }
             _ => Some(default_table_name),
