@@ -1,5 +1,4 @@
 use crate::common::table_name::TrimQuotes;
-use crate::common::table_name::TrimQuotes;
 use openssl::x509;
 use sqlparser::ast::{Assignment, Expr, Join, SelectItem, TableFactor, TableWithJoins};
 
@@ -28,9 +27,8 @@ pub fn find_table_name_from_identifier(
   table_with_joins: &Vec<TableWithJoins>,
   identifiers: &Vec<String>, // can be the actual identifier or an alias
 ) -> Option<String> {
-  let left = identifiers
-    .first()
-    .map(|x| x.trim_table_name(quote_style))
+    let left = identifiers
+        .first()
         .expect("The first identifier must exist in order to find the table name")
     .to_owned();
   let right = identifiers.get(1);
