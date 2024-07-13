@@ -1,7 +1,6 @@
 #[cfg(test)]
 mod string_functions_tests {
     use assert_cmd::prelude::*;
-    use predicates::prelude::*;
     use std::env;
     use std::fs;
     use std::io::Write;

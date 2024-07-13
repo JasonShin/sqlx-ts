@@ -3,7 +3,6 @@
 #[cfg(test)]
 mod sqlxrc_file {
     use assert_cmd::prelude::*;
-    use predicates::prelude::*;
     use std::env;
     use std::fs;
     use std::io::Write;
