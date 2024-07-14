@@ -177,7 +177,8 @@ pub async fn translate_expr(
         let ident = idents[1].value.clone();
 
         let table_name = translate_table_from_expr(table_with_joins, expr)
-          .ok_or_else(|| TsGeneratorError::IdentifierWithoutTable(expr.to_string()))?;
+          // todo, we should be throwing identifier without table and give enough context
+                    .ok_or_else(|| TsGeneratorError::IdentifierWithoutTable(expr.to_string()))?;
 
         let table_details = &DB_SCHEMA
           .lock()

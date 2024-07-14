@@ -115,9 +115,9 @@ pub fn find_table_name_from_identifier(
 /// given `SELECT id FROM items`
 /// expression is `id`
 ///
-pub fn translate_table_from_expr(table_with_joins: &Option<Vec<TableWithJoins>>, expr: &Expr) -> Result<String> {
+pub fn translate_table_from_expr(table_with_joins: &Option<Vec<TableWithJoins>>, expr: &Expr) -> Result<String, TsGeneratorError> {
   if table_with_joins.is_none() {
-    return None;
+    return Err(TsGeneratorError::UnknownErrorWhileProcessingTableWithJoins("".to_string()));
   }
 
   let table_with_joins = table_with_joins.as_ref().unwrap();
@@ -134,18 +134,18 @@ pub fn translate_table_from_expr(table_with_joins: &Option<Vec<TableWithJoins>>,
                 .collect();
       find_table_name_from_identifier(table_with_joins, identifiers)
     }
-    _ => None,
+    _ => Err(TsGeneratorError::UnknownErrorWhileProcessingTableWithJoins("".to_string())),
   }
 }
 
 pub fn translate_table_from_assignments(
   table_with_joins: &Vec<TableWithJoins>,
   assignment: &Assignment,
-) -> Option<String> {
+) -> Result<String, TsGeneratorError> {
   let identifier = assignment.id.first();
   match identifier {
     Some(identifier) => find_table_name_from_identifier(table_with_joins, &vec![identifier.value.to_string()]),
-    None => Some(get_default_table(table_with_joins)),
+    None => Ok(get_default_table(table_with_joins)),
   }
 }
 
@@ -155,9 +155,9 @@ pub fn translate_table_from_assignments(
 pub fn translate_table_with_joins(
   table_with_joins: &Option<Vec<TableWithJoins>>,
   select_item: &SelectItem,
-) -> Option<String> {
+) -> Result<String, TsGeneratorError> {
   if table_with_joins.is_none() {
-    return None;
+    return Err(TsGeneratorError::UnknownErrorWhileProcessingTableWithJoins("".to_string()));
   }
 
   let table_with_joins = table_with_joins.as_ref().unwrap();
@@ -172,14 +172,14 @@ pub fn translate_table_with_joins(
                     let identifiers = &compound_identifier.iter().map(|x| x.to_string()).collect();
                     find_table_name_from_identifier(table_with_joins, identifiers)
                 }
-                _ => Some(default_table_name),
+                _ => Ok(default_table_name),
             }
         }
-        SelectItem::Wildcard(_) => Some(default_table_name),
+        SelectItem::Wildcard(_) => Ok(default_table_name),
         SelectItem::ExprWithAlias { expr, alias: _ } => match &expr {
             Expr::Identifier(_) => {
                 // if the select item is not a compound identifier with an expression, just return the default table name
-                Some(default_table_name)
+                Ok(default_table_name)
             }
             Expr::CompoundIdentifier(compound_identifier) => {
                 let identifiers = &compound_identifier
@@ -192,7 +192,7 @@ pub fn translate_table_with_joins(
                 println!("checking CompoundIdentifier {:?}", identifiers);
                 find_table_name_from_identifier(table_with_joins, identifiers)
             }
-            _ => Some(default_table_name),
+            _ => Ok(default_table_name),
         },
         // This condition would never reach because translate_table_with_joins is only used when processing non wildcard select items
         SelectItem::QualifiedWildcard(_, _) => {
