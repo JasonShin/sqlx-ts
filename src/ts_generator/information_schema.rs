@@ -1,6 +1,5 @@
 use bb8::Pool;
 use mysql_async::prelude::Queryable;
-use mysql_async::prelude::*;
 use std::collections::HashMap;
 use tokio::sync::Mutex;
 use crate::common::errors::{DB_CONN_POOL_RETRIEVE_ERROR, DB_SCHEME_READ_ERROR};
