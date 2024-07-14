@@ -1,12 +1,12 @@
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::{core::connection::DBConn, ts_generator::sql_parser::translate_insert::translate_insert_returning};
 
+use crate::common::table_name::TrimQuotes;
 use crate::ts_generator::sql_parser::translate_delete::translate_delete;
 use crate::ts_generator::sql_parser::translate_insert::translate_insert;
 use crate::ts_generator::sql_parser::translate_query::translate_query;
 use crate::ts_generator::sql_parser::translate_update::translate_update;
 use crate::ts_generator::types::ts_query::TsQuery;
-use crate::common::table_name::TrimQuotes;
 
 use sqlparser::ast::{FromTable, Statement};
 

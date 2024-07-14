@@ -1,6 +1,7 @@
 use crate::common::table_name::TrimQuotes;
-use openssl::{error::Error, x509};
-use sqlparser::ast::{Assignment, Expr, Join, SelectItem, TableFactor, TableWithJoins};
+use crate::ts_generator::errors::TsGeneratorError;
+use color_eyre::eyre::Result;
+use sqlparser::ast::{Assignment, Expr, Join, ObjectName, SelectItem, TableFactor, TableWithJoins};
 
 pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
   table_with_joins
@@ -26,7 +27,7 @@ pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
 pub fn find_table_name_from_identifier(
   table_with_joins: &Vec<TableWithJoins>,
   identifiers: &Vec<String>, // can be the actual identifier or an alias
-) -> Option<String> {
+) -> Result<String, TsGeneratorError> {
     let left = identifiers
         .first()
         .expect("The first identifier must exist in order to find the table name")
@@ -38,7 +39,7 @@ pub fn find_table_name_from_identifier(
   if left == default_table_name || right.is_none() {
     // If right is none, it means we cannot further assume and try to find the table name
     // we should simply return the default table name
-    return Some(default_table_name);
+    return Ok(default_table_name);
   }
 
   // Check the default table with joins to see if any left identifier (table name) matches any alias of tables or table name itself
@@ -53,17 +54,23 @@ pub fn find_table_name_from_identifier(
         partitions: _,
       } => {
         let alias_quote_style = alias.to_owned().map(|a| a.name.quote_style).flatten();
-                let alias: Option<String> = alias.to_owned().map(|a| a.name.to_string().trim_table_name(alias_quote_style));
+                let alias: Option<String> = alias
+                    .to_owned()
+                    .map(|a| a.name.to_string().trim_table_name(alias_quote_style));
                 let name_quote_style = name.0[0].quote_style;
                 let name = name.to_string().trim_table_name(name_quote_style);
                 if Some(left.to_string()) == alias.to_owned() || left == name {
                     // If the identifier matches the alias, then return the table name
-                    return Some(name.to_owned());
+                    return Ok(name.to_owned());
         }
       }
-      _ => Errors::TableFactorWhileProcessingTableWithJoins(relation.to_string()),
+      _ => {
+                return Err(TsGeneratorError::TableFactorWhileProcessingTableWithJoins(
+                    relation.to_string(),
+                ))
+            }
+        }
     }
-  }
 
   let joins = &table_with_joins
     .iter()
@@ -80,18 +87,26 @@ pub fn find_table_name_from_identifier(
         partitions: _,
       } => {
         let alias_quote_style = alias.to_owned().map(|a| a.name.quote_style).flatten();
-                let alias = alias.to_owned().map(|x| x.to_string().trim_table_name(alias_quote_style));
+                let alias = alias
+                    .to_owned()
+                    .map(|x| x.to_string().trim_table_name(alias_quote_style));
                 let name_quote_style = objectName.0[0].quote_style;
         let name = objectName.to_string().trim_table_name(name_quote_style);
 
                 if Some(left.to_owned()) == alias || left == name {
-                    return Some(name);
+                    return Ok(name);
         }
-      },
-      _ => Errors::TableFactorWhileProcessingTableWithJoins(join.to_string()),
+      }
+      _ => {
+                return Err(TsGeneratorError::TableFactorWhileProcessingTableWithJoins(
+                    join.to_string(),
+                ));
+            }
+        }
     }
-  }
-  None
+    Err(TsGeneratorError::UnknownErrorWhileProcessingTableWithJoins(
+        "".to_string(),
+    ))
 }
 
 /// The function takes in an expression such as
@@ -100,20 +115,23 @@ pub fn find_table_name_from_identifier(
 /// given `SELECT id FROM items`
 /// expression is `id`
 ///
-pub fn translate_table_from_expr(table_with_joins: &Option<Vec<TableWithJoins>>, expr: &Expr) -> Option<String> {
+pub fn translate_table_from_expr(table_with_joins: &Option<Vec<TableWithJoins>>, expr: &Expr) -> Result<String> {
   if table_with_joins.is_none() {
     return None;
   }
 
   let table_with_joins = table_with_joins.as_ref().unwrap();
   match expr {
-    Expr::Identifier(_) => Some(get_default_table(table_with_joins)),
+    Expr::Identifier(_) => Ok(get_default_table(table_with_joins)),
     Expr::CompoundIdentifier(compound_identifier) => {
       // Assumes that [0] of the compound identifiers is the alias that points to the table
-      let identifiers = &compound_identifier.iter().map(|x| {
-                let quote_style = x.quote_style;
-                x.to_string().trim_table_name(quote_style)
-            }).collect();
+      let identifiers = &compound_identifier
+                .iter()
+                .map(|x| {
+                    let quote_style = x.quote_style;
+                    x.to_string().trim_table_name(quote_style)
+                })
+                .collect();
       find_table_name_from_identifier(table_with_joins, identifiers)
     }
     _ => None,
@@ -164,10 +182,13 @@ pub fn translate_table_with_joins(
                 Some(default_table_name)
             }
             Expr::CompoundIdentifier(compound_identifier) => {
-                let identifiers = &compound_identifier.iter().map(|x| {
-                    let quote_style = x.quote_style;
-                    x.to_string().trim_table_name(quote_style)
-                }).collect();
+                let identifiers = &compound_identifier
+                    .iter()
+                    .map(|x| {
+                        let quote_style = x.quote_style;
+                        x.to_string().trim_table_name(quote_style)
+                    })
+                    .collect();
                 println!("checking CompoundIdentifier {:?}", identifiers);
                 find_table_name_from_identifier(table_with_joins, identifiers)
             }

@@ -29,6 +29,8 @@ pub enum TsGeneratorError {
   FromWithoutKeyword(String),
   #[error("[E013] Failed to handle a table factor of a FROM statement: table factor: `{0}`")]
     TableFactorWhileProcessingTableWithJoins(String),
+    #[error("[E014] Failed to find a table name from a FROM statement: statement: `{0}`")]
+    UnknownErrorWhileProcessingTableWithJoins(String),
     #[error("Unknown error: `{0}`")]
   Unknown(String),
 }
