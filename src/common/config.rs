@@ -103,7 +103,8 @@ impl Config {
       return base_ignore_patterns.to_vec();
     }
 
-    let file_based_ignore_config = &file_based_ignore_config.unwrap();
+    let file_based_ignore_config = &file_based_ignore_config
+        .expect("Failed to read the .sqlxignore file. Please check the contents of the ignore file and try again - https://jasonshin.github.io/sqlx-ts/api/2.ignore-patterns.html");
     let file_based_ignore_config = file_based_ignore_config.split('\n');
     let file_based_ignore_config: Vec<&str> = file_based_ignore_config.clone().collect();
 
