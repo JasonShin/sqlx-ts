@@ -2,19 +2,19 @@
 ///
 #[cfg(test)]
 mod column_naming_convention_tests {
-    use assert_cmd::prelude::*;
-    use predicates::prelude::*;
-    use std::env;
-    use std::fs;
-    use std::io::Write;
-    use std::process::Command;
-    use tempfile::tempdir;
+  use assert_cmd::prelude::*;
+  use predicates::prelude::*;
+  use std::env;
+  use std::fs;
+  use std::io::Write;
+  use std::process::Command;
+  use tempfile::tempdir;
 
-    use pretty_assertions::assert_eq;
-    use test_utils::test_utils::TSString;
-    use test_utils::{run_test, sandbox::TestConfig};
+  use pretty_assertions::assert_eq;
+  use test_utils::test_utils::TSString;
+  use test_utils::{run_test, sandbox::TestConfig};
 
-    #[rustfmt::skip]
+  #[rustfmt::skip]
 run_test!(camel_case, TestConfig::new("postgres", true, None, Some(".sqlxrc.column_camel.json".to_string())),
 //// TS query ////
 r#"
@@ -43,7 +43,7 @@ export interface ISomeQueryQuery {
 "#
 );
 
-    #[rustfmt::skip]
+  #[rustfmt::skip]
 run_test!(pascal_case, TestConfig::new("postgres", true, None, Some(".sqlxrc.column_pascal.json".to_string())),
 
 //// TS query ////
@@ -74,7 +74,7 @@ export interface ISomeQueryQuery {
 "#
 );
 
-    #[rustfmt::skip]
+  #[rustfmt::skip]
 run_test!(pascal_and_ignore_convert_to_camel_case, TestConfig::new("postgres", true, None, Some(".sqlxrc.column_pascal_override.json".to_string())),
 
 //// TS query ////

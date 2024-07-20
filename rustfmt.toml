@@ -6,3 +6,4 @@ chain_width = 70
 match_arm_leading_pipes = "Never"
 # https://github.com/rust-lang/rustfmt/blob/master/Configurations.md#merge_derives
 merge_derives = true
+tab_spaces = 2

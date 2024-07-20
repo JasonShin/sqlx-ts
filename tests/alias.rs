@@ -1,111 +1,116 @@
 #[cfg(test)]
 mod alias {
-    use assert_cmd::prelude::*;
+  use assert_cmd::prelude::*;
 
-    use std::fs;
-    use std::io::Write;
-    use std::process::Command;
-    use tempfile::tempdir;
+  use std::fs;
+  use std::io::Write;
+  use std::process::Command;
+  use tempfile::tempdir;
 
-    #[test]
-    fn should_warn_on_clashing_field_names_on_join() -> Result<(), Box<dyn std::error::Error>> {
-        let ts_content = r#"
+  #[test]
+  fn should_warn_on_clashing_field_names_on_join() -> Result<(), Box<dyn std::error::Error>> {
+    let ts_content = r#"
 const someQuery = sql`
 SELECT items.table_id, items.id, tables.id
 FROM items
 JOIN tables ON items.table_id = tables.id
 `"#;
 
-        // SETUP
-        let dir = tempdir()?;
-        let parent_path = dir.path();
-        let file_path = parent_path.join("index.ts");
-        let mut temp_file = fs::File::create(file_path)?;
-        writeln!(temp_file, "{}", ts_content)?;
+    // SETUP
+    let dir = tempdir()?;
+    let parent_path = dir.path();
+    let file_path = parent_path.join("index.ts");
+    let mut temp_file = fs::File::create(file_path)?;
+    writeln!(temp_file, "{}", ts_content)?;
 
-        // EXECUTE
-        let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
-        cmd.arg(parent_path.to_str().unwrap())
-            .arg("--ext=ts")
-            .arg("--config=.sqlxrc.sample.json")
-            .arg("-g");
+    // EXECUTE
+    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    cmd
+      .arg(parent_path.to_str().unwrap())
+      .arg("--ext=ts")
+      .arg("--config=.sqlxrc.sample.json")
+      .arg("-g");
 
-        // ASSERT
-        cmd.assert().success()
+    // ASSERT
+    cmd.assert().success()
        .stdout(predicates::str::contains("Missing an alias for a compound identifier, using items_table_id as the key name. Prefer adding an alias for example: `items.table_id AS table_id`"))
        .stdout(predicates::str::contains("Missing an alias for a compound identifier, using items_id as the key name. Prefer adding an alias for example: `items.id AS id`"))
        .stdout(predicates::str::contains("Missing an alias for a compound identifier, using tables_id as the key name. Prefer adding an alias for example: `tables.id AS id`"))
       .stdout(predicates::str::contains("No SQL errors detected!"));
 
-        Ok(())
-    }
+    Ok(())
+  }
 
-    #[test]
-    #[should_panic(
-        expected = "Impossible to calculate appropriate field names of a wildcard query with multiple tables."
-    )]
-    fn should_not_warn_on_field_names_of_asterix() {
-        let ts_content = r#"
+  #[test]
+  #[should_panic(
+    expected = "Impossible to calculate appropriate field names of a wildcard query with multiple tables."
+  )]
+  fn should_not_warn_on_field_names_of_asterix() {
+    let ts_content = r#"
         const someQuery = sql`
         SELECT *
         FROM items
         `"#;
 
-        // SETUP
-        let dir = tempdir().unwrap();
-        let parent_path = dir.path();
-        let file_path = parent_path.join("index.ts");
-        let mut temp_file = fs::File::create(file_path).unwrap();
-        writeln!(temp_file, "{}", ts_content).unwrap();
+    // SETUP
+    let dir = tempdir().unwrap();
+    let parent_path = dir.path();
+    let file_path = parent_path.join("index.ts");
+    let mut temp_file = fs::File::create(file_path).unwrap();
+    writeln!(temp_file, "{}", ts_content).unwrap();
 
-        // EXECUTE
-        let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
-        cmd.arg(parent_path.to_str().unwrap())
-            .arg("--ext=ts")
-            .arg("--config=.sqlxrc.sample.json")
-            .arg("-g");
+    // EXECUTE
+    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    cmd
+      .arg(parent_path.to_str().unwrap())
+      .arg("--ext=ts")
+      .arg("--config=.sqlxrc.sample.json")
+      .arg("-g");
 
-        // ASSERT
-        cmd.assert()
-            .success()
-            // check not condition
-            .try_stdout(predicates::str::contains(
-                "Impossible to calculate appropriate field names of a wildcard query with multiple tables.",
-            ))
-            .unwrap();
-    }
+    // ASSERT
+    cmd
+      .assert()
+      .success()
+      // check not condition
+      .try_stdout(predicates::str::contains(
+        "Impossible to calculate appropriate field names of a wildcard query with multiple tables.",
+      ))
+      .unwrap();
+  }
 
-    #[test]
-    fn should_warn_on_clashing_field_names_on_join_asterix() -> Result<(), Box<dyn std::error::Error>> {
-        let ts_content = r#"
+  #[test]
+  fn should_warn_on_clashing_field_names_on_join_asterix() -> Result<(), Box<dyn std::error::Error>> {
+    let ts_content = r#"
         const someQuery = sql`
         SELECT *
         FROM items
         JOIN tables ON items.table_id = tables.id
         `"#;
 
-        // SETUP
-        let dir = tempdir()?;
-        let parent_path = dir.path();
-        let file_path = parent_path.join("index.ts");
-        let mut temp_file = fs::File::create(file_path)?;
-        writeln!(temp_file, "{}", ts_content)?;
+    // SETUP
+    let dir = tempdir()?;
+    let parent_path = dir.path();
+    let file_path = parent_path.join("index.ts");
+    let mut temp_file = fs::File::create(file_path)?;
+    writeln!(temp_file, "{}", ts_content)?;
 
-        // EXECUTE
-        let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
-        cmd.arg(parent_path.to_str().unwrap())
-            .arg("--ext=ts")
-            .arg("--config=.sqlxrc.sample.json")
-            .arg("-g");
+    // EXECUTE
+    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    cmd
+      .arg(parent_path.to_str().unwrap())
+      .arg("--ext=ts")
+      .arg("--config=.sqlxrc.sample.json")
+      .arg("-g");
 
-        // ASSERT
-        cmd.assert()
-            .success()
-            .stdout(predicates::str::contains(
-                "Impossible to calculate appropriate field names of a wildcard query with multiple tables.",
-            ))
-            .stdout(predicates::str::contains("No SQL errors detected!"));
+    // ASSERT
+    cmd
+      .assert()
+      .success()
+      .stdout(predicates::str::contains(
+        "Impossible to calculate appropriate field names of a wildcard query with multiple tables.",
+      ))
+      .stdout(predicates::str::contains("No SQL errors detected!"));
 
-        Ok(())
-    }
+    Ok(())
+  }
 }

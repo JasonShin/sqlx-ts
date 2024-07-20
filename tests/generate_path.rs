@@ -2,19 +2,19 @@
 ///
 #[cfg(test)]
 mod generate_path_tests {
-    use assert_cmd::prelude::*;
-    use std::env;
-    use std::fs;
-    use std::io::Write;
-    use std::path::PathBuf;
-    use std::process::Command;
-    use tempfile::tempdir;
+  use assert_cmd::prelude::*;
+  use std::env;
+  use std::fs;
+  use std::io::Write;
+  use std::path::PathBuf;
+  use std::process::Command;
+  use tempfile::tempdir;
 
-    use pretty_assertions::assert_eq;
-    use test_utils::test_utils::TSString;
-    use test_utils::{run_test, sandbox::TestConfig};
+  use pretty_assertions::assert_eq;
+  use test_utils::test_utils::TSString;
+  use test_utils::{run_test, sandbox::TestConfig};
 
-    #[rustfmt::skip]
+  #[rustfmt::skip]
 run_test!(should_generate_path, TestConfig::new("postgres", true, Some(PathBuf::from("types/types.ts")), Some(".sqlxrc.camelcase1.json".to_string())),
 //// TS query ////
 r#"
