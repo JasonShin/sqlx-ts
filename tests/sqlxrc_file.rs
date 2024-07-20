@@ -2,18 +2,18 @@
 ///
 #[cfg(test)]
 mod sqlxrc_file {
-    use assert_cmd::prelude::*;
-    use std::env;
-    use std::fs;
-    use std::io::Write;
-    use std::process::Command;
-    use tempfile::tempdir;
+  use assert_cmd::prelude::*;
+  use std::env;
+  use std::fs;
+  use std::io::Write;
+  use std::process::Command;
+  use tempfile::tempdir;
 
-    use pretty_assertions::assert_eq;
-    use test_utils::test_utils::TSString;
-    use test_utils::{run_test, sandbox::TestConfig};
+  use pretty_assertions::assert_eq;
+  use test_utils::test_utils::TSString;
+  use test_utils::{run_test, sandbox::TestConfig};
 
-    #[rustfmt::skip]
+  #[rustfmt::skip]
 run_test!(not_enabled, TestConfig::new("postgres", false, None, Some(".sqlxrc.not_enabled.json".to_string())),
 //// TS query ////
 r#"
@@ -30,7 +30,7 @@ FROM items;
 ""
 );
 
-    #[rustfmt::skip]
+  #[rustfmt::skip]
 run_test!(not_enabled_but_enabled_cli, TestConfig::new("postgres", true, None, Some(".sqlxrc.not_enabled.json".to_string())),
 //// TS query ////
 r#"
@@ -60,7 +60,7 @@ export interface ISomeQueryQuery {
 "#
 );
 
-    #[rustfmt::skip]
+  #[rustfmt::skip]
 run_test!(enabled_and_enabled_cli, TestConfig::new("postgres", true, None, Some(".sqlxrc.enabled.json".to_string())),
 //// TS query ////
 r#"
@@ -90,7 +90,7 @@ export interface ISomeQueryQuery {
 "#
 );
 
-    #[rustfmt::skip]
+  #[rustfmt::skip]
 run_test!(enabled_but_not_enabled_cli, TestConfig::new("postgres", false, None, Some(".sqlxrc.enabled.json".to_string())),
 //// TS query ////
 r#"

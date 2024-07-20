@@ -1,13 +1,13 @@
 #[cfg(test)]
 mod mysql_failure_path_tests {
-    use assert_cmd::prelude::*;
+  use assert_cmd::prelude::*;
 
-    use std::fs;
-    use std::io::Write;
-    use std::process::Command;
-    use tempfile::tempdir;
+  use std::fs;
+  use std::io::Write;
+  use std::process::Command;
+  use tempfile::tempdir;
 
-    macro_rules! failure_with_all_cli_args {
+  macro_rules! failure_with_all_cli_args {
 ($($name:ident: $value:expr,)*) => {
 $(
 // MACRO STARTS
@@ -155,12 +155,12 @@ do {
 // MACRO ENDS
 )*};}
 
-    failure_with_all_cli_args! {
-        js_failure_with_all_cli_args: "js",
-        ts_failure_with_all_cli_args: "ts",
-    }
+  failure_with_all_cli_args! {
+      js_failure_with_all_cli_args: "js",
+      ts_failure_with_all_cli_args: "ts",
+  }
 
-    macro_rules! fails_to_find_an_unknown_table_using_aliased_import {
+  macro_rules! fails_to_find_an_unknown_table_using_aliased_import {
     ($($name:ident: $value:expr,)*) => {
     $(
 // MACRO STARTS
@@ -230,8 +230,8 @@ function test() {
 // MACRO ENDS
 )*};}
 
-    fails_to_find_an_unknown_table_using_aliased_import! {
-        js_fails_to_find_an_unknown_table_using_aliased_import: "js",
-        ts_fails_to_find_an_unknown_table_using_aliased_import: "ts",
-    }
+  fails_to_find_an_unknown_table_using_aliased_import! {
+      js_fails_to_find_an_unknown_table_using_aliased_import: "js",
+      ts_fails_to_find_an_unknown_table_using_aliased_import: "ts",
+  }
 }

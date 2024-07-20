@@ -2,19 +2,19 @@
 ///
 #[cfg(test)]
 mod convert_camelcase_tests {
-    use assert_cmd::prelude::*;
-    use predicates::prelude::*;
-    use std::env;
-    use std::fs;
-    use std::io::Write;
-    use std::process::Command;
-    use tempfile::tempdir;
+  use assert_cmd::prelude::*;
+  use predicates::prelude::*;
+  use std::env;
+  use std::fs;
+  use std::io::Write;
+  use std::process::Command;
+  use tempfile::tempdir;
 
-    use pretty_assertions::assert_eq;
-    use test_utils::test_utils::TSString;
-    use test_utils::{run_test, sandbox::TestConfig};
+  use pretty_assertions::assert_eq;
+  use test_utils::test_utils::TSString;
+  use test_utils::{run_test, sandbox::TestConfig};
 
-    #[rustfmt::skip]
+  #[rustfmt::skip]
 run_test!(retain_original, TestConfig::new("postgres", true, None, Some(".sqlxrc.camelcase1.json".to_string())),
 //// TS query ////
 r#"
@@ -44,7 +44,7 @@ export interface ISomeQueryQuery {
 "#
 );
 
-    #[rustfmt::skip]
+  #[rustfmt::skip]
 run_test!(convert_camelcase, TestConfig::new("postgres", true, None, Some(".sqlxrc.camelcase2.json".to_string())),
 
 //// TS query ////
@@ -75,7 +75,7 @@ export interface ISomeQueryQuery {
 "#
 );
 
-    #[rustfmt::skip]
+  #[rustfmt::skip]
 run_test!(retain_original_on_missing_config, TestConfig::new("postgres", true, None, Some(".sqlxrc.camelcase3.json".to_string())),
 
 //// TS query ////

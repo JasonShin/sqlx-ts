@@ -1,17 +1,17 @@
 #[cfg(test)]
 mod string_functions_tests {
-    use assert_cmd::prelude::*;
-    use std::env;
-    use std::fs;
-    use std::io::Write;
-    use std::process::Command;
-    use tempfile::tempdir;
+  use assert_cmd::prelude::*;
+  use std::env;
+  use std::fs;
+  use std::io::Write;
+  use std::process::Command;
+  use tempfile::tempdir;
 
-    use pretty_assertions::assert_eq;
-    use test_utils::test_utils::TSString;
-    use test_utils::{run_test, sandbox::TestConfig};
+  use pretty_assertions::assert_eq;
+  use test_utils::test_utils::TSString;
+  use test_utils::{run_test, sandbox::TestConfig};
 
-    #[rustfmt::skip]
+  #[rustfmt::skip]
 run_test!(overlay, TestConfig::new("postgres", true, None, None),
 
 //// TS query ////
@@ -38,7 +38,7 @@ export interface ISomeQueryQuery {
 "#
 );
 
-    #[rustfmt::skip]
+  #[rustfmt::skip]
 run_test!(trim, TestConfig::new("postgres", true, None, None),
 
 //// TS query ////
@@ -59,7 +59,7 @@ export interface ISomeQueryQuery {
 "#
 );
 
-    #[rustfmt::skip]
+  #[rustfmt::skip]
 run_test!(substring, TestConfig::new("postgres", true, None, None),
 
 //// TS query ////"
@@ -80,7 +80,7 @@ export interface ISomeQueryQuery {
 "#
 );
 
-    #[rustfmt::skip]
+  #[rustfmt::skip]
 run_test!(like, TestConfig::new("postgres", true, None, None),
 
 //// TS query ////"

@@ -6,50 +6,50 @@ use regex::Regex;
 use walkdir::WalkDir;
 
 fn pattern_to_regex(pattern: &str) -> Regex {
-    let pattern = pattern.replace('.', "\\.");
-    let pattern = pattern.replace('*', ".*");
-    let pattern = format!("^{}$", pattern);
-    Regex::new(&pattern).unwrap()
+  let pattern = pattern.replace('.', "\\.");
+  let pattern = pattern.replace('*', ".*");
+  let pattern = format!("^{}$", pattern);
+  Regex::new(&pattern).unwrap()
 }
 
 fn is_match(pattern: &str, path: &Path) -> bool {
-    let regex = pattern_to_regex(pattern);
+  let regex = pattern_to_regex(pattern);
 
-    if pattern.starts_with('!') {
-        !regex.is_match(path.to_str().unwrap())
-    } else {
-        regex.is_match(path.to_str().unwrap())
-    }
+  if pattern.starts_with('!') {
+    !regex.is_match(path.to_str().unwrap())
+  } else {
+    regex.is_match(path.to_str().unwrap())
+  }
 }
 
 pub fn scan_folder<'a>(folder: &'a PathBuf, js_extension: &'a JsExtension) -> Vec<PathBuf> {
-    let ignore_paths = &CONFIG.ignore_patterns;
-    let node_modules_path = folder.join(Path::new("node_modules"));
-    let path = Path::new(folder);
-    let result: Vec<_> = WalkDir::new(path)
-        .follow_links(true)
-        .into_iter()
-        .filter_map(|e| e.ok())
-        .filter(|entry| {
-            // 1. ignore node modules
-            if entry.path().starts_with(node_modules_path.as_path()) {
-                return false;
-            }
+  let ignore_paths = &CONFIG.ignore_patterns;
+  let node_modules_path = folder.join(Path::new("node_modules"));
+  let path = Path::new(folder);
+  let result: Vec<_> = WalkDir::new(path)
+    .follow_links(true)
+    .into_iter()
+    .filter_map(|e| e.ok())
+    .filter(|entry| {
+      // 1. ignore node modules
+      if entry.path().starts_with(node_modules_path.as_path()) {
+        return false;
+      }
 
-            // 2. any custom ignore paths set by user should be ignored
-            let should_ignore = ignore_paths
-                .iter()
-                .any(|ignore| is_match(ignore.as_str(), entry.path()));
-            if should_ignore {
-                return false;
-            }
+      // 2. any custom ignore paths set by user should be ignored
+      let should_ignore = ignore_paths
+        .iter()
+        .any(|ignore| is_match(ignore.as_str(), entry.path()));
+      if should_ignore {
+        return false;
+      }
 
-            let f_name = entry.file_name().to_string_lossy();
+      let f_name = entry.file_name().to_string_lossy();
 
-            f_name.ends_with(js_extension.to_string().as_str())
-        })
-        .map(|entry| entry.path().to_owned())
-        .collect();
+      f_name.ends_with(js_extension.to_string().as_str())
+    })
+    .map(|entry| entry.path().to_owned())
+    .collect();
 
-    result
+  result
 }

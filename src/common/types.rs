@@ -4,54 +4,54 @@ use serde::{Deserialize, Serialize};
 
 #[derive(ValueEnum, Debug, Clone)]
 pub enum JsExtension {
-    Ts,
-    Js,
+  Ts,
+  Js,
 }
 
 #[derive(ValueEnum, Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum DatabaseType {
-    Postgres,
-    Mysql,
+  Postgres,
+  Mysql,
 }
 
 #[derive(ValueEnum, Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum NamingConvention {
-    Upper,
-    Lower,
-    Title,
-    Camel,
-    Pascal,
-    Snake,
-    Kebab,
+  Upper,
+  Lower,
+  Title,
+  Camel,
+  Pascal,
+  Snake,
+  Kebab,
 }
 
 impl NamingConvention {
-    pub fn convert(&self, value: &str) -> String {
-        match &self {
-            NamingConvention::Upper => value.to_case(Case::Upper),
-            NamingConvention::Lower => value.to_case(Case::Lower),
-            NamingConvention::Title => value.to_case(Case::Title),
-            NamingConvention::Camel => value.to_case(Case::Camel),
-            NamingConvention::Pascal => value.to_case(Case::Pascal),
-            NamingConvention::Snake => value.to_case(Case::Snake),
-            NamingConvention::Kebab => value.to_case(Case::Kebab),
-        }
+  pub fn convert(&self, value: &str) -> String {
+    match &self {
+      NamingConvention::Upper => value.to_case(Case::Upper),
+      NamingConvention::Lower => value.to_case(Case::Lower),
+      NamingConvention::Title => value.to_case(Case::Title),
+      NamingConvention::Camel => value.to_case(Case::Camel),
+      NamingConvention::Pascal => value.to_case(Case::Pascal),
+      NamingConvention::Snake => value.to_case(Case::Snake),
+      NamingConvention::Kebab => value.to_case(Case::Kebab),
     }
+  }
 }
 
 #[derive(ValueEnum, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(rename_all = "lowercase")]
 pub enum LogLevel {
-    Info = 3,
-    Warning = 2,
-    Error = 1,
+  Info = 3,
+  Warning = 2,
+  Error = 1,
 }
 
 impl LogLevel {
-    /// Check if the current log level is greater than or equal to the other log level
-    pub fn gte(&self, other: &Self) -> bool {
-        *self as u8 >= *other as u8
-    }
+  /// Check if the current log level is greater than or equal to the other log level
+  pub fn gte(&self, other: &Self) -> bool {
+    *self as u8 >= *other as u8
+  }
 }
