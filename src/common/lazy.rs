@@ -53,8 +53,12 @@ lazy_static! {
                             let search_path_query = format!("SET search_path TO {}", &connection_config.pg_search_path.clone().unwrap().as_str());
                             {
                                 let conn = conn.lock().await;
-                                let conn = conn.get().await.unwrap();
-                                conn.execute(&search_path_query, &[]).await.unwrap();
+                                let conn = conn
+                                    .get()
+                                    .await
+                                    .expect("Unable to connect to the database, please check the connection configuration again https://jasonshin.github.io/sqlx-ts/api/1.connecting-to-db.html");
+                                conn.execute(&search_path_query, &[]).await
+                                    .expect(format!("Failed to execute the search_path query {:?}", search_path_query));
                             }
                         }
                         db_conn

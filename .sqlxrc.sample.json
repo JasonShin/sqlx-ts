@@ -6,7 +6,7 @@
   "connections": {
     "default": {
       "DB_TYPE": "postgres",
-      "DB_HOST": "127.0.0.1",
+      "DB_HOST": "127.0.0.12",
       "DB_PORT": 54321,
       "DB_USER": "postgres",
       "DB_PASS": "postgres",
