@@ -1,5 +1,4 @@
 {
-  "logLevel": "debug",
   "generateTypes": {
     "columnNamingConvention": "camel",
     "convertToCamelCaseColumnName": false

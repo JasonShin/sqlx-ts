@@ -83,6 +83,7 @@ impl Config {
     let file_config_path = &CLI_ARGS.config.clone().unwrap_or(default_config_path);
     let connections = Self::build_configs(&dotenv, file_config_path);
     let generate_types_config = Self::generate_types_config(file_config_path);
+
     let generate_types_config =
       generate_types_config.and_then(|config| if config.enabled { Some(config) } else { None });
     let ignore_patterns = Self::get_ignore_patterns(&default_ignore_config_path);
@@ -100,7 +101,6 @@ impl Config {
     let mut base_ignore_patterns = vec!["*.queries.ts".to_string(), "*.queries.js".to_string()];
     let file_based_ignore_config = fs::read_to_string(ignore_config_path);
 
-    debug!("Read .sqlxignore file - {file_based_ignore_config}");
     if file_based_ignore_config.is_err() {
       return base_ignore_patterns.to_vec();
     }
@@ -126,7 +126,6 @@ impl Config {
     let file_based_config = fs::read_to_string(file_config_path);
     let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
 
-    println!("checking file based config {:?}", file_based_config);
     let cli_default = GenerateTypesConfig {
       enabled: CLI_ARGS.generate_types,
       convert_to_camel_case_column_name: false,
@@ -337,7 +336,6 @@ impl Config {
     let file_based_config = fs::read_to_string(file_config_path);
     let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
     let log_level_from_file = file_based_config.as_ref().ok().and_then(|config| config.log_level);
-    println!("checking log level {:?}", log_level_from_file);
 
     CLI_ARGS.log_level.or(log_level_from_file).unwrap_or(LogLevel::Info)
   }

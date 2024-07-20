@@ -10,7 +10,7 @@ macro_rules! debug {
             use colored::*;
             let level = "[DEBUG]".white();
             let message = $arg;
-            eprintln!("{level} {message}")
+            println!("{level} {message}")
         }
     });
     ($arg:tt, $($arg2:tt)*) => ({
@@ -20,7 +20,7 @@ macro_rules! debug {
             use colored::*;
             let level = "[DEBUG]".white();
             let message = format!("{}", format!($arg, $($arg2)*));
-            eprintln!("{level} {message}")
+            println!("{level} {message}")
         }
     });
 }
@@ -42,7 +42,10 @@ macro_rules! info {
         use crate::common::lazy::CONFIG;
         use crate::common::types::LogLevel;
 
+        println!("hrmmx");
         if CONFIG.log_level.gte(&LogLevel::Info) {
+            println!("hrmmz");
+
             use colored::*;
             let level = "[INFO]".cyan();
             println!("{level} {}", format!($arg, $($arg2)*))
