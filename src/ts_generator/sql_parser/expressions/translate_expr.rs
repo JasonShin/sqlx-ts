@@ -104,7 +104,7 @@ pub async fn get_sql_query_param(
   let table_name: Option<String>;
 
   if table_with_joins.is_some() {
-    table_name = translate_table_from_expr(table_with_joins, &left.clone());
+    table_name = translate_table_from_expr(table_with_joins, &left.clone()).ok();
   } else if single_table_name.is_some() {
     table_name = single_table_name.map(|x| x.to_string());
   } else {
