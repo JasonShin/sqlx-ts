@@ -1,6 +1,7 @@
 use crate::common::dotenv::Dotenv;
 use crate::common::lazy::CLI_ARGS;
 use crate::common::types::{DatabaseType, LogLevel};
+use crate::common::logger::*;
 use regex::Regex;
 use serde;
 use serde::{Deserialize, Serialize};
@@ -99,6 +100,7 @@ impl Config {
     let mut base_ignore_patterns = vec!["*.queries.ts".to_string(), "*.queries.js".to_string()];
     let file_based_ignore_config = fs::read_to_string(ignore_config_path);
 
+    debug!("Read .sqlxignore file - {file_based_ignore_config}");
     if file_based_ignore_config.is_err() {
       return base_ignore_patterns.to_vec();
     }
@@ -124,6 +126,7 @@ impl Config {
     let file_based_config = fs::read_to_string(file_config_path);
     let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
 
+    println!("checking file based config {:?}", file_based_config);
     let cli_default = GenerateTypesConfig {
       enabled: CLI_ARGS.generate_types,
       convert_to_camel_case_column_name: false,
@@ -330,11 +333,11 @@ impl Config {
     )
   }
 
-  // TODO: update this to also factor in env variable
   pub fn get_log_level(file_config_path: &PathBuf) -> LogLevel {
     let file_based_config = fs::read_to_string(file_config_path);
     let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());
     let log_level_from_file = file_based_config.as_ref().ok().and_then(|config| config.log_level);
+    println!("checking log level {:?}", log_level_from_file);
 
     CLI_ARGS.log_level.or(log_level_from_file).unwrap_or(LogLevel::Info)
   }

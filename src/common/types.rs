@@ -44,6 +44,7 @@ impl NamingConvention {
 #[derive(ValueEnum, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(rename_all = "lowercase")]
 pub enum LogLevel {
+  Debug = 4,
   Info = 3,
   Warning = 2,
   Error = 1,
