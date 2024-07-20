@@ -42,10 +42,7 @@ macro_rules! info {
         use crate::common::lazy::CONFIG;
         use crate::common::types::LogLevel;
 
-        println!("hrmmx");
         if CONFIG.log_level.gte(&LogLevel::Info) {
-            println!("hrmmz");
-
             use colored::*;
             let level = "[INFO]".cyan();
             println!("{level} {}", format!($arg, $($arg2)*))

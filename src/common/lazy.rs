@@ -26,7 +26,8 @@ lazy_static! {
     static ref DB_CONN_CACHE: HashMap<String, Arc<Mutex<DBConn>>> = {
         let mut cache = HashMap::new();
         for connection in CONFIG.connections.keys() {
-            let connection_config = CONFIG.connections.get(connection).unwrap();
+            let connection_config = CONFIG.connections.get(connection)
+                .expect(format!("Failed to find a correct connection from the configuration - {connection}").as_str());
             let db_type = connection_config.db_type.to_owned();
             let conn = match db_type {
                 DatabaseType::Mysql => {
