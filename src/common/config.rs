@@ -53,7 +53,11 @@ pub struct DbConnectionConfig {
   pub db_name: Option<String>,
   #[serde(rename = "PG_SEARCH_PATH")]
   pub pg_search_path: Option<String>,
+  #[serde(rename = "CONNECTION_POOL_SIZE", default = "default_pool_size")]
+  pub connection_pool_size: i32,
 }
+
+fn default_pool_size() -> i32 { 10 }
 
 /// Config is used to determine connection configurations for primary target Database
 /// It uses 2 sources of config and they are used in following priorities
@@ -170,6 +174,8 @@ impl Config {
       result.unwrap()
     });
 
+    println!("checking file based configs {:?}", file_based_config);
+
     let connections = &mut file_based_config
       .as_ref()
       .map(|config| config.connections.clone())
@@ -261,6 +267,10 @@ impl Config {
       .or_else(|| dotenv.pg_search_path.clone())
       .or_else(|| default_config.map(|x| x.pg_search_path.clone()).flatten());
 
+    let connection_pool_size = default_config
+      .map(|x| x.connection_pool_size)
+      .unwrap();
+
     DbConnectionConfig {
       db_type: db_type.to_owned(),
       db_host: db_host.to_owned(),
@@ -269,6 +279,7 @@ impl Config {
       db_pass: db_pass.to_owned(),
       db_name: db_name.to_owned(),
       pg_search_path: pg_search_path.to_owned(),
+      connection_pool_size,
     }
   }
 
