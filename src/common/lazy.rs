@@ -35,7 +35,8 @@ lazy_static! {
                         let mysql_cred = CONFIG.get_mysql_cred_str(connection_config);
                         let mysql_cred = mysql_cred.as_str();
                         let manager = MySqlConnectionManager::new(mysql_cred.to_string());
-                        let pool = bb8::Pool::builder().max_size(10).build(manager)
+                        println!("checking connection pool size {:?}", connection_config.pool_size);
+                        let pool = bb8::Pool::builder().max_size(connection_config.pool_size).build(manager)
                             .await
                             .expect(&ERR_DB_CONNECTION_ISSUE);
                         DBConn::MySQLPooledConn(Mutex::new(pool))
