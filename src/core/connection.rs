@@ -10,7 +10,7 @@ use tokio::sync::Mutex;
 
 use color_eyre::Result;
 use swc_common::errors::Handler;
-
+use crate::common::errors::DB_CONN_FROM_LOCAL_CACHE_ERROR;
 use super::mysql::pool::MySqlConnectionManager;
 use super::postgres::pool::PostgresConnectionManager;
 
@@ -51,7 +51,7 @@ impl<'a> DBConnections<'a> {
     let conn = self
       .cache
       .get(db_conn_name)
-      .expect("Failed to get the connection from cache");
+      .expect(DB_CONN_FROM_LOCAL_CACHE_ERROR);
     conn.to_owned()
   }
 }

@@ -52,7 +52,11 @@ pub struct DbConnectionConfig {
   pub db_name: Option<String>,
   #[serde(rename = "PG_SEARCH_PATH")]
   pub pg_search_path: Option<String>,
+  #[serde(rename = "POOL_SIZE", default = "default_pool_size")]
+  pub pool_size: u32,
 }
+
+fn default_pool_size() -> u32 { 10 }
 
 /// Config is used to determine connection configurations for primary target Database
 /// It uses 2 sources of config and they are used in following priorities
@@ -82,6 +86,7 @@ impl Config {
     let file_config_path = &CLI_ARGS.config.clone().unwrap_or(default_config_path);
     let connections = Self::build_configs(&dotenv, file_config_path);
     let generate_types_config = Self::generate_types_config(file_config_path);
+
     let generate_types_config =
       generate_types_config.and_then(|config| if config.enabled { Some(config) } else { None });
     let ignore_patterns = Self::get_ignore_patterns(&default_ignore_config_path);
@@ -103,7 +108,8 @@ impl Config {
       return base_ignore_patterns.to_vec();
     }
 
-    let file_based_ignore_config = &file_based_ignore_config.unwrap();
+    let file_based_ignore_config = &file_based_ignore_config
+        .expect("Failed to read the .sqlxignore file. Please check the contents of the ignore file and try again - https://jasonshin.github.io/sqlx-ts/api/2.ignore-patterns.html");
     let file_based_ignore_config = file_based_ignore_config.split('\n');
     let file_based_ignore_config: Vec<&str> = file_based_ignore_config.clone().collect();
 
@@ -258,6 +264,11 @@ impl Config {
       .or_else(|| dotenv.pg_search_path.clone())
       .or_else(|| default_config.map(|x| x.pg_search_path.clone()).flatten());
 
+    let pool_size = default_config
+      .map(|x| x.pool_size)
+      .or_else(|| Some(default_pool_size()))
+      .unwrap();
+
     DbConnectionConfig {
       db_type: db_type.to_owned(),
       db_host: db_host.to_owned(),
@@ -266,6 +277,7 @@ impl Config {
       db_pass: db_pass.to_owned(),
       db_name: db_name.to_owned(),
       pg_search_path: pg_search_path.to_owned(),
+      pool_size,
     }
   }
 
@@ -329,7 +341,6 @@ impl Config {
     )
   }
 
-  // TODO: update this to also factor in env variable
   pub fn get_log_level(file_config_path: &PathBuf) -> LogLevel {
     let file_based_config = fs::read_to_string(file_config_path);
     let file_based_config = &file_based_config.map(|f| serde_json::from_str::<SqlxConfig>(f.as_str()).unwrap());

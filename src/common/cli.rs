@@ -74,7 +74,7 @@ pub struct Cli {
   #[clap(long, short)]
   pub message_format: Option<String>,
 
-  /// log level to be used for the CLI info > warn > error
+  /// log level to be used for the CLI debug > info > warn > error
   #[clap(value_enum, long)]
   pub log_level: Option<LogLevel>,
 }

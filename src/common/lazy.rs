@@ -19,13 +19,15 @@ lazy_static! {
     // This is a holder for shared DBSChema used to fetch information for information_schema table
     // By having a singleton, we can think about caching the result if we are fetching a query too many times
     pub static ref DB_SCHEMA: Arc<Mutex<DBSchema>> = Arc::new(Mutex::new(DBSchema::new()));
+    pub static ref ERR_DB_CONNECTION_ISSUE: String = "Unable to connect to the database, please check the connection configuration again https://jasonshin.github.io/sqlx-ts/api/1.connecting-to-db.html".to_string();
 
     // This variable holds database connections for each connection name that is defined in the config
     // We are using lazy_static to initialize the connections once and use them throughout the application
     static ref DB_CONN_CACHE: HashMap<String, Arc<Mutex<DBConn>>> = {
         let mut cache = HashMap::new();
         for connection in CONFIG.connections.keys() {
-            let connection_config = CONFIG.connections.get(connection).unwrap();
+            let connection_config = CONFIG.connections.get(connection)
+                .unwrap_or_else(|| panic!("Failed to find a correct connection from the configuration - {connection}"));
             let db_type = connection_config.db_type.to_owned();
             let conn = match db_type {
                 DatabaseType::Mysql => {
@@ -33,7 +35,9 @@ lazy_static! {
                         let mysql_cred = CONFIG.get_mysql_cred_str(connection_config);
                         let mysql_cred = mysql_cred.as_str();
                         let manager = MySqlConnectionManager::new(mysql_cred.to_string());
-                        let pool = bb8::Pool::builder().max_size(10).build(manager).await.unwrap();
+                        let pool = bb8::Pool::builder().max_size(connection_config.pool_size).build(manager)
+                            .await
+                            .expect(&ERR_DB_CONNECTION_ISSUE);
                         DBConn::MySQLPooledConn(Mutex::new(pool))
                     }))
                 }
@@ -41,7 +45,9 @@ lazy_static! {
                     task::block_in_place(|| Handle::current().block_on(async {
                         let postgres_cred = CONFIG.get_postgres_cred(connection_config);
                         let manager = PostgresConnectionManager::new(postgres_cred);
-                        let pool = bb8::Pool::builder().max_size(10).build(manager).await.unwrap();
+                        let pool = bb8::Pool::builder().max_size(10).build(manager)
+                            .await
+                            .expect(&ERR_DB_CONNECTION_ISSUE);
                         let db_conn = DBConn::PostgresConn(Mutex::new(pool));
 
                         let conn = match &db_conn {
@@ -53,8 +59,15 @@ lazy_static! {
                             let search_path_query = format!("SET search_path TO {}", &connection_config.pg_search_path.clone().unwrap().as_str());
                             {
                                 let conn = conn.lock().await;
-                                let conn = conn.get().await.unwrap();
-                                conn.execute(&search_path_query, &[]).await.unwrap();
+                                let conn = conn
+                                    .get()
+                                    .await
+                                    .expect(&ERR_DB_CONNECTION_ISSUE);
+
+                                let ERR_SEARCH_PATH_QUERY = format!("Failed to execute the search_path query {:?}", search_path_query.as_str());
+                                let ERR_SEARCH_PATH_QUERY = ERR_SEARCH_PATH_QUERY.as_str();
+                                conn.execute(&search_path_query, &[]).await
+                                    .expect(ERR_SEARCH_PATH_QUERY);
                             }
                         }
                         db_conn
