@@ -25,7 +25,6 @@ macro_rules! debug {
     });
 }
 
-pub(crate) use debug;
 
 macro_rules! info {
     ($arg:tt) => ({
@@ -50,7 +49,6 @@ macro_rules! info {
     });
 }
 
-use colored::Colorize;
 pub(crate) use info;
 
 macro_rules! warning {
@@ -102,4 +100,3 @@ macro_rules! error {
     });
 }
 
-pub(crate) use error;

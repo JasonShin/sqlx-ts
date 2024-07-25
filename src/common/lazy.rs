@@ -27,7 +27,7 @@ lazy_static! {
         let mut cache = HashMap::new();
         for connection in CONFIG.connections.keys() {
             let connection_config = CONFIG.connections.get(connection)
-                .expect(format!("Failed to find a correct connection from the configuration - {connection}").as_str());
+                .unwrap_or_else(|| panic!("Failed to find a correct connection from the configuration - {connection}"));
             let db_type = connection_config.db_type.to_owned();
             let conn = match db_type {
                 DatabaseType::Mysql => {

@@ -1,7 +1,6 @@
 use crate::common::dotenv::Dotenv;
 use crate::common::lazy::CLI_ARGS;
 use crate::common::types::{DatabaseType, LogLevel};
-use crate::common::logger::*;
 use regex::Regex;
 use serde;
 use serde::{Deserialize, Serialize};
