@@ -266,6 +266,7 @@ impl Config {
 
     let pool_size = default_config
       .map(|x| x.pool_size)
+      .or_else(|| Some(default_pool_size()))
       .unwrap();
 
     DbConnectionConfig {
