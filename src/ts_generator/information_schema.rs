@@ -3,7 +3,7 @@ use mysql_async::prelude::Queryable;
 use mysql_async::prelude::*;
 use std::collections::HashMap;
 use tokio::sync::Mutex;
-
+use crate::common::errors::{DB_CONN_POOL_RETRIEVE_ERROR, DB_SCHEME_READ_ERROR};
 use crate::core::connection::DBConn;
 use crate::core::mysql::pool::MySqlConnectionManager;
 use crate::core::postgres::pool::PostgresConnectionManager;
@@ -96,7 +96,7 @@ impl DBSchema {
     let mut fields: HashMap<String, Field> = HashMap::new();
 
     let conn = conn.lock().await;
-    let conn = conn.get().await.unwrap();
+    let conn = conn.get().await.expect(DB_CONN_POOL_RETRIEVE_ERROR);
     let result = conn.query(&query, &[]).await;
 
     if let Ok(result) = result {
@@ -142,15 +142,14 @@ impl DBSchema {
 
     let mut fields: HashMap<String, Field> = HashMap::new();
     let conn = conn.lock().await;
-    let mut conn = conn.get().await.unwrap();
+    let mut conn = conn.get().await.expect(DB_CONN_POOL_RETRIEVE_ERROR);
     let result = conn.query::<mysql_async::Row, String>(query).await;
-    let schema_read_error = "Failed to read schema to retrieve table detailss";
 
     if let Ok(result) = result {
       for row in result {
-        let field_name: String = row.clone().take(0).expect(schema_read_error);
-        let field_type: String = row.clone().take(1).expect(schema_read_error);
-        let is_nullable: String = row.clone().take(2).expect(schema_read_error);
+        let field_name: String = row.clone().take(0).expect(DB_SCHEME_READ_ERROR);
+        let field_type: String = row.clone().take(1).expect(DB_SCHEME_READ_ERROR);
+        let is_nullable: String = row.clone().take(2).expect(DB_SCHEME_READ_ERROR);
         let field = Field {
           field_type: TsFieldType::get_ts_field_type_from_mysql_field_type(field_type.to_owned()),
           is_nullable: is_nullable == "YES",

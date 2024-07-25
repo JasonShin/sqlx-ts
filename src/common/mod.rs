@@ -9,6 +9,8 @@ pub mod dotenv;
 pub mod lazy;
 pub mod types;
 
+pub mod errors;
+
 // Source Parser
 #[allow(clippy::upper_case_acronyms)]
 #[derive(Debug, Clone)]
