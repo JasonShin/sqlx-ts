@@ -68,8 +68,8 @@ pub fn get_expr_placeholder(expr: &Expr) -> Option<String> {
 /// it should return the correct column name
 pub fn translate_column_name_expr(expr: &Expr) -> Option<String> {
   match expr {
-    Expr::Identifier(ident) => Some(ident.to_string()),
-    Expr::CompoundIdentifier(comp) => Some(comp.get(1).unwrap().to_string()),
+    Expr::Identifier(ident) => Some(DisplayIndent(ident).to_string()),
+    Expr::CompoundIdentifier(comp) => Some(DisplayIndent(comp.get(1).unwrap()).to_string()),
     _ => None,
   }
 }
