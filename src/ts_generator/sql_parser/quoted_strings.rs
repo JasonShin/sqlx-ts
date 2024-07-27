@@ -1,4 +1,4 @@
-use sqlparser::ast::{Ident, ObjectName};
+use sqlparser::ast::{Ident, ObjectName, TableAlias};
 use std::fmt;
 use std::fmt::{write, Formatter};
 
@@ -24,12 +24,24 @@ impl<'a> fmt::Display for DisplayIndent<'a> {
   }
 }
 
-pub struct DisplayTableName<'a>(pub &'a ObjectName);
+pub struct DisplayObjectName<'a>(pub &'a ObjectName);
 
-impl<'a> fmt::Display for DisplayTableName<'a> {
+impl<'a> fmt::Display for DisplayObjectName<'a> {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
     let quote_style = &self.0 .0[0].quote_style;
-    let name = &self.to_string();
+    let name = &self.0 .0[0].value;
+    let name = trim_table_name(name, quote_style);
+    write!(f, "{}", name)
+  }
+}
+
+
+pub struct DisplayTableAlias<'a>(pub &'a TableAlias);
+
+impl<'a> fmt::Display for DisplayTableAlias<'a> {
+  fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    let quote_style = &self.0.name.quote_style;
+    let name = &self.0.name.value;
     let name = trim_table_name(name, quote_style);
     write!(f, "{}", name)
   }

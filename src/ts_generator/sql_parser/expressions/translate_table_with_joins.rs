@@ -1,4 +1,3 @@
-use crate::common::table_name::TrimQuotes;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::quoted_strings::*;
 use color_eyre::eyre::Result;
@@ -15,7 +14,7 @@ pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
         with_hints: _,
         version: _,
         partitions: _,
-      } => Some(DisplayTableName(name).to_string()),
+      } => Some(DisplayObjectName(name).to_string()),
       _ => None,
     })
     .expect("The query does not have a default table, impossible to generate types")
@@ -50,14 +49,11 @@ pub fn find_table_name_from_identifier(
         version: _,
         partitions: _,
       } => {
-        let alias_quote_style = alias.to_owned().map(|a| a.name.quote_style).flatten();
-        let alias: Option<String> = alias
-          .to_owned()
-          .map(|a| a.name.to_string().trim_table_name(alias_quote_style));
-        let name = DisplayTableName(name).to_string();
+        let alias = alias.clone().map(|alias| DisplayTableAlias(&alias).to_string());
+        let name = DisplayObjectName(name).to_string();
         if Some(left.to_string()) == alias || left == name {
           // If the identifier matches the alias, then return the table name
-          return Ok(name);
+          return Ok(name.to_owned());
         }
       }
       _ => {
@@ -82,13 +78,8 @@ pub fn find_table_name_from_identifier(
         version: _,
         partitions: _,
       } => {
-        let alias_quote_style = alias.to_owned().map(|a| a.name.quote_style).flatten();
-        let alias = alias
-          .to_owned()
-          .map(|x| x.to_string().trim_table_name(alias_quote_style));
-        let name_quote_style = objectName.0[0].quote_style;
-        let name = objectName.to_string().trim_table_name(name_quote_style);
-
+        let alias = alias.clone().map(|alias| DisplayTableAlias(&alias).to_string());
+        let name = DisplayObjectName(objectName).to_string();
         if Some(left.to_owned()) == alias || left == name {
           return Ok(name);
         }
@@ -128,10 +119,7 @@ pub fn translate_table_from_expr(
       // Assumes that [0] of the compound identifiers is the alias that points to the table
       let identifiers = &compound_identifier
         .iter()
-        .map(|x| {
-          let quote_style = x.quote_style;
-          x.to_string().trim_table_name(quote_style)
-        })
+        .map(|x| DisplayIndent(x).to_string())
         .collect();
       find_table_name_from_identifier(table_with_joins, identifiers)
     }

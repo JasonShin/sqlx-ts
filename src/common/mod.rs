@@ -7,7 +7,6 @@ pub mod cli;
 pub mod config;
 pub mod dotenv;
 pub mod lazy;
-pub mod table_name;
 pub mod types;
 
 pub mod errors;

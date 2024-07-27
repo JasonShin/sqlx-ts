@@ -1,14 +1,13 @@
 use sqlparser::ast::{Query, SelectItem, SetExpr, TableWithJoins};
 
 use crate::{
-  common::table_name::TrimQuotes,
   core::connection::DBConn,
   ts_generator::{
     errors::TsGeneratorError, sql_parser::expressions::translate_table_with_joins::get_default_table,
     types::ts_query::TsQuery,
   },
 };
-
+use crate::ts_generator::sql_parser::quoted_strings::DisplayIndent;
 use super::expressions::{
   translate_expr::translate_expr, translate_table_with_joins::translate_table_with_joins,
   translate_wildcard_expr::translate_wildcard_expr,
@@ -65,8 +64,7 @@ pub async fn translate_query(
             .await?;
           }
           SelectItem::ExprWithAlias { expr, alias } => {
-            let quote_style = alias.quote_style;
-            let alias = alias.to_string().trim_table_name(quote_style);
+            let alias = DisplayIndent(alias).to_string();
             let table_name = translate_table_with_joins(full_table_with_joins, &select_item);
             let table_name = table_name.expect("Unknown table name");
 
