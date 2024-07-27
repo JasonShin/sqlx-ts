@@ -226,3 +226,20 @@ export interface ISql14Query {
 };
 
 
+
+
+export type Sql15Params = [];
+
+
+export interface ISql15Result {
+    id2: number;
+	itemsId: number;
+};
+
+
+export interface ISql15Query {
+    params: Sql15Params;
+    result: ISql15Result;
+};
+
+

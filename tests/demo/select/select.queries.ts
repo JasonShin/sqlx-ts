@@ -232,8 +232,8 @@ export type Sql15Params = [];
 
 
 export interface ISql15Result {
-    itemsId: number;
-	tablesId: number;
+    id2: number;
+	itemsId: number;
 };
 
 
