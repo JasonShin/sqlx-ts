@@ -59,7 +59,7 @@ pub fn find_table_name_from_identifier(
                     .map(|a| a.name.to_string().trim_table_name(alias_quote_style));
                 let name_quote_style = name.0[0].quote_style;
                 let name = name.to_string().trim_table_name(name_quote_style);
-                if Some(left.to_string()) == alias.to_owned() || left == name {
+                if Some(left.to_string()) == alias || left == name {
                     // If the identifier matches the alias, then return the table name
                     return Ok(name.to_owned());
         }
