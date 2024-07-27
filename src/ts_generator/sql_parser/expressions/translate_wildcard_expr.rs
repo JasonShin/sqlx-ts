@@ -1,13 +1,12 @@
 use crate::common::lazy::DB_SCHEMA;
 use crate::common::logger::warning;
-use crate::common::table_name::TrimQuotes;
 use crate::core::connection::DBConn;
 use crate::ts_generator::errors::TsGeneratorError;
+use crate::ts_generator::sql_parser::quoted_strings::DisplayObjectName;
 use crate::ts_generator::types::ts_query::TsFieldType;
 use crate::ts_generator::types::ts_query::TsQuery;
 use color_eyre::eyre::Result;
 use sqlparser::ast::{Join, Query, SetExpr, TableFactor, TableWithJoins};
-use crate::ts_generator::sql_parser::quoted_strings::DisplayObjectName;
 
 pub fn get_all_table_names_from_expr(query: &Query) -> Result<Vec<String>, TsGeneratorError> {
   let body = *query.body.clone();
@@ -34,24 +33,22 @@ pub fn get_all_table_names_from_expr(query: &Query) -> Result<Vec<String>, TsGen
     )),
   }?;
 
-  let mut join_tables = table_with_joins
-    .joins
-    .into_iter()
-    .filter_map(|join| {
-      let Join { relation, .. } = join;
-      match relation {
-        TableFactor::Table { name, .. } => {
-          let quote_style = name.0[0].quote_style;
-
-          Some(name.to_string().trim_table_name(quote_style))
-        }
-        _ => unimplemented!(),
-      }
-    })
-    .collect::<Vec<String>>();
-
   let tables = &mut vec![primary_table_name];
-  tables.append(&mut join_tables);
+
+  for join in &table_with_joins.joins {
+    let Join { relation, .. } = join;
+    match relation {
+      TableFactor::Table { name, .. } => {
+        let name = DisplayObjectName(&name).to_string();
+        tables.push(name);
+      }
+      _ => {
+        return Err(TsGeneratorError::WildcardStatementDeadendExpression(
+          relation.to_string(),
+        ))
+      }
+    }
+  }
 
   Ok(tables.clone())
 }

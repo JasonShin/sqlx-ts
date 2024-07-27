@@ -8,8 +8,8 @@ use crate::ts_generator::sql_parser::translate_query::translate_query;
 use crate::ts_generator::sql_parser::translate_update::translate_update;
 use crate::ts_generator::types::ts_query::TsQuery;
 
-use sqlparser::ast::{FromTable, Statement};
 use super::expressions::translate_table_with_joins::get_default_table;
+use sqlparser::ast::{FromTable, Statement};
 
 pub async fn translate_stmt(
   ts_query: &mut TsQuery,

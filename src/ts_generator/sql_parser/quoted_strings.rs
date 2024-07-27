@@ -35,7 +35,6 @@ impl<'a> fmt::Display for DisplayObjectName<'a> {
   }
 }
 
-
 pub struct DisplayTableAlias<'a>(pub &'a TableAlias);
 
 impl<'a> fmt::Display for DisplayTableAlias<'a> {
