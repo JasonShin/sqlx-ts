@@ -155,7 +155,7 @@ pub async fn translate_expr(
 
   match expr {
     Expr::Identifier(ident) => {
-      let column_name = ident.value.to_string();
+      let column_name = DisplayIndent(ident).to_string();
       let table_name = single_table_name.expect("Missing table name for identifier");
       let table_details = &DB_SCHEMA.lock().await.fetch_table(&vec![table_name], db_conn).await;
 
