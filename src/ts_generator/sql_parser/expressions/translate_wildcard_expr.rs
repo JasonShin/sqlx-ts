@@ -7,6 +7,7 @@ use crate::ts_generator::types::ts_query::TsFieldType;
 use crate::ts_generator::types::ts_query::TsQuery;
 use color_eyre::eyre::Result;
 use sqlparser::ast::{Join, Query, SetExpr, TableFactor, TableWithJoins};
+use crate::ts_generator::sql_parser::quoted_strings::DisplayObjectName;
 
 pub fn get_all_table_names_from_expr(query: &Query) -> Result<Vec<String>, TsGeneratorError> {
   let body = *query.body.clone();
@@ -25,8 +26,8 @@ pub fn get_all_table_names_from_expr(query: &Query) -> Result<Vec<String>, TsGen
 
   let primary_table_name = match table_with_joins.relation {
     TableFactor::Table { name, .. } => {
-      let quote_style = name.0[0].quote_style;
-      Ok(name.to_string().trim_table_name(quote_style))
+      let name = DisplayObjectName(&name).to_string();
+      Ok(name)
     }
     _ => Err(TsGeneratorError::WildcardStatementUnsupportedTableExpr(
       query.to_string(),
