@@ -14,6 +14,7 @@ use async_recursion::async_recursion;
 use color_eyre::Result;
 use regex::Regex;
 use sqlparser::ast::{Assignment, Expr, TableWithJoins, Value};
+use crate::ts_generator::sql_parser::quoted_strings::DisplayIndent;
 
 /// Given an expression
 /// e.g.
@@ -174,7 +175,7 @@ pub async fn translate_expr(
     }
     Expr::CompoundIdentifier(idents) => {
       if idents.len() == 2 {
-        let ident = idents[1].value.clone();
+        let ident = DisplayIndent(&idents[1]).to_string();
 
         let table_name = translate_table_from_expr(table_with_joins, expr)?;
 

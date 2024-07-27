@@ -71,7 +71,7 @@ pub fn find_table_name_from_identifier(
   for join in &joins.clone() {
     match &join.relation {
       TableFactor::Table {
-        name: objectName,
+        name,
         alias,
         args: _,
         with_hints: _,
@@ -79,7 +79,7 @@ pub fn find_table_name_from_identifier(
         partitions: _,
       } => {
         let alias = alias.clone().map(|alias| DisplayTableAlias(&alias).to_string());
-        let name = DisplayObjectName(objectName).to_string();
+        let name = DisplayObjectName(name).to_string();
         if Some(left.to_owned()) == alias || left == name {
           return Ok(name);
         }
@@ -156,7 +156,6 @@ pub fn translate_table_with_joins(
   let table_with_joins = table_with_joins.as_ref().unwrap();
   let default_table_name = get_default_table(table_with_joins);
 
-  println!("checking select item: {select_item} - default_table_name: {default_table_name}");
   match select_item {
     SelectItem::UnnamedExpr(expr) => {
       match expr {
@@ -182,7 +181,6 @@ pub fn translate_table_with_joins(
           .iter()
           .map(|x| DisplayIndent(x).to_string())
           .collect();
-        println!("checking CompoundIdentifier {:?}", identifiers);
         find_table_name_from_identifier(table_with_joins, identifiers)
       }
       _ => Ok(default_table_name),
