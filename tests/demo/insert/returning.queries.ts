@@ -49,3 +49,19 @@ export interface IAliasQuery {
     result: IAliasResult;
 };
 
+
+
+
+export type QuotedParams = [];
+
+
+export interface IQuotedResult {
+    id1: number;
+};
+
+
+export interface IQuotedQuery {
+    params: QuotedParams;
+    result: IQuotedResult;
+};
+

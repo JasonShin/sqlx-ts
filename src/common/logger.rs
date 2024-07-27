@@ -25,7 +25,6 @@ macro_rules! debug {
     });
 }
 
-
 macro_rules! info {
     ($arg:tt) => ({
         use crate::common::lazy::CONFIG;
@@ -99,4 +98,3 @@ macro_rules! error {
         }
     });
 }
-

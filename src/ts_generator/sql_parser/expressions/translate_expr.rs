@@ -176,7 +176,7 @@ pub async fn translate_expr(
       if idents.len() == 2 {
         let ident = idents[1].value.clone();
 
-                let table_name = translate_table_from_expr(table_with_joins, expr)?;
+        let table_name = translate_table_from_expr(table_with_joins, expr)?;
 
         let table_details = &DB_SCHEMA
           .lock()
@@ -439,9 +439,10 @@ pub async fn translate_expr(
     Expr::Collate { expr: _, collation: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
     }
-    Expr::IntroducedString { introducer: _, value: _ } => {
-      ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
-    }
+    Expr::IntroducedString {
+      introducer: _,
+      value: _,
+    } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),
     Expr::TypedString { data_type: _, value: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
     }
@@ -449,20 +450,20 @@ pub async fn translate_expr(
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
     }
     Expr::AggregateExpressionWithFilter { expr: _, filter: _ } => {
-            ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
-        }
-        Expr::Case {
-            operand: _,
-            conditions: _,
-            results: _,
-            else_result: _,
-        } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),
-        Expr::Exists { subquery, negated: _ } => {
-            ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, expr_for_logging)?;
-            translate_query(ts_query, &None, subquery, db_conn, alias, false).await
-        }
-        Expr::ListAgg(_)
-        | Expr::ArrayAgg(_)
+      ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
+    }
+    Expr::Case {
+      operand: _,
+      conditions: _,
+      results: _,
+      else_result: _,
+    } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),
+    Expr::Exists { subquery, negated: _ } => {
+      ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, expr_for_logging)?;
+      translate_query(ts_query, &None, subquery, db_conn, alias, false).await
+    }
+    Expr::ListAgg(_)
+    | Expr::ArrayAgg(_)
     | Expr::GroupingSets(_)
     | Expr::Cube(_)
     | Expr::Rollup(_)

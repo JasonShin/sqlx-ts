@@ -25,9 +25,9 @@ pub fn get_all_table_names_from_expr(query: &Query) -> Result<Vec<String>, TsGen
 
   let primary_table_name = match table_with_joins.relation {
     TableFactor::Table { name, .. } => {
-            let quote_style = name.0[0].quote_style;
-            Ok(name.to_string().trim_table_name(quote_style))
-        }
+      let quote_style = name.0[0].quote_style;
+      Ok(name.to_string().trim_table_name(quote_style))
+    }
     _ => Err(TsGeneratorError::WildcardStatementUnsupportedTableExpr(
       query.to_string(),
     )),
@@ -40,10 +40,10 @@ pub fn get_all_table_names_from_expr(query: &Query) -> Result<Vec<String>, TsGen
       let Join { relation, .. } = join;
       match relation {
         TableFactor::Table { name, .. } => {
-                    let quote_style = name.0[0].quote_style;
+          let quote_style = name.0[0].quote_style;
 
-                    Some(name.to_string().trim_table_name(quote_style))
-                }
+          Some(name.to_string().trim_table_name(quote_style))
+        }
         _ => unimplemented!(),
       }
     })
@@ -71,16 +71,16 @@ pub async fn translate_wildcard_expr(
     warning!("Impossible to calculate appropriate field names of a wildcard query with multiple tables. Please use explicit field names instead. Query: {}", query.to_string());
   }
 
-    let table_with_joins = table_with_joins.iter().map(|s| s.as_ref()).collect();
-    let all_fields = DB_SCHEMA.lock().await.fetch_table(&table_with_joins, db_conn).await;
+  let table_with_joins = table_with_joins.iter().map(|s| s.as_ref()).collect();
+  let all_fields = DB_SCHEMA.lock().await.fetch_table(&table_with_joins, db_conn).await;
 
-    if let Some(all_fields) = all_fields {
-        for key in all_fields.keys() {
-            let field = all_fields.get(key).unwrap();
-            let mut field_types = vec![field.field_type.clone()];
-            if field.is_nullable {
-                field_types.push(TsFieldType::Null);
-            }
+  if let Some(all_fields) = all_fields {
+    for key in all_fields.keys() {
+      let field = all_fields.get(key).unwrap();
+      let mut field_types = vec![field.field_type.clone()];
+      if field.is_nullable {
+        field_types.push(TsFieldType::Null);
+      }
 
       ts_query.result.insert(key.to_owned(), field_types);
     }

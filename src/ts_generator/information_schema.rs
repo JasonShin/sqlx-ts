@@ -1,11 +1,11 @@
-use bb8::Pool;
-use mysql_async::prelude::Queryable;
-use std::collections::HashMap;
-use tokio::sync::Mutex;
 use crate::common::errors::{DB_CONN_POOL_RETRIEVE_ERROR, DB_SCHEME_READ_ERROR};
 use crate::core::connection::DBConn;
 use crate::core::mysql::pool::MySqlConnectionManager;
 use crate::core::postgres::pool::PostgresConnectionManager;
+use bb8::Pool;
+use mysql_async::prelude::Queryable;
+use std::collections::HashMap;
+use tokio::sync::Mutex;
 
 use super::types::ts_query::TsFieldType;
 

@@ -42,8 +42,8 @@ pub async fn translate_stmt(
     } => {
       let source = *source.to_owned().unwrap();
       let quote_style = table_name.0[0].quote_style;
-            let table_name = table_name.to_string();
-            let table_name = table_name.trim_table_name(quote_style);
+      let table_name = table_name.to_string();
+      let table_name = table_name.trim_table_name(quote_style);
       let table_name = table_name.as_str();
       let query_for_logging = sql_statement.to_string();
       let query_for_logging = &query_for_logging.as_str();

@@ -75,7 +75,7 @@ SELECT * FROM "items" WHERE id = $1
 `
 
 const sql15 = sql`
-SELECT items.id, tables.id
+SELECT "items"."id", "tables"."id" AS "id2", items.id
 FROM "items"
 JOIN "tables" ON "items"."table_id" = "tables"."id"
 `

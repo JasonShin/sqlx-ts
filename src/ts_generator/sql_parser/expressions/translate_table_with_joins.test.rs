@@ -27,7 +27,7 @@ mod tests {
 
         let result = translate_table_with_joins(&Some(table_with_joins), &select_item);
 
-        assert_eq!(Some("items".to_string()), result)
+        assert_eq!("items".to_string(), result.unwrap())
       }
     }
   }
@@ -53,7 +53,7 @@ mod tests {
 
             let result = translate_table_with_joins(&Some(table_with_joins), &select_item);
 
-            assert_eq!(Some("items".to_string()), result)
+            assert_eq!("items".to_string(), result.unwrap())
           }
           _ => (),
         }
@@ -85,7 +85,7 @@ mod tests {
 
             let result = translate_table_with_joins(&Some(table_with_joins), &select_item);
 
-            assert_eq!(Some("tables".to_string()), result)
+            assert_eq!("tables".to_string(), result.unwrap())
           }
           _ => (),
         }
@@ -116,7 +116,7 @@ mod tests {
 
             let result = translate_table_with_joins(&Some(table_with_joins), &select_item);
 
-            assert_eq!(Some("items".to_string()), result)
+            assert_eq!("items".to_string(), result.unwrap())
           }
           _ => (),
         }

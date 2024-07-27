@@ -56,7 +56,9 @@ pub struct DbConnectionConfig {
   pub pool_size: u32,
 }
 
-fn default_pool_size() -> u32 { 10 }
+fn default_pool_size() -> u32 {
+  10
+}
 
 /// Config is used to determine connection configurations for primary target Database
 /// It uses 2 sources of config and they are used in following priorities
