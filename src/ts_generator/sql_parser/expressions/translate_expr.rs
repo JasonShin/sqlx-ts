@@ -8,13 +8,13 @@ use crate::ts_generator::sql_parser::expressions::translate_table_with_joins::tr
 use crate::ts_generator::sql_parser::expressions::{
   functions::is_string_function, translate_data_type::translate_data_type,
 };
+use crate::ts_generator::sql_parser::quoted_strings::DisplayIndent;
 use crate::ts_generator::sql_parser::translate_query::translate_query;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
 use async_recursion::async_recursion;
 use color_eyre::Result;
 use regex::Regex;
 use sqlparser::ast::{Assignment, Expr, TableWithJoins, Value};
-use crate::ts_generator::sql_parser::quoted_strings::DisplayIndent;
 
 /// Given an expression
 /// e.g.
