@@ -49,7 +49,7 @@ pub async fn translate_query(
         match &select_item {
           SelectItem::UnnamedExpr(unnamed_expr) => {
             let table_name = translate_table_with_joins(full_table_with_joins, &select_item)
-              .expect(format!("Default FROM table is not found from the query {query}").as_str());
+              .unwrap_or_else(|_| panic!("{}", format!("Default FROM table is not found from the query {query}")));
 
             // Handles SQL Expression and appends result
             translate_expr(

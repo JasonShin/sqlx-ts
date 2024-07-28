@@ -39,7 +39,7 @@ pub fn get_all_table_names_from_expr(query: &Query) -> Result<Vec<String>, TsGen
     let Join { relation, .. } = join;
     match relation {
       TableFactor::Table { name, .. } => {
-        let name = DisplayObjectName(&name).to_string();
+        let name = DisplayObjectName(name).to_string();
         tables.push(name);
       }
       _ => {
