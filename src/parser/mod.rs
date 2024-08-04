@@ -197,9 +197,9 @@ pub fn parse_source(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Handl
           get_sql_from_expr(&mut sqls, &None, &expr, &span, &import_alias)
         }
         ModuleDecl::ExportAll(_) => {}
-        ModuleDecl::TsImportEquals(_) => todo!(),
-        ModuleDecl::TsExportAssignment(_) => todo!(),
-        ModuleDecl::TsNamespaceExport(_) => todo!(),
+        ModuleDecl::TsImportEquals(_) => {},
+        ModuleDecl::TsExportAssignment(_) => {},
+        ModuleDecl::TsNamespaceExport(_) => {},
       },
     }
 

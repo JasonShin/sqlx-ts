@@ -96,6 +96,22 @@ export interface ITestClassPropertyQueryQuery {
 
 
 
+export type Sql2Params = [];
+
+
+export interface ISql2Result {
+    id: number;
+};
+
+
+export interface ISql2Query {
+    params: Sql2Params;
+    result: ISql2Result;
+};
+
+
+
+
 export type TestClassConstructorQueryParams = [];
 
 
@@ -112,6 +128,22 @@ export interface ITestClassConstructorQueryQuery {
 
 
 
+export type SomeConstructorQueryParams = [];
+
+
+export interface ISomeConstructorQueryResult {
+    id: number;
+};
+
+
+export interface ISomeConstructorQueryQuery {
+    params: SomeConstructorQueryParams;
+    result: ISomeConstructorQueryResult;
+};
+
+
+
+
 export type TestClassMethodQueryParams = [];
 
 
@@ -123,6 +155,22 @@ export interface ITestClassMethodQueryResult {
 export interface ITestClassMethodQueryQuery {
     params: TestClassMethodQueryParams;
     result: ITestClassMethodQueryResult;
+};
+
+
+
+
+export type SomeMethodQueryParams = [];
+
+
+export interface ISomeMethodQueryResult {
+    id: number;
+};
+
+
+export interface ISomeMethodQueryQuery {
+    params: SomeMethodQueryParams;
+    result: ISomeMethodQueryResult;
 };
 
 

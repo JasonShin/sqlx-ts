@@ -32,11 +32,17 @@ class TestClass {
   -- @name: testClassPropertyQuery
     SELECT id FROM items
   `
+
+    private sql2 = sql`
+    SELECT id FROM items
+    `
+
     constructor(z: string) {
         const query = sql`
     -- @name: testClassConstructorQuery
     SELECT id FROM items
     `
+        const someConstructorQuery = sql`SELECT id FROM items`
     }
 
     someMethod() {
@@ -44,6 +50,7 @@ class TestClass {
     -- @name: testClassMethodQuery
     SELECT id FROM items
     `
+        const someMethodQuery = sql`SELECT id FROM items`
     }
 }
 
