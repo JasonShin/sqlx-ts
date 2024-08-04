@@ -144,6 +144,26 @@ export interface ITestChildClassConstructorQueryQuery {
 
 
 
+export type PrivAutoAccessorPropParams = [];
+
+
+export interface IPrivAutoAccessorPropResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface IPrivAutoAccessorPropQuery {
+    params: PrivAutoAccessorPropParams;
+    result: IPrivAutoAccessorPropResult;
+};
+
+
+
+
 export type AutoAccessorPropParams = [];
 
 

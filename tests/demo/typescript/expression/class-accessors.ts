@@ -62,7 +62,10 @@ class ChildClass extends TestClass {
 
 // AutoAccessor
 class AutoAccessorTest {
+    private accessor privAutoAccessorProp: string = sql`
+    SELECT * FROM items;
+    `
     accessor autoAccessorProp: string = sql`
-  SELECT * FROM items;
-  `
+    SELECT * FROM items;
+    `
 }
