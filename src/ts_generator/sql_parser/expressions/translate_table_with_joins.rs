@@ -1,7 +1,7 @@
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::quoted_strings::*;
 use color_eyre::eyre::Result;
-use sqlparser::ast::{Assignment, Expr, Join, ObjectName, SelectItem, TableFactor, TableWithJoins};
+use sqlparser::ast::{Assignment, Expr, Join, SelectItem, TableFactor, TableWithJoins};
 
 pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
   table_with_joins

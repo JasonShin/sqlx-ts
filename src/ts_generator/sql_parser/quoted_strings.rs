@@ -1,6 +1,6 @@
-use sqlparser::ast::{Assignment, Expr, Ident, ObjectName, TableAlias};
+use sqlparser::ast::{Ident, ObjectName, TableAlias};
 use std::fmt;
-use std::fmt::{write, Formatter};
+use std::fmt::Formatter;
 
 fn trim_table_name(val: &String, quote_style: &Option<char>) -> String {
   if quote_style.is_none() {
