@@ -37,9 +37,9 @@ async-trait = "0.1.81"
 bb8 = "0.8.5"
 
 [dev-dependencies]
-assert_cmd = "2.0.12"
-predicates = "3.0.4"
-tempfile = "3.8.0"
+assert_cmd = "2.0.15"
+predicates = "3.1.2"
+tempfile = "3.11.0"
 test_utils = { path="test-utils" }
 pretty_assertions = "1.4.0"
 rand = "0.8.5"
