@@ -47,7 +47,7 @@ jobs:
           cache-provider: "github"
 
       - name: build docker-compose services for integration tests
-        run: docker-compose -f docker-compose.yml up -d
+        run: docker compose -f docker-compose.yml up -d
         env:
           MYSQL_VERSION: ${{ matrix.db.mysql }}
           PG_VERSION: ${{ matrix.db.postgres }}
