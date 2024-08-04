@@ -1,4 +1,4 @@
-use sqlparser::ast::{Ident, ObjectName, TableAlias};
+use sqlparser::ast::{Assignment, Expr, Ident, ObjectName, TableAlias};
 use std::fmt;
 use std::fmt::{write, Formatter};
 

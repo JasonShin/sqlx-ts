@@ -79,9 +79,9 @@ pub fn translate_column_name_assignment(assignment: &Assignment) -> Option<Strin
   let right = assignment.id.get(1);
 
   if left.is_some() && right.is_some() {
-    return right.map(|x| x.to_string());
+    return right.map(|ident| DisplayIndent(ident).to_string());
   } else if left.is_some() && right.is_none() {
-    return left.map(|x| x.to_string());
+    return left.map(|ident| DisplayIndent(ident).to_string());
   }
   None
 }
