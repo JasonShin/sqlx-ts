@@ -22,13 +22,13 @@ string_cache = "0.8.7"
 walkdir = "2.4.0"
 clap = { version = "3.2.25", features = ["derive"] }
 serde = { version = "1.0.188", features = ["derive"] }
-serde_json = { version = "1.0.107" }
+serde_json = { version = "1.0.122" }
 sqlparser = { version = "0.45.0" }
-regex = { version = "1.9.6" }
+regex = { version = "1.10.6" }
 convert_case = "0.6.0"
-lazy_static = { version = "1.4.0" }
-openssl = { version = "0.10.60", features = ["vendored"] }
-colored = "2.0.4"
+lazy_static = { version = "1.5.0" }
+openssl = { version = "0.10.66", features = ["vendored"] }
+colored = "2.1.0"
 mysql_async = { version = "0.34.1", features = ["minimal"] }
 tokio-postgres = "0.7.11"
 tokio = { version = "1.39.2", features = ["rt-multi-thread", "macros", "default"]}
