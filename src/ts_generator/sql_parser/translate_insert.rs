@@ -3,8 +3,8 @@ use crate::core::connection::DBConn;
 use crate::ts_generator::sql_parser::expressions::translate_expr::{get_expr_placeholder, translate_expr};
 use crate::ts_generator::sql_parser::quoted_strings::DisplayIndent;
 use crate::ts_generator::{errors::TsGeneratorError, types::ts_query::TsQuery};
-use sqlparser::ast::{Ident, Query, SelectItem, SetExpr};
 use color_eyre::Result;
+use sqlparser::ast::{Ident, Query, SelectItem, SetExpr};
 
 pub async fn translate_insert(
   ts_query: &mut TsQuery,
