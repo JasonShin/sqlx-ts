@@ -38,15 +38,19 @@ fn process_class_member(sqls: &mut Vec<SQL>, body_stmt: &ClassMember, import_ali
       }
     }
     ClassMember::PrivateProp(private_prop) => {
+      let name = &private_prop.key;
+      let name = name.clone().name.to_string();
       if let Some(expr) = &private_prop.value {
         let span: MultiSpan = private_prop.span.into();
-        get_sql_from_expr(sqls, &None, &expr.clone(), &span, import_alias);
+        get_sql_from_expr(sqls, &Some(name), &expr.clone(), &span, import_alias);
       }
     }
     ClassMember::ClassProp(class_prop) => {
+      let name = &class_prop.key;
+      let name = name.clone().ident().map(|x| x.to_string());
       if let Some(expr) = &class_prop.value {
         let span: MultiSpan = class_prop.span.into();
-        get_sql_from_expr(sqls, &None, &expr.clone(), &span, import_alias);
+        get_sql_from_expr(sqls, &name, &expr.clone(), &span, import_alias);
       }
     }
     ClassMember::AutoAccessor(auto_accessor) => {

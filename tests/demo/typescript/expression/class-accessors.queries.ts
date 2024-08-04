@@ -96,6 +96,22 @@ export interface ITestClassPropertyQueryQuery {
 
 
 
+export type Sql2Params = [];
+
+
+export interface ISql2Result {
+    id: number;
+};
+
+
+export interface ISql2Query {
+    params: Sql2Params;
+    result: ISql2Result;
+};
+
+
+
+
 export type TestClassConstructorQueryParams = [];
 
 
@@ -107,6 +123,22 @@ export interface ITestClassConstructorQueryResult {
 export interface ITestClassConstructorQueryQuery {
     params: TestClassConstructorQueryParams;
     result: ITestClassConstructorQueryResult;
+};
+
+
+
+
+export type SomeConstructorQueryParams = [];
+
+
+export interface ISomeConstructorQueryResult {
+    id: number;
+};
+
+
+export interface ISomeConstructorQueryQuery {
+    params: SomeConstructorQueryParams;
+    result: ISomeConstructorQueryResult;
 };
 
 
@@ -128,6 +160,22 @@ export interface ITestClassMethodQueryQuery {
 
 
 
+export type SomeMethodQueryParams = [];
+
+
+export interface ISomeMethodQueryResult {
+    id: number;
+};
+
+
+export interface ISomeMethodQueryQuery {
+    params: SomeMethodQueryParams;
+    result: ISomeMethodQueryResult;
+};
+
+
+
+
 export type TestChildClassConstructorQueryParams = [];
 
 
@@ -139,6 +187,26 @@ export interface ITestChildClassConstructorQueryResult {
 export interface ITestChildClassConstructorQueryQuery {
     params: TestChildClassConstructorQueryParams;
     result: ITestChildClassConstructorQueryResult;
+};
+
+
+
+
+export type PrivAutoAccessorPropParams = [];
+
+
+export interface IPrivAutoAccessorPropResult {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface IPrivAutoAccessorPropQuery {
+    params: PrivAutoAccessorPropParams;
+    result: IPrivAutoAccessorPropResult;
 };
 
 

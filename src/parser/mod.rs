@@ -4,7 +4,7 @@ mod tag;
 
 use std::collections::HashMap;
 use std::{fs, path::PathBuf};
-
+use std::rc::Rc;
 use crate::common::SQL;
 use crate::parser::decl::{process_decl, process_default_decl};
 use crate::parser::import::find_sqlx_import_alias;
@@ -32,7 +32,7 @@ fn insert_or_append_sqls(sqls_container: &mut HashMap<PathBuf, Vec<SQL>>, sqls: 
 
 fn get_var_decl_name_from_key(key: &Key) -> Option<String> {
   match &key {
-    swc_ecma_ast::Key::Private(private) => Some(private.id.sym.to_string()),
+    swc_ecma_ast::Key::Private(private) => Some(private.name.to_string()),
     swc_ecma_ast::Key::Public(public) => match &public {
       swc_ecma_ast::PropName::Ident(ident) => Some(ident.sym.to_string()),
       swc_ecma_ast::PropName::Str(val) => Some(val.value.to_string()),
@@ -136,7 +136,7 @@ pub fn parse_source(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Handl
   let handler = Handler::with_tty_emitter(ColorConfig::Auto, true, false, Some(cm.clone()));
 
   let file_path = path.as_os_str().to_str().unwrap().to_string();
-  let fm = cm.new_source_file(FileName::Custom(file_path), contents);
+  let fm = cm.new_source_file(Rc::new(FileName::Custom(file_path)), contents);
   let ts_config: TsConfig = TsConfig {
     tsx: false,
     decorators: true,
@@ -197,9 +197,9 @@ pub fn parse_source(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Handl
           get_sql_from_expr(&mut sqls, &None, &expr, &span, &import_alias)
         }
         ModuleDecl::ExportAll(_) => {}
-        ModuleDecl::TsImportEquals(_) => todo!(),
-        ModuleDecl::TsExportAssignment(_) => todo!(),
-        ModuleDecl::TsNamespaceExport(_) => todo!(),
+        ModuleDecl::TsImportEquals(_) => {},
+        ModuleDecl::TsExportAssignment(_) => {},
+        ModuleDecl::TsNamespaceExport(_) => {},
       },
     }
 
