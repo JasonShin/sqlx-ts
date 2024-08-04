@@ -30,8 +30,8 @@ lazy_static = { version = "1.4.0" }
 openssl = { version = "0.10.60", features = ["vendored"] }
 colored = "2.0.4"
 mysql_async = { version = "0.34.1", features = ["minimal"] }
-tokio-postgres = "0.7.10"
-tokio = { version = "1.35.1", features = ["rt-multi-thread", "macros", "default"]}
+tokio-postgres = "0.7.11"
+tokio = { version = "1.39.2", features = ["rt-multi-thread", "macros", "default"]}
 async-recursion = "1.1.1"
 async-trait = "0.1.81"
 bb8 = "0.8.5"
