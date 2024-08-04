@@ -24,7 +24,8 @@ export type SelectorParams = [];
 
 
 export interface ISelectorResult {
-    id: number;
+    foodType: string;
+	id: number;
 };
 
 
@@ -40,12 +41,30 @@ export type AliasParams = [];
 
 
 export interface IAliasResult {
-    id1: number;
+    foodType1: string;
+	id1: number;
 };
 
 
 export interface IAliasQuery {
     params: AliasParams;
     result: IAliasResult;
+};
+
+
+
+
+export type QuotedParams = [];
+
+
+export interface IQuotedResult {
+    foodType1: string;
+	id1: number;
+};
+
+
+export interface IQuotedQuery {
+    params: QuotedParams;
+    result: IQuotedResult;
 };
 

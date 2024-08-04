@@ -68,3 +68,14 @@ SELECT *
 FROM items
 WHERE food_type LIKE $1
 `
+
+// SELECT with quoted table names
+const sql14 = sql`
+SELECT * FROM "items" WHERE id = $1
+`
+
+const sql15 = sql`
+SELECT "items"."id", "tables"."id" AS "id2", items.id
+FROM "items"
+JOIN "tables" ON "items"."table_id" = "tables"."id"
+`

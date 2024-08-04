@@ -1,16 +1,16 @@
 use sqlparser::ast::{Query, SelectItem, SetExpr, TableWithJoins};
 
+use super::expressions::{
+  translate_expr::translate_expr, translate_table_with_joins::translate_table_with_joins,
+  translate_wildcard_expr::translate_wildcard_expr,
+};
+use crate::ts_generator::sql_parser::quoted_strings::DisplayIndent;
 use crate::{
   core::connection::DBConn,
   ts_generator::{
     errors::TsGeneratorError, sql_parser::expressions::translate_table_with_joins::get_default_table,
     types::ts_query::TsQuery,
   },
-};
-
-use super::expressions::{
-  translate_expr::translate_expr, translate_table_with_joins::translate_table_with_joins,
-  translate_wildcard_expr::translate_wildcard_expr,
 };
 
 /// Translates a query and workout ts_query's results and params
@@ -49,7 +49,7 @@ pub async fn translate_query(
         match &select_item {
           SelectItem::UnnamedExpr(unnamed_expr) => {
             let table_name = translate_table_with_joins(full_table_with_joins, &select_item)
-              .expect("Default FROM table is not found from the query {query}");
+              .unwrap_or_else(|_| panic!("{}", format!("Default FROM table is not found from the query {query}")));
 
             // Handles SQL Expression and appends result
             translate_expr(
@@ -64,7 +64,7 @@ pub async fn translate_query(
             .await?;
           }
           SelectItem::ExprWithAlias { expr, alias } => {
-            let alias = alias.to_string();
+            let alias = DisplayIndent(alias).to_string();
             let table_name = translate_table_with_joins(full_table_with_joins, &select_item);
             let table_name = table_name.expect("Unknown table name");
 

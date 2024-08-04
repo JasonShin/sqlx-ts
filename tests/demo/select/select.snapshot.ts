@@ -206,3 +206,40 @@ export interface ISql13Query {
 };
 
 
+
+
+export type Sql14Params = [number];
+
+
+export interface ISql14Result {
+    food_type: string;
+	id: number;
+	points: number;
+	table_id: number;
+	time_takes_to_cook: number;
+};
+
+
+export interface ISql14Query {
+    params: Sql14Params;
+    result: ISql14Result;
+};
+
+
+
+
+export type Sql15Params = [];
+
+
+export interface ISql15Result {
+    id2: number;
+	itemsId: number;
+};
+
+
+export interface ISql15Query {
+    params: Sql15Params;
+    result: ISql15Result;
+};
+
+

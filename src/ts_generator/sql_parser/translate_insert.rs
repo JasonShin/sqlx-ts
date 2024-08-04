@@ -1,9 +1,10 @@
-use crate::core::connection::DBConn;
-use crate::ts_generator::sql_parser::expressions::translate_expr::get_expr_placeholder;
-use sqlparser::ast::{Ident, Query, SelectItem, SetExpr};
-
 use crate::common::lazy::DB_SCHEMA;
+use crate::core::connection::DBConn;
+use crate::ts_generator::sql_parser::expressions::translate_expr::{get_expr_placeholder, translate_expr};
+use crate::ts_generator::sql_parser::quoted_strings::DisplayIndent;
 use crate::ts_generator::{errors::TsGeneratorError, types::ts_query::TsQuery};
+use color_eyre::Result;
+use sqlparser::ast::{Ident, Query, SelectItem, SetExpr};
 
 pub async fn translate_insert(
   ts_query: &mut TsQuery,
@@ -65,7 +66,7 @@ pub async fn translate_insert_returning(
   table_name: &str,
   conn: &DBConn,
   query_for_logging: &str,
-) {
+) -> Result<(), TsGeneratorError> {
   let table_details = &DB_SCHEMA
     .lock()
     .await
@@ -77,33 +78,22 @@ pub async fn translate_insert_returning(
   for select_item in returning {
     match &select_item {
       SelectItem::UnnamedExpr(unnamed_expr) => {
-        // ts_query.insert_result(alias, value, is_selection, expr_for_logging)
-        let name = unnamed_expr.to_string();
-        let name = name.as_str();
-        let match_col = table_details
-          .get(name)
-          .unwrap_or_else(|| panic!("Column {name} is not found while processing insert params"));
-        let value = vec![match_col.field_type.clone()];
-        ts_query.insert_result(Some(name), &value, true, query_for_logging);
+        translate_expr(unnamed_expr, &Some(table_name), &None, None, ts_query, conn, true).await;
       }
       SelectItem::ExprWithAlias { expr, alias } => {
-        let name = expr.to_string();
-        let match_col = table_details
-          .get(name.as_str())
-          .unwrap_or_else(|| panic!("Column {name} is not found while processing insert params"));
-        let alias = alias.to_string();
+        let alias = DisplayIndent(alias).to_string();
         let alias = alias.as_str();
-        let value = vec![match_col.field_type.clone()];
-        ts_query.insert_result(Some(alias), &value, true, query_for_logging);
+        translate_expr(expr, &Some(table_name), &None, Some(alias), ts_query, conn, true).await;
       }
-      SelectItem::Wildcard(wildcard) => {
+      SelectItem::Wildcard(_) | SelectItem::QualifiedWildcard(_, _) => {
         let keys = table_details.keys();
         for key in keys {
           let value = vec![table_details.get(key).unwrap().field_type.clone()];
           ts_query.insert_result(Some(key), &value, true, query_for_logging);
         }
       }
-      _ => {}
     }
   }
+
+  Ok(())
 }

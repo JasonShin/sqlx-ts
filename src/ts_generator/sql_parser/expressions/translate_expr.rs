@@ -8,6 +8,7 @@ use crate::ts_generator::sql_parser::expressions::translate_table_with_joins::tr
 use crate::ts_generator::sql_parser::expressions::{
   functions::is_string_function, translate_data_type::translate_data_type,
 };
+use crate::ts_generator::sql_parser::quoted_strings::DisplayIndent;
 use crate::ts_generator::sql_parser::translate_query::translate_query;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
 use async_recursion::async_recursion;
@@ -67,8 +68,8 @@ pub fn get_expr_placeholder(expr: &Expr) -> Option<String> {
 /// it should return the correct column name
 pub fn translate_column_name_expr(expr: &Expr) -> Option<String> {
   match expr {
-    Expr::Identifier(ident) => Some(ident.to_string()),
-    Expr::CompoundIdentifier(comp) => Some(comp.get(1).unwrap().to_string()),
+    Expr::Identifier(ident) => Some(DisplayIndent(ident).to_string()),
+    Expr::CompoundIdentifier(comp) => Some(DisplayIndent(comp.get(1).unwrap()).to_string()),
     _ => None,
   }
 }
@@ -78,9 +79,9 @@ pub fn translate_column_name_assignment(assignment: &Assignment) -> Option<Strin
   let right = assignment.id.get(1);
 
   if left.is_some() && right.is_some() {
-    return right.map(|x| x.to_string());
+    return right.map(|ident| DisplayIndent(ident).to_string());
   } else if left.is_some() && right.is_none() {
-    return left.map(|x| x.to_string());
+    return left.map(|ident| DisplayIndent(ident).to_string());
   }
   None
 }
@@ -104,7 +105,7 @@ pub async fn get_sql_query_param(
   let table_name: Option<String>;
 
   if table_with_joins.is_some() {
-    table_name = translate_table_from_expr(table_with_joins, &left.clone());
+    table_name = translate_table_from_expr(table_with_joins, &left.clone()).ok();
   } else if single_table_name.is_some() {
     table_name = single_table_name.map(|x| x.to_string());
   } else {
@@ -130,7 +131,7 @@ pub async fn get_sql_query_param(
       // get column and return TsFieldType
       let column = columns
         .get(column_name.as_str())
-        .unwrap_or_else(|| panic!("Failed toe find the column from the table schema of {:?}", table_name));
+        .unwrap_or_else(|| panic!("Failed to find the column from the table schema of {:?}", table_name));
       Some((column.field_type.to_owned(), Some(expr_placeholder)))
     }
     _ => None,
@@ -154,7 +155,7 @@ pub async fn translate_expr(
 
   match expr {
     Expr::Identifier(ident) => {
-      let column_name = ident.value.to_string();
+      let column_name = DisplayIndent(ident).to_string();
       let table_name = single_table_name.expect("Missing table name for identifier");
       let table_details = &DB_SCHEMA.lock().await.fetch_table(&vec![table_name], db_conn).await;
 
@@ -174,10 +175,9 @@ pub async fn translate_expr(
     }
     Expr::CompoundIdentifier(idents) => {
       if idents.len() == 2 {
-        let ident = idents[1].value.clone();
+        let ident = DisplayIndent(&idents[1]).to_string();
 
-        let table_name = translate_table_from_expr(table_with_joins, expr)
-          .ok_or_else(|| TsGeneratorError::IdentifierWithoutTable(expr.to_string()))?;
+        let table_name = translate_table_from_expr(table_with_joins, expr)?;
 
         let table_details = &DB_SCHEMA
           .lock()
@@ -295,13 +295,13 @@ pub async fn translate_expr(
       Ok(())
     }
     Expr::AnyOp {
-      left,
-      compare_op,
+      left: _,
+      compare_op: _,
       right: expr,
     }
     | Expr::AllOp {
-      left,
-      compare_op,
+      left: _,
+      compare_op: _,
       right: expr,
     } => {
       translate_expr(
@@ -405,13 +405,13 @@ pub async fn translate_expr(
       ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging)?;
       ts_query.insert_param(&TsFieldType::Number, &Some(expr.to_string()))
     }
-    Expr::Position { expr, r#in } => {
+    Expr::Position { expr: _, r#in: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging)
     }
     Expr::Substring {
       expr,
-      substring_from,
-      substring_for,
+      substring_from: _,
+      substring_for: _,
       special: _,
     } => {
       ts_query.insert_result(alias, &[TsFieldType::String], is_selection, expr_for_logging)?;
@@ -437,19 +437,20 @@ pub async fn translate_expr(
       ts_query.insert_param(&TsFieldType::Number, &Some(overlay_from.to_string()))?;
       ts_query.insert_result(alias, &[TsFieldType::String], is_selection, expr_for_logging)
     }
-    Expr::Collate { expr, collation } => {
+    Expr::Collate { expr: _, collation: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
     }
-    Expr::IntroducedString { introducer, value } => {
+    Expr::IntroducedString {
+      introducer: _,
+      value: _,
+    } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),
+    Expr::TypedString { data_type: _, value: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
     }
-    Expr::TypedString { data_type, value } => {
+    Expr::MapAccess { column: _, keys: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
     }
-    Expr::MapAccess { column, keys } => {
-      ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
-    }
-    Expr::AggregateExpressionWithFilter { expr, filter } => {
+    Expr::AggregateExpressionWithFilter { expr: _, filter: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
     }
     Expr::Case {
@@ -465,13 +466,12 @@ pub async fn translate_expr(
     Expr::ListAgg(_)
     | Expr::ArrayAgg(_)
     | Expr::GroupingSets(_)
-    | Expr::GroupingSets(_)
     | Expr::Cube(_)
     | Expr::Rollup(_)
     | Expr::Tuple(_)
     | Expr::Array(_)
     | Expr::ArraySubquery(_) => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),
-    Expr::ArrayIndex { obj, indexes } => {
+    Expr::ArrayIndex { obj: _, indexes: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging)
     }
     Expr::Interval(_) => ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, expr_for_logging),
@@ -532,7 +532,7 @@ pub async fn translate_expr(
       .await
     }
     Expr::InUnnest {
-      expr,
+      expr: _,
       array_expr: _,
       negated: _,
     } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, expr_for_logging),

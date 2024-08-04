@@ -8,11 +8,11 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-use color_eyre::Result;
-use swc_common::errors::Handler;
-use crate::common::errors::DB_CONN_FROM_LOCAL_CACHE_ERROR;
 use super::mysql::pool::MySqlConnectionManager;
 use super::postgres::pool::PostgresConnectionManager;
+use crate::common::errors::DB_CONN_FROM_LOCAL_CACHE_ERROR;
+use color_eyre::Result;
+use swc_common::errors::Handler;
 
 /// Enum to hold a specific database connection instance
 pub enum DBConn {
@@ -48,10 +48,7 @@ impl<'a> DBConnections<'a> {
   pub fn get_connection(&mut self, raw_sql: &str) -> Arc<Mutex<DBConn>> {
     let db_conn_name = &CONFIG.get_correct_db_connection(raw_sql);
 
-    let conn = self
-      .cache
-      .get(db_conn_name)
-      .expect(DB_CONN_FROM_LOCAL_CACHE_ERROR);
+    let conn = self.cache.get(db_conn_name).expect(DB_CONN_FROM_LOCAL_CACHE_ERROR);
     conn.to_owned()
   }
 }
