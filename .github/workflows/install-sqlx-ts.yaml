@@ -1,0 +1,104 @@
+name: Install
+#on:
+#  release:
+#    types: [created]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  assets:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # Include all "Tier 1 with Host Tools" targets and "Tier 2 with Host Tools" targets for Windows and macOS,
+        # excluding *-pc-windows-msvc, which requires cross-toolchains. Goal is one option per OS per architecture.
+        # https://doc.rust-lang.org/rustc/platform-support.html
+        # https://github.com/cross-rs/cross#supported-targets
+        # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+        include:
+          # 32-bit (i686)
+          # i686-apple-darwin is Tier 3.
+          - build: linux-32-bit
+            os: ubuntu-latest
+            target: i686-unknown-linux-gnu
+            command: cross
+          - build: windows-32-bit
+            os: ubuntu-latest
+            target: i686-pc-windows-gnu
+            command: cross
+          # 64-bit (x86)
+          - build: linux-64-bit
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            command: cross
+          - build: macos-64-bit
+            os: macos-latest
+            target: x86_64-apple-darwin
+            command: cargo
+          - build: windows-64-bit
+            os: ubuntu-latest
+            target: x86_64-pc-windows-gnu
+            command: cross
+          # 64-bit (ARM)
+          # aarch64-pc-windows-gnullvm is Tier 3.
+          - build: macos-arm
+            os: macos-latest
+            target: aarch64-apple-darwin
+            command: cargo
+          - build: linux-arm
+            os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            command: cross
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - name: Install packages (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          ci/ubuntu-install-packages
+      - run: cargo install cross --git https://github.com/cross-rs/cross
+      - run: ${{ matrix.command }} build --release --target ${{ matrix.target }}
+      - run: ls target
+
+      - name: Build archive
+        shell: bash
+        run: |
+          DIRECTORY="sqlx-ts-${{ github.event.release.tag_name }}-${{ matrix.build }}"
+          if [[ "${{ matrix.target }}" =~ "-pc-windows-" ]]; then
+            SUFFIX=".exe"
+          else
+            SUFFIX=""
+          fi
+          mkdir "$DIRECTORY"
+          cp "target/${{ matrix.target }}/release/sqlx-ts$SUFFIX" "$DIRECTORY"
+          7z a "$DIRECTORY.zip" "$DIRECTORY"
+          echo "ASSET=$DIRECTORY.zip" >> $GITHUB_ENV
+
+      - name: Upload release archive
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ${{ env.ASSET }}          
+
+  node:
+    needs: assets
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./node
+    steps:
+      - uses: actions/checkout@v3
+      # Setup .npmrc file to publish to npm
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm i
+      - run: npm publish -f
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
