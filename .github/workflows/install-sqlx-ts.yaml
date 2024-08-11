@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  assets:
+  install:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -52,51 +52,7 @@ jobs:
             command: cross
     steps:
       - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@stable
+      - name: Use Node.js
+        uses: actions/setup-node@v4
         with:
-          targets: ${{ matrix.target }}
-      - name: Install packages (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          ci/ubuntu-install-packages
-      - run: cargo install cross --git https://github.com/cross-rs/cross
-      - run: ${{ matrix.command }} build --release --target ${{ matrix.target }}
-      - run: ls target
-
-      - name: Build archive
-        shell: bash
-        run: |
-          DIRECTORY="sqlx-ts-${{ github.event.release.tag_name }}-${{ matrix.build }}"
-          if [[ "${{ matrix.target }}" =~ "-pc-windows-" ]]; then
-            SUFFIX=".exe"
-          else
-            SUFFIX=""
-          fi
-          mkdir "$DIRECTORY"
-          cp "target/${{ matrix.target }}/release/sqlx-ts$SUFFIX" "$DIRECTORY"
-          7z a "$DIRECTORY.zip" "$DIRECTORY"
-          echo "ASSET=$DIRECTORY.zip" >> $GITHUB_ENV
-
-      - name: Upload release archive
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            ${{ env.ASSET }}          
-
-  node:
-    needs: assets
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./node
-    steps:
-      - uses: actions/checkout@v3
-      # Setup .npmrc file to publish to npm
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
-          registry-url: 'https://registry.npmjs.org'
-      - run: npm i
-      - run: npm publish -f
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          node-version: '20.x'
