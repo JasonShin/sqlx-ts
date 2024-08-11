@@ -2,7 +2,7 @@ name: Install
 
 on:
   push:
-    branches: [ main ]
+    branches: [ windows-installation ]
   pull_request:
     branches: [ main ]
 
