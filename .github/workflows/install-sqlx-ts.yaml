@@ -17,39 +17,22 @@ jobs:
         # https://github.com/cross-rs/cross#supported-targets
         # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
         include:
-          # 32-bit (i686)
-          # i686-apple-darwin is Tier 3.
-          - build: linux-32-bit
-            os: ubuntu-latest
-            target: i686-unknown-linux-gnu
-            command: cross
-          - build: windows-32-bit
-            os: ubuntu-latest
-            target: i686-pc-windows-gnu
-            command: cross
-          # 64-bit (x86)
-          - build: linux-64-bit
-            os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            command: cross
-          - build: macos-64-bit
-            os: macos-latest
-            target: x86_64-apple-darwin
-            command: cargo
-          - build: windows-64-bit
-            os: ubuntu-latest
-            target: x86_64-pc-windows-gnu
-            command: cross
-          # 64-bit (ARM)
-          # aarch64-pc-windows-gnullvm is Tier 3.
-          - build: macos-arm
-            os: macos-latest
-            target: aarch64-apple-darwin
-            command: cargo
-          - build: linux-arm
-            os: ubuntu-latest
-            target: aarch64-unknown-linux-gnu
-            command: cross
+          - os: ubuntu-latest
+            shell: sh
+          - os: ubuntu-latest
+            shell: bash
+          - os: macos-latest
+            shell: sh
+          - os: macos-latest
+            shell: bash
+          - os: windows-latest
+            shell: sh
+          - os: windows-latest
+            shell: bash
+          - os: windows-latest
+            shell: pwsh
+          - os: windows-latest
+            shell: PowerShell
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js
@@ -57,8 +40,11 @@ jobs:
         with:
           node-version: '20.x'
       - name: Install sqlx-ts
+        shell: ${{ matrix.shell }}
         run: npm install -g sqlx-ts
       - name: run sqlx-ts help
+        shell: ${{ matrix.shell }}
         run: sqlx-ts --help
       - name: run sqlx-ts version
+        shell: ${{ matrix.shell }}
         run: sqlx-ts --version
