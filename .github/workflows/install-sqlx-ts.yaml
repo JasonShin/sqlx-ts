@@ -57,6 +57,4 @@ jobs:
         with:
           node-version: '20.x'
       - name: Install sqlx-ts
-        uses: bahmutov/npm-install@v1
-        with:
-          install-command: 'npm install -g sqlx-ts'
+        run: npm install -g sqlx-ts
