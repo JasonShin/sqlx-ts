@@ -58,3 +58,7 @@ jobs:
           node-version: '20.x'
       - name: Install sqlx-ts
         run: npm install -g sqlx-ts
+      - name: run sqlx-ts help
+        run: sqlx-ts --help
+      - name: run sqlx-ts version
+        run: sqlx-ts --version
