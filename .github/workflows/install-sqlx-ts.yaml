@@ -7,27 +7,14 @@ on:
     branches: [ main ]
 
 jobs:
-  install:
+  install-bash:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
           - os: ubuntu-latest
-            shell: sh
-          - os: ubuntu-latest
-            shell: bash
           - os: macos-latest
-            shell: sh
-          - os: macos-latest
-            shell: bash
           - os: windows-latest
-            shell: sh
-          - os: windows-latest
-            shell: bash
-          - os: windows-latest
-            shell: pwsh
-          - os: windows-latest
-            shell: PowerShell
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js
@@ -35,11 +22,71 @@ jobs:
         with:
           node-version: '20.x'
       - name: Install sqlx-ts
-        shell: "${{ matrix.shell }}"
+        shell: bash
         run: npm install -g sqlx-ts
       - name: run sqlx-ts help
-        shell: "${{ matrix.shell }}"
+        shell: bash
         run: sqlx-ts --help
       - name: run sqlx-ts version
-        shell: "${{ matrix.shell }}"
+        shell: bash
+        run: sqlx-ts --version
+
+  install-sh:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+          - os: macos-latest
+          - os: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Install sqlx-ts
+        shell: sh
+        run: npm install -g sqlx-ts
+      - name: run sqlx-ts help
+        shell: sh
+        run: sqlx-ts --help
+      - name: run sqlx-ts version
+        shell: sh
+        run: sqlx-ts --version
+
+  install-pwsh:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Install sqlx-ts
+        shell: pwsh
+        run: npm install -g sqlx-ts
+      - name: run sqlx-ts help
+        shell: pwsh
+        run: sqlx-ts --help
+      - name: run sqlx-ts version
+        shell: pwsh
+        run: sqlx-ts --version
+
+  install-powershell:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Install sqlx-ts
+        shell: PowerShell
+        run: npm install -g sqlx-ts
+      - name: run sqlx-ts help
+        shell: PowerShell
+        run: sqlx-ts --help
+      - name: run sqlx-ts version
+        shell: PowerShell
         run: sqlx-ts --version
