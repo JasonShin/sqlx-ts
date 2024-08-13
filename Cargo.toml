@@ -15,21 +15,21 @@ documentation = "https://jasonshin.github.io/sqlx-ts/"
 color-eyre = "0.6.2"
 thiserror = "1.0.49"
 dotenv = "0.15.0"
-swc_common = { version = "0.36.3", features = ["tty-emitter"] }
-swc_ecma_ast = "0.117.4"
-swc_ecma_parser = "0.148.3"
+swc_common = { version = "0.37.2", features = ["tty-emitter"] }
+swc_ecma_ast = "0.118.1"
+swc_ecma_parser = "0.149.0"
 string_cache = "0.8.7"
 walkdir = "2.4.0"
-clap = { version = "3.2.25", features = ["derive"] }
-serde = { version = "1.0.204", features = ["derive"] }
-serde_json = { version = "1.0.122" }
-sqlparser = { version = "0.45.0" }
+clap = { version = "4.5.15", features = ["derive"] }
+serde = { version = "1.0.207", features = ["derive"] }
+serde_json = { version = "1.0.124" }
+sqlparser = { version = "0.49.0" }
 regex = { version = "1.10.6" }
 convert_case = "0.6.0"
 lazy_static = { version = "1.5.0" }
 openssl = { version = "0.10.66", features = ["vendored"] }
 colored = "2.1.0"
-mysql_async = { version = "0.34.1", features = ["minimal"] }
+mysql_async = { version = "0.34.2", features = ["minimal"] }
 tokio-postgres = "0.7.11"
 tokio = { version = "1.39.2", features = ["rt-multi-thread", "macros", "default"]}
 async-recursion = "1.1.1"
@@ -37,9 +37,9 @@ async-trait = "0.1.81"
 bb8 = "0.8.5"
 
 [dev-dependencies]
-assert_cmd = "2.0.15"
+assert_cmd = "2.0.16"
 predicates = "3.1.2"
-tempfile = "3.11.0"
+tempfile = "3.12.0"
 test_utils = { path="test-utils" }
 pretty_assertions = "1.4.0"
 rand = "0.8.5"
