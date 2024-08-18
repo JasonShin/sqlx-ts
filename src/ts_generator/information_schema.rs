@@ -2,6 +2,7 @@ use crate::common::errors::{DB_CONN_POOL_RETRIEVE_ERROR, DB_SCHEME_READ_ERROR};
 use crate::core::connection::DBConn;
 use crate::core::mysql::pool::MySqlConnectionManager;
 use crate::core::postgres::pool::PostgresConnectionManager;
+use crate::common::logger::*;
 use bb8::Pool;
 use mysql_async::prelude::Queryable;
 use std::collections::HashMap;
@@ -107,6 +108,10 @@ impl DBSchema {
           field_type: TsFieldType::get_ts_field_type_from_postgres_field_type(field_type.to_owned()),
           is_nullable: is_nullable == "YES",
         };
+        if &field.field_type == &TsFieldType::Any {
+          let message = format!("The column {field_name} of type {field_type} will be translated any as it isn't supported by sqlx-ts");
+          info!(message);
+        }
         fields.insert(field_name.to_owned(), field);
       }
 
