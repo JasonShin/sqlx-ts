@@ -28,7 +28,7 @@ jobs:
 
       - run: rustup component add clippy
 
-      - run: rustup component add fmt
+      - run: rustup component add rustfmt
 
       - uses: Swatinem/rust-cache@v2
         with:
