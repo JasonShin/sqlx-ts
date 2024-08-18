@@ -384,6 +384,7 @@ pub async fn translate_expr(
       data_type,
       format: _,
     } => {
+      println!("checking before translating {:?}", data_type);
       let data_type = translate_data_type(data_type);
       ts_query.insert_result(alias, &[data_type.clone()], is_selection, expr_for_logging)?;
       ts_query.insert_param(&data_type, &Some(expr.to_string()))?;
