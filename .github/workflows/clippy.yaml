@@ -28,6 +28,8 @@ jobs:
 
       - run: rustup component add clippy
 
+      - run: rustup component add fmt
+
       - uses: Swatinem/rust-cache@v2
         with:
           # To only cache runs from `master`:
@@ -39,3 +41,6 @@ jobs:
 
       - name: Run clippy
         run: cargo clippy
+
+      - name: Run rustfmt
+        run: cargo fmt -- --check
