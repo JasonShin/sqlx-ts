@@ -21,6 +21,8 @@ CREATE TABLE postgres.public.items (
     PRIMARY KEY (id)
 );
 
+CREATE TYPE sizes AS ENUM ('x-small', 'small', 'medium', 'large', 'x-large');
+
 -- A table of randomness, just to test various field types in PostgreSQL
 -- There is a pretty comprehensive list of data types available in Postgres
 -- found in https://www.geeksforgeeks.org/postgresql-data-types/ -> not the official Postgres doc
@@ -58,6 +60,8 @@ CREATE TABLE postgres.public.random (
    	
    	-- UUID
    	uuid1 UUID,
+
+	enum1 sizes,
    	
     -- Special data types
    	box1 BOX,
