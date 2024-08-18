@@ -2,13 +2,13 @@ mod decl;
 mod import;
 mod tag;
 
-use std::collections::HashMap;
-use std::{fs, path::PathBuf};
-use std::rc::Rc;
 use crate::common::SQL;
 use crate::parser::decl::{process_decl, process_default_decl};
 use crate::parser::import::find_sqlx_import_alias;
 use color_eyre::eyre::Result;
+use std::collections::HashMap;
+use std::rc::Rc;
+use std::{fs, path::PathBuf};
 use swc_common::{
   errors::{ColorConfig, Handler},
   input::StringInput,
@@ -197,9 +197,9 @@ pub fn parse_source(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Handl
           get_sql_from_expr(&mut sqls, &None, &expr, &span, &import_alias)
         }
         ModuleDecl::ExportAll(_) => {}
-        ModuleDecl::TsImportEquals(_) => {},
-        ModuleDecl::TsExportAssignment(_) => {},
-        ModuleDecl::TsNamespaceExport(_) => {},
+        ModuleDecl::TsImportEquals(_) => {}
+        ModuleDecl::TsExportAssignment(_) => {}
+        ModuleDecl::TsNamespaceExport(_) => {}
       },
     }
 
