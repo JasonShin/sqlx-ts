@@ -17,6 +17,7 @@ pub enum TsFieldType {
   Object,
   Date,
   Null,
+  Enum,
   Any,
   Array2D(Array2DContent),
   Array(Box<TsFieldType>),
@@ -55,6 +56,9 @@ impl fmt::Display for TsFieldType {
           .join(", ");
 
         write!(f, "{result}")
+      },
+      TsFieldType::Enum => {
+        unimplemented!("Enum is not implemented yet")
       }
     }
   }

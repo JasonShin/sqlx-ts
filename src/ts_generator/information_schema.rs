@@ -5,6 +5,7 @@ use crate::core::postgres::pool::PostgresConnectionManager;
 use crate::common::logger::*;
 use bb8::Pool;
 use mysql_async::prelude::Queryable;
+use std::borrow::BorrowMut;
 use std::collections::HashMap;
 use tokio::sync::Mutex;
 
@@ -26,7 +27,12 @@ struct ColumnsQueryResultRow {
 }
 
 pub struct DBSchema {
+  // Holds cache details for table / columns of the target database
   tables_cache: HashMap<String, Fields>,
+  // Holds cache details for enums that exists in the target database
+  enums_cache: HashMap<String, HashMap<String, Vec<String>>>,
+  // A flag to track if we have already tried to fetch enum and cache it
+  has_cached_enums: bool,
 }
 
 impl Default for DBSchema {
@@ -39,6 +45,8 @@ impl DBSchema {
   pub fn new() -> DBSchema {
     DBSchema {
       tables_cache: HashMap::new(),
+      enums_cache: HashMap::new(),
+      has_cached_enums: false,
     }
   }
 
@@ -59,7 +67,10 @@ impl DBSchema {
 
     let result = match &conn {
       DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, table_name, conn).await,
-      DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, table_name, conn).await,
+      DBConn::PostgresConn(conn) => {
+        Self::postgres_fetch_enums(self, "public".to_string(), conn).await;
+        Self::postgres_fetch_table(self, table_name, conn).await
+      },
     };
 
     if let Some(result) = &result {
@@ -121,6 +132,48 @@ impl DBSchema {
     None
   }
 
+  async fn postgres_fetch_enums(
+    &mut self,
+    schema: String,
+    conn: &Mutex<Pool<PostgresConnectionManager>>,
+  ) -> HashMap<String, HashMap<String, Vec<String>>> {
+    let query = r#"
+SELECT n.nspname AS enum_schema,
+       t.typname AS enum_name,
+       e.enumlabel AS enum_value
+FROM pg_type t
+JOIN pg_enum e ON t.oid = e.enumtypid
+JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace
+WHERE nspname = $1;
+    "#;
+    let query = query.to_string();
+
+    if self.has_cached_enums {
+      // return cache value
+      return self.enums_cache.clone();
+    }
+    let conn = conn.lock().await;
+    let conn = conn.get().await.expect(DB_CONN_POOL_RETRIEVE_ERROR);
+    let result = conn.query(&query, &[&schema]).await;
+
+    if let Ok(result) = result {
+      for row in result {
+        let enum_schema: String = row.get(0);
+        let enum_name: String = row.get(1);
+        let enum_value: String = row.get(2);
+        self.enums_cache
+          .entry(enum_schema)
+          .or_insert_with(HashMap::new)
+          .entry(enum_name)
+          .or_insert_with(Vec::new)
+          .push(enum_value);
+      }
+
+      println!("checking existing enum {:?}", &self.enums_cache);
+    }
+    self.enums_cache.clone()
+  }
+
   async fn mysql_fetch_table(
     &self,
     table_names: &Vec<&str>,
@@ -166,4 +219,14 @@ impl DBSchema {
 
     None
   }
+
+  /*
+  async fn mysql_fetch_enums(
+    &self,
+    conn: &Mutex<Pool<PostgresConnectionManager>>,
+  ) {
+
+  }
+
+   */
 }

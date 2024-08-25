@@ -159,6 +159,7 @@ pub async fn translate_expr(
       let table_name = single_table_name.expect("Missing table name for identifier");
       let table_details = &DB_SCHEMA.lock().await.fetch_table(&vec![table_name], db_conn).await;
 
+      println!("checking column name {:?}", column_name);
       // TODO: We can also memoize this method
       if let Some(table_details) = table_details {
         let field = table_details.get(&column_name).unwrap();
@@ -384,7 +385,6 @@ pub async fn translate_expr(
       data_type,
       format: _,
     } => {
-      println!("checking before translating {:?}", data_type);
       let data_type = translate_data_type(data_type);
       ts_query.insert_result(alias, &[data_type.clone()], is_selection, expr_for_logging)?;
       ts_query.insert_param(&data_type, &Some(expr.to_string()))?;
