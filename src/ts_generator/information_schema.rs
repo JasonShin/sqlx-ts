@@ -68,7 +68,7 @@ impl DBSchema {
     let result = match &conn {
       DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, table_name, conn).await,
       DBConn::PostgresConn(conn) => {
-        Self::postgres_fetch_enums(self, "public".to_string(), conn).await;
+        let enums = Self::postgres_fetch_enums(self, "public".to_string(), conn).await;
         Self::postgres_fetch_table(self, table_name, conn).await
       },
     };
@@ -136,7 +136,7 @@ impl DBSchema {
     &mut self,
     schema: String,
     conn: &Mutex<Pool<PostgresConnectionManager>>,
-  ) -> HashMap<String, HashMap<String, Vec<String>>> {
+  ) -> Option<HashMap<String, Vec<String>>> {
     let query = r#"
 SELECT n.nspname AS enum_schema,
        t.typname AS enum_name,
@@ -147,10 +147,11 @@ JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace
 WHERE nspname = $1;
     "#;
     let query = query.to_string();
+    let enums_cache = self.enums_cache.get(&schema);
 
     if self.has_cached_enums {
-      // return cache value
-      return self.enums_cache.clone();
+      let enums_cache = enums_cache.unwrap();
+      return Some(enums_cache.clone());
     }
     let conn = conn.lock().await;
     let conn = conn.get().await.expect(DB_CONN_POOL_RETRIEVE_ERROR);
@@ -169,9 +170,10 @@ WHERE nspname = $1;
           .push(enum_value);
       }
 
-      println!("checking existing enum {:?}", &self.enums_cache);
+      let enums_cache = self.enums_cache.get(&schema).unwrap();
+      return Some(enums_cache.clone());
     }
-    self.enums_cache.clone()
+    None
   }
 
   async fn mysql_fetch_table(

@@ -153,13 +153,14 @@ pub async fn translate_expr(
   let binding = expr.to_string();
   let expr_for_logging = &binding.as_str();
 
+  println!("checking expr {:?}", expr);
   match expr {
     Expr::Identifier(ident) => {
       let column_name = DisplayIndent(ident).to_string();
       let table_name = single_table_name.expect("Missing table name for identifier");
       let table_details = &DB_SCHEMA.lock().await.fetch_table(&vec![table_name], db_conn).await;
 
-      println!("checking column name {:?}", column_name);
+      println!("checking column name {:?} - {:?}", column_name, table_details);
       // TODO: We can also memoize this method
       if let Some(table_details) = table_details {
         let field = table_details.get(&column_name).unwrap();
