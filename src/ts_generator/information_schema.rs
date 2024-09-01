@@ -133,12 +133,12 @@ impl DBSchema {
         let table_name: String = row.get(3);
         let enum_values: Option<Vec<String>> = row.try_get(4)
           .ok()
-          .map(|val: String| {
-            let parts = val.split(",");
-            let parts = parts.map(|x| x.to_string()).collect::<Vec<String>>();
-            return parts
-          });
-        println!("checking enum values {:?} {:?} {:?}", field_name, field_type, enum_values);
+          .map(|val: String| val
+            .split(",")
+            .map(|x| x.to_string())
+            .collect()
+          );
+
         let field = Field {
           field_type: TsFieldType::get_ts_field_type_from_postgres_field_type(field_type.to_owned(), field_name.to_owned(), table_name, enum_values),
           is_nullable: is_nullable == "YES",
