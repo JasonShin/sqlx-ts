@@ -1,14 +1,14 @@
 use crate::common::errors::{DB_CONN_POOL_RETRIEVE_ERROR, DB_SCHEME_READ_ERROR};
+use crate::common::logger::*;
 use crate::core::connection::DBConn;
 use crate::core::mysql::pool::MySqlConnectionManager;
 use crate::core::postgres::pool::PostgresConnectionManager;
-use crate::common::logger::*;
 use bb8::Pool;
 use mysql_async::prelude::Queryable;
 use std::borrow::BorrowMut;
 use std::collections::HashMap;
 use tokio::sync::Mutex;
-use tokio_postgres::{ Error as TokioPostgresError };
+use tokio_postgres::Error as TokioPostgresError;
 
 use super::types::ts_query::TsFieldType;
 
@@ -71,7 +71,7 @@ impl DBSchema {
       DBConn::PostgresConn(conn) => {
         let enums = Self::postgres_fetch_enums(self, &"public".to_string(), conn).await;
         Self::postgres_fetch_table(self, &"public".to_string(), table_name, &enums, conn).await
-      },
+      }
     };
 
     if let Some(result) = &result {
@@ -114,9 +114,7 @@ impl DBSchema {
       WHERE TABLE_SCHEMA = '{}'
       AND TABLE_NAME IN ({});
                 ",
-      schema,
-      schema,
-      table_names,
+      schema, schema, table_names,
     );
 
     let mut fields: HashMap<String, Field> = HashMap::new();
@@ -131,20 +129,24 @@ impl DBSchema {
         let field_type: String = row.get(1);
         let is_nullable: String = row.get(2);
         let table_name: String = row.get(3);
-        let enum_values: Option<Vec<String>> = row.try_get(4)
+        let enum_values: Option<Vec<String>> = row
+          .try_get(4)
           .ok()
-          .map(|val: String| val
-            .split(",")
-            .map(|x| x.to_string())
-            .collect()
-          );
+          .map(|val: String| val.split(",").map(|x| x.to_string()).collect());
 
         let field = Field {
-          field_type: TsFieldType::get_ts_field_type_from_postgres_field_type(field_type.to_owned(), field_name.to_owned(), table_name, enum_values),
+          field_type: TsFieldType::get_ts_field_type_from_postgres_field_type(
+            field_type.to_owned(),
+            field_name.to_owned(),
+            table_name,
+            enum_values,
+          ),
           is_nullable: is_nullable == "YES",
         };
         if &field.field_type == &TsFieldType::Any {
-          let message = format!("The column {field_name} of type {field_type} will be translated any as it isn't supported by sqlx-ts");
+          let message = format!(
+            "The column {field_name} of type {field_type} will be translated any as it isn't supported by sqlx-ts"
+          );
           info!(message);
         }
         fields.insert(field_name.to_owned(), field);
@@ -186,7 +188,8 @@ WHERE nspname = $1;
         let enum_schema: String = row.get(0);
         let enum_name: String = row.get(1);
         let enum_value: String = row.get(2);
-        self.enums_cache
+        self
+          .enums_cache
           .entry(enum_schema)
           .or_insert_with(HashMap::new)
           .entry(enum_name)
@@ -215,7 +218,21 @@ WHERE nspname = $1;
         SELECT
             COLUMN_NAME as column_name,
             DATA_TYPE as data_type,
-            IS_NULLABLE as is_nulalble
+            IS_NULLABLE as is_nulalble,
+            TABLE_NAME,
+            (
+              SELECT REPLACE(
+                  TRIM(TRAILING ')' FROM
+                  TRIM(LEADING '(' from
+                  TRIM(LEADING 'enum' FROM COLUMN_TYPE)))
+                , '\''
+                , ''
+              )
+              FROM information_schema.COLUMNS subcols
+              WHERE subcols.TABLE_SCHEMA = (SELECT DATABASE())
+                AND subcols.TABLE_NAME = C.TABLE_NAME
+                AND subcols.COLUMN_NAME = C.COLUMN_NAME
+            ) AS enums
         FROM information_schema.COLUMNS
         WHERE TABLE_SCHEMA = (SELECT DATABASE())
         AND TABLE_NAME IN ({})
@@ -233,8 +250,21 @@ WHERE nspname = $1;
         let field_name: String = row.clone().take(0).expect(DB_SCHEME_READ_ERROR);
         let field_type: String = row.clone().take(1).expect(DB_SCHEME_READ_ERROR);
         let is_nullable: String = row.clone().take(2).expect(DB_SCHEME_READ_ERROR);
+        let table_name: String = row.clone().take(3).expect(DB_SCHEME_READ_ERROR);
+        let mut enum_values: Option<Vec<String>> = if field_type == "enum" {
+          let enums: String = row.clone().take(4).expect(DB_SCHEME_READ_ERROR);
+          let enum_values: Vec<String> = enums.split(",").map(|x| x.to_string()).collect();
+          Some(enum_values)
+        } else {
+          None
+        };
         let field = Field {
-          field_type: TsFieldType::get_ts_field_type_from_mysql_field_type(field_type.to_owned()),
+          field_type: TsFieldType::get_ts_field_type_from_mysql_field_type(
+            field_type.to_owned(),
+            table_name.to_owned(),
+            field_name.to_owned(),
+            enum_values.to_owned(),
+          ),
           is_nullable: is_nullable == "YES",
         };
         fields.insert(field_name.to_owned(), field);

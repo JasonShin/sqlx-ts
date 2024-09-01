@@ -1,9 +1,9 @@
+use crate::common::logger::*;
 use color_eyre::eyre::Result;
 use convert_case::{Case, Casing};
 use regex::Regex;
 use std::collections::{BTreeMap, HashMap};
 use std::fmt::{self};
-use crate::common::logger::*;
 
 use crate::common::lazy::CONFIG;
 use crate::ts_generator::errors::TsGeneratorError;
@@ -57,7 +57,7 @@ impl fmt::Display for TsFieldType {
           .join(", ");
 
         write!(f, "{result}")
-      },
+      }
       TsFieldType::Enum(values) => {
         let enums: Vec<String> = values.into_iter().map(|x| format!("'{x}'")).collect();
         let joined_enums = enums.join(" | ");
@@ -88,9 +88,7 @@ impl TsFieldType {
       "character" | "character varying" | "bytea" | "uuid" | "text" => Self::String,
       "boolean" => Self::Boolean,
       "json" | "jsonb" => Self::Object,
-      "ARRAY" | "array" => {
-        Self::Any
-      }
+      "ARRAY" | "array" => Self::Any,
       "date" => Self::Date,
       "USER-DEFINED" => {
         if enum_values.is_some() {
@@ -99,17 +97,30 @@ impl TsFieldType {
         let warning_message = format!("Failed to find enum values for field {field_name} of table {table_name}");
         warning!(warning_message);
         Self::Any
-      },
+      }
       _ => Self::Any,
     }
   }
 
-  pub fn get_ts_field_type_from_mysql_field_type(mysql_field_type: String) -> Self {
+  pub fn get_ts_field_type_from_mysql_field_type(
+    mysql_field_type: String,
+    table_name: String,
+    field_name: String,
+    enum_values: Option<Vec<String>>,
+  ) -> Self {
     match mysql_field_type.as_str() {
       "bigint" | "decimal" | "double" | "float" | "int" | "mediumint" | "smallint" | "year" => Self::Number,
       "binary" | "bit" | "blob" | "char" | "text" | "varbinary" | "varchar" => Self::String,
       "tinyint" => Self::Boolean,
       "date" | "datetime" | "timestamp" => Self::Date,
+      "enum" => {
+        if enum_values.is_some() {
+          return Self::Enum(enum_values.unwrap());
+        }
+        let warning_message = format!("Failed to find enum values for field {field_name} of table {table_name}");
+        warning!(warning_message);
+        Self::Any
+      }
       _ => Self::Any,
     }
   }
