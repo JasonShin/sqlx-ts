@@ -8,6 +8,7 @@ use mysql_async::prelude::Queryable;
 use std::borrow::BorrowMut;
 use std::collections::HashMap;
 use tokio::sync::Mutex;
+use tokio_postgres::{ Error as TokioPostgresError };
 
 use super::types::ts_query::TsFieldType;
 
@@ -68,8 +69,8 @@ impl DBSchema {
     let result = match &conn {
       DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, table_name, conn).await,
       DBConn::PostgresConn(conn) => {
-        let enums = Self::postgres_fetch_enums(self, "public".to_string(), conn).await;
-        Self::postgres_fetch_table(self, table_name, conn).await
+        let enums = Self::postgres_fetch_enums(self, &"public".to_string(), conn).await;
+        Self::postgres_fetch_table(self, &"public".to_string(), table_name, &enums, conn).await
       },
     };
 
@@ -82,7 +83,9 @@ impl DBSchema {
 
   async fn postgres_fetch_table(
     &self,
+    schema: &String,
     table_names: &Vec<&str>,
+    enums: &Option<HashMap<String, Vec<String>>>,
     conn: &Mutex<Pool<PostgresConnectionManager>>,
   ) -> Option<Fields> {
     let table_names = table_names
@@ -94,13 +97,25 @@ impl DBSchema {
     let query = format!(
       r"
         SELECT
-            COLUMN_NAME as column_name,
-            DATA_TYPE as data_type,
-            IS_NULLABLE as is_nulalble
-        FROM information_schema.COLUMNS
-        WHERE TABLE_SCHEMA = 'public'
-        AND TABLE_NAME IN ({})
+          COLUMN_NAME as column_name,
+          DATA_TYPE as data_type,
+          IS_NULLABLE as is_nulalble,
+          TABLE_NAME as table_name,
+          (
+            select string_agg(e.enumlabel, ',')
+          from pg_type t
+              join pg_enum e on t.oid = e.enumtypid
+              join pg_catalog.pg_namespace n ON n.oid = t.typnamespace
+          where n.nspname = '{}'
+          and t.typname = udt_name
+          group by n.nspname, t.typname
+          ) as enum_values
+      FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = '{}'
+      AND TABLE_NAME IN ({});
                 ",
+      schema,
+      schema,
       table_names,
     );
 
@@ -115,8 +130,17 @@ impl DBSchema {
         let field_name: String = row.get(0);
         let field_type: String = row.get(1);
         let is_nullable: String = row.get(2);
+        let table_name: String = row.get(3);
+        let enum_values: Option<Vec<String>> = row.try_get(4)
+          .ok()
+          .map(|val: String| {
+            let parts = val.split(",");
+            let parts = parts.map(|x| x.to_string()).collect::<Vec<String>>();
+            return parts
+          });
+        println!("checking enum values {:?} {:?} {:?}", field_name, field_type, enum_values);
         let field = Field {
-          field_type: TsFieldType::get_ts_field_type_from_postgres_field_type(field_type.to_owned()),
+          field_type: TsFieldType::get_ts_field_type_from_postgres_field_type(field_type.to_owned(), field_name.to_owned(), table_name, enum_values),
           is_nullable: is_nullable == "YES",
         };
         if &field.field_type == &TsFieldType::Any {
@@ -134,7 +158,7 @@ impl DBSchema {
 
   async fn postgres_fetch_enums(
     &mut self,
-    schema: String,
+    schema: &String,
     conn: &Mutex<Pool<PostgresConnectionManager>>,
   ) -> Option<HashMap<String, Vec<String>>> {
     let query = r#"
@@ -147,7 +171,7 @@ JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace
 WHERE nspname = $1;
     "#;
     let query = query.to_string();
-    let enums_cache = self.enums_cache.get(&schema);
+    let enums_cache = self.enums_cache.get(schema.as_str());
 
     if self.has_cached_enums {
       let enums_cache = enums_cache.unwrap();
@@ -170,7 +194,7 @@ WHERE nspname = $1;
           .push(enum_value);
       }
 
-      let enums_cache = self.enums_cache.get(&schema).unwrap();
+      let enums_cache = self.enums_cache.get(schema.as_str()).unwrap();
       return Some(enums_cache.clone());
     }
     None

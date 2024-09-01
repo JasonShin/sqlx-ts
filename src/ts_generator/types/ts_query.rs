@@ -3,6 +3,7 @@ use convert_case::{Case, Casing};
 use regex::Regex;
 use std::collections::{BTreeMap, HashMap};
 use std::fmt::{self};
+use crate::common::logger::*;
 
 use crate::common::lazy::CONFIG;
 use crate::ts_generator::errors::TsGeneratorError;
@@ -17,7 +18,7 @@ pub enum TsFieldType {
   Object,
   Date,
   Null,
-  Enum,
+  Enum(Vec<String>),
   Any,
   Array2D(Array2DContent),
   Array(Box<TsFieldType>),
@@ -57,8 +58,10 @@ impl fmt::Display for TsFieldType {
 
         write!(f, "{result}")
       },
-      TsFieldType::Enum => {
-        unimplemented!("Enum is not implemented yet")
+      TsFieldType::Enum(values) => {
+        let enums: Vec<String> = values.into_iter().map(|x| format!("'{x}'")).collect();
+        let joined_enums = enums.join(" | ");
+        write!(f, "{joined_enums}")
       }
     }
   }
@@ -72,8 +75,14 @@ impl TsFieldType {
   /// @examples
   /// get_ts_field_type_from_postgres_field_type("integer") -> TsFieldType::Number
   /// get_ts_field_type_from_postgres_field_type("smallint") -> TsFieldType::Number
+  /// get_ts_field_type_from_postgres_field_type("character varying",  ",,")
   ///
-  pub fn get_ts_field_type_from_postgres_field_type(field_type: String) -> Self {
+  pub fn get_ts_field_type_from_postgres_field_type(
+    field_type: String,
+    field_name: String,
+    table_name: String,
+    enum_values: Option<Vec<String>>,
+  ) -> Self {
     match field_type.as_str() {
       "smallint" | "integer" | "real" | "double precision" | "numeric" => Self::Number,
       "character" | "character varying" | "bytea" | "uuid" | "text" => Self::String,
@@ -83,6 +92,14 @@ impl TsFieldType {
         Self::Any
       }
       "date" => Self::Date,
+      "USER-DEFINED" => {
+        if enum_values.is_some() {
+          return Self::Enum(enum_values.unwrap());
+        }
+        let warning_message = format!("Failed to find enum values for field {field_name} of table {table_name}");
+        warning!(warning_message);
+        Self::Any
+      },
       _ => Self::Any,
     }
   }
