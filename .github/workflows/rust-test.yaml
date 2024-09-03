@@ -51,6 +51,7 @@ jobs:
         env:
           MYSQL_VERSION: ${{ matrix.db.mysql }}
           PG_VERSION: ${{ matrix.db.postgres }}
+          MYSQL_MIGRATION_FILE: "${{ matrix.db.mysql == 5.6 && mysql_migration_5_6.sql || mysql_migration.sql }}"
 
       - uses: GuillaumeFalourd/wait-sleep-action@v1
         with:
