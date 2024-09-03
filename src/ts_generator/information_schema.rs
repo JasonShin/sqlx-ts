@@ -66,9 +66,7 @@ impl DBSchema {
 
     let result = match &conn {
       DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, table_name, conn).await,
-      DBConn::PostgresConn(conn) => {
-        Self::postgres_fetch_table(self, &"public".to_string(), table_name, conn).await
-      }
+      DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, &"public".to_string(), table_name, conn).await,
     };
 
     if let Some(result) = &result {

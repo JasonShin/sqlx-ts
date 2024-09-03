@@ -38,7 +38,6 @@ export interface IUsersQueryQuery {
 };
 "#);
 
-
   #[rustfmt::skip]
 run_test!(should_generate_enums_for_postgres, TestConfig::new("postgres", true, None, None),
 
@@ -65,5 +64,4 @@ export interface IUsersQueryQuery {
     result: IUsersQueryResult;
 };
 "#);
-
 }
