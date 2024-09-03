@@ -59,7 +59,7 @@ impl fmt::Display for TsFieldType {
         write!(f, "{result}")
       }
       TsFieldType::Enum(values) => {
-        let enums: Vec<String> = values.into_iter().map(|x| format!("'{x}'")).collect();
+        let enums: Vec<String> = values.iter().map(|x| format!("'{x}'")).collect();
         let joined_enums = enums.join(" | ");
         write!(f, "{joined_enums}")
       }

@@ -5,10 +5,8 @@ use crate::core::mysql::pool::MySqlConnectionManager;
 use crate::core::postgres::pool::PostgresConnectionManager;
 use bb8::Pool;
 use mysql_async::prelude::Queryable;
-use std::borrow::BorrowMut;
 use std::collections::HashMap;
 use tokio::sync::Mutex;
-use tokio_postgres::Error as TokioPostgresError;
 
 use super::types::ts_query::TsFieldType;
 
@@ -191,9 +189,9 @@ WHERE nspname = $1;
         self
           .enums_cache
           .entry(enum_schema)
-          .or_insert_with(HashMap::new)
+          .or_default()
           .entry(enum_name)
-          .or_insert_with(Vec::new)
+          .or_default()
           .push(enum_value);
       }
 
@@ -252,7 +250,7 @@ WHERE nspname = $1;
         let is_nullable: String = row.clone().take(2).expect(DB_SCHEME_READ_ERROR);
         let table_name: String = row.clone().take(3).expect(DB_SCHEME_READ_ERROR);
 
-        let mut enum_values: Option<Vec<String>> = if field_type == "enum" {
+        let enum_values: Option<Vec<String>> = if field_type == "enum" {
           let enums: String = row.clone().take(4).expect(DB_SCHEME_READ_ERROR);
           let enum_values: Vec<String> = enums.split(",").map(|x| x.to_string()).collect();
           Some(enum_values)
