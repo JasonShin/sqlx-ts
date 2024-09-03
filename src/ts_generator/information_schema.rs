@@ -67,8 +67,7 @@ impl DBSchema {
     let result = match &conn {
       DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, table_name, conn).await,
       DBConn::PostgresConn(conn) => {
-        let enums = Self::postgres_fetch_enums(self, &"public".to_string(), conn).await;
-        Self::postgres_fetch_table(self, &"public".to_string(), table_name, &enums, conn).await
+        Self::postgres_fetch_table(self, &"public".to_string(), table_name, conn).await
       }
     };
 
@@ -83,7 +82,6 @@ impl DBSchema {
     &self,
     schema: &String,
     table_names: &Vec<&str>,
-    enums: &Option<HashMap<String, Vec<String>>>,
     conn: &Mutex<Pool<PostgresConnectionManager>>,
   ) -> Option<Fields> {
     let table_names = table_names
@@ -153,51 +151,6 @@ impl DBSchema {
       return Some(fields);
     }
 
-    None
-  }
-
-  async fn postgres_fetch_enums(
-    &mut self,
-    schema: &String,
-    conn: &Mutex<Pool<PostgresConnectionManager>>,
-  ) -> Option<HashMap<String, Vec<String>>> {
-    let query = r#"
-SELECT n.nspname AS enum_schema,
-       t.typname AS enum_name,
-       e.enumlabel AS enum_value
-FROM pg_type t
-JOIN pg_enum e ON t.oid = e.enumtypid
-JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace
-WHERE nspname = $1;
-    "#;
-    let query = query.to_string();
-    let enums_cache = self.enums_cache.get(schema.as_str());
-
-    if self.has_cached_enums {
-      let enums_cache = enums_cache.unwrap();
-      return Some(enums_cache.clone());
-    }
-    let conn = conn.lock().await;
-    let conn = conn.get().await.expect(DB_CONN_POOL_RETRIEVE_ERROR);
-    let result = conn.query(&query, &[&schema]).await;
-
-    if let Ok(result) = result {
-      for row in result {
-        let enum_schema: String = row.get(0);
-        let enum_name: String = row.get(1);
-        let enum_value: String = row.get(2);
-        self
-          .enums_cache
-          .entry(enum_schema)
-          .or_default()
-          .entry(enum_name)
-          .or_default()
-          .push(enum_value);
-      }
-
-      let enums_cache = self.enums_cache.get(schema.as_str()).unwrap();
-      return Some(enums_cache.clone());
-    }
     None
   }
 
