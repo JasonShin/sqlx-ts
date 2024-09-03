@@ -233,7 +233,7 @@ WHERE nspname = $1;
                 AND subcols.TABLE_NAME = C.TABLE_NAME
                 AND subcols.COLUMN_NAME = C.COLUMN_NAME
             ) AS enums
-        FROM information_schema.COLUMNS
+        FROM information_schema.COLUMNS C
         WHERE TABLE_SCHEMA = (SELECT DATABASE())
         AND TABLE_NAME IN ({})
                 ",
@@ -251,6 +251,7 @@ WHERE nspname = $1;
         let field_type: String = row.clone().take(1).expect(DB_SCHEME_READ_ERROR);
         let is_nullable: String = row.clone().take(2).expect(DB_SCHEME_READ_ERROR);
         let table_name: String = row.clone().take(3).expect(DB_SCHEME_READ_ERROR);
+
         let mut enum_values: Option<Vec<String>> = if field_type == "enum" {
           let enums: String = row.clone().take(4).expect(DB_SCHEME_READ_ERROR);
           let enum_values: Vec<String> = enums.split(",").map(|x| x.to_string()).collect();
@@ -275,14 +276,4 @@ WHERE nspname = $1;
 
     None
   }
-
-  /*
-  async fn mysql_fetch_enums(
-    &self,
-    conn: &Mutex<Pool<PostgresConnectionManager>>,
-  ) {
-
-  }
-
-   */
 }
