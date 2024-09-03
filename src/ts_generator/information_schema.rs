@@ -139,7 +139,7 @@ impl DBSchema {
           ),
           is_nullable: is_nullable == "YES",
         };
-        if &field.field_type == &TsFieldType::Any {
+        if field.field_type == TsFieldType::Any {
           let message = format!(
             "The column {field_name} of type {field_type} will be translated any as it isn't supported by sqlx-ts"
           );

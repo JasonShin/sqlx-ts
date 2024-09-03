@@ -91,8 +91,8 @@ impl TsFieldType {
       "ARRAY" | "array" => Self::Any,
       "date" => Self::Date,
       "USER-DEFINED" => {
-        if enum_values.is_some() {
-          return Self::Enum(enum_values.unwrap());
+        if let Some(enum_values) = enum_values {
+          return Self::Enum(enum_values);
         }
         let warning_message = format!("Failed to find enum values for field {field_name} of table {table_name}");
         warning!(warning_message);
@@ -114,9 +114,10 @@ impl TsFieldType {
       "tinyint" => Self::Boolean,
       "date" | "datetime" | "timestamp" => Self::Date,
       "enum" => {
-        if enum_values.is_some() {
-          return Self::Enum(enum_values.unwrap());
+        if let Some(enum_values) = enum_values {
+          return Self::Enum(enum_values);
         }
+
         let warning_message = format!("Failed to find enum values for field {field_name} of table {table_name}");
         warning!(warning_message);
         Self::Any
