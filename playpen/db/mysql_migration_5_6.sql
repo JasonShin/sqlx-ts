@@ -61,10 +61,6 @@ CREATE TABLE random (
 	text1 TEXT,
 		-- ideally this one should be generated as a legit enum type
 	enum1 ENUM('x-small', 'small', 'medium', 'large', 'x-large'),
-	set1 SET('one', 'two'),
-
-	-- JSON types
-	json1 JSON
-
+	set1 SET('one', 'two')
 );
 

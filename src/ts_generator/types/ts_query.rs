@@ -1,3 +1,4 @@
+use crate::common::logger::*;
 use color_eyre::eyre::Result;
 use convert_case::{Case, Casing};
 use regex::Regex;
@@ -5,12 +6,11 @@ use std::collections::{BTreeMap, HashMap};
 use std::fmt::{self};
 
 use crate::common::lazy::CONFIG;
-use crate::common::logger::*;
 use crate::ts_generator::errors::TsGeneratorError;
 
 type Array2DContent = Vec<Vec<TsFieldType>>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum TsFieldType {
   String,
   Number,
@@ -18,6 +18,7 @@ pub enum TsFieldType {
   Object,
   Date,
   Null,
+  Enum(Vec<String>),
   Any,
   Array2D(Array2DContent),
   Array(Box<TsFieldType>),
@@ -57,6 +58,11 @@ impl fmt::Display for TsFieldType {
 
         write!(f, "{result}")
       }
+      TsFieldType::Enum(values) => {
+        let enums: Vec<String> = values.iter().map(|x| format!("'{x}'")).collect();
+        let joined_enums = enums.join(" | ");
+        write!(f, "{joined_enums}")
+      }
     }
   }
 }
@@ -69,30 +75,53 @@ impl TsFieldType {
   /// @examples
   /// get_ts_field_type_from_postgres_field_type("integer") -> TsFieldType::Number
   /// get_ts_field_type_from_postgres_field_type("smallint") -> TsFieldType::Number
+  /// get_ts_field_type_from_postgres_field_type("character varying",  ",,")
   ///
-  pub fn get_ts_field_type_from_postgres_field_type(field_type: String) -> Self {
+  pub fn get_ts_field_type_from_postgres_field_type(
+    field_type: String,
+    field_name: String,
+    table_name: String,
+    enum_values: Option<Vec<String>>,
+  ) -> Self {
     match field_type.as_str() {
       "smallint" | "integer" | "real" | "double precision" | "numeric" => Self::Number,
       "character" | "character varying" | "bytea" | "uuid" | "text" => Self::String,
       "boolean" => Self::Boolean,
       "json" | "jsonb" => Self::Object,
-      "ARRAY" | "array" => {
-        info!(
-          "Currently we cannot figure out the type information for an array, the feature will be added in the future"
-        );
+      "ARRAY" | "array" => Self::Any,
+      "date" => Self::Date,
+      "USER-DEFINED" => {
+        if let Some(enum_values) = enum_values {
+          return Self::Enum(enum_values);
+        }
+        let warning_message = format!("Failed to find enum values for field {field_name} of table {table_name}");
+        warning!(warning_message);
         Self::Any
       }
-      "date" => Self::Date,
       _ => Self::Any,
     }
   }
 
-  pub fn get_ts_field_type_from_mysql_field_type(mysql_field_type: String) -> Self {
+  pub fn get_ts_field_type_from_mysql_field_type(
+    mysql_field_type: String,
+    table_name: String,
+    field_name: String,
+    enum_values: Option<Vec<String>>,
+  ) -> Self {
     match mysql_field_type.as_str() {
       "bigint" | "decimal" | "double" | "float" | "int" | "mediumint" | "smallint" | "year" => Self::Number,
       "binary" | "bit" | "blob" | "char" | "text" | "varbinary" | "varchar" => Self::String,
       "tinyint" => Self::Boolean,
       "date" | "datetime" | "timestamp" => Self::Date,
+      "enum" => {
+        if let Some(enum_values) = enum_values {
+          return Self::Enum(enum_values);
+        }
+
+        let warning_message = format!("Failed to find enum values for field {field_name} of table {table_name}");
+        warning!(warning_message);
+        Self::Any
+      }
       _ => Self::Any,
     }
   }

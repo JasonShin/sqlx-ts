@@ -16,7 +16,7 @@ services:
     image: mysql:${MYSQL_VERSION:-8}
     restart: always
     volumes:
-      - ./playpen/db/mysql_migration.sql:/docker-entrypoint-initdb.d/mysql_migration.sql
+      - ./playpen/db/${MYSQL_MIGRATION_FILE:-mysql_migration.sql}:/docker-entrypoint-initdb.d/mysql_migration.sql
     ports:
       - 33306:3306
     environment:

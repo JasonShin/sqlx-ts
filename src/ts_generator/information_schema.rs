@@ -1,4 +1,5 @@
 use crate::common::errors::{DB_CONN_POOL_RETRIEVE_ERROR, DB_SCHEME_READ_ERROR};
+use crate::common::logger::*;
 use crate::core::connection::DBConn;
 use crate::core::mysql::pool::MySqlConnectionManager;
 use crate::core::postgres::pool::PostgresConnectionManager;
@@ -25,7 +26,12 @@ struct ColumnsQueryResultRow {
 }
 
 pub struct DBSchema {
+  // Holds cache details for table / columns of the target database
   tables_cache: HashMap<String, Fields>,
+  // Holds cache details for enums that exists in the target database
+  enums_cache: HashMap<String, HashMap<String, Vec<String>>>,
+  // A flag to track if we have already tried to fetch enum and cache it
+  has_cached_enums: bool,
 }
 
 impl Default for DBSchema {
@@ -38,6 +44,8 @@ impl DBSchema {
   pub fn new() -> DBSchema {
     DBSchema {
       tables_cache: HashMap::new(),
+      enums_cache: HashMap::new(),
+      has_cached_enums: false,
     }
   }
 
@@ -58,7 +66,7 @@ impl DBSchema {
 
     let result = match &conn {
       DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, table_name, conn).await,
-      DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, table_name, conn).await,
+      DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, &"public".to_string(), table_name, conn).await,
     };
 
     if let Some(result) = &result {
@@ -70,6 +78,7 @@ impl DBSchema {
 
   async fn postgres_fetch_table(
     &self,
+    schema: &String,
     table_names: &Vec<&str>,
     conn: &Mutex<Pool<PostgresConnectionManager>>,
   ) -> Option<Fields> {
@@ -82,14 +91,24 @@ impl DBSchema {
     let query = format!(
       r"
         SELECT
-            COLUMN_NAME as column_name,
-            DATA_TYPE as data_type,
-            IS_NULLABLE as is_nulalble
-        FROM information_schema.COLUMNS
-        WHERE TABLE_SCHEMA = 'public'
-        AND TABLE_NAME IN ({})
+          COLUMN_NAME as column_name,
+          DATA_TYPE as data_type,
+          IS_NULLABLE as is_nulalble,
+          TABLE_NAME as table_name,
+          (
+            select string_agg(e.enumlabel, ',')
+          from pg_type t
+              join pg_enum e on t.oid = e.enumtypid
+              join pg_catalog.pg_namespace n ON n.oid = t.typnamespace
+          where n.nspname = '{}'
+          and t.typname = udt_name
+          group by n.nspname, t.typname
+          ) as enum_values
+      FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = '{}'
+      AND TABLE_NAME IN ({});
                 ",
-      table_names,
+      schema, schema, table_names,
     );
 
     let mut fields: HashMap<String, Field> = HashMap::new();
@@ -103,10 +122,27 @@ impl DBSchema {
         let field_name: String = row.get(0);
         let field_type: String = row.get(1);
         let is_nullable: String = row.get(2);
+        let table_name: String = row.get(3);
+        let enum_values: Option<Vec<String>> = row
+          .try_get(4)
+          .ok()
+          .map(|val: String| val.split(",").map(|x| x.to_string()).collect());
+
         let field = Field {
-          field_type: TsFieldType::get_ts_field_type_from_postgres_field_type(field_type.to_owned()),
+          field_type: TsFieldType::get_ts_field_type_from_postgres_field_type(
+            field_type.to_owned(),
+            field_name.to_owned(),
+            table_name,
+            enum_values,
+          ),
           is_nullable: is_nullable == "YES",
         };
+        if field.field_type == TsFieldType::Any {
+          let message = format!(
+            "The column {field_name} of type {field_type} will be translated any as it isn't supported by sqlx-ts"
+          );
+          info!(message);
+        }
         fields.insert(field_name.to_owned(), field);
       }
 
@@ -131,8 +167,22 @@ impl DBSchema {
         SELECT
             COLUMN_NAME as column_name,
             DATA_TYPE as data_type,
-            IS_NULLABLE as is_nulalble
-        FROM information_schema.COLUMNS
+            IS_NULLABLE as is_nulalble,
+            TABLE_NAME,
+            (
+              SELECT REPLACE(
+                  TRIM(TRAILING ')' FROM
+                  TRIM(LEADING '(' from
+                  TRIM(LEADING 'enum' FROM COLUMN_TYPE)))
+                , '\''
+                , ''
+              )
+              FROM information_schema.COLUMNS subcols
+              WHERE subcols.TABLE_SCHEMA = (SELECT DATABASE())
+                AND subcols.TABLE_NAME = C.TABLE_NAME
+                AND subcols.COLUMN_NAME = C.COLUMN_NAME
+            ) AS enums
+        FROM information_schema.COLUMNS C
         WHERE TABLE_SCHEMA = (SELECT DATABASE())
         AND TABLE_NAME IN ({})
                 ",
@@ -149,8 +199,22 @@ impl DBSchema {
         let field_name: String = row.clone().take(0).expect(DB_SCHEME_READ_ERROR);
         let field_type: String = row.clone().take(1).expect(DB_SCHEME_READ_ERROR);
         let is_nullable: String = row.clone().take(2).expect(DB_SCHEME_READ_ERROR);
+        let table_name: String = row.clone().take(3).expect(DB_SCHEME_READ_ERROR);
+
+        let enum_values: Option<Vec<String>> = if field_type == "enum" {
+          let enums: String = row.clone().take(4).expect(DB_SCHEME_READ_ERROR);
+          let enum_values: Vec<String> = enums.split(",").map(|x| x.to_string()).collect();
+          Some(enum_values)
+        } else {
+          None
+        };
         let field = Field {
-          field_type: TsFieldType::get_ts_field_type_from_mysql_field_type(field_type.to_owned()),
+          field_type: TsFieldType::get_ts_field_type_from_mysql_field_type(
+            field_type.to_owned(),
+            table_name.to_owned(),
+            field_name.to_owned(),
+            enum_values.to_owned(),
+          ),
           is_nullable: is_nullable == "YES",
         };
         fields.insert(field_name.to_owned(), field);
