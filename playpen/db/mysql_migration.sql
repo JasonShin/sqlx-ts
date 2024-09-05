@@ -11,6 +11,7 @@ CREATE TABLE items (
    time_takes_to_cook INTEGER NOT NULL,
    table_id INTEGER NOT NULL,
    points SMALLINT NOT NULL,
+   description VARCHAR(255) NULL,
    FOREIGN KEY (table_id) REFERENCES tables (id),
    PRIMARY KEY (id)
 );
