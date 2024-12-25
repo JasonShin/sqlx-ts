@@ -219,17 +219,22 @@ impl TsQuery {
     alias: Option<&str>,
     value: &[TsFieldType],
     is_selection: bool,
+    is_nullable: bool,
     expr_for_logging: &str,
   ) -> Result<(), TsGeneratorError> {
     if is_selection {
       if let Some(alias) = alias {
         let temp_alias = alias;
         let alias = &self.format_column_name(alias);
-        let value = &self
+        let mut value = &mut self
           .annotated_results
           .get(temp_alias)
           .cloned()
           .unwrap_or_else(|| value.to_vec());
+
+        if is_nullable {
+          &value.push(TsFieldType::Null);
+        }
 
         let _ = &self.result.insert(alias.to_owned(), value.to_owned());
       } else {

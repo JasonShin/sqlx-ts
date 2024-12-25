@@ -89,7 +89,7 @@ pub async fn translate_insert_returning(
         let keys = table_details.keys();
         for key in keys {
           let value = vec![table_details.get(key).unwrap().field_type.clone()];
-          ts_query.insert_result(Some(key), &value, true, query_for_logging);
+          ts_query.insert_result(Some(key), &value, true, false, query_for_logging);
         }
       }
     }
