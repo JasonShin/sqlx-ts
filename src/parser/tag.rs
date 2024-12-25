@@ -90,9 +90,8 @@ pub fn get_sql_from_expr(
     Expr::This(_) => {}
     Expr::Array(a) => {
       for elem in &a.elems {
-        match elem {
-          Some(expr) => get_sql_from_expr(sqls, var_decl_name, &expr.expr, span, import_alias),
-          None => {}
+        if let Some(expr) = elem {
+          get_sql_from_expr(sqls, var_decl_name, &expr.expr, span, import_alias)
         }
       }
     }
