@@ -290,6 +290,7 @@ impl TsQuery {
     if let Some(placeholder) = placeholder {
       let mut values = vec![];
       if placeholder == "?" {
+        // MySQL params
         let annotated_param = self.annotated_params.get(&(self.param_order as usize));
 
         if let Some(annotated_param) = annotated_param {
@@ -298,7 +299,16 @@ impl TsQuery {
           values.push(value.clone());
         }
         self.param_order += 1;
+
+        if values.len() > 0 {
+          if is_nullable == &true {
+            values.push(TsFieldType::Null)
+          }
+
+          self.params.insert(self.param_order, values);
+        }
       } else {
+        // Postgres binding params
         let re = Regex::new(r"\$(\d+)").unwrap();
         let indexed_binding_params = re.captures(placeholder);
 
@@ -318,16 +328,15 @@ impl TsQuery {
           } else {
             values.push(value.clone());
           }
-        }
-      }
 
-      // Only push to params if it has detected an appropriate placeholder
-      if values.len() > 0 {
-        if is_nullable == &true {
-          values.push(TsFieldType::Null)
-        }
+          if values.len() > 0 {
+            if is_nullable == &true {
+              values.push(TsFieldType::Null)
+            }
 
-        self.params.insert(self.param_order, values);
+            self.params.insert(order, values);
+          }
+        }
       }
     }
     Ok(())
