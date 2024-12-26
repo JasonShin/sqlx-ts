@@ -153,12 +153,11 @@ pub struct TsQuery {
   param_order: i32,
   // We use BTreeMap here as it's a collection that's already sorted
   // TODO: use usize instead
-  pub params: BTreeMap<i32, TsFieldType>,
+  pub params: BTreeMap<i32, Vec<TsFieldType>>,
   pub annotated_params: BTreeMap<usize, TsFieldType>,
 
   // We use BTreeMap here as it's a collection that's already sorted
   pub insert_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
-
   // Holds any annotated @param and perform replacement when generated TS types
   pub annotated_insert_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
 
@@ -289,13 +288,14 @@ impl TsQuery {
   /// This method was specifically designed with an assumption that 1 TsQuery is connected to 1 type of DB
   pub fn insert_param(&mut self, value: &TsFieldType, is_nullable: &bool, placeholder: &Option<String>) -> Result<(), TsGeneratorError> {
     if let Some(placeholder) = placeholder {
+      let mut values = vec![];
       if placeholder == "?" {
         let annotated_param = self.annotated_params.get(&(self.param_order as usize));
 
         if let Some(annotated_param) = annotated_param {
-          self.params.insert(self.param_order, annotated_param.clone());
+          values.push(annotated_param.clone());
         } else {
-          self.params.insert(self.param_order, value.clone());
+          values.push(value.clone());
         }
         self.param_order += 1;
       } else {
@@ -314,11 +314,20 @@ impl TsQuery {
           let annotated_param = self.annotated_params.get(&(order as usize));
 
           if let Some(annotated_param) = annotated_param {
-            self.params.insert(order, annotated_param.clone());
+            values.push(annotated_param.clone());
           } else {
-            self.params.insert(order, value.clone());
+            values.push(value.clone());
           }
         }
+      }
+
+      // Only push to params if it has detected an appropriate placeholder
+      if values.len() > 0 {
+        if is_nullable == &true {
+          values.push(TsFieldType::Null)
+        }
+
+        self.params.insert(self.param_order, values);
       }
     }
     Ok(())
@@ -352,7 +361,9 @@ impl TsQuery {
       .params
       .to_owned()
       .into_values()
-      .map(|x| x.to_string())
+      .map(|x| {
+        x.iter().map(ToString::to_string).collect::<Vec<String>>().join(" | ")
+      })
       .collect::<Vec<String>>()
       .join(", ");
 

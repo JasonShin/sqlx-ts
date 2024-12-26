@@ -404,7 +404,6 @@ pub async fn translate_expr(
       Ok(())
     }
     Expr::Floor { expr, field: _ } | Expr::Ceil { expr, field: _ } => {
-      println!("checking expr {:?}", expr);
       ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, false, expr_for_logging)?;
       ts_query.insert_param(&TsFieldType::Number, &false, &Some(expr.to_string()))
     }
@@ -562,7 +561,7 @@ pub async fn translate_assignment(
     let field = table_details
       .get(&column_name)
       .unwrap_or_else(|| panic!("Failed to find the column detail for {column_name}"));
-    let _ = ts_query.insert_param(&field.field_type, &false, &value);
+    let _ = ts_query.insert_param(&field.field_type, &field.is_nullable, &value);
   }
   Ok(())
 }
