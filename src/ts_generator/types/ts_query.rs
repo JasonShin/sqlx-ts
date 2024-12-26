@@ -159,7 +159,7 @@ pub struct TsQuery {
   // We use BTreeMap here as it's a collection that's already sorted
   pub insert_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
 
-  // Holds any annoated @param and perform replacement when generated TS types
+  // Holds any annotated @param and perform replacement when generated TS types
   pub annotated_insert_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
 
   pub result: HashMap<String, Vec<TsFieldType>>,
@@ -287,7 +287,7 @@ impl TsQuery {
   /// You can only sequentially use `insert_param` with manual order or automatic order parameter
   ///
   /// This method was specifically designed with an assumption that 1 TsQuery is connected to 1 type of DB
-  pub fn insert_param(&mut self, value: &TsFieldType, placeholder: &Option<String>) -> Result<(), TsGeneratorError> {
+  pub fn insert_param(&mut self, value: &TsFieldType, is_nullable: &bool, placeholder: &Option<String>) -> Result<(), TsGeneratorError> {
     if let Some(placeholder) = placeholder {
       if placeholder == "?" {
         let annotated_param = self.annotated_params.get(&(self.param_order as usize));

@@ -216,7 +216,7 @@ pub async fn translate_expr(
     Expr::BinaryOp { left, op: _, right } => {
       let param = get_sql_query_param(left, right, single_table_name, table_with_joins, db_conn).await;
       if let Some((value, index)) = param {
-        let _ = ts_query.insert_param(&value, &index);
+        let _ = ts_query.insert_param(&value, &false, &index);
         Ok(())
       } else {
         translate_expr(
@@ -262,7 +262,7 @@ pub async fn translate_expr(
         if let Some((value, index)) = result {
           let array_item = TsFieldType::Array(Box::new(value));
 
-          let _ = ts_query.insert_param(&array_item, &index);
+          let _ = ts_query.insert_param(&array_item, &false, &index);
           return Ok(());
         } else {
           return Ok(());
@@ -288,11 +288,11 @@ pub async fn translate_expr(
       let low = get_sql_query_param(expr, low, single_table_name, table_with_joins, db_conn).await;
       let high = get_sql_query_param(expr, high, single_table_name, table_with_joins, db_conn).await;
       if let Some((value, placeholder)) = low {
-        ts_query.insert_param(&value, &placeholder)?;
+        ts_query.insert_param(&value, &false, &placeholder)?;
       }
 
       if let Some((value, placeholder)) = high {
-        ts_query.insert_param(&value, &placeholder)?;
+        ts_query.insert_param(&value, &false, &placeholder)?;
       }
       Ok(())
     }
@@ -335,7 +335,7 @@ pub async fn translate_expr(
       if let Some(ts_field_type) = ts_field_type {
         return ts_query.insert_result(alias, &[ts_field_type], is_selection, false, expr_for_logging);
       }
-      ts_query.insert_param(&TsFieldType::Boolean, &Some(placeholder.to_string()))
+      ts_query.insert_param(&TsFieldType::Boolean, &false, &Some(placeholder.to_string()))
     }
     Expr::JsonAccess {
       left: _,
@@ -343,11 +343,11 @@ pub async fn translate_expr(
       right: _,
     } => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)?;
-      ts_query.insert_param(&TsFieldType::Any, &None)
+      ts_query.insert_param(&TsFieldType::Any, &false, &None)
     }
     Expr::IsNotDistinctFrom(_, placeholder) | Expr::IsDistinctFrom(_, placeholder) => {
       // IsDistinctFrom and IsNotDistinctFrom are the same and can have a placeholder
-      ts_query.insert_param(&TsFieldType::String, &Some(placeholder.to_string()))?;
+      ts_query.insert_param(&TsFieldType::String, &false, &Some(placeholder.to_string()))?;
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
     }
     Expr::SimilarTo {
@@ -369,7 +369,7 @@ pub async fn translate_expr(
       escape_char: _,
     } => {
       // If the pattern has a placeholder, then we should append the param to ts_query
-      ts_query.insert_param(&TsFieldType::String, &Some(pattern.to_string()))
+      ts_query.insert_param(&TsFieldType::String, &false, &Some(pattern.to_string()))
     }
     Expr::TryCast {
       expr,
@@ -388,24 +388,25 @@ pub async fn translate_expr(
     } => {
       let data_type = translate_data_type(data_type);
       ts_query.insert_result(alias, &[data_type.clone()], is_selection, false, expr_for_logging)?;
-      ts_query.insert_param(&data_type, &Some(expr.to_string()))?;
+      ts_query.insert_param(&data_type, &false, &Some(expr.to_string()))?;
       Ok(())
     }
     Expr::AtTimeZone { timestamp, time_zone } => {
       ts_query.insert_result(alias, &[TsFieldType::Date], is_selection, false, expr_for_logging)?;
-      ts_query.insert_param(&TsFieldType::String, &Some(timestamp.to_string()))?;
-      ts_query.insert_param(&TsFieldType::String, &Some(time_zone.to_string()))?;
+      ts_query.insert_param(&TsFieldType::String, &false, &Some(timestamp.to_string()))?;
+      ts_query.insert_param(&TsFieldType::String, &false, &Some(time_zone.to_string()))?;
       Ok(())
     }
     Expr::Extract { field, expr } => {
       ts_query.insert_result(alias, &[TsFieldType::Date], is_selection, false, expr_for_logging)?;
-      ts_query.insert_param(&TsFieldType::String, &Some(field.to_string()))?;
-      ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()))?;
+      ts_query.insert_param(&TsFieldType::String, &false, &Some(field.to_string()))?;
+      ts_query.insert_param(&TsFieldType::String, &false, &Some(expr.to_string()))?;
       Ok(())
     }
     Expr::Floor { expr, field: _ } | Expr::Ceil { expr, field: _ } => {
+      println!("checking expr {:?}", expr);
       ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, false, expr_for_logging)?;
-      ts_query.insert_param(&TsFieldType::Number, &Some(expr.to_string()))
+      ts_query.insert_param(&TsFieldType::Number, &false, &Some(expr.to_string()))
     }
     Expr::Position { expr: _, r#in: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, false, expr_for_logging)
@@ -417,7 +418,7 @@ pub async fn translate_expr(
       special: _,
     } => {
       ts_query.insert_result(alias, &[TsFieldType::String], is_selection, false, expr_for_logging)?;
-      ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()))
+      ts_query.insert_param(&TsFieldType::String, &false, &Some(expr.to_string()))
     }
     Expr::Trim {
       expr,
@@ -426,7 +427,7 @@ pub async fn translate_expr(
       trim_characters: _,
     } => {
       ts_query.insert_result(alias, &[TsFieldType::String], is_selection, false, expr_for_logging)?;
-      ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()))
+      ts_query.insert_param(&TsFieldType::String, &false, &Some(expr.to_string()))
     }
     Expr::Overlay {
       expr,
@@ -434,9 +435,9 @@ pub async fn translate_expr(
       overlay_from,
       overlay_for: _,
     } => {
-      ts_query.insert_param(&TsFieldType::String, &Some(expr.to_string()))?;
-      ts_query.insert_param(&TsFieldType::String, &Some(overlay_what.to_string()))?;
-      ts_query.insert_param(&TsFieldType::Number, &Some(overlay_from.to_string()))?;
+      ts_query.insert_param(&TsFieldType::String, &false, &Some(expr.to_string()))?;
+      ts_query.insert_param(&TsFieldType::String, &false, &Some(overlay_what.to_string()))?;
+      ts_query.insert_param(&TsFieldType::Number, &false, &Some(overlay_from.to_string()))?;
       ts_query.insert_result(alias, &[TsFieldType::String], is_selection, false, expr_for_logging)
     }
     Expr::Collate { expr: _, collation: _ } => {
@@ -561,7 +562,7 @@ pub async fn translate_assignment(
     let field = table_details
       .get(&column_name)
       .unwrap_or_else(|| panic!("Failed to find the column detail for {column_name}"));
-    let _ = ts_query.insert_param(&field.field_type, &value);
+    let _ = ts_query.insert_param(&field.field_type, &false, &value);
   }
   Ok(())
 }
