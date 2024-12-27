@@ -472,7 +472,9 @@ pub async fn translate_expr(
     | Expr::Rollup(_)
     | Expr::Tuple(_)
     | Expr::Array(_)
-    | Expr::ArraySubquery(_) => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging),
+    | Expr::ArraySubquery(_) => {
+      ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
+    }
     Expr::ArrayIndex { obj: _, indexes: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
     }
@@ -489,19 +491,42 @@ pub async fn translate_expr(
     /////////////////////
     // FUNCTIONS START //
     /////////////////////
-    Expr::IsTrue(_query) | Expr::IsFalse(_query) | Expr::IsNull(_query) | Expr::IsNotNull(_query) => {
-      ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, false, expr.to_string().as_str())
-    }
+    Expr::IsTrue(_query) | Expr::IsFalse(_query) | Expr::IsNull(_query) | Expr::IsNotNull(_query) => ts_query
+      .insert_result(
+        alias,
+        &[TsFieldType::Boolean],
+        is_selection,
+        false,
+        expr.to_string().as_str(),
+      ),
     Expr::Function(function) => {
       let function = function.name.to_string();
       let function = function.as_str();
       let alias = alias.ok_or(TsGeneratorError::FunctionWithoutAliasInSelectClause(expr.to_string()))?;
       if is_string_function(function) {
-        ts_query.insert_result(Some(alias), &[TsFieldType::String], is_selection, false, expr_for_logging)?;
+        ts_query.insert_result(
+          Some(alias),
+          &[TsFieldType::String],
+          is_selection,
+          false,
+          expr_for_logging,
+        )?;
       } else if is_numeric_function(function) {
-        ts_query.insert_result(Some(alias), &[TsFieldType::Number], is_selection, false, expr_for_logging)?;
+        ts_query.insert_result(
+          Some(alias),
+          &[TsFieldType::Number],
+          is_selection,
+          false,
+          expr_for_logging,
+        )?;
       } else if is_date_function(function) {
-        ts_query.insert_result(Some(alias), &[TsFieldType::String], is_selection, false, expr_for_logging)?;
+        ts_query.insert_result(
+          Some(alias),
+          &[TsFieldType::String],
+          is_selection,
+          false,
+          expr_for_logging,
+        )?;
       } else {
         return Err(TsGeneratorError::FunctionUnknown(expr.to_string()));
       }

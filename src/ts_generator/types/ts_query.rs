@@ -286,7 +286,12 @@ impl TsQuery {
   /// You can only sequentially use `insert_param` with manual order or automatic order parameter
   ///
   /// This method was specifically designed with an assumption that 1 TsQuery is connected to 1 type of DB
-  pub fn insert_param(&mut self, value: &TsFieldType, is_nullable: &bool, placeholder: &Option<String>) -> Result<(), TsGeneratorError> {
+  pub fn insert_param(
+    &mut self,
+    value: &TsFieldType,
+    is_nullable: &bool,
+    placeholder: &Option<String>,
+  ) -> Result<(), TsGeneratorError> {
     if let Some(placeholder) = placeholder {
       let mut values = vec![];
 
@@ -298,9 +303,9 @@ impl TsQuery {
         re.captures(placeholder)
           .and_then(|caps| caps.get(1))
           .and_then(|m| m.as_str().parse::<i32>().ok())
-          .ok_or(TsGeneratorError::UnknownPlaceholder(
-            format!("{placeholder} is not a valid placeholder parameter in PostgreSQL")
-          ))? as i32
+          .ok_or(TsGeneratorError::UnknownPlaceholder(format!(
+            "{placeholder} is not a valid placeholder parameter in PostgreSQL"
+          )))? as i32
       } as usize;
 
       if let Some(annotated_param) = self.annotated_params.get(&order) {
@@ -345,9 +350,7 @@ impl TsQuery {
     self
       .params
       .values()
-      .map(|x| {
-        x.iter().map(ToString::to_string).collect::<Vec<String>>().join(" | ")
-      })
+      .map(|x| x.iter().map(ToString::to_string).collect::<Vec<String>>().join(" | "))
       .collect::<Vec<String>>()
       .join(", ")
   }
