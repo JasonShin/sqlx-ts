@@ -323,9 +323,7 @@ impl TsQuery {
   /// The method is to format SQL params extracted via translate methods
   /// It can work for SELECT, INSERT, DELETE and UPDATE queries
   fn fmt_params(&self, _: &mut fmt::Formatter<'_>) -> String {
-    let is_insert_query = self.insert_params.keys().len() > 0;
-
-    if is_insert_query {
+    if !self.insert_params.is_empty() {
       return self
         .insert_params
         .values()
@@ -344,17 +342,14 @@ impl TsQuery {
     }
 
     // Otherwise we should be processing non-insert query params
-    let result = &self
+    self
       .params
-      .to_owned()
-      .into_values()
+      .values()
       .map(|x| {
         x.iter().map(ToString::to_string).collect::<Vec<String>>().join(" | ")
       })
       .collect::<Vec<String>>()
-      .join(", ");
-
-    result.to_owned()
+      .join(", ")
   }
 
   fn fmt_result(&self, _f: &mut fmt::Formatter<'_>) -> String {
