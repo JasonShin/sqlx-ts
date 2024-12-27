@@ -4,7 +4,8 @@ export type WildcardParams = [];
 
 
 export interface IWildcardResult {
-    foodType: string;
+    description: string;
+	foodType: string;
 	id: number;
 	points: number;
 	tableId: number;

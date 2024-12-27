@@ -4,7 +4,8 @@ export type Sql1Params = [];
 
 
 export interface ISql1Result {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;
@@ -24,7 +25,8 @@ export type Sql2Params = [];
 
 
 export interface ISql2Result {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	number: number;
 	occupied: boolean;
@@ -62,7 +64,8 @@ export type Sql4Params = [];
 
 
 export interface ISql4Result {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;
@@ -82,7 +85,8 @@ export type Sql5Params = [];
 
 
 export interface ISql5Result {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	number: number;
 	occupied: boolean;
@@ -120,7 +124,8 @@ export type Sql9Params = [boolean];
 
 
 export interface ISql9Result {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;
@@ -192,7 +197,8 @@ export type Sql13Params = [string];
 
 
 export interface ISql13Result {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;
@@ -212,7 +218,8 @@ export type Sql14Params = [number];
 
 
 export interface ISql14Result {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;

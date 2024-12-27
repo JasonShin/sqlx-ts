@@ -225,14 +225,14 @@ impl TsQuery {
       if let Some(alias) = alias {
         let temp_alias = alias;
         let alias = &self.format_column_name(alias);
-        let mut value = &mut self
+        let value = &mut self
           .annotated_results
           .get(temp_alias)
           .cloned()
           .unwrap_or_else(|| value.to_vec());
 
         if is_nullable {
-          &value.push(TsFieldType::Null);
+          value.push(TsFieldType::Null);
         }
 
         let _ = &self.result.insert(alias.to_owned(), value.to_owned());
@@ -293,19 +293,21 @@ impl TsQuery {
     placeholder: &Option<String>,
   ) -> Result<(), TsGeneratorError> {
     if let Some(placeholder) = placeholder {
+      let pg_placeholder_pattern = Regex::new(r"\$(\d+)").unwrap();
       let mut values = vec![];
 
       let order = if placeholder == "?" {
         self.param_order += 1;
         self.param_order
-      } else {
-        let re = Regex::new(r"\$(\d+)").unwrap();
-        re.captures(placeholder)
-          .and_then(|caps| caps.get(1))
+      } else if let Some(caps) = pg_placeholder_pattern.captures(placeholder) {
+        caps.get(1)
           .and_then(|m| m.as_str().parse::<i32>().ok())
           .ok_or(TsGeneratorError::UnknownPlaceholder(format!(
             "{placeholder} is not a valid placeholder parameter in PostgreSQL"
           )))? as i32
+      } else {
+        // No pattern matches the provided placeholder, simply exit out of the function
+        return Ok(())
       } as usize;
 
       if let Some(annotated_param) = self.annotated_params.get(&order) {

@@ -15,7 +15,7 @@ fn trim_table_name(val: &String, quote_style: &Option<char>) -> String {
 
 pub struct DisplayIndent<'a>(pub &'a Ident);
 
-impl<'a> fmt::Display for DisplayIndent<'a> {
+impl fmt::Display for DisplayIndent<'_> {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
     let quote_style = &self.0.quote_style;
     let name = &self.0.value;
@@ -26,7 +26,7 @@ impl<'a> fmt::Display for DisplayIndent<'a> {
 
 pub struct DisplayObjectName<'a>(pub &'a ObjectName);
 
-impl<'a> fmt::Display for DisplayObjectName<'a> {
+impl fmt::Display for DisplayObjectName<'_> {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
     let quote_style = &self.0 .0[0].quote_style;
     let name = &self.0 .0[0].value;
@@ -37,7 +37,7 @@ impl<'a> fmt::Display for DisplayObjectName<'a> {
 
 pub struct DisplayTableAlias<'a>(pub &'a TableAlias);
 
-impl<'a> fmt::Display for DisplayTableAlias<'a> {
+impl fmt::Display for DisplayTableAlias<'_> {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
     let quote_style = &self.0.name.quote_style;
     let name = &self.0.name.value;

@@ -4,7 +4,8 @@ export type TestMysqlQueryParams = [];
 
 
 export interface ITestMysqlQueryResult {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;
@@ -24,7 +25,8 @@ export type TestPostgresQueryParams = [];
 
 
 export interface ITestPostgresQueryResult {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;
@@ -60,7 +62,8 @@ export type Sql4Params = [string];
 
 
 export interface ISql4Result {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;

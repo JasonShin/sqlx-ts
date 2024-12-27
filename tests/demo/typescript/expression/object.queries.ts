@@ -4,7 +4,8 @@ export type AnotherTestObjectQueryParams = [];
 
 
 export interface IAnotherTestObjectQueryResult {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;
@@ -24,7 +25,8 @@ export type NestedTestObjectQueryParams = [];
 
 
 export interface INestedTestObjectQueryResult {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;

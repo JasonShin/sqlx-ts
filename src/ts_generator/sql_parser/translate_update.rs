@@ -16,7 +16,6 @@ async fn translate_assignments(
   assignments: &Vec<Assignment>,
   db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
-  println!("checking assignments for update {:?}", assignments);
   for assignment in assignments {
     let table = translate_table_from_assignments(&vec![table_with_joins.to_owned()], assignment)
       .expect("Failed to find the table based on assignment {assignment} from table with joins {table_with_joins}");

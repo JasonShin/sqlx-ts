@@ -8,7 +8,10 @@
   clippy::borrow_deref_ref,
   clippy::clone_on_copy,
   clippy::extra_unused_lifetimes,
-  clippy::explicit_auto_deref
+  clippy::explicit_auto_deref,
+  clippy::print_stdout,
+  clippy::print_stderr,
+  clippy::println_empty_string
 )]
 #![allow(clippy::ptr_arg)]
 mod common;
@@ -60,6 +63,7 @@ async fn main() -> Result<()> {
   for file_path in files.iter() {
     let (sqls, handler) = parse_source(file_path)?;
     let failed = execute(&sqls, &handler).await?;
+    #[allow(clippy::print_stderr)]
     if failed {
       eprint!("SQLs failed to compile!");
       std::process::exit(1)
