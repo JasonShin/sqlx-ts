@@ -153,7 +153,7 @@ pub struct TsQuery {
   param_order: i32,
   // We use BTreeMap here as it's a collection that's already sorted
   // TODO: use usize instead
-  pub params: BTreeMap<i32, Vec<TsFieldType>>,
+  pub params: BTreeMap<usize, Vec<TsFieldType>>,
   pub annotated_params: BTreeMap<usize, TsFieldType>,
 
   // We use BTreeMap here as it's a collection that's already sorted
@@ -289,55 +289,33 @@ impl TsQuery {
   pub fn insert_param(&mut self, value: &TsFieldType, is_nullable: &bool, placeholder: &Option<String>) -> Result<(), TsGeneratorError> {
     if let Some(placeholder) = placeholder {
       let mut values = vec![];
-      if placeholder == "?" {
-        // MySQL params
-        let annotated_param = self.annotated_params.get(&(self.param_order as usize));
 
-        if let Some(annotated_param) = annotated_param {
-          values.push(annotated_param.clone());
-        } else {
-          values.push(value.clone());
-        }
+      let order = if placeholder == "?" {
         self.param_order += 1;
-
-        if values.len() > 0 {
-          if is_nullable == &true {
-            values.push(TsFieldType::Null)
-          }
-
-          self.params.insert(self.param_order, values);
-        }
+        self.param_order
       } else {
-        // Postgres binding params
         let re = Regex::new(r"\$(\d+)").unwrap();
-        let indexed_binding_params = re.captures(placeholder);
+        re.captures(placeholder)
+          .and_then(|caps| caps.get(1))
+          .and_then(|m| m.as_str().parse::<i32>().ok())
+          .ok_or(TsGeneratorError::UnknownPlaceholder(
+            format!("{placeholder} is not a valid placeholder parameter in PostgreSQL")
+          ))? as i32
+      } as usize;
 
-        // Only runs the code if the placeholder is an indexed binding parameter such as $1 or $2
-        if let Some(indexed_binding_params) = indexed_binding_params {
-          let order = indexed_binding_params
-            .get(1)
-            .unwrap()
-            .as_str()
-            .parse::<i32>()
-            .unwrap();
-
-          let annotated_param = self.annotated_params.get(&(order as usize));
-
-          if let Some(annotated_param) = annotated_param {
-            values.push(annotated_param.clone());
-          } else {
-            values.push(value.clone());
-          }
-
-          if values.len() > 0 {
-            if is_nullable == &true {
-              values.push(TsFieldType::Null)
-            }
-
-            self.params.insert(order, values);
-          }
-        }
+      if let Some(annotated_param) = self.annotated_params.get(&order) {
+        values.push(annotated_param.clone());
+      } else {
+        values.push(value.clone());
       }
+
+      // Add nullability if required
+      if *is_nullable {
+        values.push(TsFieldType::Null);
+      }
+
+      // Insert values into the parameter map
+      self.params.insert(order, values);
     }
     Ok(())
   }
