@@ -70,3 +70,20 @@ export interface IInsertQuotedQuery {
 };
 
 
+
+
+export type InsertParamsParams = [string, string | null];
+
+
+export interface IInsertParamsResult {
+    foodType1: string;
+	id1: number;
+};
+
+
+export interface IInsertParamsQuery {
+    params: InsertParamsParams;
+    result: IInsertParamsResult;
+};
+
+

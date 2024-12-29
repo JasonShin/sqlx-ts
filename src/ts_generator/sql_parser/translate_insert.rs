@@ -37,7 +37,15 @@ pub async fn translate_insert(
           if placeholder.is_some() {
             let match_col = &columns
               .get(column)
-              .unwrap_or_else(|| panic!("Matching column of idx {column} is not found while processing insert params"))
+              .unwrap_or_else(|| panic!(r#"
+Failed to process values of insert statement as column names are not provided or incorrectly specified
+
+Try specifying column names
+```
+INSERT INTO table_name (column1, column2, column3, ...)
+VALUES (value1, value2, value3, ...);
+```
+              "#))
               .value;
 
             let field = table_details
