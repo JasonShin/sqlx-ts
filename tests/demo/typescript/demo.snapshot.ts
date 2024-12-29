@@ -4,7 +4,8 @@ export type TestSequelizeQueryParams = [number];
 
 
 export interface ITestSequelizeQueryResult {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;
@@ -24,7 +25,8 @@ export type TestAwaitQueryParams = [];
 
 
 export interface ITestAwaitQueryResult {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;
@@ -44,7 +46,8 @@ export type TestAwaitQuery2Params = [];
 
 
 export interface ITestAwaitQuery2Result {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;
@@ -64,7 +67,8 @@ export type AwaitClientQueryParams = [];
 
 
 export interface IAwaitClientQueryResult {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;
@@ -84,7 +88,8 @@ export type GetItemsWithRowsParams = [];
 
 
 export interface IGetItemsWithRowsResult {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;

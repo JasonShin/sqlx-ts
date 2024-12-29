@@ -30,6 +30,7 @@ r#"
 export type SomeQueryParams = [number, number, number];
 
 export interface ISomeQueryResult {
+    description: string | null;
     food_type: string;
     id: number;
     points: number;

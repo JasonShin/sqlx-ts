@@ -4,7 +4,8 @@ export type TestParenthesisQueryParams = [];
 
 
 export interface ITestParenthesisQueryResult {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;

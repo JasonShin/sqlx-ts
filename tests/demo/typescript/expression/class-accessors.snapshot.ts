@@ -196,7 +196,8 @@ export type PrivAutoAccessorPropParams = [];
 
 
 export interface IPrivAutoAccessorPropResult {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;
@@ -216,7 +217,8 @@ export type AutoAccessorPropParams = [];
 
 
 export interface IAutoAccessorPropResult {
-    food_type: string;
+    description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;

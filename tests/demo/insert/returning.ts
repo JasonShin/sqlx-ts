@@ -1,24 +1,24 @@
 import { sql } from 'sqlx-ts'
 
-const wildcard = sql`
+const insertWildcard = sql`
 INSERT INTO items
 VALUES (1, 'korean', 20, 1, 5)
 RETURNING *;
 `
 
-const selector = sql`
+const insertSelector = sql`
 INSERT INTO items
 VALUES (1, 'korean', 20, 1, 5)
 RETURNING id, food_type;
 `
 
-const alias = sql`
+const insertAlias = sql`
 INSERT INTO items
 VALUES (1, 'korean', 20, 1, 5)
 RETURNING id as id1, food_type AS foodType1;
 `
 
-const quoted = sql`
+const insertQuoted = sql`
 INSERT INTO "items"
 VALUES (1, 'korean', 20, 1, 5)
 RETURNING "id" as id1, food_type AS "foodType1";

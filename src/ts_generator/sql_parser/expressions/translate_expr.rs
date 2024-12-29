@@ -101,7 +101,7 @@ pub async fn get_sql_query_param(
   single_table_name: &Option<&str>,
   table_with_joins: &Option<Vec<TableWithJoins>>,
   db_conn: &DBConn,
-) -> Option<(TsFieldType, Option<String>)> {
+) -> Option<(TsFieldType, bool, Option<String>)> {
   let table_name: Option<String>;
 
   if table_with_joins.is_some() {
@@ -132,7 +132,7 @@ pub async fn get_sql_query_param(
       let column = columns
         .get(column_name.as_str())
         .unwrap_or_else(|| panic!("Failed to find the column from the table schema of {:?}", table_name));
-      Some((column.field_type.to_owned(), Some(expr_placeholder)))
+      Some((column.field_type.to_owned(), column.is_nullable, Some(expr_placeholder)))
     }
     _ => None,
   }
@@ -150,6 +150,7 @@ pub async fn translate_expr(
   // subqueries on WHERE expression should no determine the SELECTIONs
   is_selection: bool,
 ) -> Result<(), TsGeneratorError> {
+  println!("checking expr {:?}", expr);
   let binding = expr.to_string();
   let expr_for_logging = &binding.as_str();
 
@@ -215,8 +216,8 @@ pub async fn translate_expr(
     /////////////////////
     Expr::BinaryOp { left, op: _, right } => {
       let param = get_sql_query_param(left, right, single_table_name, table_with_joins, db_conn).await;
-      if let Some((value, index)) = param {
-        let _ = ts_query.insert_param(&value, &false, &index);
+      if let Some((value, is_nullable, index)) = param {
+        let _ = ts_query.insert_param(&value, &is_nullable, &index);
         Ok(())
       } else {
         translate_expr(
@@ -259,7 +260,7 @@ pub async fn translate_expr(
         )
         .await;
 
-        if let Some((value, index)) = result {
+        if let Some((value, is_nullable, index)) = result {
           let array_item = TsFieldType::Array(Box::new(value));
 
           let _ = ts_query.insert_param(&array_item, &false, &index);
@@ -287,12 +288,12 @@ pub async fn translate_expr(
     } => {
       let low = get_sql_query_param(expr, low, single_table_name, table_with_joins, db_conn).await;
       let high = get_sql_query_param(expr, high, single_table_name, table_with_joins, db_conn).await;
-      if let Some((value, placeholder)) = low {
-        ts_query.insert_param(&value, &false, &placeholder)?;
+      if let Some((value, is_nullable, placeholder)) = low {
+        ts_query.insert_param(&value, &is_nullable, &placeholder)?;
       }
 
-      if let Some((value, placeholder)) = high {
-        ts_query.insert_param(&value, &false, &placeholder)?;
+      if let Some((value, is_nullable, placeholder)) = high {
+        ts_query.insert_param(&value, &is_nullable, &placeholder)?;
       }
       Ok(())
     }

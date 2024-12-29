@@ -30,3 +30,19 @@ export interface IQuotedUpdateQueryQuery {
 };
 
 
+
+
+export type NullableFieldUpdateParams = [string | null, number];
+
+
+export interface INullableFieldUpdateResult {
+    
+};
+
+
+export interface INullableFieldUpdateQuery {
+    params: NullableFieldUpdateParams;
+    result: INullableFieldUpdateResult;
+};
+
+

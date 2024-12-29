@@ -42,26 +42,26 @@ export interface ITestPostgresQueryQuery {
 
 
 
-export type Sql3Params = [];
+export type AnnotationSql3Params = [];
 
 
-export interface ISql3Result {
+export interface IAnnotationSql3Result {
     points: string;
 };
 
 
-export interface ISql3Query {
-    params: Sql3Params;
-    result: ISql3Result;
+export interface IAnnotationSql3Query {
+    params: AnnotationSql3Params;
+    result: IAnnotationSql3Result;
 };
 
 
 
 
-export type Sql4Params = [string];
+export type AnnotationSql4Params = [string];
 
 
-export interface ISql4Result {
+export interface IAnnotationSql4Result {
     description: string | null;
 	food_type: string;
 	id: number;
@@ -71,24 +71,40 @@ export interface ISql4Result {
 };
 
 
-export interface ISql4Query {
-    params: Sql4Params;
-    result: ISql4Result;
+export interface IAnnotationSql4Query {
+    params: AnnotationSql4Params;
+    result: IAnnotationSql4Result;
 };
 
 
 
 
-export type Sql5Params = [string];
+export type AnnotationSql5Params = [string];
 
 
-export interface ISql5Result {
+export interface IAnnotationSql5Result {
     tableId: boolean;
 };
 
 
-export interface ISql5Query {
-    params: Sql5Params;
-    result: ISql5Result;
+export interface IAnnotationSql5Query {
+    params: AnnotationSql5Params;
+    result: IAnnotationSql5Result;
+};
+
+
+
+
+export type TestMysqlQueryWithParamOverridesParams = [string];
+
+
+export interface ITestMysqlQueryWithParamOverridesResult {
+    tableId: number;
+};
+
+
+export interface ITestMysqlQueryWithParamOverridesQuery {
+    params: TestMysqlQueryWithParamOverridesParams;
+    result: ITestMysqlQueryWithParamOverridesResult;
 };
 

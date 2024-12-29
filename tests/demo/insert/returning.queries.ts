@@ -1,9 +1,9 @@
 
 
-export type WildcardParams = [];
+export type InsertWildcardParams = [];
 
 
-export interface IWildcardResult {
+export interface IInsertWildcardResult {
     description: string;
 	foodType: string;
 	id: number;
@@ -13,59 +13,59 @@ export interface IWildcardResult {
 };
 
 
-export interface IWildcardQuery {
-    params: WildcardParams;
-    result: IWildcardResult;
+export interface IInsertWildcardQuery {
+    params: InsertWildcardParams;
+    result: IInsertWildcardResult;
 };
 
 
 
 
-export type SelectorParams = [];
+export type InsertSelectorParams = [];
 
 
-export interface ISelectorResult {
+export interface IInsertSelectorResult {
     foodType: string;
 	id: number;
 };
 
 
-export interface ISelectorQuery {
-    params: SelectorParams;
-    result: ISelectorResult;
+export interface IInsertSelectorQuery {
+    params: InsertSelectorParams;
+    result: IInsertSelectorResult;
 };
 
 
 
 
-export type AliasParams = [];
+export type InsertAliasParams = [];
 
 
-export interface IAliasResult {
+export interface IInsertAliasResult {
     foodType1: string;
 	id1: number;
 };
 
 
-export interface IAliasQuery {
-    params: AliasParams;
-    result: IAliasResult;
+export interface IInsertAliasQuery {
+    params: InsertAliasParams;
+    result: IInsertAliasResult;
 };
 
 
 
 
-export type QuotedParams = [];
+export type InsertQuotedParams = [];
 
 
-export interface IQuotedResult {
+export interface IInsertQuotedResult {
     foodType1: string;
 	id1: number;
 };
 
 
-export interface IQuotedQuery {
-    params: QuotedParams;
-    result: IQuotedResult;
+export interface IInsertQuotedQuery {
+    params: InsertQuotedParams;
+    result: IInsertQuotedResult;
 };
 
