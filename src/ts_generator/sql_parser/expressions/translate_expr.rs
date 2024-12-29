@@ -150,7 +150,6 @@ pub async fn translate_expr(
   // subqueries on WHERE expression should no determine the SELECTIONs
   is_selection: bool,
 ) -> Result<(), TsGeneratorError> {
-  println!("checking expr {:?}", expr);
   let binding = expr.to_string();
   let expr_for_logging = &binding.as_str();
 
