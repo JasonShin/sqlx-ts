@@ -1,10 +1,7 @@
-
-
 export type AnotherTestObjectQueryParams = [];
 
-
 export interface IAnotherTestObjectQueryResult {
-    description: string | null;
+	description: string | null;
 	food_type: string;
 	id: number;
 	points: number;
@@ -12,20 +9,15 @@ export interface IAnotherTestObjectQueryResult {
 	time_takes_to_cook: number;
 };
 
-
 export interface IAnotherTestObjectQueryQuery {
-    params: AnotherTestObjectQueryParams;
-    result: IAnotherTestObjectQueryResult;
+	params: AnotherTestObjectQueryParams;
+	result: IAnotherTestObjectQueryResult;
 };
-
-
-
 
 export type NestedTestObjectQueryParams = [];
 
-
 export interface INestedTestObjectQueryResult {
-    description: string | null;
+	description: string | null;
 	food_type: string;
 	id: number;
 	points: number;
@@ -33,9 +25,7 @@ export interface INestedTestObjectQueryResult {
 	time_takes_to_cook: number;
 };
 
-
 export interface INestedTestObjectQueryQuery {
-    params: NestedTestObjectQueryParams;
-    result: INestedTestObjectQueryResult;
+	params: NestedTestObjectQueryParams;
+	result: INestedTestObjectQueryResult;
 };
-

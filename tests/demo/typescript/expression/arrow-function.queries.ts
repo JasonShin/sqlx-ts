@@ -1,47 +1,32 @@
-
-
 export type PlainArrowFunctionParams = [];
 
-
 export interface IPlainArrowFunctionResult {
-    id: number;
+	id: number;
 };
-
 
 export interface IPlainArrowFunctionQuery {
-    params: PlainArrowFunctionParams;
-    result: IPlainArrowFunctionResult;
+	params: PlainArrowFunctionParams;
+	result: IPlainArrowFunctionResult;
 };
-
-
-
 
 export type NameOverriddenArrowFuncParams = [];
 
-
 export interface INameOverriddenArrowFuncResult {
-    id: number;
+	id: number;
 };
-
 
 export interface INameOverriddenArrowFuncQuery {
-    params: NameOverriddenArrowFuncParams;
-    result: INameOverriddenArrowFuncResult;
+	params: NameOverriddenArrowFuncParams;
+	result: INameOverriddenArrowFuncResult;
 };
-
-
-
 
 export type ArrowFunctionParams = [];
 
-
 export interface IArrowFunctionResult {
-    id: number;
+	id: number;
 };
-
 
 export interface IArrowFunctionQuery {
-    params: ArrowFunctionParams;
-    result: IArrowFunctionResult;
+	params: ArrowFunctionParams;
+	result: IArrowFunctionResult;
 };
-

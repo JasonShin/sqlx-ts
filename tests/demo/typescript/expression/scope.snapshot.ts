@@ -1,10 +1,7 @@
-
-
 export type TestParenthesisQueryParams = [];
 
-
 export interface ITestParenthesisQueryResult {
-    description: string | null;
+	description: string | null;
 	food_type: string;
 	id: number;
 	points: number;
@@ -12,10 +9,8 @@ export interface ITestParenthesisQueryResult {
 	time_takes_to_cook: number;
 };
 
-
 export interface ITestParenthesisQueryQuery {
-    params: TestParenthesisQueryParams;
-    result: ITestParenthesisQueryResult;
+	params: TestParenthesisQueryParams;
+	result: ITestParenthesisQueryResult;
 };
-
 

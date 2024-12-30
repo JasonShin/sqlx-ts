@@ -1,63 +1,43 @@
-
-
 export type ExistsParams = [number];
 
-
 export interface IExistsResult {
-    exists: boolean;
+	exists: boolean;
 };
-
 
 export interface IExistsQuery {
-    params: ExistsParams;
-    result: IExistsResult;
+	params: ExistsParams;
+	result: IExistsResult;
 };
-
-
-
 
 export type IsTrueParams = [];
 
-
 export interface IIsTrueResult {
-    isTrue: boolean;
+	isTrue: boolean;
 };
-
 
 export interface IIsTrueQuery {
-    params: IsTrueParams;
-    result: IIsTrueResult;
+	params: IsTrueParams;
+	result: IIsTrueResult;
 };
-
-
-
 
 export type IsFalseParams = [];
 
-
 export interface IIsFalseResult {
-    isFalse: boolean;
+	isFalse: boolean;
 };
-
 
 export interface IIsFalseQuery {
-    params: IsFalseParams;
-    result: IIsFalseResult;
+	params: IsFalseParams;
+	result: IIsFalseResult;
 };
-
-
-
 
 export type InListParams = [];
 
-
 export interface IInListResult {
-    test: boolean;
+	test: boolean;
 };
-
 
 export interface IInListQuery {
-    params: InListParams;
-    result: IInListResult;
+	params: InListParams;
+	result: IInListResult;
 };
-

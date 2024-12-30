@@ -1,47 +1,32 @@
-
-
 export type AsyncPlainFunctionParams = [];
 
-
 export interface IAsyncPlainFunctionResult {
-    id: number;
+	id: number;
 };
-
 
 export interface IAsyncPlainFunctionQuery {
-    params: AsyncPlainFunctionParams;
-    result: IAsyncPlainFunctionResult;
+	params: AsyncPlainFunctionParams;
+	result: IAsyncPlainFunctionResult;
 };
-
-
-
 
 export type AsyncLambdaAwaitedParams = [];
 
-
 export interface IAsyncLambdaAwaitedResult {
-    id: number;
+	id: number;
 };
-
 
 export interface IAsyncLambdaAwaitedQuery {
-    params: AsyncLambdaAwaitedParams;
-    result: IAsyncLambdaAwaitedResult;
+	params: AsyncLambdaAwaitedParams;
+	result: IAsyncLambdaAwaitedResult;
 };
-
-
-
 
 export type IifLambdaParams = [];
 
-
 export interface IIifLambdaResult {
-    id: number;
+	id: number;
 };
-
 
 export interface IIifLambdaQuery {
-    params: IifLambdaParams;
-    result: IIifLambdaResult;
+	params: IifLambdaParams;
+	result: IIifLambdaResult;
 };
-

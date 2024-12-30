@@ -1,27 +1,19 @@
-
-
 export type CeilParams = [];
 
-
 export interface ICeilResult {
-    id: number;
+	id: number;
 	someNumber: number;
 };
 
-
 export interface ICeilQuery {
-    params: CeilParams;
-    result: ICeilResult;
+	params: CeilParams;
+	result: ICeilResult;
 };
-
-
-
 
 export type AllParams = [];
 
-
 export interface IAllResult {
-    abs1: number;
+	abs1: number;
 	acos1: number;
 	asin1: number;
 	atan1: number;
@@ -55,10 +47,8 @@ export interface IAllResult {
 	trunc1: number;
 };
 
-
 export interface IAllQuery {
-    params: AllParams;
-    result: IAllResult;
+	params: AllParams;
+	result: IAllResult;
 };
-
 

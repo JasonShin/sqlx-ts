@@ -1,51 +1,36 @@
-
-
 export type AtTimeZoneParams = [];
 
-
 export interface IAtTimeZoneResult {
-    id: number;
+	id: number;
 	someDate: Date;
 };
 
-
 export interface IAtTimeZoneQuery {
-    params: AtTimeZoneParams;
-    result: IAtTimeZoneResult;
+	params: AtTimeZoneParams;
+	result: IAtTimeZoneResult;
 };
-
-
-
 
 export type CastParams = [];
 
-
 export interface ICastResult {
-    date: Date;
+	date: Date;
 	id: number;
 };
 
-
 export interface ICastQuery {
-    params: CastParams;
-    result: ICastResult;
+	params: CastParams;
+	result: ICastResult;
 };
-
-
-
 
 export type ExtractParams = [];
 
-
 export interface IExtractResult {
-    id: number;
+	id: number;
 	theMonth: Date;
 };
 
-
 export interface IExtractQuery {
-    params: ExtractParams;
-    result: IExtractResult;
+	params: ExtractParams;
+	result: IExtractResult;
 };
-
 

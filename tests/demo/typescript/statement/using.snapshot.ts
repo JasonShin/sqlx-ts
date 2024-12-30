@@ -1,10 +1,7 @@
-
-
 export type TestAsyncUsingParams = [];
 
-
 export interface ITestAsyncUsingResult {
-    description: string | null;
+	description: string | null;
 	food_type: string;
 	id: number;
 	points: number;
@@ -12,10 +9,8 @@ export interface ITestAsyncUsingResult {
 	time_takes_to_cook: number;
 };
 
-
 export interface ITestAsyncUsingQuery {
-    params: TestAsyncUsingParams;
-    result: ITestAsyncUsingResult;
+	params: TestAsyncUsingParams;
+	result: ITestAsyncUsingResult;
 };
-
 

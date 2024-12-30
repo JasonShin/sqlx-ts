@@ -1,15 +1,10 @@
-
-
 export type ModuleSqlParams = [];
 
-
 export interface IModuleSqlResult {
-    id: number;
+	id: number;
 };
-
 
 export interface IModuleSqlQuery {
-    params: ModuleSqlParams;
-    result: IModuleSqlResult;
+	params: ModuleSqlParams;
+	result: IModuleSqlResult;
 };
-
