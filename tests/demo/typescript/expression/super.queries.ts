@@ -1,15 +1,10 @@
-
-
 export type SuperQueryParams = [];
 
-
 export interface ISuperQueryResult {
-    id: number;
+	id: number;
 };
-
 
 export interface ISuperQueryQuery {
-    params: SuperQueryParams;
-    result: ISuperQueryResult;
+	params: SuperQueryParams;
+	result: ISuperQueryResult;
 };
-

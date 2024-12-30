@@ -37,7 +37,19 @@ pub async fn translate_insert(
           if placeholder.is_some() {
             let match_col = &columns
               .get(column)
-              .unwrap_or_else(|| panic!("Matching column of idx {column} is not found while processing insert params"))
+              .unwrap_or_else(|| {
+                panic!(
+                  r#"
+Failed to process values of insert statement as column names are not provided or incorrectly specified
+
+Try specifying column names
+```
+INSERT INTO table_name (column1, column2, column3, ...)
+VALUES (value1, value2, value3, ...);
+```
+              "#
+                )
+              })
               .value;
 
             let field = table_details
@@ -48,7 +60,7 @@ pub async fn translate_insert(
               // If the placeholder is `'?'`, we can process it using insert_value_params and generate nested params type
               ts_query.insert_value_params(&field.field_type, &(row, column), &placeholder);
             } else {
-              ts_query.insert_param(&field.field_type, &placeholder)?;
+              ts_query.insert_param(&field.field_type, &field.is_nullable, &placeholder)?;
             }
           }
         }
@@ -89,7 +101,7 @@ pub async fn translate_insert_returning(
         let keys = table_details.keys();
         for key in keys {
           let value = vec![table_details.get(key).unwrap().field_type.clone()];
-          ts_query.insert_result(Some(key), &value, true, query_for_logging);
+          ts_query.insert_result(Some(key), &value, true, false, query_for_logging);
         }
       }
     }

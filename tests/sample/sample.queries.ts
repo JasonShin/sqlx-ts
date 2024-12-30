@@ -1,64 +1,44 @@
-
-
 export type SampleSelectQueryParams = [number];
 
-
 export interface ISampleSelectQueryResult {
-    points: number;
+	points: number;
 	some_id: number;
 };
 
-
 export interface ISampleSelectQueryQuery {
-    params: SampleSelectQueryParams;
-    result: ISampleSelectQueryResult;
+	params: SampleSelectQueryParams;
+	result: ISampleSelectQueryResult;
 };
-
-
-
 
 export type SampleInsertQueryParams = [number];
 
-
 export interface ISampleInsertQueryResult {
-    
+	
 };
-
 
 export interface ISampleInsertQueryQuery {
-    params: SampleInsertQueryParams;
-    result: ISampleInsertQueryResult;
+	params: SampleInsertQueryParams;
+	result: ISampleInsertQueryResult;
 };
-
-
-
 
 export type SampleUpdateQueryParams = [number, number];
 
-
 export interface ISampleUpdateQueryResult {
-    
+	
 };
-
 
 export interface ISampleUpdateQueryQuery {
-    params: SampleUpdateQueryParams;
-    result: ISampleUpdateQueryResult;
+	params: SampleUpdateQueryParams;
+	result: ISampleUpdateQueryResult;
 };
-
-
-
 
 export type SampleDeleteQueryParams = [number];
 
-
 export interface ISampleDeleteQueryResult {
-    
+	
 };
-
 
 export interface ISampleDeleteQueryQuery {
-    params: SampleDeleteQueryParams;
-    result: ISampleDeleteQueryResult;
+	params: SampleDeleteQueryParams;
+	result: ISampleDeleteQueryResult;
 };
-

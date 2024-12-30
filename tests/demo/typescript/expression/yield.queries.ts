@@ -1,15 +1,10 @@
-
-
 export type YieldQueryParams = [];
 
-
 export interface IYieldQueryResult {
-    id: number;
+	id: number;
 };
-
 
 export interface IYieldQueryQuery {
-    params: YieldQueryParams;
-    result: IYieldQueryResult;
+	params: YieldQueryParams;
+	result: IYieldQueryResult;
 };
-

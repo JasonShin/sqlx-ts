@@ -1,31 +1,32 @@
+export type DeleteSql1Params = [number];
 
-
-export type Sql1Params = [number];
-
-
-export interface ISql1Result {
-    
+export interface IDeleteSql1Result {
+	
 };
 
-
-export interface ISql1Query {
-    params: Sql1Params;
-    result: ISql1Result;
+export interface IDeleteSql1Query {
+	params: DeleteSql1Params;
+	result: IDeleteSql1Result;
 };
 
+export type DeleteSql2Params = [number];
 
-
-
-export type Sql2Params = [number];
-
-
-export interface ISql2Result {
-    
+export interface IDeleteSql2Result {
+	
 };
 
-
-export interface ISql2Query {
-    params: Sql2Params;
-    result: ISql2Result;
+export interface IDeleteSql2Query {
+	params: DeleteSql2Params;
+	result: IDeleteSql2Result;
 };
 
+export type DeleteSql3Params = [number, string | null];
+
+export interface IDeleteSql3Result {
+	
+};
+
+export interface IDeleteSql3Query {
+	params: DeleteSql3Params;
+	result: IDeleteSql3Result;
+};

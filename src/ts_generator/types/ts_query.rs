@@ -153,13 +153,12 @@ pub struct TsQuery {
   param_order: i32,
   // We use BTreeMap here as it's a collection that's already sorted
   // TODO: use usize instead
-  pub params: BTreeMap<i32, TsFieldType>,
+  pub params: BTreeMap<usize, Vec<TsFieldType>>,
   pub annotated_params: BTreeMap<usize, TsFieldType>,
 
   // We use BTreeMap here as it's a collection that's already sorted
   pub insert_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
-
-  // Holds any annoated @param and perform replacement when generated TS types
+  // Holds any annotated @param and perform replacement when generated TS types
   pub annotated_insert_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
 
   pub result: HashMap<String, Vec<TsFieldType>>,
@@ -219,17 +218,22 @@ impl TsQuery {
     alias: Option<&str>,
     value: &[TsFieldType],
     is_selection: bool,
+    is_nullable: bool,
     expr_for_logging: &str,
   ) -> Result<(), TsGeneratorError> {
     if is_selection {
       if let Some(alias) = alias {
         let temp_alias = alias;
         let alias = &self.format_column_name(alias);
-        let value = &self
+        let value = &mut self
           .annotated_results
           .get(temp_alias)
           .cloned()
           .unwrap_or_else(|| value.to_vec());
+
+        if is_nullable {
+          value.push(TsFieldType::Null);
+        }
 
         let _ = &self.result.insert(alias.to_owned(), value.to_owned());
       } else {
@@ -282,39 +286,44 @@ impl TsQuery {
   /// You can only sequentially use `insert_param` with manual order or automatic order parameter
   ///
   /// This method was specifically designed with an assumption that 1 TsQuery is connected to 1 type of DB
-  pub fn insert_param(&mut self, value: &TsFieldType, placeholder: &Option<String>) -> Result<(), TsGeneratorError> {
+  pub fn insert_param(
+    &mut self,
+    value: &TsFieldType,
+    is_nullable: &bool,
+    placeholder: &Option<String>,
+  ) -> Result<(), TsGeneratorError> {
     if let Some(placeholder) = placeholder {
-      if placeholder == "?" {
-        let annotated_param = self.annotated_params.get(&(self.param_order as usize));
+      let pg_placeholder_pattern = Regex::new(r"\$(\d+)").unwrap();
+      let mut values = vec![];
 
-        if let Some(annotated_param) = annotated_param {
-          self.params.insert(self.param_order, annotated_param.clone());
-        } else {
-          self.params.insert(self.param_order, value.clone());
-        }
+      let order = if placeholder == "?" {
         self.param_order += 1;
+        self.param_order
+      } else if let Some(caps) = pg_placeholder_pattern.captures(placeholder) {
+        caps
+          .get(1)
+          .and_then(|m| m.as_str().parse::<i32>().ok())
+          .ok_or(TsGeneratorError::UnknownPlaceholder(format!(
+            "{placeholder} is not a valid placeholder parameter in PostgreSQL"
+          )))? as i32
       } else {
-        let re = Regex::new(r"\$(\d+)").unwrap();
-        let indexed_binding_params = re.captures(placeholder);
+        // No pattern matches the provided placeholder, simply exit out of the function
+        return Ok(());
+      } as usize;
 
-        // Only runs the code if the placeholder is an indexed binding parameter such as $1 or $2
-        if let Some(indexed_binding_params) = indexed_binding_params {
-          let order = indexed_binding_params
-            .get(1)
-            .unwrap()
-            .as_str()
-            .parse::<i32>()
-            .unwrap();
-
-          let annotated_param = self.annotated_params.get(&(order as usize));
-
-          if let Some(annotated_param) = annotated_param {
-            self.params.insert(order, annotated_param.clone());
-          } else {
-            self.params.insert(order, value.clone());
-          }
-        }
+      if let Some(annotated_param) = self.annotated_params.get(&order) {
+        values.push(annotated_param.clone());
+      } else {
+        values.push(value.clone());
       }
+
+      // Add nullability if required
+      if *is_nullable {
+        values.push(TsFieldType::Null);
+      }
+
+      // Insert values into the parameter map
+      self.params.insert(order, values);
     }
     Ok(())
   }
@@ -322,9 +331,7 @@ impl TsQuery {
   /// The method is to format SQL params extracted via translate methods
   /// It can work for SELECT, INSERT, DELETE and UPDATE queries
   fn fmt_params(&self, _: &mut fmt::Formatter<'_>) -> String {
-    let is_insert_query = self.insert_params.keys().len() > 0;
-
-    if is_insert_query {
+    if !self.insert_params.is_empty() {
       return self
         .insert_params
         .values()
@@ -343,15 +350,12 @@ impl TsQuery {
     }
 
     // Otherwise we should be processing non-insert query params
-    let result = &self
+    self
       .params
-      .to_owned()
-      .into_values()
-      .map(|x| x.to_string())
+      .values()
+      .map(|x| x.iter().map(ToString::to_string).collect::<Vec<String>>().join(" | "))
       .collect::<Vec<String>>()
-      .join(", ");
-
-    result.to_owned()
+      .join(", ")
   }
 
   fn fmt_result(&self, _f: &mut fmt::Formatter<'_>) -> String {
@@ -381,35 +385,13 @@ impl fmt::Display for TsQuery {
     let params_str = self.fmt_params(f);
     let result_str = self.fmt_result(f);
 
-    let params = format!(
-      r"
-export type {name}Params = [{params_str}];
-"
-    );
+    let params = format!("export type {name}Params = [{params_str}];");
 
-    let result = format!(
-      r"
-export interface I{name}Result {{
-    {result_str}
-}};
-"
-    );
+    let result = format!("export interface I{name}Result {{\n\t{result_str}\n}};");
 
-    let query = format!(
-      r"
-export interface I{name}Query {{
-    params: {name}Params;
-    result: I{name}Result;
-}};
-"
-    );
+    let query = format!("export interface I{name}Query {{\n\tparams: {name}Params;\n\tresult: I{name}Result;\n}};");
 
-    let final_code = format!(
-      r"
-{params}
-{result}
-{query}"
-    );
+    let final_code = format!("{params}\n\n{result}\n\n{query}");
 
     writeln!(f, "{}", final_code)
   }

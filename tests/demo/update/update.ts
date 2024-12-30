@@ -11,3 +11,9 @@ UPDATE "items"
 SET "food_type" = $1, "time_takes_to_cook" = $2
 WHERE "id" = $3
 `
+
+const nullableFieldUpdate = sql`
+UPDATE "items"
+SET description = $1
+WHERE "id" = $2
+`

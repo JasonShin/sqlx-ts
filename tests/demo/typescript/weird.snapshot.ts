@@ -1,16 +1,11 @@
-
-
 export type WeirdNameParams = [];
 
-
 export interface IWeirdNameResult {
-    id: number;
+	id: number;
 };
-
 
 export interface IWeirdNameQuery {
-    params: WeirdNameParams;
-    result: IWeirdNameResult;
+	params: WeirdNameParams;
+	result: IWeirdNameResult;
 };
-
 

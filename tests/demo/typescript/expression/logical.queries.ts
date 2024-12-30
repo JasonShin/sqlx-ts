@@ -1,47 +1,32 @@
-
-
 export type NullishCoalescingParams = [];
 
-
 export interface INullishCoalescingResult {
-    id: number;
+	id: number;
 };
-
 
 export interface INullishCoalescingQuery {
-    params: NullishCoalescingParams;
-    result: INullishCoalescingResult;
+	params: NullishCoalescingParams;
+	result: INullishCoalescingResult;
 };
-
-
-
 
 export type PipePipeParams = [];
 
-
 export interface IPipePipeResult {
-    id: number;
+	id: number;
 };
-
 
 export interface IPipePipeQuery {
-    params: PipePipeParams;
-    result: IPipePipeResult;
+	params: PipePipeParams;
+	result: IPipePipeResult;
 };
-
-
-
 
 export type AmpersandAmpersandParams = [];
 
-
 export interface IAmpersandAmpersandResult {
-    id: number;
+	id: number;
 };
-
 
 export interface IAmpersandAmpersandQuery {
-    params: AmpersandAmpersandParams;
-    result: IAmpersandAmpersandResult;
+	params: AmpersandAmpersandParams;
+	result: IAmpersandAmpersandResult;
 };
-

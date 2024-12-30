@@ -1,16 +1,11 @@
-
-
 export type ArrayQueryParams = [];
 
-
 export interface IArrayQueryResult {
-    id: number;
+	id: number;
 };
-
 
 export interface IArrayQueryQuery {
-    params: ArrayQueryParams;
-    result: IArrayQueryResult;
+	params: ArrayQueryParams;
+	result: IArrayQueryResult;
 };
-
 

@@ -1,30 +1,24 @@
+export type SelectSql1Params = [];
 
-
-export type Sql1Params = [];
-
-
-export interface ISql1Result {
-    food_type: string;
+export interface ISelectSql1Result {
+	description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;
 	time_takes_to_cook: number;
 };
 
-
-export interface ISql1Query {
-    params: Sql1Params;
-    result: ISql1Result;
+export interface ISelectSql1Query {
+	params: SelectSql1Params;
+	result: ISelectSql1Result;
 };
 
+export type SelectSql2Params = [];
 
-
-
-export type Sql2Params = [];
-
-
-export interface ISql2Result {
-    food_type: string;
+export interface ISelectSql2Result {
+	description: string | null;
+	food_type: string;
 	id: number;
 	number: number;
 	occupied: boolean;
@@ -33,56 +27,43 @@ export interface ISql2Result {
 	time_takes_to_cook: number;
 };
 
-
-export interface ISql2Query {
-    params: Sql2Params;
-    result: ISql2Result;
+export interface ISelectSql2Query {
+	params: SelectSql2Params;
+	result: ISelectSql2Result;
 };
 
+export type SelectSql3Params = [];
 
-
-
-export type Sql3Params = [];
-
-
-export interface ISql3Result {
-    tableNumber: number;
+export interface ISelectSql3Result {
+	tableNumber: number;
 };
 
-
-export interface ISql3Query {
-    params: Sql3Params;
-    result: ISql3Result;
+export interface ISelectSql3Query {
+	params: SelectSql3Params;
+	result: ISelectSql3Result;
 };
 
+export type SelectSql4Params = [];
 
-
-
-export type Sql4Params = [];
-
-
-export interface ISql4Result {
-    food_type: string;
+export interface ISelectSql4Result {
+	description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;
 	time_takes_to_cook: number;
 };
 
-
-export interface ISql4Query {
-    params: Sql4Params;
-    result: ISql4Result;
+export interface ISelectSql4Query {
+	params: SelectSql4Params;
+	result: ISelectSql4Result;
 };
 
+export type SelectSql5Params = [];
 
-
-
-export type Sql5Params = [];
-
-
-export interface ISql5Result {
-    food_type: string;
+export interface ISelectSql5Result {
+	description: string | null;
+	food_type: string;
 	id: number;
 	number: number;
 	occupied: boolean;
@@ -91,154 +72,115 @@ export interface ISql5Result {
 	time_takes_to_cook: number;
 };
 
-
-export interface ISql5Query {
-    params: Sql5Params;
-    result: ISql5Result;
+export interface ISelectSql5Query {
+	params: SelectSql5Params;
+	result: ISelectSql5Result;
 };
 
+export type SelectSql6Params = [number, number];
 
-
-
-export type Sql6Params = [number, number];
-
-
-export interface ISql6Result {
-    id: number;
+export interface ISelectSql6Result {
+	id: number;
 };
 
-
-export interface ISql6Query {
-    params: Sql6Params;
-    result: ISql6Result;
+export interface ISelectSql6Query {
+	params: SelectSql6Params;
+	result: ISelectSql6Result;
 };
 
+export type SelectSql9Params = [boolean];
 
-
-
-export type Sql9Params = [boolean];
-
-
-export interface ISql9Result {
-    food_type: string;
+export interface ISelectSql9Result {
+	description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;
 	time_takes_to_cook: number;
 };
 
-
-export interface ISql9Query {
-    params: Sql9Params;
-    result: ISql9Result;
+export interface ISelectSql9Query {
+	params: SelectSql9Params;
+	result: ISelectSql9Result;
 };
 
+export type SelectSql10Params = [];
 
-
-
-export type Sql10Params = [];
-
-
-export interface ISql10Result {
-    id: number;
+export interface ISelectSql10Result {
+	id: number;
 	number: number;
 	occupied: boolean;
 };
 
-
-export interface ISql10Query {
-    params: Sql10Params;
-    result: ISql10Result;
+export interface ISelectSql10Query {
+	params: SelectSql10Params;
+	result: ISelectSql10Result;
 };
 
+export type SelectSql11Params = [string, string];
 
-
-
-export type Sql11Params = [string, string];
-
-
-export interface ISql11Result {
-    hmm: any;
+export interface ISelectSql11Result {
+	hmm: any;
 	id: number;
 	number: number;
 };
 
-
-export interface ISql11Query {
-    params: Sql11Params;
-    result: ISql11Result;
+export interface ISelectSql11Query {
+	params: SelectSql11Params;
+	result: ISelectSql11Result;
 };
 
+export type SelectSql12Params = [number];
 
-
-
-export type Sql12Params = [number];
-
-
-export interface ISql12Result {
-    id: number;
+export interface ISelectSql12Result {
+	id: number;
 };
 
-
-export interface ISql12Query {
-    params: Sql12Params;
-    result: ISql12Result;
+export interface ISelectSql12Query {
+	params: SelectSql12Params;
+	result: ISelectSql12Result;
 };
 
+export type SelectSql13Params = [string];
 
-
-
-export type Sql13Params = [string];
-
-
-export interface ISql13Result {
-    food_type: string;
+export interface ISelectSql13Result {
+	description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;
 	time_takes_to_cook: number;
 };
 
-
-export interface ISql13Query {
-    params: Sql13Params;
-    result: ISql13Result;
+export interface ISelectSql13Query {
+	params: SelectSql13Params;
+	result: ISelectSql13Result;
 };
 
+export type SelectSql14Params = [number];
 
-
-
-export type Sql14Params = [number];
-
-
-export interface ISql14Result {
-    food_type: string;
+export interface ISelectSql14Result {
+	description: string | null;
+	food_type: string;
 	id: number;
 	points: number;
 	table_id: number;
 	time_takes_to_cook: number;
 };
 
-
-export interface ISql14Query {
-    params: Sql14Params;
-    result: ISql14Result;
+export interface ISelectSql14Query {
+	params: SelectSql14Params;
+	result: ISelectSql14Result;
 };
 
+export type SelectSql15Params = [];
 
-
-
-export type Sql15Params = [];
-
-
-export interface ISql15Result {
-    id2: number;
+export interface ISelectSql15Result {
+	id2: number;
 	itemsId: number;
 };
 
-
-export interface ISql15Query {
-    params: Sql15Params;
-    result: ISql15Result;
+export interface ISelectSql15Query {
+	params: SelectSql15Params;
+	result: ISelectSql15Result;
 };
-

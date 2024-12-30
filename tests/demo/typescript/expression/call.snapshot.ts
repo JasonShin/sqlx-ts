@@ -1,16 +1,11 @@
-
-
 export type CallerTestParams = [];
 
-
 export interface ICallerTestResult {
-    id: number;
+	id: number;
 };
-
 
 export interface ICallerTestQuery {
-    params: CallerTestParams;
-    result: ICallerTestResult;
+	params: CallerTestParams;
+	result: ICallerTestResult;
 };
-
 

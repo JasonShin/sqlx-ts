@@ -1,5 +1,6 @@
 {
   "generateTypes": {
+    "enabled": true,
     "columnNamingConvention": "camel",
     "convertToCamelCaseColumnName": false
   },
