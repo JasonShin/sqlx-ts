@@ -300,14 +300,15 @@ impl TsQuery {
         self.param_order += 1;
         self.param_order
       } else if let Some(caps) = pg_placeholder_pattern.captures(placeholder) {
-        caps.get(1)
+        caps
+          .get(1)
           .and_then(|m| m.as_str().parse::<i32>().ok())
           .ok_or(TsGeneratorError::UnknownPlaceholder(format!(
             "{placeholder} is not a valid placeholder parameter in PostgreSQL"
           )))? as i32
       } else {
         // No pattern matches the provided placeholder, simply exit out of the function
-        return Ok(())
+        return Ok(());
       } as usize;
 
       if let Some(annotated_param) = self.annotated_params.get(&order) {
@@ -384,21 +385,13 @@ impl fmt::Display for TsQuery {
     let params_str = self.fmt_params(f);
     let result_str = self.fmt_result(f);
 
-    let params = format!(
-      "export type {name}Params = [{params_str}];"
-    );
+    let params = format!("export type {name}Params = [{params_str}];");
 
-    let result = format!(
-      "export interface I{name}Result {{\n\t{result_str}\n}};"
-    );
+    let result = format!("export interface I{name}Result {{\n\t{result_str}\n}};");
 
-    let query = format!(
-      "export interface I{name}Query {{\n\tparams: {name}Params;\n\tresult: I{name}Result;\n}};"
-    );
+    let query = format!("export interface I{name}Query {{\n\tparams: {name}Params;\n\tresult: I{name}Result;\n}};");
 
-    let final_code = format!(
-      "{params}\n\n{result}\n\n{query}"
-    );
+    let final_code = format!("{params}\n\n{result}\n\n{query}");
 
     writeln!(f, "{}", final_code)
   }
