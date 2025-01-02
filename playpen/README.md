@@ -12,7 +12,7 @@ The schema covers:
 - **Items**: Collectible items with dynamic stats stored as JSONB.
 - **Inventory**: Tracks character inventory, supporting multiple item quantities.
 - **Quests**: Represents character progression, including quest rewards and status.
-- **Random Data**: Demonstrates PostgreSQL's wide range of data types for testing and exploration.
+- **Random Data**: Demonstrates MySQL/PostgreSQL's wide range of data types for testing and exploration.
 
 ## ERD Diagram
 
