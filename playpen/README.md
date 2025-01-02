@@ -1,8 +1,6 @@
 # World of Warcraft Inspired SQL Schema
 
-<img src="./assets/schema.png" width="80%">
-
-This repository contains a comprehensive World of Warcraft-themed SQL schema designed to demonstrate the capabilities of [sqlx-ts](https://github.com/JasonShin/sqlx-ts). The schema models core game mechanics such as characters, races, classes, guilds, items, and quests, while incorporating PostgreSQL's advanced features like JSONB, ENUM types, and relationships.
+This repository contains a comprehensive World of Warcraft-themed SQL schema designed to demonstrate the capabilities of [sqlx-ts](https://github.com/JasonShin/sqlx-ts). The schema models core game mechanics such as characters, races, classes, guilds, items, and quests, while incorporating MySQL and PostgreSQL's advanced features like JSONB, ENUM types, and relationships.
 
 ## Overview
 The schema covers:
@@ -17,26 +15,34 @@ The schema covers:
 - **Random Data**: Demonstrates PostgreSQL's wide range of data types for testing and exploration.
 
 ## ERD Diagram
-![ERD Diagram](./erd_diagram.png)
+
+<img src="./assets/schema.png" width="65%">
 
 ## Installation and Setup
+
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/sqlx-ts-wow-demo.git
+   git clone https://github.com/jasonshin/sqlx-ts
    ```
-2. Navigate to the project directory:
+   
+2. Ensure that you have [docker](https://www.docker.com/) and [docker-compose](https://docs.docker.com/compose/) installed
+
+3. Navigate to root directory of the project:
    ```bash
-   cd sqlx-ts-wow-demo
+   docker compose up -d
    ```
-3. Run the SQL schema on your PostgreSQL instance:
+
+4. Run the SQL schema on your MySQL/PostgreSQL instance:
    ```bash
-   psql -U yourusername -d yourdatabase -f schema.sql
+   mysql -h 127.0.0.1 -P 33306 -u root sqlx-ts
+   psql -h 127.0.0.1 -p 54321 -U postgres # and then enter `postgres` as password
    ```
 
 ## Key Features
-- **Enum Types**: Faction, Race, and Class columns leverage PostgreSQL ENUMs for better data consistency.
+- **Enum Types**: Faction, Race, and Class columns leverage MySQL/PostgreSQL ENUMs for better data consistency.
 - **JSONB Fields**: Flexible and scalable fields for class specializations, item stats, and quest rewards.
 - **Referential Integrity**: Foreign key relationships ensure data consistency across races, classes, and factions.
+- **Various types**: The schema utilises a wide range of string/numeric/date types to ensure every types are supported by sqlx-ts
 - **Complex Constraints**: Advanced CHECK constraints validate JSONB fields to ensure proper specialization structures.
 
 ## Example Queries
@@ -65,8 +71,6 @@ WHERE cq.character_id = 1;
 ```
 
 ## License
-This project is licensed under the MIT License. Feel free to modify and expand upon this schema for your own projects.
+Please refer to [LICENSE](../LICENSE)
 
----
-For any questions or suggestions, feel free to submit an issue or pull request!
 
