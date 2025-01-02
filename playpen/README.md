@@ -1,4 +1,4 @@
-# # World of Warcraft Inspired SQL Schema
+# World of Warcraft Inspired SQL Schema
 
 <img src="./assets/schema.png" width="80%">
 
