@@ -17,16 +17,16 @@ run_test!(should_pick_query_params_from_binary_ops, TestConfig::new("mysql", tru
 //// TS query ////
 r#"
 const someDeleteQuery = sql`
-DELETE FROM items
+DELETE FROM inventory
 WHERE id = ?
-AND time_takes_to_cook > 1
-OR food_type = ?;
+AND quantity > 1
+OR character_id = ?;
 `
 "#,
 
 //// Generated TS interfaces ////
 r#"
-export type SomeDeleteQueryParams = [number, string];
+export type SomeDeleteQueryParams = [number, number | null];
 
 export interface ISomeDeleteQueryResult {
     
@@ -44,10 +44,10 @@ run_test!(should_pick_query_params_from_subquery, TestConfig::new("mysql", true,
 //// TS query ////
 r#"
 const someDeleteQuery = sql`
-DELETE FROM items
+DELETE FROM inventory
 WHERE id = ?
-AND time_takes_to_cook > 1
-OR table_id = (SELECT id FROM tables WHERE id = ?);
+AND quantity > 1
+OR character_id = (SELECT id FROM characters WHERE id = ?);
 `
 "#,
 

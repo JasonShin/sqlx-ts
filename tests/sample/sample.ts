@@ -1,15 +1,15 @@
 import { sql } from 'sqlx-ts'
 
 const sampleSelectQuery = sql`
-SELECT id as some_id, points FROM items WHERE id = $1
+SELECT id as some_id, name FROM items WHERE id = $1
 `
 
 const sampleInsertQuery = sql`
-INSERT INTO items (points) VALUES ($1)
+INSERT INTO items (name) VALUES ($1)
 `
 
 const sampleUpdateQuery = sql`
-UPDATE items SET points = $1 WHERE id = $2
+UPDATE items SET name = $1 WHERE id = $2
 `
 
 const sampleDeleteQuery = sql`

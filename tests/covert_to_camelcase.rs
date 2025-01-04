@@ -20,7 +20,7 @@ run_test!(retain_original, TestConfig::new("postgres", true, None, Some(".sqlxrc
 r#"
 const someQuery = sql`
 SELECT
-    food_type,
+    inventory_id,
     id AS HelloWorld,
     id AS hello_world
 FROM items;
@@ -33,8 +33,8 @@ export type SomeQueryParams = [];
 
 export interface ISomeQueryResult {
     HelloWorld: number;
-    food_type: string;
     hello_world: number;
+    inventory_id: number | null;
 };
 
 export interface ISomeQueryQuery {
@@ -51,7 +51,7 @@ run_test!(convert_camelcase, TestConfig::new("postgres", true, None, Some(".sqlx
 r#"
 const someQuery = sql`
 SELECT
-    food_type,
+    inventory_id,
     id AS HelloWorld1,
     id AS hello_world2
 FROM items;
@@ -63,9 +63,9 @@ r#"
 export type SomeQueryParams = [];
 
 export interface ISomeQueryResult {
-    foodType: string;
     helloWorld1: number;
     helloWorld2: number;
+    inventoryId: number | null;
 };
 
 export interface ISomeQueryQuery {
@@ -82,7 +82,7 @@ run_test!(retain_original_on_missing_config, TestConfig::new("postgres", true, N
 r#"
 const someQuery = sql`
 SELECT
-    food_type,
+    inventory_id,
     id AS HelloWorld1,
     id AS hello_world2
 FROM items;
@@ -95,8 +95,8 @@ export type SomeQueryParams = [];
 
 export interface ISomeQueryResult {
     HelloWorld1: number;
-    food_type: string;
     hello_world2: number;
+    inventory_id: number | null;
 };
 
 export interface ISomeQueryQuery {

@@ -15,27 +15,27 @@ FROM items;
 `
 
 const annotationSql3 = sql`
--- @result points: string
+-- @result id: string
 SELECT
-    points
+    id
 FROM items;
 `
 
 const annotationSql4 = sql`
 -- @param 1: string
 SELECT *
-FROM items
-WHERE points > $1
+FROM inventory
+WHERE quantity > $1
 `
 
 const annotationSql5 = sql`
--- @result table_id: boolean
+-- @result inventory_id: boolean
 -- @param 1: string
 SELECT
-    tables.id AS table_id
-FROM tables
-JOIN items ON items.table_id = tables.id
-WHERE tables.id = $1
+    inventory.id AS inventory_id
+FROM inventory
+JOIN items ON items.inventory_id = inventory.id
+WHERE inventory.id = $1
 `
 
 const annotationSql6 = sql`
@@ -43,8 +43,8 @@ const annotationSql6 = sql`
 -- @db: db_mysql
 -- @param 1: string
 SELECT
-    tables.id AS table_id
-FROM tables
-JOIN items ON items.table_id = tables.id
-WHERE tables.id = ?
+    inventory.id AS inventory_id
+FROM inventory
+JOIN items ON items.inventory_id = inventory.id
+WHERE inventory.id = ?
 `

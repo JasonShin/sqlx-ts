@@ -1,12 +1,12 @@
 export type TestMysqlQueryParams = [];
 
 export interface ITestMysqlQueryResult {
-	description: string | null;
-	food_type: string;
+	flavor_text: string | null;
 	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	inventory_id: number | null;
+	name: string;
+	rarity: string | null;
+	stats: object | null;
 };
 
 export interface ITestMysqlQueryQuery {
@@ -17,12 +17,12 @@ export interface ITestMysqlQueryQuery {
 export type TestPostgresQueryParams = [];
 
 export interface ITestPostgresQueryResult {
-	description: string | null;
-	food_type: string;
+	flavor_text: string | null;
 	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	inventory_id: number | null;
+	name: string;
+	rarity: string | null;
+	stats: object | null;
 };
 
 export interface ITestPostgresQueryQuery {
@@ -33,7 +33,7 @@ export interface ITestPostgresQueryQuery {
 export type AnnotationSql3Params = [];
 
 export interface IAnnotationSql3Result {
-	points: string;
+	id: string;
 };
 
 export interface IAnnotationSql3Query {
@@ -41,15 +41,12 @@ export interface IAnnotationSql3Query {
 	result: IAnnotationSql3Result;
 };
 
-export type AnnotationSql4Params = [string];
+export type AnnotationSql4Params = [string | null];
 
 export interface IAnnotationSql4Result {
-	description: string | null;
-	food_type: string;
+	character_id: number | null;
 	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	quantity: number | null;
 };
 
 export interface IAnnotationSql4Query {
@@ -60,7 +57,7 @@ export interface IAnnotationSql4Query {
 export type AnnotationSql5Params = [string];
 
 export interface IAnnotationSql5Result {
-	tableId: boolean;
+	inventoryId: boolean;
 };
 
 export interface IAnnotationSql5Query {
@@ -71,7 +68,7 @@ export interface IAnnotationSql5Query {
 export type TestMysqlQueryWithParamOverridesParams = [string];
 
 export interface ITestMysqlQueryWithParamOverridesResult {
-	tableId: number;
+	inventoryId: number;
 };
 
 export interface ITestMysqlQueryWithParamOverridesQuery {

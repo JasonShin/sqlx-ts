@@ -1,7 +1,7 @@
 export type SampleSelectQueryParams = [number];
 
 export interface ISampleSelectQueryResult {
-	points: number;
+	name: string;
 	some_id: number;
 };
 
@@ -10,7 +10,7 @@ export interface ISampleSelectQueryQuery {
 	result: ISampleSelectQueryResult;
 };
 
-export type SampleInsertQueryParams = [number];
+export type SampleInsertQueryParams = [string];
 
 export interface ISampleInsertQueryResult {
 	
@@ -21,7 +21,7 @@ export interface ISampleInsertQueryQuery {
 	result: ISampleInsertQueryResult;
 };
 
-export type SampleUpdateQueryParams = [number, number];
+export type SampleUpdateQueryParams = [string, number];
 
 export interface ISampleUpdateQueryResult {
 	

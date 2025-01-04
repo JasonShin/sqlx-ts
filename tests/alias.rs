@@ -11,9 +11,9 @@ mod alias {
   fn should_warn_on_clashing_field_names_on_join() -> Result<(), Box<dyn std::error::Error>> {
     let ts_content = r#"
 const someQuery = sql`
-SELECT items.table_id, items.id, tables.id
+SELECT items.inventory_id, items.id, inventory.id
 FROM items
-JOIN tables ON items.table_id = tables.id
+JOIN inventory ON items.inventory_id = inventory.id
 `"#;
 
     // SETUP
@@ -33,9 +33,9 @@ JOIN tables ON items.table_id = tables.id
 
     // ASSERT
     cmd.assert().success()
-       .stdout(predicates::str::contains("Missing an alias for a compound identifier, using items_table_id as the key name. Prefer adding an alias for example: `items.table_id AS table_id`"))
+       .stdout(predicates::str::contains("Missing an alias for a compound identifier, using items_inventory_id as the key name. Prefer adding an alias for example: `items.inventory_id AS inventory_id`"))
        .stdout(predicates::str::contains("Missing an alias for a compound identifier, using items_id as the key name. Prefer adding an alias for example: `items.id AS id`"))
-       .stdout(predicates::str::contains("Missing an alias for a compound identifier, using tables_id as the key name. Prefer adding an alias for example: `tables.id AS id`"))
+       .stdout(predicates::str::contains("Missing an alias for a compound identifier, using inventory_id as the key name. Prefer adding an alias for example: `inventory.id AS id`"))
       .stdout(predicates::str::contains("No SQL errors detected!"));
 
     Ok(())
@@ -84,7 +84,7 @@ JOIN tables ON items.table_id = tables.id
         const someQuery = sql`
         SELECT *
         FROM items
-        JOIN tables ON items.table_id = tables.id
+        JOIN inventory ON items.inventory_id = inventory.id
         `"#;
 
     // SETUP

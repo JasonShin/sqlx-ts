@@ -1,4 +1,4 @@
-export type UpdateQueryParams = [string, number, number];
+export type UpdateQueryParams = [string, string | null, number];
 
 export interface IUpdateQueryResult {
 	
@@ -9,7 +9,7 @@ export interface IUpdateQueryQuery {
 	result: IUpdateQueryResult;
 };
 
-export type QuotedUpdateQueryParams = [string, number, number];
+export type QuotedUpdateQueryParams = [string, string | null, number];
 
 export interface IQuotedUpdateQueryResult {
 	

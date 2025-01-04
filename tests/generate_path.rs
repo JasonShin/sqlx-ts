@@ -20,7 +20,7 @@ run_test!(should_generate_path, TestConfig::new("postgres", true, Some(PathBuf::
 r#"
 const someQuery = sql`
 SELECT
-    food_type,
+    name,
     id AS HelloWorld,
     id AS hello_world
 FROM items;
@@ -33,8 +33,8 @@ export type SomeQueryParams = [];
 
 export interface ISomeQueryResult {
     HelloWorld: number;
-    food_type: string;
     hello_world: number;
+    name: string;
 };
 
 export interface ISomeQueryQuery {
