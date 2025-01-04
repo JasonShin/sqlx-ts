@@ -23,8 +23,8 @@ FROM items
 `
 
 const sql5 = sql`
-SELECT AVG(points) AS the_avg
-FROM items
+SELECT AVG(quantity) AS the_avg
+FROM inventory
 `
 
 const sql6 = sql`

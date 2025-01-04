@@ -7,13 +7,13 @@ const selectSql1 = sql`SELECT * FROM items`
 const selectSql2 = sql`
 SELECT *
 FROM items
-JOIN tables ON items.table_id = tables.id
+JOIN inventory ON items.inventory_id = inventory.id
 `
 
 // subquery
 const selectSql3 = sql`
 SELECT
-    (SELECT number FROM tables WHERE tables.id = items.table_id) AS table_number
+    (SELECT quantity FROM inventory WHERE inventory.id = items.inventory_id) AS inventory_quantity
 FROM items
 `
 
@@ -33,7 +33,7 @@ JOIN tables ON items.table_id = tables.id
 // Various operators
 const selectSql6 = sql`
 SELECT id
-FROM items
+FROM inventory
 WHERE points BETWEEN $1 AND $2;
 `
 
@@ -46,8 +46,8 @@ WHERE $1;
 
 const selectSql10 = sql`
 SELECT *
-FROM tables
-WHERE occupied IS TRUE;
+FROM quests
+WHERE completed IS TRUE;
 `
 
 // IS DISTINCT FROM operator as part of the WHERE statement

@@ -69,23 +69,22 @@ CREATE TABLE guild_members (
   FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE
 );
 
+-- Inventory Table
+CREATE TABLE inventory (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  quantity INT DEFAULT 1,
+  character_id INT,
+  FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE
+);
+
 -- Items Table
 CREATE TABLE items (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   rarity VARCHAR(50),
   stats TEXT,
-  flavor_text TEXT
-);
-
--- Inventory Table
-CREATE TABLE inventory (
-  character_id INT,
-  item_id INT,
-  quantity INT DEFAULT 1,
-  PRIMARY KEY (character_id, item_id),
-  FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-  FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
+  flavor_text TEXT,
+  FOREIGN KEY (inventory_id) REFERENCES inventory(id) ON DELETE CASCADE
 );
 
 -- Quests Table
@@ -94,6 +93,7 @@ CREATE TABLE quests (
   name VARCHAR(100) NOT NULL,
   description TEXT,
   rewards TEXT,
+  completed BOOL DEFAULT false,
   required_level INT DEFAULT 1
 );
 

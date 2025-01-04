@@ -11,5 +11,5 @@ WHERE "id" = $1
 
 const deleteSql3 = sql`
 DELETE FROM "items"
-WHERE "id" = $1 AND description = $2
+WHERE "id" = $1 AND name = $2
 `

@@ -1,12 +1,12 @@
 export type TestSequelizeQueryParams = [number];
 
 export interface ITestSequelizeQueryResult {
-	description: string | null;
-	food_type: string;
+	flavor_text: string | null;
 	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	inventory_id: number | null;
+	name: string;
+	rarity: string | null;
+	stats: object | null;
 };
 
 export interface ITestSequelizeQueryQuery {
@@ -17,12 +17,12 @@ export interface ITestSequelizeQueryQuery {
 export type TestAwaitQueryParams = [];
 
 export interface ITestAwaitQueryResult {
-	description: string | null;
-	food_type: string;
+	flavor_text: string | null;
 	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	inventory_id: number | null;
+	name: string;
+	rarity: string | null;
+	stats: object | null;
 };
 
 export interface ITestAwaitQueryQuery {
@@ -33,12 +33,12 @@ export interface ITestAwaitQueryQuery {
 export type TestAwaitQuery2Params = [];
 
 export interface ITestAwaitQuery2Result {
-	description: string | null;
-	food_type: string;
+	flavor_text: string | null;
 	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	inventory_id: number | null;
+	name: string;
+	rarity: string | null;
+	stats: object | null;
 };
 
 export interface ITestAwaitQuery2Query {
@@ -49,12 +49,12 @@ export interface ITestAwaitQuery2Query {
 export type AwaitClientQueryParams = [];
 
 export interface IAwaitClientQueryResult {
-	description: string | null;
-	food_type: string;
+	flavor_text: string | null;
 	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	inventory_id: number | null;
+	name: string;
+	rarity: string | null;
+	stats: object | null;
 };
 
 export interface IAwaitClientQueryQuery {
@@ -65,12 +65,12 @@ export interface IAwaitClientQueryQuery {
 export type GetItemsWithRowsParams = [];
 
 export interface IGetItemsWithRowsResult {
-	description: string | null;
-	food_type: string;
+	flavor_text: string | null;
 	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	inventory_id: number | null;
+	name: string;
+	rarity: string | null;
+	stats: object | null;
 };
 
 export interface IGetItemsWithRowsQuery {
@@ -78,7 +78,7 @@ export interface IGetItemsWithRowsQuery {
 	result: IGetItemsWithRowsResult;
 };
 
-export type TestInsertParams = [[string, number]];
+export type TestInsertParams = [[number, string, string, object]];
 
 export interface ITestInsertResult {
 	

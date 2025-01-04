@@ -109,21 +109,21 @@ CREATE TABLE guild_members (
   PRIMARY KEY (guild_id, character_id)
 );
 
+-- Inventory Table
+CREATE TABLE inventory (
+  id SERIAL PRIMARY KEY,
+  character_id INTEGER REFERENCES characters(id) ON DELETE CASCADE,
+  quantity INTEGER DEFAULT 1
+);
+
 -- Items Table
 CREATE TABLE items (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   rarity VARCHAR(50),
   stats JSONB DEFAULT '{}',
-  flavor_text TEXT
-);
-
--- Inventory Table
-CREATE TABLE inventory (
-  character_id INTEGER REFERENCES characters(id) ON DELETE CASCADE,
-  item_id INTEGER REFERENCES items(id) ON DELETE CASCADE,
-  quantity INTEGER DEFAULT 1,
-  PRIMARY KEY (character_id, item_id)
+  flavor_text TEXT,
+  inventory_id INTEGER REFERENCES inventory(id) ON DELETE CASCADE
 );
 
 -- Quests Table
@@ -132,6 +132,7 @@ CREATE TABLE quests (
   name VARCHAR(100) NOT NULL,
   description TEXT,
   rewards JSONB DEFAULT '{}',
+  completed BOOLEAN DEFAULT false,
   required_level INTEGER DEFAULT 1
 );
 

@@ -1,12 +1,12 @@
 export type TestParenthesisQueryParams = [];
 
 export interface ITestParenthesisQueryResult {
-	description: string | null;
-	food_type: string;
+	flavor_text: string | null;
 	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	inventory_id: number | null;
+	name: string;
+	rarity: string | null;
+	stats: object | null;
 };
 
 export interface ITestParenthesisQueryQuery {
