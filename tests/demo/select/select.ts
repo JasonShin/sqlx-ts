@@ -25,16 +25,16 @@ FROM items;
 
 // table wit joins
 const selectSql5 = sql`
-SELECT tables.*
+SELECT inventory.*
 FROM items
-JOIN tables ON items.table_id = tables.id
+JOIN inventory ON items.inventory_id = inventory.id
 `
 
 // Various operators
 const selectSql6 = sql`
 SELECT id
 FROM inventory
-WHERE points BETWEEN $1 AND $2;
+WHERE quantity BETWEEN $1 AND $2;
 `
 
 // Where condition expressions
@@ -52,21 +52,21 @@ WHERE completed IS TRUE;
 
 // IS DISTINCT FROM operator as part of the WHERE statement
 const selectSql11 = sql`
-SELECT id, number, id IS DISTINCT FROM $1 AS hmm
-FROM tables
+SELECT id, quantity, id IS DISTINCT FROM $1 AS hmm
+FROM inventory
 WHERE id IS DISTINCT FROM $2
 `
 
 const selectSql12 = sql`
 SELECT id
-FROM tables
-WHERE tables.id = $1
+FROM inventory
+WHERE inventory.id = $1
 `
 
 const selectSql13 = sql`
 SELECT *
 FROM items
-WHERE food_type LIKE $1
+WHERE name LIKE $1
 `
 
 // SELECT with quoted table names
@@ -75,7 +75,7 @@ SELECT * FROM "items" WHERE id = $1
 `
 
 const selectSql15 = sql`
-SELECT "items"."id", "tables"."id" AS "id2", items.id
+SELECT "items"."id", "inventory"."id" AS "id2", inventory.id
 FROM "items"
-JOIN "tables" ON "items"."table_id" = "tables"."id"
+JOIN "inventory" ON "items"."inventory_id" = "inventory"."id"
 `

@@ -1,12 +1,12 @@
 export type InsertWildcardParams = [];
 
 export interface IInsertWildcardResult {
-	description: string;
-	foodType: string;
+	flavorText: string | null;
 	id: number;
-	points: number;
-	tableId: number;
-	timeTakesToCook: number;
+	inventoryId: number | null;
+	name: string;
+	rarity: string | null;
+	stats: object | null;
 };
 
 export interface IInsertWildcardQuery {
@@ -17,8 +17,8 @@ export interface IInsertWildcardQuery {
 export type InsertSelectorParams = [];
 
 export interface IInsertSelectorResult {
-	foodType: string;
 	id: number;
+	rarity: string | null;
 };
 
 export interface IInsertSelectorQuery {
@@ -29,8 +29,8 @@ export interface IInsertSelectorQuery {
 export type InsertAliasParams = [];
 
 export interface IInsertAliasResult {
-	foodType1: string;
 	id1: number;
+	rarity1: string | null;
 };
 
 export interface IInsertAliasQuery {
@@ -41,8 +41,8 @@ export interface IInsertAliasQuery {
 export type InsertQuotedParams = [];
 
 export interface IInsertQuotedResult {
-	foodType1: string;
 	id1: number;
+	rarity1: string | null;
 };
 
 export interface IInsertQuotedQuery {
@@ -50,11 +50,11 @@ export interface IInsertQuotedQuery {
 	result: IInsertQuotedResult;
 };
 
-export type InsertParamsParams = [string, string | null];
+export type InsertParamsParams = [];
 
 export interface IInsertParamsResult {
-	foodType1: string;
 	id1: number;
+	rarity1: string | null;
 };
 
 export interface IInsertParamsQuery {

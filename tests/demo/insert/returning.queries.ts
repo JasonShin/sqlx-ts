@@ -1,12 +1,12 @@
 export type InsertWildcardParams = [];
 
 export interface IInsertWildcardResult {
-	flavorText: string;
+	flavorText: string | null;
 	id: number;
-	inventoryId: number;
+	inventoryId: number | null;
 	name: string;
-	rarity: string;
-	stats: object;
+	rarity: string | null;
+	stats: object | null;
 };
 
 export interface IInsertWildcardQuery {
