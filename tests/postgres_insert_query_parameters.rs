@@ -17,7 +17,7 @@ run_test!(should_pick_query_params_from_single_row_of_values, TestConfig::new("p
 //// TS query ////
 r#"
 const someInputQuery = sql`
-INSERT INTO items (id, "food_type", time_takes_to_cook, table_id, points)
+INSERT INTO items (id, "name", rarity, stats, flavor_text)
 VALUES
 ($2, $1, 2, $3, 2);
 `
@@ -25,7 +25,7 @@ VALUES
 
 //// Generated TS interfaces ////
 r#"
-export type SomeInputQueryParams = [string, number, number];
+export type SomeInputQueryParams = [string, number, object | null];
 
 export interface ISomeInputQueryResult {
     
@@ -43,7 +43,7 @@ run_test!(should_pick_query_params_from_multiple_rows_of_values, TestConfig::new
 //// TS query ////
 r#"
 const someInputQuery = sql`
-INSERT INTO items (id, "food_type", time_takes_to_cook, table_id, points)
+INSERT INTO items (id, "name", rarity, stats, flavor_text)
 VALUES
 ($2, $1, 2, $3, 2),
 ($5, 'test', $4, $7, $6);
@@ -52,7 +52,7 @@ VALUES
 
 //// Generated TS interfaces ////
 r#"
-export type SomeInputQueryParams = [string, number, number, number, number, number, number];
+export type SomeInputQueryParams = [string, number, object | null, string | null, number, string | null, object | null];
 
 export interface ISomeInputQueryResult {
     

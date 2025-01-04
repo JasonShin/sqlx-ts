@@ -182,6 +182,8 @@ CREATE TABLE postgres.public.random (
    	-- UUID
    	uuid1 UUID,
 
+	enum1 faction_enum,
+
     -- Special data types
    	box1 BOX,
    	point1 POINT,

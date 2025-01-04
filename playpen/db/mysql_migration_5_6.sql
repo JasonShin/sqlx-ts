@@ -153,7 +153,7 @@ CREATE TABLE random (
     varbinary1 VARBINARY(2),
     blob1 BLOB,
     text1 TEXT,
-    enum1 ENUM('x-small', 'small', 'medium', 'large', 'x-large'),
+    enum1 ENUM('alliance', 'horde'),
     set1 SET('one', 'two'),
 
     json1 TEXT

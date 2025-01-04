@@ -167,7 +167,7 @@ CREATE TABLE random (
 	blob1 BLOB,
 	text1 TEXT,
 		-- ideally this one should be generated as a legit enum type
-	enum1 ENUM('x-small', 'small', 'medium', 'large', 'x-large'),
+	enum1 ENUM('alliance', 'horde'),
 	set1 SET('one', 'two'),
 
 	-- JSON types

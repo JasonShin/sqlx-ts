@@ -28,8 +28,8 @@ const someQuery = sql`SELECT * FROM indexjs_unknown`;
 
 // Inserting more values than expected
 const insertQuery = sql`
-INSERT INTO items (food_type, time_takes_to_cook, table_id, points)
-VALUES ('steak', 1, 1, 1, 1);
+INSERT INTO items (name, rarity, stats, flavor_text)
+VALUES ('steak', 'normal', '{}', 'asd', 1);
 `;
 
 ///////////////////
@@ -195,8 +195,8 @@ const query3 = aliased`
 // Following query should fail to compile as it gives more values than available fields
 return aliased`
     INSERT INTO
-items (food_type, time_takes_to_cook, table_id, points)
-VALUES ('steak', 1, 1, 20, 1);
+items (name, rarity, stats, flavor_text)
+VALUES ('steak', 'normal', {}, 'asd', 1);
 `;
 }
     

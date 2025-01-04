@@ -20,7 +20,7 @@ export interface IDeleteSql2Query {
 	result: IDeleteSql2Result;
 };
 
-export type DeleteSql3Params = [number, string | null];
+export type DeleteSql3Params = [number, string];
 
 export interface IDeleteSql3Result {
 	
