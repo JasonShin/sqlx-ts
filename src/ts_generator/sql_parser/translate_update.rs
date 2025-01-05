@@ -17,8 +17,10 @@ async fn translate_assignments(
   db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
   for assignment in assignments {
-    let table = translate_table_from_assignments(&vec![table_with_joins.to_owned()], assignment)
-      .expect(&*format!("Failed to find the table based on assignment {assignment} from table with joins {table_with_joins}").to_string());
+    let table = translate_table_from_assignments(&vec![table_with_joins.to_owned()], assignment).expect(
+      &*format!("Failed to find the table based on assignment {assignment} from table with joins {table_with_joins}")
+        .to_string(),
+    );
 
     translate_assignment(assignment, table.as_str(), ts_query, db_conn)
       .await
