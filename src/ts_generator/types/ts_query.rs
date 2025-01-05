@@ -265,7 +265,6 @@ impl TsQuery {
     let (row, column) = point;
     let annotated_insert_param = self.annotated_insert_params.get(row);
 
-    println!("checking insert value params {:?}", value);
     if let Some(annotated_insert_param) = annotated_insert_param {
       let _ = self.insert_params.insert(*row, annotated_insert_param.clone());
     } else {
