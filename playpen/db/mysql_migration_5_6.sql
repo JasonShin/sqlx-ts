@@ -82,6 +82,7 @@ CREATE TABLE items (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   rarity VARCHAR(50),
+  inventory_id INT,
   stats TEXT,
   flavor_text TEXT,
   FOREIGN KEY (inventory_id) REFERENCES inventory(id) ON DELETE CASCADE
