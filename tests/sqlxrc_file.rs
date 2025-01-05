@@ -19,7 +19,7 @@ run_test!(not_enabled, TestConfig::new("postgres", false, None, Some(".sqlxrc.no
 r#"
 const someQuery = sql`
 SELECT
-    food_type,
+    name,
     id AS HelloWorld,
     id AS hello_world
 FROM items;
@@ -36,7 +36,7 @@ run_test!(not_enabled_but_enabled_cli, TestConfig::new("postgres", true, None, S
 r#"
 const someQuery = sql`
 SELECT
-    food_type,
+    name,
     id AS HelloWorld,
     id AS hello_world
 FROM items;
@@ -49,8 +49,8 @@ export type SomeQueryParams = [];
 
 export interface ISomeQueryResult {
     HelloWorld: number;
-    food_type: string;
     hello_world: number;
+    name: string;
 };
 
 export interface ISomeQueryQuery {
@@ -66,7 +66,7 @@ run_test!(enabled_and_enabled_cli, TestConfig::new("postgres", true, None, Some(
 r#"
 const someQuery = sql`
 SELECT
-    food_type,
+    name,
     id AS HelloWorld,
     id AS hello_world
 FROM items;
@@ -79,8 +79,8 @@ export type SomeQueryParams = [];
 
 export interface ISomeQueryResult {
     HelloWorld: number;
-    food_type: string;
     hello_world: number;
+    name: string;
 };
 
 export interface ISomeQueryQuery {
@@ -96,7 +96,7 @@ run_test!(enabled_but_not_enabled_cli, TestConfig::new("postgres", false, None, 
 r#"
 const someQuery = sql`
 SELECT
-    food_type,
+    name,
     id AS HelloWorld,
     id AS hello_world
 FROM items;
@@ -109,8 +109,8 @@ export type SomeQueryParams = [];
 
 export interface ISomeQueryResult {
     HelloWorld: number;
-    food_type: string;
     hello_world: number;
+    name: string;
 };
 
 export interface ISomeQueryQuery {

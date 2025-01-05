@@ -55,7 +55,7 @@ WHERE inventory.id = ?
 
 //// Generated TS interfaces ////
 r#"
-export type SomeUpdateQueryParams = [string, number, number];
+export type SomeUpdateQueryParams = [string, number | null, number];
 
 export interface ISomeUpdateQueryResult {
     
