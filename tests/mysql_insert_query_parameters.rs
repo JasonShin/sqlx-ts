@@ -48,13 +48,13 @@ const someInputQuery = sql`
 INSERT INTO items (id, name, rarity, stats, flavor_text)
 VALUES
 (?, ?, 'epic', '{}', 'test'),
-(1, 'test', ?, ?, ?);
+(1, 'test', ?, '{}', ?);
 `
 "#,
 
 //// Generated TS interfaces ////
 r#"
-export type SomeInputQueryParams = [[number, string], [string, any, string]];
+export type SomeInputQueryParams = [[number, string], [string, string]];
 
 export interface ISomeInputQueryResult {
     
