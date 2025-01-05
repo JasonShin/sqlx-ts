@@ -18,9 +18,9 @@ run_test!(should_pick_query_params_from_single_row_of_values, TestConfig::new("m
 r#"
 const someUpdateQuery = sql`
 UPDATE items
-JOIN tables ON tables.id = items.table_id
-SET items.food_type = ?
-WHERE tables.id = ?
+JOIN inventory ON inventory.id = items.inventory_id
+SET items.name = ?
+WHERE inventory.id = ?
 `
 "#,
 
@@ -45,11 +45,11 @@ run_test!(should_pick_query_params_from_multiple_rows_of_values, TestConfig::new
 r#"
 const someUpdateQuery = sql`
 UPDATE items
-JOIN tables ON tables.id = items.table_id
+JOIN inventory ON inventory.id = items.inventory_id
 SET
-    items.food_type = ?,
-    items.time_takes_to_cook = ?
-WHERE tables.id = ?
+    items.name = ?,
+    inventory.quantity = ?
+WHERE inventory.id = ?
 `
 "#,
 
