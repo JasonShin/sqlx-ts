@@ -17,16 +17,16 @@ run_test!(should_pick_query_params_from_binary_ops, TestConfig::new("postgres", 
 //// TS query ////
 r#"
 const someDeleteQuery = sql`
-DELETE FROM items
+DELETE FROM inventory
 WHERE id = $2
-AND time_takes_to_cook > 1
-OR food_type = $1;
+AND quantity > 1
+OR character_id = $1;
 `
 "#,
 
 //// Generated TS interfaces ////
 r#"
-export type SomeDeleteQueryParams = [string, number];
+export type SomeDeleteQueryParams = [number | null, number];
 
 export interface ISomeDeleteQueryResult {
     
@@ -44,10 +44,10 @@ run_test!(should_pick_query_params_from_subquery, TestConfig::new("postgres", tr
 //// TS query ////
 r#"
 const someDeleteQuery = sql`
-DELETE FROM items
+DELETE FROM inventory
 WHERE id = $2
-AND time_takes_to_cook > 1
-OR table_id = (SELECT id FROM tables WHERE id = $1);
+AND quantity > 1
+OR character_id = (SELECT id FROM characters WHERE id = $1);
 `
 "#,
 

@@ -1,12 +1,11 @@
 export type AnotherTestObjectQueryParams = [];
 
 export interface IAnotherTestObjectQueryResult {
-	description: string | null;
-	food_type: string;
+	flavor_text: string | null;
 	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	inventory_id: number | null;
+	name: string;
+	rarity: string | null;
 };
 
 export interface IAnotherTestObjectQueryQuery {
@@ -17,12 +16,11 @@ export interface IAnotherTestObjectQueryQuery {
 export type NestedTestObjectQueryParams = [];
 
 export interface INestedTestObjectQueryResult {
-	description: string | null;
-	food_type: string;
+	flavor_text: string | null;
 	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	inventory_id: number | null;
+	name: string;
+	rarity: string | null;
 };
 
 export interface INestedTestObjectQueryQuery {

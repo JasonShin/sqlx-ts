@@ -18,13 +18,13 @@ run_test!(should_pick_query_params_from_single_row_of_values, TestConfig::new("p
 r#"
 const someUpdateQuery = sql`
 UPDATE items
-SET food_type = $1;
+SET rarity = $1;
 `
 "#,
 
 //// Generated TS interfaces ////
 r#"
-export type SomeUpdateQueryParams = [string];
+export type SomeUpdateQueryParams = [string | null];
 
 export interface ISomeUpdateQueryResult {
     

@@ -4,25 +4,144 @@ CREATE SCHEMA public;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO public;
 
-CREATE TABLE postgres.public.tables (
-    id SERIAL NOT NULL,
-    number INTEGER NOT NULL,
-    occupied BOOL NOT NULL DEFAULT FALSE,
-    PRIMARY KEY (id)
+CREATE TYPE faction_enum AS ENUM (
+  'alliance',
+  'horde'
 );
 
-CREATE TABLE postgres.public.items (
-    id SERIAL NOT NULL,
-    food_type VARCHAR(30) NOT NULL,
-    time_takes_to_cook INTEGER NOT NULL,
-    table_id INTEGER NOT NULL,
-    points SMALLINT NOT NULL,
-    description VARCHAR(255) NULL,
-    FOREIGN KEY (table_id) REFERENCES public.tables (id),
-    PRIMARY KEY (id)
+-- Factions Table
+CREATE TABLE factions (
+  id SERIAL PRIMARY KEY,
+  name faction_enum UNIQUE NOT NULL,
+  description TEXT
 );
 
-CREATE TYPE sizes AS ENUM ('x-small', 'small', 'medium', 'large', 'x-large');
+-- Create the races table with an enum for the race names
+CREATE TYPE race_enum AS ENUM (
+  'human',
+  'night elf',
+  'dwarf',
+  'gnome',
+  'orc',
+  'troll',
+  'tauren',
+  'undead'
+);
+
+-- Races Table
+CREATE TABLE races (
+  id SERIAL PRIMARY KEY,
+  name race_enum UNIQUE NOT NULL,
+  faction_id INTEGER REFERENCES factions(id) ON DELETE CASCADE
+);
+
+-- Create the races table with an enum for the race names
+CREATE TYPE class_enum AS ENUM (
+  'warrior',
+  'hunter',
+  'priest',
+  'paladin',
+  'druid',
+  'mage',
+  'warlock'
+);
+
+-- Classes Table
+CREATE TABLE classes (
+  id SERIAL PRIMARY KEY,
+  name class_enum UNIQUE NOT NULL,
+  specialization JSONB DEFAULT '{}',
+
+  -- JSON Schema Validation (CHECK constraint)
+    CHECK (
+      jsonb_typeof(specialization) = 'object' AND
+      (specialization ? 'role') AND
+      (specialization ? 'weapon') AND
+      (specialization ? 'abilities') AND
+
+      -- Validate role with enum-like restriction
+      specialization->>'role' IN ('tank', 'healer', 'ranged', 'melee', 'hybrid') AND
+
+      -- Ensure abilities is an array with at least one element
+      jsonb_typeof(specialization->'abilities') = 'array' AND
+      jsonb_array_length(specialization->'abilities') > 0 AND
+
+      -- Validate tier (if it exists) is between 1 and 5
+      (
+        NOT (specialization ? 'tier') OR
+        (
+          (specialization->>'tier')::integer BETWEEN 1 AND 5
+        )
+      )
+    )
+);
+
+-- Characters Table
+CREATE TABLE characters (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  race_id INTEGER REFERENCES races(id),
+  class_id INTEGER REFERENCES classes(id),
+  level SMALLINT DEFAULT 1,
+  experience BIGINT DEFAULT 0,
+  gold FLOAT8 DEFAULT 0,
+  last_chat_time TIME null,
+  login_time TIMESTAMP null,
+  logout_time TIMESTAMPTZ null,
+  last_trade_time interval,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Guilds Table
+CREATE TABLE guilds (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) UNIQUE NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Guild Members Table
+CREATE TABLE guild_members (
+  guild_id INTEGER REFERENCES guilds(id) ON DELETE CASCADE,
+  character_id INTEGER REFERENCES characters(id) ON DELETE CASCADE,
+  rank VARCHAR(50),
+  joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (guild_id, character_id)
+);
+
+-- Inventory Table
+CREATE TABLE inventory (
+  id SERIAL PRIMARY KEY,
+  character_id INTEGER REFERENCES characters(id) ON DELETE CASCADE,
+  quantity INTEGER DEFAULT 1
+);
+
+-- Items Table
+CREATE TABLE items (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  rarity VARCHAR(50),
+  flavor_text TEXT,
+  inventory_id INTEGER REFERENCES inventory(id) ON DELETE CASCADE
+);
+
+-- Quests Table
+CREATE TABLE quests (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  description TEXT,
+  rewards JSONB DEFAULT '{}',
+  completed BOOLEAN DEFAULT false,
+  required_level INTEGER DEFAULT 1
+);
+
+-- Character Quests Table
+CREATE TABLE character_quests (
+  character_id INTEGER REFERENCES characters(id) ON DELETE CASCADE,
+  quest_id INTEGER REFERENCES quests(id) ON DELETE CASCADE,
+  status VARCHAR(50) DEFAULT 'In Progress',
+  PRIMARY KEY (character_id, quest_id)
+);
 
 -- A table of randomness, just to test various field types in PostgreSQL
 -- There is a pretty comprehensive list of data types available in Postgres
@@ -47,23 +166,23 @@ CREATE TABLE postgres.public.random (
     date1 DATE null,
     time1 TIME null,
     time2 TIMESTAMP null,
-    time3 TIMESTAMPTZ null, 
+    time3 TIMESTAMPTZ null,
    	time4 interval null,
-   	
+
    	-- array
    	array1 integer[3][3],
    	array2 boolean[2],
    	array3 TIME[2],
-   	
+
    	-- json
    	json1 JSON,
    	json2 JSONB,
-   	
+
    	-- UUID
    	uuid1 UUID,
 
-	enum1 sizes,
-   	
+	enum1 faction_enum,
+
     -- Special data types
    	box1 BOX,
    	point1 POINT,
@@ -73,13 +192,27 @@ CREATE TABLE postgres.public.random (
    	macaddr1 MACADDR
 );
 
-INSERT INTO public.tables (number) VALUES
-(1), (2), (3), (4), (5), (6), (7), (8), (9), (10);
+--- SEED DATA
 
-INSERT INTO public.items (food_type, time_takes_to_cook, table_id, points)
-VALUES
-  ('korean', 10, 1, 2),
-  ('chinese', 10, 1, 2),
-  ('japanese', 10, 1, 2),
-  ('italian', 10, 1, 2),
-  ('french', 10, 1, 2);
+INSERT INTO factions (name, description) VALUES
+('alliance', 'The noble and righteous faction'),
+('horde', 'The fierce and battle-hardened faction');
+
+INSERT INTO races (name, faction_id) VALUES
+('human', 1),
+('night elf', 1),
+('dwarf', 1),
+('gnome', 1),
+('orc', 2),
+('troll', 2),
+('tauren', 2),
+('undead', 2);
+
+INSERT INTO classes (name, specialization) VALUES
+('warrior', '{"role": "tank", "weapon": "sword", "abilities": ["charge", "slam", "shield block"]}'),
+('hunter', '{"role": "ranged", "weapon": "bow", "abilities": ["aimed shot", "multi-shot", "trap"]}'),
+('priest', '{"role": "healer", "weapon": "staff", "abilities": ["heal", "shield", "resurrect"]}'),
+('paladin', '{"role": "tank", "weapon": "mace", "abilities": ["divine shield", "hammer of justice", "consecrate"]}'),
+('druid', '{"role": "hybrid", "weapon": "staff", "abilities": ["shapeshift", "moonfire", "regrowth"]}'),
+('mage', '{"role": "ranged", "weapon": "wand", "abilities": ["fireball", "frostbolt", "arcane blast"]}'),
+('warlock', '{"role": "ranged", "weapon": "dagger", "abilities": ["summon demon", "shadowbolt", "curse of agony"]}');

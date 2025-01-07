@@ -1,12 +1,11 @@
 export type SelectSql1Params = [];
 
 export interface ISelectSql1Result {
-	description: string | null;
-	food_type: string;
+	flavor_text: string | null;
 	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	inventory_id: number | null;
+	name: string;
+	rarity: string | null;
 };
 
 export interface ISelectSql1Query {
@@ -17,14 +16,13 @@ export interface ISelectSql1Query {
 export type SelectSql2Params = [];
 
 export interface ISelectSql2Result {
-	description: string | null;
-	food_type: string;
+	character_id: number | null;
+	flavor_text: string | null;
 	id: number;
-	number: number;
-	occupied: boolean;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	inventory_id: number | null;
+	name: string;
+	quantity: number | null;
+	rarity: string | null;
 };
 
 export interface ISelectSql2Query {
@@ -35,7 +33,7 @@ export interface ISelectSql2Query {
 export type SelectSql3Params = [];
 
 export interface ISelectSql3Result {
-	tableNumber: number;
+	inventoryQuantity: number | null;
 };
 
 export interface ISelectSql3Query {
@@ -46,12 +44,11 @@ export interface ISelectSql3Query {
 export type SelectSql4Params = [];
 
 export interface ISelectSql4Result {
-	description: string | null;
-	food_type: string;
+	flavor_text: string | null;
 	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	inventory_id: number | null;
+	name: string;
+	rarity: string | null;
 };
 
 export interface ISelectSql4Query {
@@ -62,14 +59,13 @@ export interface ISelectSql4Query {
 export type SelectSql5Params = [];
 
 export interface ISelectSql5Result {
-	description: string | null;
-	food_type: string;
+	character_id: number | null;
+	flavor_text: string | null;
 	id: number;
-	number: number;
-	occupied: boolean;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	inventory_id: number | null;
+	name: string;
+	quantity: number | null;
+	rarity: string | null;
 };
 
 export interface ISelectSql5Query {
@@ -77,7 +73,7 @@ export interface ISelectSql5Query {
 	result: ISelectSql5Result;
 };
 
-export type SelectSql6Params = [number, number];
+export type SelectSql6Params = [number | null, number | null];
 
 export interface ISelectSql6Result {
 	id: number;
@@ -91,12 +87,11 @@ export interface ISelectSql6Query {
 export type SelectSql9Params = [boolean];
 
 export interface ISelectSql9Result {
-	description: string | null;
-	food_type: string;
+	flavor_text: string | null;
 	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	inventory_id: number | null;
+	name: string;
+	rarity: string | null;
 };
 
 export interface ISelectSql9Query {
@@ -107,9 +102,12 @@ export interface ISelectSql9Query {
 export type SelectSql10Params = [];
 
 export interface ISelectSql10Result {
+	completed: boolean | null;
+	description: string | null;
 	id: number;
-	number: number;
-	occupied: boolean;
+	name: string;
+	required_level: number | null;
+	rewards: object | null;
 };
 
 export interface ISelectSql10Query {
@@ -122,7 +120,7 @@ export type SelectSql11Params = [string, string];
 export interface ISelectSql11Result {
 	hmm: any;
 	id: number;
-	number: number;
+	quantity: number | null;
 };
 
 export interface ISelectSql11Query {
@@ -144,12 +142,11 @@ export interface ISelectSql12Query {
 export type SelectSql13Params = [string];
 
 export interface ISelectSql13Result {
-	description: string | null;
-	food_type: string;
+	flavor_text: string | null;
 	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	inventory_id: number | null;
+	name: string;
+	rarity: string | null;
 };
 
 export interface ISelectSql13Query {
@@ -160,12 +157,11 @@ export interface ISelectSql13Query {
 export type SelectSql14Params = [number];
 
 export interface ISelectSql14Result {
-	description: string | null;
-	food_type: string;
+	flavor_text: string | null;
 	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	inventory_id: number | null;
+	name: string;
+	rarity: string | null;
 };
 
 export interface ISelectSql14Query {
@@ -177,6 +173,7 @@ export type SelectSql15Params = [];
 
 export interface ISelectSql15Result {
 	id2: number;
+	inventoryId: number;
 	itemsId: number;
 };
 

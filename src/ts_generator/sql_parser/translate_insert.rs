@@ -100,8 +100,9 @@ pub async fn translate_insert_returning(
       SelectItem::Wildcard(_) | SelectItem::QualifiedWildcard(_, _) => {
         let keys = table_details.keys();
         for key in keys {
-          let value = vec![table_details.get(key).unwrap().field_type.clone()];
-          ts_query.insert_result(Some(key), &value, true, false, query_for_logging);
+          let field = table_details.get(key).unwrap();
+          let value = vec![field.field_type.clone()];
+          ts_query.insert_result(Some(key), &value, true, field.is_nullable, query_for_logging);
         }
       }
     }

@@ -84,7 +84,7 @@ export interface ISomeQueryQuery {
 run_test!(like, TestConfig::new("postgres", true, None, None),
 
 //// TS query ////"
-"const someQuery = sql`SELECT id FROM items WHERE food_type LIKE $1;`",
+"const someQuery = sql`SELECT id FROM items WHERE rarity LIKE $1;`",
 
 //// Generated TS interfaces ////
 r#"

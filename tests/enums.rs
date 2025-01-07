@@ -29,7 +29,7 @@ r#"
 export type UsersQueryParams = [];
 
 export interface IUsersQueryResult {
-    enum1: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | null;
+    enum1: 'alliance' | 'horde' | null;
 };
 
 export interface IUsersQueryQuery {
@@ -56,7 +56,7 @@ r#"
 export type UsersQueryParams = [];
 
 export interface IUsersQueryResult {
-    enum1: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | null;
+    enum1: 'alliance' | 'horde' | null;
 };
 
 export interface IUsersQueryQuery {

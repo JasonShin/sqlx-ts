@@ -20,7 +20,7 @@ run_test!(camel_case, TestConfig::new("postgres", true, None, Some(".sqlxrc.colu
 r#"
 const someQuery = sql`
 SELECT
-    food_type,
+    name,
     id AS HelloWorld,
     id AS hello_world
 FROM items;
@@ -32,8 +32,8 @@ r#"
 export type SomeQueryParams = [];
 
 export interface ISomeQueryResult {
-    foodType: string;
     helloWorld: number;
+    name: string;
 };
 
 export interface ISomeQueryQuery {
@@ -50,7 +50,7 @@ run_test!(pascal_case, TestConfig::new("postgres", true, None, Some(".sqlxrc.col
 r#"
 const someQuery = sql`
 SELECT
-    food_type,
+    name,
     id AS HelloWorld1,
     id AS hello_world2
 FROM items;
@@ -62,9 +62,9 @@ r#"
 export type SomeQueryParams = [];
 
 export interface ISomeQueryResult {
-    FoodType: string;
     HelloWorld1: number;
     HelloWorld2: number;
+    Name: string;
 };
 
 export interface ISomeQueryQuery {
@@ -81,7 +81,7 @@ run_test!(pascal_and_ignore_convert_to_camel_case, TestConfig::new("postgres", t
 r#"
 const someQuery = sql`
 SELECT
-    food_type,
+    name,
     id AS HelloWorld1,
     id AS hello_world2
 FROM items;
@@ -93,9 +93,9 @@ r#"
 export type SomeQueryParams = [];
 
 export interface ISomeQueryResult {
-    FoodType: string;
     HelloWorld1: number;
     HelloWorld2: number;
+    Name: string;
 };
 
 export interface ISomeQueryQuery {

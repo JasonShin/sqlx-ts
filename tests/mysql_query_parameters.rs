@@ -19,23 +19,21 @@ r#"
 const someQuery = sql`
 SELECT *
 FROM items
-WHERE points > ?
-AND points < ?
-OR points = ?
+WHERE name = ?
+AND rarity = ?
 `;
 "#,
 
 //// Generated TS interfaces ////
 r#"
-export type SomeQueryParams = [number, number, number];
+export type SomeQueryParams = [string, string | null];
 
 export interface ISomeQueryResult {
-    description: string | null;
-    food_type: string;
+    flavor_text: string | null;
     id: number;
-    points: number;
-    table_id: number;
-    time_takes_to_cook: number;
+    inventory_id: number | null;
+    name: string;
+    rarity: string | null;
 };
 
 export interface ISomeQueryQuery {
@@ -61,12 +59,11 @@ r#"
 export type SomeQueryParams = [Array<number>];
 
 export interface ISomeQueryResult {
-    description: string | null;
-    food_type: string;
+    flavor_text: string | null;
     id: number;
-    points: number;
-    table_id: number;
-    time_takes_to_cook: number;
+    inventory_id: number | null;
+    name: string;
+    rarity: string | null;
 };
 
 export interface ISomeQueryQuery {
@@ -86,27 +83,26 @@ FROM items
 WHERE id IN (
     SELECT id
     FROM items
-    WHERE points > ?
+    WHERE name = ?
     AND id IN (
         SELECT id
         FROM items
-        WHERE food_type = ?
+        WHERE rarity = ?
     )
-) AND points < ?;
+) AND id < ?;
 `;
 "#,
 
 //// Generated TS interfaces ////
 r#"
-export type SomeQueryParams = [number, string, number];
+export type SomeQueryParams = [string, string | null, number];
 
 export interface ISomeQueryResult {
-    description: string | null;
-    food_type: string;
+    flavor_text: string | null;
     id: number;
-    points: number;
-    table_id: number;
-    time_takes_to_cook: number;
+    inventory_id: number | null;
+    name: string;
+    rarity: string | null;
 };
 
 export interface ISomeQueryQuery {
@@ -130,23 +126,22 @@ WHERE id = (
     AND id = (
         SELECT id
         FROM items
-        WHERE food_type = ?
+        WHERE rarity = ?
     )
-) AND food_type = ?;
+) AND rarity = ?;
 `;
 "#,
 
 //// Generated TS interfaces ////
 r#"
-export type SomeQueryParams = [number, string, string];
+export type SomeQueryParams = [number, string | null, string | null];
 
 export interface ISomeQueryResult {
-    description: string | null;
-    food_type: string;
+    flavor_text: string | null;
     id: number;
-    points: number;
-    table_id: number;
-    time_takes_to_cook: number;
+    inventory_id: number | null;
+    name: string;
+    rarity: string | null;
 };
 
 export interface ISomeQueryQuery {

@@ -2,31 +2,31 @@ import { sql } from 'sqlx-ts'
 
 const insertWildcard = sql`
 INSERT INTO items
-VALUES (1, 'korean', 20, 1, 5)
+VALUES (1, 'sword', 'epic', 'hmm', null)
 RETURNING *;
 `
 
 const insertSelector = sql`
 INSERT INTO items
-VALUES (1, 'korean', 20, 1, 5)
-RETURNING id, food_type;
+VALUES (1, 'sword', 'epic', 'hmm', null)
+RETURNING id, rarity;
 `
 
 const insertAlias = sql`
 INSERT INTO items
-VALUES (1, 'korean', 20, 1, 5)
-RETURNING id as id1, food_type AS foodType1;
+VALUES (1, 'sword', 'epic', 'hmm', 1)
+RETURNING id as id1, rarity as Rarity1;
 `
 
 const insertQuoted = sql`
-INSERT INTO "items"
-VALUES (1, 'korean', 20, 1, 5)
-RETURNING "id" as id1, food_type AS "foodType1";
+INSERT INTO items
+VALUES (1, 'sword', 'epic', 'hmm', 1)
+RETURNING "id" as id1, rarity as "Rarity1";
 `
 
 
 const insertParams = sql`
-INSERT INTO "items" (id, food_type, time_takes_to_cook, table_id, points, description)
-VALUES (1, $1, 20, 1, 5, $2)
-RETURNING "id" as id1, food_type AS "foodType1";
+INSERT INTO items (id, name, rarity, flavor_text, inventory_id)
+VALUES (1, 'sword', 'epic', 'hmm', 1)
+RETURNING "id" as id1, rarity as "Rarity1";
 `

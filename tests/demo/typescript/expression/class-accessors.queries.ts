@@ -133,12 +133,11 @@ export interface ITestChildClassConstructorQueryQuery {
 export type PrivAutoAccessorPropParams = [];
 
 export interface IPrivAutoAccessorPropResult {
-	description: string | null;
-	food_type: string;
+	flavor_text: string | null;
 	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	inventory_id: number | null;
+	name: string;
+	rarity: string | null;
 };
 
 export interface IPrivAutoAccessorPropQuery {
@@ -149,12 +148,11 @@ export interface IPrivAutoAccessorPropQuery {
 export type AutoAccessorPropParams = [];
 
 export interface IAutoAccessorPropResult {
-	description: string | null;
-	food_type: string;
+	flavor_text: string | null;
 	id: number;
-	points: number;
-	table_id: number;
-	time_takes_to_cook: number;
+	inventory_id: number | null;
+	name: string;
+	rarity: string | null;
 };
 
 export interface IAutoAccessorPropQuery {

@@ -18,24 +18,21 @@ run_test!(should_pick_query_params_from_flat_list_of_binary_ops, TestConfig::new
 r#"
 const someQuery = sql`
 SELECT *
-FROM items
-WHERE points > $1
-AND points < $2
-OR points = $3
+FROM inventory
+WHERE quantity > $1
+AND quantity < $2
+OR quantity = $3
 `;
 "#,
 
 //// Generated TS interfaces ////
 r#"
-export type SomeQueryParams = [number, number, number];
+export type SomeQueryParams = [number | null, number | null, number | null];
 
 export interface ISomeQueryResult {
-    description: string | null;
-    food_type: string;
+    character_id: number | null;
     id: number;
-    points: number;
-    table_id: number;
-    time_takes_to_cook: number;
+    quantity: number | null;
 };
 
 export interface ISomeQueryQuery {

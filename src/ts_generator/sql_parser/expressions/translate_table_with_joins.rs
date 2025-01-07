@@ -31,13 +31,6 @@ pub fn find_table_name_from_identifier(
   let right = identifiers.get(1);
   let default_table_name = get_default_table(table_with_joins);
 
-  // if the identifier of a compound identifier is exactly same as the default table name, we just return it
-  if left == default_table_name || right.is_none() {
-    // If right is none, it means we cannot further assume and try to find the table name
-    // we should simply return the default table name
-    return Ok(default_table_name);
-  }
-
   // Check the default table with joins to see if any left identifier (table name) matches any alias of tables or table name itself
   for relation in table_with_joins.iter().map(|tj| tj.relation.clone()) {
     match &relation {
@@ -91,6 +84,12 @@ pub fn find_table_name_from_identifier(
       }
     }
   }
+  // if the identifier of a compound identifier is exactly same as the default table name, we just return it
+  if left == default_table_name || right.is_none() {
+    // If right is none, it means we cannot further assume and try to find the table name
+    // we should simply return the default table name
+    return Ok(default_table_name);
+  }
   Err(TsGeneratorError::UnknownErrorWhileProcessingTableWithJoins(
     "".to_string(),
   ))
@@ -134,6 +133,7 @@ pub fn translate_table_from_assignments(
   assignment: &Assignment,
 ) -> Result<String, TsGeneratorError> {
   let identifier = assignment.id.first();
+
   match identifier {
     Some(identifier) => find_table_name_from_identifier(table_with_joins, &vec![identifier.value.to_string()]),
     None => Ok(get_default_table(table_with_joins)),
