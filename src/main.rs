@@ -46,7 +46,7 @@ async fn main() -> Result<()> {
   let source_folder = &CLI_ARGS.path;
   let ext = &CLI_ARGS.ext;
 
-  info!("Scanning {:?} for SQLs with extension {:?}", source_folder, ext);
+  info!("Scanning {:?} for SQLs with extension {}", source_folder, ext);
 
   // If CLI_ARGS.generate_types is true, it will clear the single TS file so `execute` will generate a new one from scratch
   clear_single_ts_file_if_exists()?;
@@ -54,7 +54,7 @@ async fn main() -> Result<()> {
   let files = scan_folder(source_folder, ext);
   if files.is_empty() {
     info!(
-      "No targets detected, is it an empty folder? - source_folder: {:?}, ext: {:?}",
+      "No targets detected, is it an empty folder? - source_folder: {:?}, ext: {}",
       source_folder, ext
     );
     std::process::exit(0);
