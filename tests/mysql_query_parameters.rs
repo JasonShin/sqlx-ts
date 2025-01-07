@@ -21,13 +21,12 @@ SELECT *
 FROM items
 WHERE name = ?
 AND rarity = ?
-OR stats = ?
 `;
 "#,
 
 //// Generated TS interfaces ////
 r#"
-export type SomeQueryParams = [string, string | null, any | null];
+export type SomeQueryParams = [string, string | null];
 
 export interface ISomeQueryResult {
     flavor_text: string | null;
@@ -35,7 +34,6 @@ export interface ISomeQueryResult {
     inventory_id: number | null;
     name: string;
     rarity: string | null;
-    stats: any | null;
 };
 
 export interface ISomeQueryQuery {
@@ -66,7 +64,6 @@ export interface ISomeQueryResult {
     inventory_id: number | null;
     name: string;
     rarity: string | null;
-    stats: any | null;
 };
 
 export interface ISomeQueryQuery {
@@ -106,7 +103,6 @@ export interface ISomeQueryResult {
     inventory_id: number | null;
     name: string;
     rarity: string | null;
-    stats: any | null;
 };
 
 export interface ISomeQueryQuery {
@@ -146,7 +142,6 @@ export interface ISomeQueryResult {
     inventory_id: number | null;
     name: string;
     rarity: string | null;
-    stats: any | null;
 };
 
 export interface ISomeQueryQuery {

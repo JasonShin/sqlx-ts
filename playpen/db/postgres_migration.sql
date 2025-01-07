@@ -121,7 +121,6 @@ CREATE TABLE items (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   rarity VARCHAR(50),
-  stats JSONB DEFAULT '{}',
   flavor_text TEXT,
   inventory_id INTEGER REFERENCES inventory(id) ON DELETE CASCADE
 );

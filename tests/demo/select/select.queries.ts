@@ -6,7 +6,6 @@ export interface ISelectSql1Result {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-	stats: object | null;
 };
 
 export interface ISelectSql1Query {
@@ -24,7 +23,6 @@ export interface ISelectSql2Result {
 	name: string;
 	quantity: number | null;
 	rarity: string | null;
-	stats: object | null;
 };
 
 export interface ISelectSql2Query {
@@ -51,7 +49,6 @@ export interface ISelectSql4Result {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-	stats: object | null;
 };
 
 export interface ISelectSql4Query {
@@ -69,7 +66,6 @@ export interface ISelectSql5Result {
 	name: string;
 	quantity: number | null;
 	rarity: string | null;
-	stats: object | null;
 };
 
 export interface ISelectSql5Query {
@@ -96,7 +92,6 @@ export interface ISelectSql9Result {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-	stats: object | null;
 };
 
 export interface ISelectSql9Query {
@@ -152,7 +147,6 @@ export interface ISelectSql13Result {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-	stats: object | null;
 };
 
 export interface ISelectSql13Query {
@@ -168,7 +162,6 @@ export interface ISelectSql14Result {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-	stats: object | null;
 };
 
 export interface ISelectSql14Query {

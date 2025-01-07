@@ -6,7 +6,6 @@ export interface ITestMysqlQueryResult {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-	stats: object | null;
 };
 
 export interface ITestMysqlQueryQuery {
@@ -22,7 +21,6 @@ export interface ITestPostgresQueryResult {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-	stats: object | null;
 };
 
 export interface ITestPostgresQueryQuery {

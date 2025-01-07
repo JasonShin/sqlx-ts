@@ -92,7 +92,6 @@ CREATE TABLE items (
   name VARCHAR(100) NOT NULL,
   rarity VARCHAR(50),
   inventory_id INT,
-  stats JSON,
   flavor_text TEXT,
   FOREIGN KEY (inventory_id) REFERENCES inventory(id) ON DELETE CASCADE
 );

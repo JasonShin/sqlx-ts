@@ -6,7 +6,6 @@ export interface IInsertWildcardResult {
 	inventoryId: number | null;
 	name: string;
 	rarity: string | null;
-	stats: object | null;
 };
 
 export interface IInsertWildcardQuery {

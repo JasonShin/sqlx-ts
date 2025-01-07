@@ -38,7 +38,7 @@ async function demo() {
   await connection.execute(sql`
   -- @name: testInsert
   -- @db: db_mysql
-  INSERT INTO items (id, name, rarity, stats, flavor_text, inventory_id) VALUES (?, ?, ?, ?, 'test', 1);
+  INSERT INTO items (id, name, rarity, flavor_text, inventory_id) VALUES (?, ?, ?, 'test', 1);
   `)
 
   connection.destroy()

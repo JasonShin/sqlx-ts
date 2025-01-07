@@ -6,7 +6,6 @@ export interface IAnotherTestObjectQueryResult {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-	stats: object | null;
 };
 
 export interface IAnotherTestObjectQueryQuery {
@@ -22,7 +21,6 @@ export interface INestedTestObjectQueryResult {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-	stats: object | null;
 };
 
 export interface INestedTestObjectQueryQuery {

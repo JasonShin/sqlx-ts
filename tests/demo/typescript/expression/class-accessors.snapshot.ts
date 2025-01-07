@@ -138,7 +138,6 @@ export interface IPrivAutoAccessorPropResult {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-	stats: object | null;
 };
 
 export interface IPrivAutoAccessorPropQuery {
@@ -154,7 +153,6 @@ export interface IAutoAccessorPropResult {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-	stats: object | null;
 };
 
 export interface IAutoAccessorPropQuery {

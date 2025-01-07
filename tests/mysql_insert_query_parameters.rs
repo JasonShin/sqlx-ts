@@ -17,9 +17,9 @@ run_test!(should_pick_query_params_from_single_row_of_values, TestConfig::new("m
 //// TS query ////
 r#"
 const someInputQuery = sql`
-INSERT INTO items (id, name, rarity, stats, flavor_text)
+INSERT INTO items (id, name, rarity, flavor_text)
 VALUES
-(?, ?, 'epic', '{}', 'asd');
+(?, ?, 'epic', 'asd');
 `
 "#,
 
@@ -45,10 +45,10 @@ r#"
 import { sql } from "sqlx-ts";
 
 const someInputQuery = sql`
-INSERT INTO items (id, name, rarity, stats, flavor_text)
+INSERT INTO items (id, name, rarity, flavor_text)
 VALUES
-(?, ?, 'epic', '{}', 'test'),
-(1, 'test', ?, '{}', ?);
+(?, ?, 'epic', 'test'),
+(1, 'test', ?, ?);
 `
 "#,
 

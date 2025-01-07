@@ -6,7 +6,6 @@ export interface ITestSequelizeQueryResult {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-	stats: object | null;
 };
 
 export interface ITestSequelizeQueryQuery {
@@ -22,7 +21,6 @@ export interface ITestAwaitQueryResult {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-	stats: object | null;
 };
 
 export interface ITestAwaitQueryQuery {
@@ -38,7 +36,6 @@ export interface ITestAwaitQuery2Result {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-	stats: object | null;
 };
 
 export interface ITestAwaitQuery2Query {
@@ -54,7 +51,6 @@ export interface IAwaitClientQueryResult {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-	stats: object | null;
 };
 
 export interface IAwaitClientQueryQuery {
@@ -70,7 +66,6 @@ export interface IGetItemsWithRowsResult {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-	stats: object | null;
 };
 
 export interface IGetItemsWithRowsQuery {
@@ -78,7 +73,7 @@ export interface IGetItemsWithRowsQuery {
 	result: IGetItemsWithRowsResult;
 };
 
-export type TestInsertParams = [[number, string, string, object]];
+export type TestInsertParams = [[number, string, string]];
 
 export interface ITestInsertResult {
 	
