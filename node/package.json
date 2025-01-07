@@ -1,6 +1,6 @@
 {
   "name": "sqlx-ts",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "description": "sqlx-ts ensures your raw SQLs are compile-time checked",
   "main": "dist/index.js",
   "maintainers": [
