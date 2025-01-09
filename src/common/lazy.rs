@@ -64,10 +64,10 @@ lazy_static! {
                                     .await
                                     .expect(&ERR_DB_CONNECTION_ISSUE);
 
-                                let ERR_SEARCH_PATH_QUERY = format!("Failed to execute the search_path query {:?}", search_path_query.as_str());
-                                let ERR_SEARCH_PATH_QUERY = ERR_SEARCH_PATH_QUERY.as_str();
+                                let err_search_path_query = format!("Failed to execute the search_path query {:?}", search_path_query.as_str());
+                                let err_search_path_query = err_search_path_query.as_str();
                                 conn.execute(&search_path_query, &[]).await
-                                    .expect(ERR_SEARCH_PATH_QUERY);
+                                    .expect(err_search_path_query);
                             }
                         }
                         db_conn

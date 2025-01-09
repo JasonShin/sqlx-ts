@@ -96,8 +96,8 @@ pub fn translate_column_name_assignment(assignment: &Assignment) -> Option<Strin
 /// some_field = $1
 /// some_table.some_field = $1
 pub async fn get_sql_query_param(
-  left: &Box<Expr>,
-  right: &Box<Expr>,
+  left: &Expr,
+  right: &Expr,
   single_table_name: &Option<&str>,
   table_with_joins: &Option<Vec<TableWithJoins>>,
   db_conn: &DBConn,
