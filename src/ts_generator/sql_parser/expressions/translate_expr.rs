@@ -262,7 +262,7 @@ pub async fn translate_expr(
         if let Some((value, is_nullable, index)) = result {
           let array_item = TsFieldType::Array(Box::new(value));
 
-          let _ = ts_query.insert_param(&array_item, &false, &index);
+          let _ = ts_query.insert_param(&array_item, &is_nullable, &index);
           return Ok(());
         } else {
           return Ok(());

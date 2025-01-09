@@ -90,19 +90,19 @@ pub async fn translate_insert_returning(
   for select_item in returning {
     match &select_item {
       SelectItem::UnnamedExpr(unnamed_expr) => {
-        translate_expr(unnamed_expr, &Some(table_name), &None, None, ts_query, conn, true).await;
+        translate_expr(unnamed_expr, &Some(table_name), &None, None, ts_query, conn, true).await?;
       }
       SelectItem::ExprWithAlias { expr, alias } => {
         let alias = DisplayIndent(alias).to_string();
         let alias = alias.as_str();
-        translate_expr(expr, &Some(table_name), &None, Some(alias), ts_query, conn, true).await;
+        translate_expr(expr, &Some(table_name), &None, Some(alias), ts_query, conn, true).await?;
       }
       SelectItem::Wildcard(_) | SelectItem::QualifiedWildcard(_, _) => {
         let keys = table_details.keys();
         for key in keys {
           let field = table_details.get(key).unwrap();
           let value = vec![field.field_type.clone()];
-          ts_query.insert_result(Some(key), &value, true, field.is_nullable, query_for_logging);
+          ts_query.insert_result(Some(key), &value, true, field.is_nullable, query_for_logging)?;
         }
       }
     }

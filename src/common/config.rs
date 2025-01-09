@@ -66,7 +66,6 @@ fn default_pool_size() -> u32 {
 /// 2. any dotenv configured options
 #[derive(Clone, Debug)]
 pub struct Config {
-  pub dotenv: Dotenv,
   pub generate_types_config: Option<GenerateTypesConfig>,
   pub connections: HashMap<String, DbConnectionConfig>,
   pub ignore_patterns: Vec<String>,
@@ -94,7 +93,6 @@ impl Config {
     let ignore_patterns = Self::get_ignore_patterns(&default_ignore_config_path);
     let log_level = Self::get_log_level(file_config_path);
     Config {
-      dotenv,
       connections,
       generate_types_config,
       ignore_patterns,
