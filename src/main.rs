@@ -41,6 +41,16 @@ fn set_default_env_var() {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+  std::panic::set_hook(Box::new(|info| {
+    if let Some(s) = info.payload().downcast_ref::<&str>() {
+      eprint!("sqlx-ts has encountered an error: {}\n", s);
+    } else if let Some(s) = info.payload().downcast_ref::<String>() {
+      eprint!("sqlx-ts has encountered an error: {}\n", s);
+    } else {
+      eprint!("sqlx-ts has encountered an error: unknown error\n");
+    }
+  }));
+
   set_default_env_var();
 
   let source_folder = &CLI_ARGS.path;
