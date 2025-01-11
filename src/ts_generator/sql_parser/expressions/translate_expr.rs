@@ -96,8 +96,8 @@ pub fn translate_column_name_assignment(assignment: &Assignment) -> Option<Strin
 /// some_field = $1
 /// some_table.some_field = $1
 pub async fn get_sql_query_param(
-  left: &Box<Expr>,
-  right: &Box<Expr>,
+  left: &Expr,
+  right: &Expr,
   single_table_name: &Option<&str>,
   table_with_joins: &Option<Vec<TableWithJoins>>,
   db_conn: &DBConn,
@@ -262,7 +262,7 @@ pub async fn translate_expr(
         if let Some((value, is_nullable, index)) = result {
           let array_item = TsFieldType::Array(Box::new(value));
 
-          let _ = ts_query.insert_param(&array_item, &false, &index);
+          let _ = ts_query.insert_param(&array_item, &is_nullable, &index);
           return Ok(());
         } else {
           return Ok(());

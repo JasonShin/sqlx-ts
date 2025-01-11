@@ -35,9 +35,12 @@ lazy_static! {
                         let mysql_cred = CONFIG.get_mysql_cred_str(connection_config);
                         let mysql_cred = mysql_cred.as_str();
                         let manager = MySqlConnectionManager::new(mysql_cred.to_string());
-                        let pool = bb8::Pool::builder().max_size(connection_config.pool_size).build(manager)
+                        let pool = bb8::Pool::builder()
+                            .max_size(connection_config.pool_size)
+                            .build(manager)
                             .await
                             .expect(&ERR_DB_CONNECTION_ISSUE);
+
                         DBConn::MySQLPooledConn(Mutex::new(pool))
                     }))
                 }
@@ -45,9 +48,22 @@ lazy_static! {
                     task::block_in_place(|| Handle::current().block_on(async {
                         let postgres_cred = CONFIG.get_postgres_cred(connection_config);
                         let manager = PostgresConnectionManager::new(postgres_cred);
-                        let pool = bb8::Pool::builder().max_size(10).build(manager)
+                        let pool = bb8::Pool::builder()
+                            .max_size(connection_config.pool_size)
+                            .build(manager)
                             .await
                             .expect(&ERR_DB_CONNECTION_ISSUE);
+
+                        {
+                            let conn = pool.get()
+                                .await
+                                .expect("Failed to acquire a connection from the pool");
+
+                            conn.execute("SELECT 1", &[])
+                                .await
+                                .expect("Failed to execute validation query during initialization");
+                        }
+
                         let db_conn = DBConn::PostgresConn(Mutex::new(pool));
 
                         let conn = match &db_conn {
@@ -64,10 +80,10 @@ lazy_static! {
                                     .await
                                     .expect(&ERR_DB_CONNECTION_ISSUE);
 
-                                let ERR_SEARCH_PATH_QUERY = format!("Failed to execute the search_path query {:?}", search_path_query.as_str());
-                                let ERR_SEARCH_PATH_QUERY = ERR_SEARCH_PATH_QUERY.as_str();
+                                let err_search_path_query = format!("Failed to execute the search_path query {:?}", search_path_query.as_str());
+                                let err_search_path_query = err_search_path_query.as_str();
                                 conn.execute(&search_path_query, &[]).await
-                                    .expect(ERR_SEARCH_PATH_QUERY);
+                                    .expect(err_search_path_query);
                             }
                         }
                         db_conn

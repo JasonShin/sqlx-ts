@@ -1,6 +1,7 @@
 // TODO: Add documentation including examples
 // TODO: Use SQLX_TS_LOG env var to set log level
 
+#[allow(unused_macros)]
 macro_rules! debug {
     ($arg:tt) => ({
         use crate::common::lazy::CONFIG;
@@ -75,6 +76,7 @@ macro_rules! warning {
 
 pub(crate) use warning;
 
+#[allow(unused_macros)]
 macro_rules! error {
     ($arg:tt) => ({
         use crate::common::lazy::CONFIG;

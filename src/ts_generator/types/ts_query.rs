@@ -20,8 +20,10 @@ pub enum TsFieldType {
   Null,
   Enum(Vec<String>),
   Any,
+  #[allow(dead_code)]
   Array2D(Array2DContent),
   Array(Box<TsFieldType>),
+  #[allow(dead_code)]
   Never,
 }
 

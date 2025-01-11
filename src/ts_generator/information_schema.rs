@@ -18,20 +18,9 @@ pub struct Field {
 
 pub type Fields = HashMap<String, Field>;
 
-#[derive(Clone, PartialEq)]
-struct ColumnsQueryResultRow {
-  column_name: String,
-  data_type: String,
-  is_nullable: bool,
-}
-
 pub struct DBSchema {
   // Holds cache details for table / columns of the target database
   tables_cache: HashMap<String, Fields>,
-  // Holds cache details for enums that exists in the target database
-  enums_cache: HashMap<String, HashMap<String, Vec<String>>>,
-  // A flag to track if we have already tried to fetch enum and cache it
-  has_cached_enums: bool,
 }
 
 impl Default for DBSchema {
@@ -44,8 +33,6 @@ impl DBSchema {
   pub fn new() -> DBSchema {
     DBSchema {
       tables_cache: HashMap::new(),
-      enums_cache: HashMap::new(),
-      has_cached_enums: false,
     }
   }
 

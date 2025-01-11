@@ -9,6 +9,7 @@ pub enum TsGeneratorError {
   EmptyQueryNameFromAnnotation(String),
   #[error("[E003] Missing alias when handling functions - query: `{0}`")]
   MissingAliasForFunctions(String),
+  #[allow(dead_code)]
   #[error("[E004] Invalid Typescript file path - file path: `{0}`")]
   InvalidTypescriptFilePath(PathBuf),
   #[error("[E005] Failed to handle a wildcard statement without target tables in `FROM` statement - query: `{0}`")]
@@ -23,8 +24,6 @@ pub enum TsGeneratorError {
   FunctionWithoutAliasInSelectClause(String),
   #[error("[E010] Unknown function detected while processing a SELECT clause - query: `{0}`")]
   FunctionUnknown(String),
-  #[error("[E011] table name was not found while processing an identifier - query: `{0}`")]
-  IdentifierWithoutTable(String),
   // Errors while handling FROM statement
   #[error("[E012] Failed to handle a from statement without the `FROM` keyword - query: `{0}`")]
   FromWithoutKeyword(String),

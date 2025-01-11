@@ -25,12 +25,12 @@ extern crate dotenv;
 
 use crate::core::execute::execute;
 
-use sqlx_ts::ts_generator::generator::clear_single_ts_file_if_exists;
 use std::env;
 
 use crate::common::lazy::CLI_ARGS;
 use crate::common::logger::*;
 use crate::{parser::parse_source, scan_folder::scan_folder};
+use crate::ts_generator::generator::clear_single_ts_file_if_exists;
 use color_eyre::eyre::Result;
 
 fn set_default_env_var() {
@@ -41,12 +41,22 @@ fn set_default_env_var() {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+  std::panic::set_hook(Box::new(|info| {
+    if let Some(s) = info.payload().downcast_ref::<&str>() {
+      eprint!("sqlx-ts has encountered an error: {}\n", s);
+    } else if let Some(s) = info.payload().downcast_ref::<String>() {
+      eprint!("sqlx-ts has encountered an error: {}\n", s);
+    } else {
+      eprint!("sqlx-ts has encountered an error: unknown error\n");
+    }
+  }));
+
   set_default_env_var();
 
   let source_folder = &CLI_ARGS.path;
   let ext = &CLI_ARGS.ext;
 
-  info!("Scanning {:?} for SQLs with extension {:?}", source_folder, ext);
+  info!("Scanning {:?} for SQLs with extension {}", source_folder, ext);
 
   // If CLI_ARGS.generate_types is true, it will clear the single TS file so `execute` will generate a new one from scratch
   clear_single_ts_file_if_exists()?;
@@ -54,7 +64,7 @@ async fn main() -> Result<()> {
   let files = scan_folder(source_folder, ext);
   if files.is_empty() {
     info!(
-      "No targets detected, is it an empty folder? - source_folder: {:?}, ext: {:?}",
+      "No targets detected, is it an empty folder? - source_folder: {:?}, ext: {}",
       source_folder, ext
     );
     std::process::exit(0);
