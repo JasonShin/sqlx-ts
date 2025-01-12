@@ -9,7 +9,6 @@ use color_eyre::eyre::eyre;
 use clap::Parser;
 use lazy_static::lazy_static;
 use std::{collections::HashMap, sync::Arc};
-use bb8::ManageConnection;
 use tokio::{runtime::Handle, sync::Mutex, task};
 
 // The file contains all implicitly dependent variables or state that files need for the logic
@@ -31,6 +30,7 @@ lazy_static! {
             let connection_config = CONFIG.connections.get(connection)
                 .unwrap_or_else(|| panic!("Failed to find a correct connection from the configuration - {connection}"));
             let db_type = connection_config.db_type.to_owned();
+            println!("checking connection config {:?}", connection_config);
             let conn = match db_type {
                 DatabaseType::Mysql => {
                     task::block_in_place(|| Handle::current().block_on(async {
@@ -42,7 +42,7 @@ lazy_static! {
                             .build(manager)
                             .await
                             .expect(&ERR_DB_CONNECTION_ISSUE);
-
+                        println!("built pool for mysql");
                         DBConn::MySQLPooledConn(Mutex::new(pool))
                     }))
                 }
@@ -55,22 +55,6 @@ lazy_static! {
                             .build(manager)
                             .await
                             .expect(&ERR_DB_CONNECTION_ISSUE);
-
-                        {
-                            let conn = pool.get()
-                                .await
-                                .map_err(|e| eyre!(
-                                    "test test"
-                                ))
-                                .unwrap();
-
-                            conn.execute("SELECT 1", &[])
-                                .await
-                                .map_err(|e| eyre!(
-                                    "test test"
-                                ))
-                                .unwrap();
-                        }
 
                         let db_conn = DBConn::PostgresConn(Mutex::new(pool));
 

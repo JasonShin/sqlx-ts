@@ -61,6 +61,7 @@ async fn main() -> Result<()> {
   // If CLI_ARGS.generate_types is true, it will clear the single TS file so `execute` will generate a new one from scratch
   clear_single_ts_file_if_exists()?;
 
+  println!("checking before scan_folder");
   let files = scan_folder(source_folder, ext);
   if files.is_empty() {
     info!(
@@ -72,7 +73,9 @@ async fn main() -> Result<()> {
 
   for file_path in files.iter() {
     let (sqls, handler) = parse_source(file_path)?;
+    println!("retrieved SQLs {:?}", sqls);
     let failed = execute(&sqls, &handler).await?;
+    println!("has it failed? {:?}", failed);
     #[allow(clippy::print_stderr)]
     if failed {
       error!("SQLs failed to compile!\n");
