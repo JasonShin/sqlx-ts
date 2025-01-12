@@ -5,9 +5,11 @@ use crate::core::connection::{DBConn, DBConnections};
 use crate::core::mysql::pool::MySqlConnectionManager;
 use crate::core::postgres::pool::PostgresConnectionManager;
 use crate::ts_generator::information_schema::DBSchema;
+use color_eyre::eyre::eyre;
 use clap::Parser;
 use lazy_static::lazy_static;
 use std::{collections::HashMap, sync::Arc};
+use bb8::ManageConnection;
 use tokio::{runtime::Handle, sync::Mutex, task};
 
 // The file contains all implicitly dependent variables or state that files need for the logic
@@ -57,11 +59,17 @@ lazy_static! {
                         {
                             let conn = pool.get()
                                 .await
-                                .expect("Failed to acquire a connection from the pool");
+                                .map_err(|e| eyre!(
+                                    "test test"
+                                ))
+                                .unwrap();
 
                             conn.execute("SELECT 1", &[])
                                 .await
-                                .expect("Failed to execute validation query during initialization");
+                                .map_err(|e| eyre!(
+                                    "test test"
+                                ))
+                                .unwrap();
                         }
 
                         let db_conn = DBConn::PostgresConn(Mutex::new(pool));

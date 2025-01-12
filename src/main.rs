@@ -29,8 +29,8 @@ use std::env;
 
 use crate::common::lazy::CLI_ARGS;
 use crate::common::logger::*;
-use crate::{parser::parse_source, scan_folder::scan_folder};
 use crate::ts_generator::generator::clear_single_ts_file_if_exists;
+use crate::{parser::parse_source, scan_folder::scan_folder};
 use color_eyre::eyre::Result;
 
 fn set_default_env_var() {
@@ -43,11 +43,11 @@ fn set_default_env_var() {
 async fn main() -> Result<()> {
   std::panic::set_hook(Box::new(|info| {
     if let Some(s) = info.payload().downcast_ref::<&str>() {
-      eprint!("sqlx-ts has encountered an error: {}\n", s);
+      error!("encountered an error: {}\n", s);
     } else if let Some(s) = info.payload().downcast_ref::<String>() {
-      eprint!("sqlx-ts has encountered an error: {}\n", s);
+      error!("encountered an error: {}\n", s);
     } else {
-      eprint!("sqlx-ts has encountered an error: unknown error\n");
+      error!("encountered an error: unknown error\n");
     }
   }));
 
@@ -56,7 +56,7 @@ async fn main() -> Result<()> {
   let source_folder = &CLI_ARGS.path;
   let ext = &CLI_ARGS.ext;
 
-  info!("Scanning {:?} for SQLs with extension {}", source_folder, ext);
+  info!("Scanning {:?} for SQLs with extension {}\n", source_folder, ext);
 
   // If CLI_ARGS.generate_types is true, it will clear the single TS file so `execute` will generate a new one from scratch
   clear_single_ts_file_if_exists()?;
@@ -64,7 +64,7 @@ async fn main() -> Result<()> {
   let files = scan_folder(source_folder, ext);
   if files.is_empty() {
     info!(
-      "No targets detected, is it an empty folder? - source_folder: {:?}, ext: {}",
+      "No targets detected, is it an empty folder? - source_folder: {:?}, ext: {}\n",
       source_folder, ext
     );
     std::process::exit(0);
@@ -75,12 +75,12 @@ async fn main() -> Result<()> {
     let failed = execute(&sqls, &handler).await?;
     #[allow(clippy::print_stderr)]
     if failed {
-      eprint!("SQLs failed to compile!");
+      error!("SQLs failed to compile!\n");
       std::process::exit(1)
     }
   }
 
-  info!("No SQL errors detected!");
+  info!("No SQL errors detected!\n");
   // NOTE: There are different exit code depending on the platform https://doc.rust-lang.org/std/process/fn.exit.html#platform-specific-behavior
   // Make sure to consider exit code all major platforms
   std::process::exit(0);

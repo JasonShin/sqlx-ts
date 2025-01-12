@@ -15,7 +15,7 @@
     },
     "db_mysql": {
       "DB_TYPE": "mysql",
-      "DB_HOST": "127.0.0.1",
+      "DB_HOST": "127.0.0.12",
       "DB_PORT": 33306,
       "DB_USER": "root",
       "DB_NAME": "sqlx-ts"
