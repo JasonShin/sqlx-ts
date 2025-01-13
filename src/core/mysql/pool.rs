@@ -11,7 +11,10 @@ pub struct MySqlConnectionManager {
 
 impl MySqlConnectionManager {
   pub fn new(conn_url: String, connection_name: String) -> Self {
-    Self { conn_url, connection_name }
+    Self {
+      conn_url,
+      connection_name,
+    }
   }
 }
 
