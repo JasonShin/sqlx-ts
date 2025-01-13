@@ -43,12 +43,13 @@ fn set_default_env_var() {
 async fn main() -> Result<()> {
   std::panic::set_hook(Box::new(|info| {
     if let Some(s) = info.payload().downcast_ref::<&str>() {
-      error!("encountered an error: {}\n", s);
+      error!("{}\n", s);
     } else if let Some(s) = info.payload().downcast_ref::<String>() {
-      error!("encountered an error: {}\n", s);
+      error!("{}\n", s);
     } else {
-      error!("encountered an error: unknown error\n");
+      error!("unknown error\n");
     }
+    std::process::exit(1)
   }));
 
   set_default_env_var();

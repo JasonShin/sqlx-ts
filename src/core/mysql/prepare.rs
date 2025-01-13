@@ -30,8 +30,7 @@ pub async fn prepare(
     println!("getting a locked conn");
     let mut conn = conn
       .get()
-      .await
-      .expect("Failed to retrieve a connection from the pool. Consider increasing the connection pool size");
+      .await?;
     println!("get conn {:?}", conn);
     let result = conn.query::<Row, String>(explain_query).await;
     println!("got prepare result {:?}", result);

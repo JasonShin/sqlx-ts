@@ -28,21 +28,22 @@ lazy_static! {
         let mut cache = HashMap::new();
         for connection in CONFIG.connections.keys() {
             let connection_config = CONFIG.connections.get(connection)
-                .unwrap_or_else(|| panic!("Failed to find a correct connection from the configuration - {connection}"));
+                .unwrap_or_else(|| panic!("Invalid connection name - {connection}"));
             let db_type = connection_config.db_type.to_owned();
-            println!("checking connection config {:?}", connection_config);
+            println!("checking connection config {:?}", connection);
             let conn = match db_type {
                 DatabaseType::Mysql => {
                     task::block_in_place(|| Handle::current().block_on(async {
                         let mysql_cred = CONFIG.get_mysql_cred_str(connection_config);
                         let mysql_cred = mysql_cred.as_str();
-                        let manager = MySqlConnectionManager::new(mysql_cred.to_string());
+                        let manager = MySqlConnectionManager::new(mysql_cred.to_string(), connection.to_string());
                         let pool = bb8::Pool::builder()
                             .max_size(connection_config.pool_size)
+                            // .connection_timeout(std::time::Duration::from_secs(2))
                             .build(manager)
                             .await
                             .expect(&ERR_DB_CONNECTION_ISSUE);
-                        println!("built pool for mysql");
+
                         DBConn::MySQLPooledConn(Mutex::new(pool))
                     }))
                 }

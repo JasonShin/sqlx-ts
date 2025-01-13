@@ -23,7 +23,9 @@ pub async fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) ->
       let connection = &connection.get_connection(&sql.query).clone();
       let connection = &connection.lock().await;
 
+      println!("checking connection is fine");
       let (explain_failed, ts_query) = &connection.prepare(sql, should_generate_types, handler).await?;
+      println!("executed prepare");
 
       // If any prepare statement fails, we should set the failed flag as true
       failed = *explain_failed;
