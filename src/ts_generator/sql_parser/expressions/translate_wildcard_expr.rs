@@ -65,7 +65,6 @@ pub async fn translate_wildcard_expr(
 ) -> Result<(), TsGeneratorError> {
   let table_with_joins = get_all_table_names_from_expr(query)?;
 
-  println!("checking table with wildcard joins {:?}", table_with_joins);
   if table_with_joins.len() > 1 {
     warning!("Impossible to calculate appropriate field names of a wildcard query with multiple tables. Please use explicit field names instead. Query: {}", query.to_string());
   }

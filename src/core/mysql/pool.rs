@@ -24,25 +24,37 @@ impl bb8::ManageConnection for MySqlConnectionManager {
     let connection_name = &self.connection_name;
     let conn_opts = Opts::from_url(self.conn_url.as_str())?;
 
-    // here we can check if the connection is valid or not
     let conn = Conn::new(conn_opts).await.map_err(|err| {
       match err {
-        Error::Driver(_) => {}
+        Error::Driver(driver_error) => {
+          panic!("Driver error occurred while connecting to MySQL database - connection: {connection_name}, error: {driver_error}");
+        }
         Error::Io(io_err) => {
           match io_err {
             IoError::Io(io_err) => {
               if io_err.kind() == std::io::ErrorKind::ConnectionRefused {
                 panic!("Connection Refused - check your connection config for MySQL database - connection: {connection_name}")
+              } else {
+                panic!("I/O error occurred while connection to MySQL database - connection: {connection_name}, error: {io_err}")
               }
             }
-            IoError::Tls(_) => {}
+            IoError::Tls(tls_err) => {
+              panic!("TLS error occurred while connecting to MySQL database - connection: {connection_name}, error: {tls_err}");
+            }
           }
         }
-        Error::Other(_) => {}
-        Error::Server(_) => {}
-        Error::Url(_) => {}
+        Error::Other(other_err) => {
+          panic!("An unexpected error occurred while connecting to MySQL database - connection: {connection_name}, error: {other_err}");
+        }
+        Error::Server(server_err) => {
+          panic!("Server error occurred while connecting to MySQL database - connection: {connection_name}, error: {server_err}");
+        }
+        Error::Url(_) => {
+          panic!("Invalid URL format for MySQL connection string - connection: {connection_name}");
+        }
       }
     }).unwrap();
+
     Ok(conn)
   }
 

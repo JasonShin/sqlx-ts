@@ -30,7 +30,6 @@ lazy_static! {
             let connection_config = CONFIG.connections.get(connection)
                 .unwrap_or_else(|| panic!("Invalid connection name - {connection}"));
             let db_type = connection_config.db_type.to_owned();
-            println!("checking connection config {:?}", connection);
             let conn = match db_type {
                 DatabaseType::Mysql => {
                     task::block_in_place(|| Handle::current().block_on(async {
