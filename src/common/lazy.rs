@@ -7,7 +7,6 @@ use crate::core::postgres::pool::PostgresConnectionManager;
 use crate::ts_generator::information_schema::DBSchema;
 use clap::Parser;
 use color_eyre::eyre::eyre;
-use lazy_static::lazy_static;
 use std::sync::LazyLock;
 use std::{collections::HashMap, sync::Arc};
 use tokio::{runtime::Handle, sync::Mutex, task};
