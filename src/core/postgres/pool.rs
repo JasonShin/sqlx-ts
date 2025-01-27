@@ -27,6 +27,29 @@ impl bb8::ManageConnection for PostgresConnectionManager {
     tokio::spawn(async move { connection.await.map(|_| ()) });
     Ok(client)
   }
+  //
+  // async fn connect(&self) -> Result<Client, Error> {
+  //   match tokio_postgres::connect(&self.conn_url, NoTls).await {
+  //     Ok((client, connection)) => {
+  //       tokio::spawn(async move {
+  //         if let Err(err) = connection.await {
+  //           panic!("Unexpected error occurred in the Postgres database connection");
+  //         }
+  //       });
+  //       Ok(client)
+  //     }
+  //     Err(err) => {
+  //       match err {
+  //         tokio_postgres::Error::Io(io_err) {
+  //           panic!(
+  //             "Connection refused - check if the database server is running and accessible"
+  //           );
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
+  //
 
   async fn is_valid(&self, client: &mut Client) -> Result<(), Error> {
     client.simple_query("SELECT 1;").await.map(|_| ())
