@@ -27,10 +27,7 @@ pub async fn prepare(
     let explain_query = format!("PREPARE stmt FROM \"{}\"", sql.query);
     let span = sql.span.to_owned();
     let conn = conn.lock().await;
-    let mut conn = conn
-      .get()
-      .await
-      .expect("Failed to retrieve a connection from the pool. Consider increasing the connection pool size");
+    let mut conn = conn.get().await?;
     let result = conn.query::<Row, String>(explain_query).await;
 
     if let Err(err) = result {
