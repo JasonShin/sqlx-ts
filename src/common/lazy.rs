@@ -6,15 +6,14 @@ use crate::core::mysql::pool::MySqlConnectionManager;
 use crate::core::postgres::pool::PostgresConnectionManager;
 use crate::ts_generator::information_schema::DBSchema;
 use clap::Parser;
-use color_eyre::eyre::eyre;
 use std::sync::LazyLock;
 use std::{collections::HashMap, sync::Arc};
 use tokio::{runtime::Handle, sync::Mutex, task};
 
 // The file contains all implicitly dependent variables or state that files need for the logic
 // We have a lot of states that we need to drill down into each methods
-pub static CLI_ARGS: LazyLock<Cli> = LazyLock::new(|| Cli::parse());
-pub static CONFIG: LazyLock<Config> = LazyLock::new(|| Config::new());
+pub static CLI_ARGS: LazyLock<Cli> = LazyLock::new(Cli::parse);
+pub static CONFIG: LazyLock<Config> = LazyLock::new(Config::new);
 
 // This is a holder for shared DBSChema used to fetch information for information_schema table
 // By having a singleton, we can think about caching the result if we are fetching a query too many times
