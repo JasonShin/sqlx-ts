@@ -101,3 +101,4 @@ macro_rules! error {
     });
 }
 
+pub(crate) use error;

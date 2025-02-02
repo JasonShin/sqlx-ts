@@ -20,11 +20,21 @@ impl bb8::ManageConnection for PostgresConnectionManager {
   type Error = Error;
 
   async fn connect(&self) -> Result<Client, Error> {
-    let (client, connection) = tokio_postgres::connect(&self.conn_url, NoTls).await?;
+    let (client, connection) = tokio_postgres::connect(&self.conn_url, NoTls).await.map_err(|err| {
+      match err.as_db_error() {
+        Some(db_err) => {
+          let message = format!("Postgres database connection error - code: {:?}, message: {:?}", db_err.code(), db_err.message());
+          panic!("{message}")
+        }
+        None => panic!("PostgreSQL connection error: {err}"),
+      }
+    })?;
 
     // The connection object performs the actual communication with the database,
     // so spawn it off to run on its own.
-    tokio::spawn(async move { connection.await.map(|_| ()) });
+    tokio::spawn(async move {
+      connection.await.map(|_| ())
+    });
     Ok(client)
   }
   //
