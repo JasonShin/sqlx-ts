@@ -42,7 +42,7 @@ pub static DB_CONN_CACHE: LazyLock<HashMap<String, Arc<Mutex<DBConn>>>> = LazyLo
             let manager = MySqlConnectionManager::new(mysql_cred.to_string(), connection.to_string());
             let pool = bb8::Pool::builder()
               .max_size(connection_config.pool_size)
-              // .connection_timeout(std::time::Duration::from_secs(2))
+              .connection_timeout(std::time::Duration::from_secs(connection_config.connection_timeout))
               .build(manager)
               .await
               .expect(&ERR_DB_CONNECTION_ISSUE);
@@ -57,6 +57,7 @@ pub static DB_CONN_CACHE: LazyLock<HashMap<String, Arc<Mutex<DBConn>>>> = LazyLo
           let manager = PostgresConnectionManager::new(postgres_cred);
           let pool = bb8::Pool::builder()
             .max_size(connection_config.pool_size)
+            .connection_timeout(std::time::Duration::from_secs(connection_config.connection_timeout))
             .build(manager)
             .await
             .expect(&ERR_DB_CONNECTION_ISSUE);
