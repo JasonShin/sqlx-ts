@@ -30,7 +30,6 @@ openssl = { version = "0.10.66", features = ["vendored"] }
 colored = "2.1.0"
 mysql_async = { version = "0.34.2", features = ["minimal"] }
 tokio-postgres = "0.7.11"
-postgres = "0.19.9"
 tokio = { version = "1.40.0", features = ["rt-multi-thread", "macros", "default"]}
 async-recursion = "1.1.1"
 async-trait = "0.1.82"

@@ -1724,20 +1724,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "953ec861398dccce10c670dfeaf3ec4911ca479e9c02154b3a215178c5f566f2"
 
 [[package]]
-name = "postgres"
-version = "0.19.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "95c918733159f4d55d2ceb262950f00b0aebd6af4aa97b5a47bb0655120475ed"
-dependencies = [
- "bytes",
- "fallible-iterator",
- "futures-util",
- "log",
- "tokio",
- "tokio-postgres",
-]
-
-[[package]]
 name = "postgres-protocol"
 version = "0.6.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2300,7 +2286,6 @@ dependencies = [
  "dotenv",
  "mysql_async",
  "openssl",
- "postgres",
  "predicates",
  "pretty_assertions",
  "rand",
