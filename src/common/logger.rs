@@ -100,4 +100,5 @@ macro_rules! error {
     });
 }
 
+#[allow(unused_macros)]
 pub(crate) use error;
