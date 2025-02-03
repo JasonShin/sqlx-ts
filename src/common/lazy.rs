@@ -34,23 +34,21 @@ pub static DB_CONN_CACHE: LazyLock<HashMap<String, Arc<Mutex<DBConn>>>> = LazyLo
       .unwrap_or_else(|| panic!("Invalid connection name - {connection}"));
     let db_type = connection_config.db_type.to_owned();
     let conn = match db_type {
-      DatabaseType::Mysql => {
-        task::block_in_place(|| {
-          Handle::current().block_on(async {
-            let mysql_cred = CONFIG.get_mysql_cred_str(connection_config);
-            let mysql_cred = mysql_cred.as_str();
-            let manager = MySqlConnectionManager::new(mysql_cred.to_string(), connection.to_string());
-            let pool = bb8::Pool::builder()
-              .max_size(connection_config.pool_size)
-              .connection_timeout(std::time::Duration::from_secs(connection_config.connection_timeout))
-              .build(manager)
-              .await
-              .expect(&ERR_DB_CONNECTION_ISSUE);
+      DatabaseType::Mysql => task::block_in_place(|| {
+        Handle::current().block_on(async {
+          let mysql_cred = CONFIG.get_mysql_cred_str(connection_config);
+          let mysql_cred = mysql_cred.as_str();
+          let manager = MySqlConnectionManager::new(mysql_cred.to_string(), connection.to_string());
+          let pool = bb8::Pool::builder()
+            .max_size(connection_config.pool_size)
+            .connection_timeout(std::time::Duration::from_secs(connection_config.connection_timeout))
+            .build(manager)
+            .await
+            .expect(&ERR_DB_CONNECTION_ISSUE);
 
-            DBConn::MySQLPooledConn(Mutex::new(pool))
-          })
+          DBConn::MySQLPooledConn(Mutex::new(pool))
         })
-      }
+      }),
       DatabaseType::Postgres => task::block_in_place(|| {
         Handle::current().block_on(async {
           let postgres_cred = CONFIG.get_postgres_cred(connection_config);
