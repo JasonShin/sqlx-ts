@@ -76,7 +76,6 @@ macro_rules! warning {
 
 pub(crate) use warning;
 
-#[allow(unused_macros)]
 macro_rules! error {
     ($arg:tt) => ({
         use crate::common::lazy::CONFIG;
