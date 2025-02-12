@@ -12,7 +12,12 @@ use tokio::{runtime::Handle, sync::Mutex, task};
 
 // The file contains all implicitly dependent variables or state that files need for the logic
 // We have a lot of states that we need to drill down into each methods
-pub static CLI_ARGS: LazyLock<Cli> = LazyLock::new(Cli::parse);
+pub static CLI_ARGS: LazyLock<Cli> = LazyLock::new(|| {
+  println!("Initializing CLI ARGS");
+  let cli = Cli::parse();
+  println!("parsed CLI {:?}", cli);
+  cli
+});
 pub static CONFIG: LazyLock<Config> = LazyLock::new(Config::new);
 
 // This is a holder for shared DBSChema used to fetch information for information_schema table
@@ -26,6 +31,7 @@ pub static ERR_DB_CONNECTION_ISSUE: LazyLock<String> = LazyLock::new(|| {
 // This variable holds database connections for each connection name that is defined in the config
 // We are using lazy_static to initialize the connections once and use them throughout the application
 pub static DB_CONN_CACHE: LazyLock<HashMap<String, Arc<Mutex<DBConn>>>> = LazyLock::new(|| {
+  LazyLock::force(&CONFIG);
   let mut cache = HashMap::new();
   for connection in CONFIG.connections.keys() {
     let connection_config = CONFIG

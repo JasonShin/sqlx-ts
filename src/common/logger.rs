@@ -78,16 +78,26 @@ pub(crate) use warning;
 
 macro_rules! error {
     ($arg:tt) => ({
-        use colored::*;
-        let level = "[ERROR]".red();
-        let message = $arg;
-        eprintln!("{level} {message}")
+        use crate::common::lazy::CONFIG;
+        use crate::common::types::LogLevel;
+
+        if CONFIG.log_level.gte(&LogLevel::Error) {
+            use colored::*;
+            let level = "[ERROR]".red();
+            let message = $arg;
+            eprintln!("{level} {message}")
+        }
     });
     ($arg:tt, $($arg2:tt)*) => ({
-        use colored::*;
-        let level = "[ERROR]".red();
-        let message = format!("{}", format!($arg, $($arg2)*));
-        eprintln!("{level} {message}")
+        use crate::common::lazy::CONFIG;
+        use crate::common::types::LogLevel;
+
+        if CONFIG.log_level.gte(&LogLevel::Error) {
+            use colored::*;
+            let level = "[ERROR]".red();
+            let message = format!("{}", format!($arg, $($arg2)*));
+            eprintln!("{level} {message}")
+        }
     });
 }
 

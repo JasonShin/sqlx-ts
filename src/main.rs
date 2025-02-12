@@ -23,11 +23,12 @@ mod ts_generator;
 extern crate clap;
 extern crate dotenv;
 
+use std::cell::LazyCell;
 use crate::core::execute::execute;
 
 use std::env;
-
-use crate::common::lazy::CLI_ARGS;
+use std::sync::LazyLock;
+use crate::common::lazy::{CLI_ARGS, CONFIG};
 use crate::common::logger::*;
 use crate::ts_generator::generator::clear_single_ts_file_if_exists;
 use crate::{parser::parse_source, scan_folder::scan_folder};
@@ -41,6 +42,9 @@ fn set_default_env_var() {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+  LazyLock::force(&CLI_ARGS);
+  LazyLock::force(&CONFIG);
+  println!("before set hook");
   std::panic::set_hook(Box::new(|info| {
     if let Some(s) = info.payload().downcast_ref::<&str>() {
       error!("{}\n", s);
@@ -52,7 +56,10 @@ async fn main() -> Result<()> {
     std::process::exit(1)
   }));
 
+  println!("after sethook");
+
   set_default_env_var();
+
 
   let source_folder = &CLI_ARGS.path;
   let ext = &CLI_ARGS.ext;
@@ -63,6 +70,7 @@ async fn main() -> Result<()> {
   clear_single_ts_file_if_exists()?;
 
   let files = scan_folder(source_folder, ext);
+
   if files.is_empty() {
     info!(
       "No targets detected, is it an empty folder? - source_folder: {:?}, ext: {}",
