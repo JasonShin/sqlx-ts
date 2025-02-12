@@ -31,7 +31,6 @@ pub static ERR_DB_CONNECTION_ISSUE: LazyLock<String> = LazyLock::new(|| {
 // This variable holds database connections for each connection name that is defined in the config
 // We are using lazy_static to initialize the connections once and use them throughout the application
 pub static DB_CONN_CACHE: LazyLock<HashMap<String, Arc<Mutex<DBConn>>>> = LazyLock::new(|| {
-  LazyLock::force(&CONFIG);
   let mut cache = HashMap::new();
   for connection in CONFIG.connections.keys() {
     let connection_config = CONFIG

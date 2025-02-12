@@ -44,7 +44,7 @@ fn set_default_env_var() {
 async fn main() -> Result<()> {
   LazyLock::force(&CLI_ARGS);
   LazyLock::force(&CONFIG);
-  println!("before set hook");
+
   std::panic::set_hook(Box::new(|info| {
     if let Some(s) = info.payload().downcast_ref::<&str>() {
       error!("{}\n", s);
@@ -55,8 +55,6 @@ async fn main() -> Result<()> {
     }
     std::process::exit(1)
   }));
-
-  println!("after sethook");
 
   set_default_env_var();
 
