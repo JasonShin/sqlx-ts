@@ -108,7 +108,6 @@ pub fn process_class_decl(sqls: &mut Vec<SQL>, class: &ClassDecl, import_alias: 
 }
 
 pub fn process_decl(sqls: &mut Vec<SQL>, decl: &Decl, import_alias: &String) -> Result<()> {
-  println!("checking decl {:?}", decl);
   match decl {
     Decl::Class(class) => {
       process_class_decl(sqls, class, import_alias)?;
