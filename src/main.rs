@@ -23,16 +23,16 @@ mod ts_generator;
 extern crate clap;
 extern crate dotenv;
 
-use std::cell::LazyCell;
 use crate::core::execute::execute;
+use std::cell::LazyCell;
 
-use std::env;
-use std::sync::LazyLock;
 use crate::common::lazy::*;
 use crate::common::logger::*;
 use crate::ts_generator::generator::clear_single_ts_file_if_exists;
 use crate::{parser::parse_source, scan_folder::scan_folder};
 use color_eyre::eyre::Result;
+use std::env;
+use std::sync::LazyLock;
 
 fn set_default_env_var() {
   if env::var("SQLX_TS_LOG").is_err() {
