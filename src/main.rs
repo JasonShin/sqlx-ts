@@ -24,14 +24,15 @@ extern crate clap;
 extern crate dotenv;
 
 use crate::core::execute::execute;
+use std::cell::LazyCell;
 
-use sqlx_ts::ts_generator::generator::clear_single_ts_file_if_exists;
-use std::env;
-
-use crate::common::lazy::CLI_ARGS;
+use crate::common::lazy::*;
 use crate::common::logger::*;
+use crate::ts_generator::generator::clear_single_ts_file_if_exists;
 use crate::{parser::parse_source, scan_folder::scan_folder};
 use color_eyre::eyre::Result;
+use std::env;
+use std::sync::LazyLock;
 
 fn set_default_env_var() {
   if env::var("SQLX_TS_LOG").is_err() {
@@ -41,20 +42,39 @@ fn set_default_env_var() {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+  LazyLock::force(&CLI_ARGS);
+  LazyLock::force(&CONFIG);
+  LazyLock::force(&DB_SCHEMA);
+  LazyLock::force(&ERR_DB_CONNECTION_ISSUE);
+  LazyLock::force(&DB_CONN_CACHE);
+  LazyLock::force(&DB_CONNECTIONS);
+
+  std::panic::set_hook(Box::new(|info| {
+    if let Some(s) = info.payload().downcast_ref::<&str>() {
+      error!("{}\n", s);
+    } else if let Some(s) = info.payload().downcast_ref::<String>() {
+      error!("{}\n", s);
+    } else {
+      error!("unknown error\n");
+    }
+    std::process::exit(1)
+  }));
+
   set_default_env_var();
 
   let source_folder = &CLI_ARGS.path;
   let ext = &CLI_ARGS.ext;
 
-  info!("Scanning {:?} for SQLs with extension {:?}", source_folder, ext);
+  info!("Scanning {:?} for SQLs with extension {}", source_folder, ext);
 
   // If CLI_ARGS.generate_types is true, it will clear the single TS file so `execute` will generate a new one from scratch
   clear_single_ts_file_if_exists()?;
 
   let files = scan_folder(source_folder, ext);
+
   if files.is_empty() {
     info!(
-      "No targets detected, is it an empty folder? - source_folder: {:?}, ext: {:?}",
+      "No targets detected, is it an empty folder? - source_folder: {:?}, ext: {}",
       source_folder, ext
     );
     std::process::exit(0);
@@ -65,12 +85,12 @@ async fn main() -> Result<()> {
     let failed = execute(&sqls, &handler).await?;
     #[allow(clippy::print_stderr)]
     if failed {
-      eprint!("SQLs failed to compile!");
+      error!("SQLs failed to compile!\n");
       std::process::exit(1)
     }
   }
 
-  info!("No SQL errors detected!");
+  info!("No SQL errors detected!\n");
   // NOTE: There are different exit code depending on the platform https://doc.rust-lang.org/std/process/fn.exit.html#platform-specific-behavior
   // Make sure to consider exit code all major platforms
   std::process::exit(0);

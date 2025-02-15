@@ -145,8 +145,8 @@ pub fn process_decl(sqls: &mut Vec<SQL>, decl: &Decl, import_alias: &String) -> 
     Decl::TsTypeAlias(_) => {}
     Decl::TsEnum(_) => {}
     Decl::TsModule(module) => {
-      for stmt in &module.body {
-        for block in &stmt.as_ts_module_block() {
+      if let Some(stmt) = &module.body {
+        if let Some(block) = &stmt.as_ts_module_block() {
           for body in &block.body {
             let stmt = &body.clone().stmt();
             if let Some(stmt) = stmt {

@@ -1,6 +1,7 @@
 // TODO: Add documentation including examples
 // TODO: Use SQLX_TS_LOG env var to set log level
 
+#[allow(unused_macros)]
 macro_rules! debug {
     ($arg:tt) => ({
         use crate::common::lazy::CONFIG;
@@ -90,6 +91,7 @@ macro_rules! error {
     ($arg:tt, $($arg2:tt)*) => ({
         use crate::common::lazy::CONFIG;
         use crate::common::types::LogLevel;
+
         if CONFIG.log_level.gte(&LogLevel::Error) {
             use colored::*;
             let level = "[ERROR]".red();
@@ -98,3 +100,5 @@ macro_rules! error {
         }
     });
 }
+
+pub(crate) use error;

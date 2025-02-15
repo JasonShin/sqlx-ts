@@ -54,10 +54,16 @@ pub struct DbConnectionConfig {
   pub pg_search_path: Option<String>,
   #[serde(rename = "POOL_SIZE", default = "default_pool_size")]
   pub pool_size: u32,
+  #[serde(rename = "CONNECTION_TIMEOUT", default = "default_connection_timeout")]
+  pub connection_timeout: u64,
 }
 
 fn default_pool_size() -> u32 {
   10
+}
+
+fn default_connection_timeout() -> u64 {
+  5
 }
 
 /// Config is used to determine connection configurations for primary target Database
@@ -66,7 +72,6 @@ fn default_pool_size() -> u32 {
 /// 2. any dotenv configured options
 #[derive(Clone, Debug)]
 pub struct Config {
-  pub dotenv: Dotenv,
   pub generate_types_config: Option<GenerateTypesConfig>,
   pub connections: HashMap<String, DbConnectionConfig>,
   pub ignore_patterns: Vec<String>,
@@ -94,7 +99,6 @@ impl Config {
     let ignore_patterns = Self::get_ignore_patterns(&default_ignore_config_path);
     let log_level = Self::get_log_level(file_config_path);
     Config {
-      dotenv,
       connections,
       generate_types_config,
       ignore_patterns,
@@ -169,7 +173,7 @@ impl Config {
             "Empty or invalid JSON provided for file based configuration - config file: {:?}, error: {:?}",
             file_config_path, result,
           )
-        )
+        );
       }
 
       result.unwrap()
@@ -271,6 +275,11 @@ impl Config {
       .or_else(|| Some(default_pool_size()))
       .unwrap();
 
+    let connection_timeout = default_config
+      .map(|x| x.connection_timeout)
+      .or_else(|| Some(default_connection_timeout()))
+      .unwrap();
+
     DbConnectionConfig {
       db_type: db_type.to_owned(),
       db_host: db_host.to_owned(),
@@ -280,6 +289,7 @@ impl Config {
       db_name: db_name.to_owned(),
       pg_search_path: pg_search_path.to_owned(),
       pool_size,
+      connection_timeout,
     }
   }
 
