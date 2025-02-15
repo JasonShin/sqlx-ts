@@ -10,12 +10,14 @@ use swc_common::errors::Handler;
 
 pub async fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) -> Result<bool> {
   let mut failed = false;
+  println!("execute before config");
   let should_generate_types = &CONFIG
     .generate_types_config
     .to_owned()
     .filter(|x| x.enabled)
     .is_some();
 
+  println!("execute after config {:?}", should_generate_types);
   for (file_path, sqls) in queries {
     let mut sqls_to_write: Vec<String> = vec![];
     for sql in sqls {

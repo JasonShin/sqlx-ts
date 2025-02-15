@@ -108,6 +108,7 @@ pub fn process_class_decl(sqls: &mut Vec<SQL>, class: &ClassDecl, import_alias: 
 }
 
 pub fn process_decl(sqls: &mut Vec<SQL>, decl: &Decl, import_alias: &String) -> Result<()> {
+  println!("checking decl {:?}", decl);
   match decl {
     Decl::Class(class) => {
       process_class_decl(sqls, class, import_alias)?;
@@ -145,8 +146,8 @@ pub fn process_decl(sqls: &mut Vec<SQL>, decl: &Decl, import_alias: &String) -> 
     Decl::TsTypeAlias(_) => {}
     Decl::TsEnum(_) => {}
     Decl::TsModule(module) => {
-      while let Some(stmt) = &module.body {
-        while let Some(block) = &stmt.as_ts_module_block() {
+      if let Some(stmt) = &module.body {
+        if let Some(block) = &stmt.as_ts_module_block() {
           for body in &block.body {
             let stmt = &body.clone().stmt();
             if let Some(stmt) = stmt {

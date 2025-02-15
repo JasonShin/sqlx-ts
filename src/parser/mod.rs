@@ -111,6 +111,7 @@ fn recurse_and_find_sql(sqls: &mut Vec<SQL>, stmt: &Stmt, import_alias: &String)
     }
     Stmt::Decl(decl) => {
       process_decl(sqls, decl, import_alias)?;
+      println!("finished");
     }
     Stmt::Expr(expr) => {
       let span: MultiSpan = expr.span.into();
@@ -163,6 +164,7 @@ pub fn parse_source(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Handl
 
   let mut sqls_map: HashMap<PathBuf, Vec<SQL>> = HashMap::new();
 
+  println!("hrmm");
   let import_alias = _module
     .body
     .iter()
