@@ -12,12 +12,7 @@ use tokio::{runtime::Handle, sync::Mutex, task};
 
 // The file contains all implicitly dependent variables or state that files need for the logic
 // We have a lot of states that we need to drill down into each methods
-pub static CLI_ARGS: LazyLock<Cli> = LazyLock::new(|| {
-  println!("Initializing CLI ARGS");
-  let cli = Cli::parse();
-  println!("parsed CLI {:?}", cli);
-  cli
-});
+pub static CLI_ARGS: LazyLock<Cli> = LazyLock::new(Cli::parse);
 pub static CONFIG: LazyLock<Config> = LazyLock::new(Config::new);
 
 // This is a holder for shared DBSChema used to fetch information for information_schema table
