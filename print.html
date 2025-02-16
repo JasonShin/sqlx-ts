@@ -352,7 +352,8 @@ this name, unless you give it a custom path to override it using <code>--config<
       "DB_PASS": "password",
       "DB_HOST": "127.0.0.1",
       "DB_PORT": 3307,
-      "POOL_SIZE": 20
+      "POOL_SIZE": 20,
+      "CONNECTION_TIMEOUT": 10
     }
   }
 }
@@ -382,6 +383,7 @@ const postgresSQL = sql`
 <li><code>DB_PORT</code>: database port (e.g. 4321)</li>
 <li><code>PG_SEARCH_PATH</code>: PostgreSQL schema search path (default is "$user,public") <a href="https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH">https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH</a></li>
 <li><code>POOL_SIZE</code>: Size of the connection pool to establish per connection type</li>
+<li><code>CONNECTION_TIMEOUT</code>: Timeout in second of Database connection attempt</li>
 </ul>
 <h3 id="generate_types"><a class="header" href="#generate_types">generate_types</a></h3>
 <pre><code class="language-json">{
