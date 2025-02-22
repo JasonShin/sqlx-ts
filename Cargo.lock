@@ -2284,6 +2284,7 @@ dependencies = [
  "colored",
  "convert_case",
  "dotenv",
+ "log",
  "mysql_async",
  "openssl",
  "predicates",
