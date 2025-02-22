@@ -53,5 +53,84 @@ such as:
     </TabItem>
 </Tabs>
 
+or
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        # run sqlx-ts to validates SQLs and generate types
+        npx sqlx-ts --config=.sqlxrc.json ./src/app
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        # run sqlx-ts to validates SQLs and generate types
+        yarn dlx sqlx-ts --config=.sqlxrc.json ./src/app
+        ```
+    </TabItem>
+</Tabs>
+
+# Options
+
+You can view all the CLI options by running `npx sqlx-ts --help`
+
+```
+A tool for Javascript/Typescript for compile-time safe SQL queries
+
+USAGE:
+sqlx-ts [OPTIONS] <PATH>
+
+    ARGS:
+<PATH>    Path to the Typescript or Javascript project
+
+    OPTIONS:
+    --config <CONFIG>
+    Path to the file based configuration
+
+    --db-host <DB_HOST>
+    Primary DB host
+
+    --db-name <DB_NAME>
+    Primary DB database name
+
+    --db-pass <DB_PASS>
+    Primary DB pass
+
+    --db-port <DB_PORT>
+    Primary DB Port
+
+    --db-type <DB_TYPE>
+    Type of primary database to connect [possible values: postgres, mysql]
+
+    --db-user <DB_USER>
+    Primary DB user
+
+    --ext <EXT>
+    Javascript Extension [default: ts] [possible values: ts, js]
+
+    -g, --generate-types
+    generate types of raw SQLs using default configuration
+
+    --generate-path <GENERATE_PATH>
+    generates types in a target directory path or a file
+
+    -h, --help
+    Print help information
+
+    --ignore <IGNORE>...
+    Folder paths to ignore
+
+    --log-level <LOG_LEVEL>
+    log level to be used for the CLI debug > info > warn > error [possible values: debug,
+    info, warning, error]
+
+    -m, --message-format <MESSAGE_FORMAT>
 
 
+    --pg-search-path <PG_SEARCH_PATH>
+    PostgreSQL schema search path (default is "$user,public")
+    https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH
+
+    -V, --version
+    Print version information
+```
