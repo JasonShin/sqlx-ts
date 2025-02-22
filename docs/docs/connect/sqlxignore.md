@@ -1,4 +1,4 @@
-# .sqlxignore file
+# Ignore files
 
 you can use `.sqlxignore` file in order to ignore certain files from being processed by sqlx-ts.
 
