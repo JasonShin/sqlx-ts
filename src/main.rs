@@ -42,6 +42,7 @@ fn set_default_env_var() {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+  std::env::set_var("RUST_BACKTRACE", "0");
   LazyLock::force(&CLI_ARGS);
   LazyLock::force(&CONFIG);
   LazyLock::force(&DB_SCHEMA);
@@ -57,7 +58,6 @@ async fn main() -> Result<()> {
     } else {
       error!("unknown error\n");
     }
-    std::process::exit(1)
   }));
 
   set_default_env_var();

@@ -1,6 +1,7 @@
 use crate::common::dotenv::Dotenv;
-use crate::common::lazy::CLI_ARGS;
+use crate::common::lazy::{CLI_ARGS, CONFIG};
 use crate::common::types::{DatabaseType, LogLevel};
+use crate::common::logger::*;
 use regex::Regex;
 use serde;
 use serde::{Deserialize, Serialize};
@@ -9,7 +10,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
-
+use colored::Colorize;
 use super::types::NamingConvention;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -182,8 +183,13 @@ impl Config {
     let connections = &mut file_based_config
       .as_ref()
       .map(|config| config.connections.clone())
-      .unwrap_or_default();
+      .unwrap_or_else(|_| {
+        Self::warning(format!("Failed to read config file from the path: {:?}", file_config_path).as_str(), Self::get_log_level(file_config_path));
+        Default::default()
+      });
 
+
+    println!("connections hrmm {:?}", connections);
     connections.insert(
       "default".to_string(),
       Self::get_default_connection_config(dotenv, &connections.get("default")),
@@ -206,13 +212,10 @@ impl Config {
       .clone()
       .or_else(|| dotenv.db_type.clone())
       .or_else(|| default_config.map(|x| x.db_type.clone()))
-      .expect(
-        r"
-             Failed to fetch DB type.
-             Please provide it at least through a CLI arg or an environment variable or through
-             file based configuration
-             ",
-      );
+      .unwrap_or_else(|| {
+        Self::error("Unable to retrieve a database type, please check your configuration and try again");
+        panic!("")
+      });
 
     let db_host = &CLI_ARGS
       .db_host
@@ -359,5 +362,21 @@ impl Config {
     let log_level_from_file = file_based_config.as_ref().ok().and_then(|config| config.log_level);
 
     CLI_ARGS.log_level.or(log_level_from_file).unwrap_or(LogLevel::Info)
+  }
+
+  /// Custom logger for Config
+  /// lazy::logger cannot be used as it requires Config itself to be initialised
+  fn warning(message: &str, log_level: LogLevel) {
+    if log_level.gte(&LogLevel::Warning) {
+      let level = "[WARN]".yellow();
+      println!("{level} {message}");
+    }
+  }
+
+  /// Custom logger for Config
+  /// lazy::logger cannot be used as it requires Config itself to be initialised
+  fn error(message: &str) {
+    let level = "[ERROR]".red();
+    eprintln!("{level} {message}")
   }
 }
