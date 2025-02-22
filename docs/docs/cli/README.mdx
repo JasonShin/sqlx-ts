@@ -29,12 +29,26 @@ such as:
 <Tabs>
     <TabItem value="npm" label="npm" default>
         ```bash
-        npx sqlx-ts [options] <PATH>
+        # run sqlx-ts to validates SQLs and generate types
+        npx sqlx-ts \
+            --db-type=postgres \
+            --db-host=127.0.01 \
+            --db-port=54321 \
+            --db-user=postgres \
+            --db-pass=postgres \
+            ./src/app -g
         ```
     </TabItem>
     <TabItem value="yarn" label="yarn">
         ```bash
-        yarn sqlx-ts [options] <PATH>
+        # run sqlx-ts to validates SQLs and generate types
+        yarn dlx sqlx-ts \
+            --db-type=postgres \
+            --db-host=127.0.01 \
+            --db-port=54321 \
+            --db-user=postgres \
+            --db-pass=postgres \
+            ./src/app -g
         ```
     </TabItem>
 </Tabs>
