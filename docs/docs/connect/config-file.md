@@ -1,4 +1,4 @@
-# Config file
+# Configuration file
 
 If you have a project that you need requires connections to multiple databases, you can support 
 that by using file based configuration.

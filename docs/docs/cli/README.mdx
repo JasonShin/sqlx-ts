@@ -134,3 +134,148 @@ sqlx-ts [OPTIONS] <PATH>
     -V, --version
     Print version information
 ```
+
+# Basic Configuration
+
+### --config
+
+This option allows you to specify an additional configuration file for sqlx-ts. (See [Configuration File](/connect/config-file) for more)
+
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --config=.sqlxrc.json ./src/app
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --config=.sqlxrc.json ./src/app
+        ```
+    </TabItem>
+</Tabs>
+
+### --db-host
+
+URL to the database that sqlx-ts should point to
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --config=.sqlxrc.json --db-host=127.0.0.1 ./src/app
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --config=.sqlxrc.json --db-host=127.0.0.1 ./src/app
+        ```
+    </TabItem>
+</Tabs>
+
+### --db-name
+
+Name of the database that you connect to
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --config=.sqlxrc.json --db-name=sqlx ./src/app
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --config=.sqlxrc.json --db-name=sqlx ./src/app
+        ```
+    </TabItem>
+</Tabs>
+
+
+### --db-port
+
+Port number of the database that you connect to
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --config=.sqlxrc.json --db-port=3306 ./src/app
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --config=.sqlxrc.json --db-port=3306 ./src/app
+        ```
+    </TabItem>
+</Tabs>
+
+
+### --db-type
+
+Type of the database that you connect to. It can be either `mysql` or `postgres`
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --config=.sqlxrc.json --db-type=postgres ./src/app
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --config=.sqlxrc.json --db-type=postgres ./src/app
+        ```
+    </TabItem>
+</Tabs>
+
+
+### --db-user
+
+user of the database that you connect to
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --config=.sqlxrc.json --db-user=postgres ./src/app
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --config=.sqlxrc.json --db-user=postgres ./src/app
+        ```
+    </TabItem>
+</Tabs>
+
+
+### --ext
+
+File extensions to search. It can be either `ts` | `js` - [default: ts]
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --config=.sqlxrc.json --ext=ts ./src/app
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --config=.sqlxrc.json --ext=ts ./src/app
+        ```
+    </TabItem>
+</Tabs>
+
+
+
+### -g, --generate-types
+
+generate type definitions of SQLs detected by sqlx-ts
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --config=.sqlxrc.json --ext=ts ./src/app
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --config=.sqlxrc.json --ext=ts ./src/app
+        ```
+    </TabItem>
+</Tabs>
