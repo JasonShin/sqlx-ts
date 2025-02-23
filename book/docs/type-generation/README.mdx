@@ -12,13 +12,9 @@ your queries, reducing maintenance and improving reliability.
 The easiest way to enable type generation in SQLX-TS is by using the `-g` or `--generate-types` flag when running the SQLX-TS CLI.
 It can be configured through configuration file as well, [click here to learn more](/connect/config-file)
 
-```bash
-$ cargo run ./samples/type-generator-test --generate-types --config=<path to .sqlxrc.json>
 ```
-
-By default, sqlx-ts will generate type
-
-[Please read more about .sqlxrc.json here](./2.1.configs-file-based.md)
+$ cargo run --generate-types --config=.sqlxrc.json ./src/app
+```
 
 ## What's possible
 
