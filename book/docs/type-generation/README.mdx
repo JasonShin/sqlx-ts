@@ -16,7 +16,7 @@ It can be configured through configuration file as well, [click here to learn mo
 $ cargo run --generate-types --config=.sqlxrc.json ./src/app
 ```
 
-## What's possible
+## Capabilities
 
 sqlx-ts supports following type generations and other SQL syntax will be ignored from type generation
 
@@ -27,6 +27,7 @@ sqlx-ts supports following type generations and other SQL syntax will be ignored
 
 Also type generation supports parameterised query as per the requirements of PREPARE statements of the databases
 that sqlx-ts currently supports.
+
 - [MySQL PREPARE](https://dev.mysql.com/doc/refman/8.0/en/prepare.html)
 - [Postgres PREPARE](https://www.postgresql.org/docs/current/sql-prepare.html)
 
@@ -65,7 +66,13 @@ export interface ISimpleQueryQuery{
 sqlx-ts will pick up name of the variable and use it when generating the type definitions. You can override
 the type name by setting the `@name` annotation, you can read more in the section [below](#annotations).
 
-## Q/A
+
+
+### DELETE statements
+
+### Annotations for overrides
+
+## Q & A
 
 ##### Why doesn't SQLx support named parameterised queries? `e.g. SELECT * FROM items WHERE point = :point`
 
