@@ -7,13 +7,13 @@ sidebar_position: 2
 With npm:
 
 ```bash
-$ npm install sqlx-ts
+$ npm install --save-dev sqlx-ts
 ```
 
 With yarn:
 
 ```bash
-$ yarn add sqlx-ts
+$ yarn add --dev sqlx-ts
 ```
 
 Verify the installation of `sqlx-ts` binary by running
