@@ -332,3 +332,60 @@ be added to the base ignore patters (`*.queries.ts` and `*.queries.js` also the 
     </TabItem>
 </Tabs>
 
+
+### --log-level
+
+log level to be used for the CLI - level follows in this order: `debug > info > warning > error` [possible values: debug, info, warning, error].
+(default is `info`)
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --ignore=src/app/select.ts --log-level=error
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --ignore=src/app/select.ts --log-level=error
+        ```
+    </TabItem>
+</Tabs>
+
+
+
+### --pg-search-path
+
+PostgreSQL schema search path (default is "$user,public")
+https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --ignore=src/app/select.ts --pg-search-path=public,myschema
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --ignore=src/app/select.ts --pg-search-path=public,myschema
+        ```
+    </TabItem>
+</Tabs>
+
+
+### -V, --version
+
+Prints version information of sqlx-ts CLI
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --version
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --version
+        ```
+    </TabItem>
+</Tabs>
+
