@@ -322,12 +322,12 @@ be added to the base ignore patters (`*.queries.ts` and `*.queries.js` also the 
 <Tabs>
     <TabItem value="npm" label="npm" default>
         ```bash
-        npx sqlx-ts --help
+        npx sqlx-ts --ignore=src/app/select.ts --ignore=src/app/stuff --ignore src/app/select.*.ts
         ```
     </TabItem>
     <TabItem value="yarn" label="yarn">
         ```bash
-        yarn dlx sqlx-ts --help
+        yarn dlx sqlx-ts --ignore=src/app/select.ts --ignore=src/app/stuff --ignore src/app/select.*.ts
         ```
     </TabItem>
 </Tabs>
