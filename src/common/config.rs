@@ -1,7 +1,9 @@
+use super::types::NamingConvention;
 use crate::common::dotenv::Dotenv;
 use crate::common::lazy::{CLI_ARGS, CONFIG};
-use crate::common::types::{DatabaseType, LogLevel};
 use crate::common::logger::*;
+use crate::common::types::{DatabaseType, LogLevel};
+use colored::Colorize;
 use regex::Regex;
 use serde;
 use serde::{Deserialize, Serialize};
@@ -10,8 +12,6 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
-use colored::Colorize;
-use super::types::NamingConvention;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct SqlxConfig {
@@ -185,7 +185,10 @@ impl Config {
       .as_ref()
       .map(|config| config.connections.clone())
       .unwrap_or_else(|_| {
-        Self::warning(format!("Failed to read config file from the path: {:?}", file_config_path).as_str(), Self::get_log_level(file_config_path));
+        Self::warning(
+          format!("Failed to read config file from the path: {:?}", file_config_path).as_str(),
+          Self::get_log_level(file_config_path),
+        );
         Default::default()
       });
 
