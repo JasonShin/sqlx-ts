@@ -25,12 +25,12 @@ jobs:
         run: npm run build
 
       - name: copies install.sh into the deployment folder
-        run: cp ../scripts/install.sh ./book/
+        run: cp ../scripts/install.sh ./build/
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.3.0
         with:
           branch: gh-pages
-          folder: book/book
+          folder: book/build
 
 
