@@ -46,7 +46,7 @@ Example `.sqlxrc.json`
 }
 ```
 
-### (required) "connections"
+### connections (required)
 
 For default database, you must call it `default` like example above. Any extra DB connections 
 should have its own unique name such as `postgres` or `some_other_db`
