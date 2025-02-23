@@ -1,7 +1,7 @@
 name: Deploy docs/install-script to gh-pages branch for public use
 on:
-  release:
-    types: [created]
+  push:
+    branches: [main]
 
 jobs:
   publish-docs-and-install-script:
