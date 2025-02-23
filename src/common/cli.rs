@@ -67,14 +67,11 @@ pub struct Cli {
   #[clap(long, short)]
   pub generate_types: bool,
 
-  /// generates types in a target directory path or a file
+  /// generates types in a target file path (example: src/app/queries.ts)
   #[clap(long, parse(from_os_str))]
   pub generate_path: Option<std::path::PathBuf>,
 
-  #[clap(long, short)]
-  pub message_format: Option<String>,
-
-  /// log level to be used for the CLI debug > info > warn > error
+  /// log level to be used for the CLI debug > info > warning > error
   #[clap(value_enum, long)]
   pub log_level: Option<LogLevel>,
 }

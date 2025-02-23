@@ -84,7 +84,13 @@ pub fn write_single_ts_file(sqls_to_write: String) -> Result<()> {
     .create(true)
     .read(true)
     .append(true)
-    .open(&output)?;
+    .open(&output)
+    .unwrap_or_else(|_| {
+      panic!(
+        "Failed to write to file {:?} - check if the --generate-path provided is an existing folder",
+        &output
+      )
+    });
 
   file_to_write.write_all(sqls_to_write.as_ref())?;
   Ok(())

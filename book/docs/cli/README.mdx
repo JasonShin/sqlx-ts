@@ -1,0 +1,391 @@
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
+
+# Command Line Interface References
+
+The `sqlx-ts` Command Line Interface (CLI) lets you execute linting from the terminal. The CLI has a variety of options that you can pass to configure sqlx-ts.
+
+## Run the CLI
+
+sqlx-ts requires Node.js for installation. Follow the instructions in the Getting Started Guide to install [sqlx-ts](/installation).
+
+Most users use npx to run sqlx-ts on the command line like this:
+
+<Tabs>
+  <TabItem value="npm" label="npm" default>
+      ```bash
+      npx sqlx-ts [options] <PATH>
+      ```
+  </TabItem>
+  <TabItem value="yarn" label="yarn">
+      ```bash
+      yarn sqlx-ts [options] <PATH>
+      ```
+  </TabItem>
+</Tabs>
+
+such as:
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        # run sqlx-ts to validates SQLs and generate types
+        npx sqlx-ts \
+            --db-type=postgres \
+            --db-host=127.0.01 \
+            --db-port=54321 \
+            --db-user=postgres \
+            --db-pass=postgres \
+            ./src/app -g
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        # run sqlx-ts to validates SQLs and generate types
+        yarn dlx sqlx-ts \
+            --db-type=postgres \
+            --db-host=127.0.01 \
+            --db-port=54321 \
+            --db-user=postgres \
+            --db-pass=postgres \
+            ./src/app -g
+        ```
+    </TabItem>
+</Tabs>
+
+or
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        # run sqlx-ts to validates SQLs and generate types
+        npx sqlx-ts --config=.sqlxrc.json ./src/app
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        # run sqlx-ts to validates SQLs and generate types
+        yarn dlx sqlx-ts --config=.sqlxrc.json ./src/app
+        ```
+    </TabItem>
+</Tabs>
+
+# Options
+
+You can view all the CLI options by running `npx sqlx-ts --help`
+
+```
+A tool for Javascript/Typescript for compile-time safe SQL queries
+
+USAGE:
+sqlx-ts [OPTIONS] <PATH>
+
+    ARGS:
+<PATH>    Path to the Typescript or Javascript project
+
+    OPTIONS:
+    --config <CONFIG>
+    Path to the file based configuration
+
+    --db-host <DB_HOST>
+    Primary DB host
+
+    --db-name <DB_NAME>
+    Primary DB database name
+
+    --db-pass <DB_PASS>
+    Primary DB pass
+
+    --db-port <DB_PORT>
+    Primary DB Port
+
+    --db-type <DB_TYPE>
+    Type of primary database to connect [possible values: postgres, mysql]
+
+    --db-user <DB_USER>
+    Primary DB user
+
+    --ext <EXT>
+    Javascript Extension [default: ts] [possible values: ts, js]
+
+    -g, --generate-types
+    generate types of raw SQLs using default configuration
+
+    --generate-path <GENERATE_PATH>
+    generates types in a target directory path or a file
+
+    -h, --help
+    Print help information
+
+    --ignore <IGNORE>...
+    Folder paths to ignore
+
+    --log-level <LOG_LEVEL>
+    log level to be used for the CLI debug > info > warn > error [possible values: debug,
+    info, warning, error]
+
+    -m, --message-format <MESSAGE_FORMAT>
+
+
+    --pg-search-path <PG_SEARCH_PATH>
+    PostgreSQL schema search path (default is "$user,public")
+    https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH
+
+    -V, --version
+    Print version information
+```
+
+# Basic Configuration
+
+### --config
+
+This option allows you to specify an additional configuration file for sqlx-ts. (See [Configuration File](/connect/config-file) for more)
+
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --config=.sqlxrc.json ./src/app
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --config=.sqlxrc.json ./src/app
+        ```
+    </TabItem>
+</Tabs>
+
+### --db-host
+
+URL to the database that sqlx-ts should point to
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --config=.sqlxrc.json --db-host=127.0.0.1 ./src/app
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --config=.sqlxrc.json --db-host=127.0.0.1 ./src/app
+        ```
+    </TabItem>
+</Tabs>
+
+### --db-name
+
+Name of the database that you connect to
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --config=.sqlxrc.json --db-name=sqlx ./src/app
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --config=.sqlxrc.json --db-name=sqlx ./src/app
+        ```
+    </TabItem>
+</Tabs>
+
+
+### --db-port
+
+Port number of the database that you connect to
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --config=.sqlxrc.json --db-port=3306 ./src/app
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --config=.sqlxrc.json --db-port=3306 ./src/app
+        ```
+    </TabItem>
+</Tabs>
+
+
+### --db-type
+
+Type of the database that you connect to. It can be either `mysql` or `postgres`
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --config=.sqlxrc.json --db-type=postgres ./src/app
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --config=.sqlxrc.json --db-type=postgres ./src/app
+        ```
+    </TabItem>
+</Tabs>
+
+
+### --db-user
+
+user of the database that you connect to
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --config=.sqlxrc.json --db-user=postgres ./src/app
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --config=.sqlxrc.json --db-user=postgres ./src/app
+        ```
+    </TabItem>
+</Tabs>
+
+
+### --ext
+
+File extensions to search. It can be either `ts` | `js` - [default: ts]
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --config=.sqlxrc.json --ext=ts ./src/app
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --config=.sqlxrc.json --ext=ts ./src/app
+        ```
+    </TabItem>
+</Tabs>
+
+### -g, --generate-types
+
+generate type definitions of SQLs detected by sqlx-ts
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --config=.sqlxrc.json ./src/app -g
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --config=.sqlxrc.json ./src/app -g
+        ```
+    </TabItem>
+</Tabs>
+
+
+### --generate-path
+
+File path to generate types
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --config=.sqlxrc.json --generate-path=src/app/queries.ts ./src/app
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --config=.sqlxrc.json --generate-path=src/app/queries.ts ./src/app
+        ```
+    </TabItem>
+</Tabs>
+
+### -h, --help
+
+Shows all sqlx-ts CLI options
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --help
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --help
+        ```
+    </TabItem>
+</Tabs>
+
+
+### --ignore
+
+File/Folder path patterns to ignore. The additional ignore patterns provided by this flag will
+be added to the base ignore patters (`*.queries.ts` and `*.queries.js` also the patterns provided by [.sqlxrcignore file](/connect/sqlxignore))
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --ignore=src/app/select.ts --ignore=src/app/stuff --ignore src/app/select.*.ts
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --ignore=src/app/select.ts --ignore=src/app/stuff --ignore src/app/select.*.ts
+        ```
+    </TabItem>
+</Tabs>
+
+
+### --log-level
+
+log level to be used for the CLI - level follows in this order: `debug > info > warning > error` [possible values: debug, info, warning, error].
+(default is `info`)
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --ignore=src/app/select.ts --log-level=error
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --ignore=src/app/select.ts --log-level=error
+        ```
+    </TabItem>
+</Tabs>
+
+
+
+### --pg-search-path
+
+PostgreSQL schema search path (default is "$user,public")
+https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --ignore=src/app/select.ts --pg-search-path=public,myschema
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --ignore=src/app/select.ts --pg-search-path=public,myschema
+        ```
+    </TabItem>
+</Tabs>
+
+
+### -V, --version
+
+Prints version information of sqlx-ts CLI
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --version
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --version
+        ```
+    </TabItem>
+</Tabs>
+

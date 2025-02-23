@@ -1,5 +1,6 @@
-// TODO: Add documentation including examples
-// TODO: Use SQLX_TS_LOG env var to set log level
+use crate::common::lazy::CONFIG;
+use crate::common::types::LogLevel;
+use colored::*;
 
 #[allow(unused_macros)]
 macro_rules! debug {
