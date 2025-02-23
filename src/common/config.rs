@@ -188,8 +188,6 @@ impl Config {
         Default::default()
       });
 
-
-    println!("connections hrmm {:?}", connections);
     connections.insert(
       "default".to_string(),
       Self::get_default_connection_config(dotenv, &connections.get("default")),
@@ -366,6 +364,7 @@ impl Config {
 
   /// Custom logger for Config
   /// lazy::logger cannot be used as it requires Config itself to be initialised
+  #[allow(clippy::print_stdout)]
   fn warning(message: &str, log_level: LogLevel) {
     if log_level.gte(&LogLevel::Warning) {
       let level = "[WARN]".yellow();
@@ -375,6 +374,7 @@ impl Config {
 
   /// Custom logger for Config
   /// lazy::logger cannot be used as it requires Config itself to be initialised
+  #[allow(clippy::print_stderr)]
   fn error(message: &str) {
     let level = "[ERROR]".red();
     eprintln!("{level} {message}")
