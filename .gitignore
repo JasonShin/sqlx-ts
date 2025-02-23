@@ -17,7 +17,8 @@ node_modules
 node/README.md
 
 # book
-book/book
+_book/book
+book/.docusaurus
 
 # vscode
 .run
