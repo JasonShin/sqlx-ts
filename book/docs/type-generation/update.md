@@ -4,6 +4,8 @@ sidebar_position: 3
 
 # UPDATE statements
 
+To read more about how sqlx-ts translates query parameters, [visit this page](/type-generation#capabilities)
+
 ## MySQL
 
 Query params within an update statement can be converted into TypeScript types as well

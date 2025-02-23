@@ -4,7 +4,7 @@ sidebar_position: 4
 
 # DELETE statement
 
-To read more about how sqlx-ts translates query parameters, [visit this page](./4.1.SELECT.md)
+To read more about how sqlx-ts translates query parameters, [visit this page](/type-generation#capabilities)
 
 ## MySQL
 

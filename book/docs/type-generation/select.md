@@ -4,6 +4,8 @@ sidebar_position: 1
 
 # SELECT statements
 
+To read more about how sqlx-ts translates query parameters, [visit this page](/type-generation#capabilities)
+
 ## Binary operations
 
 If you have the follow MySQL query in typescript
