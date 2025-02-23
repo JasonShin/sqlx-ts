@@ -41,7 +41,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl: ({ docPath }) =>
-              `https://github.com/jasonshin/sqlx-ts/edit/main/docs/${docPath}`,
+              `https://github.com/jasonshin/sqlx-ts/edit/main/book/${docPath}`,
         },
         blog: false,
         theme: {
