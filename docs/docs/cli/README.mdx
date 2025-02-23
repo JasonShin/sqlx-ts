@@ -268,12 +268,12 @@ generate type definitions of SQLs detected by sqlx-ts
 <Tabs>
     <TabItem value="npm" label="npm" default>
         ```bash
-        npx sqlx-ts --config=.sqlxrc.json --ext=ts ./src/app
+        npx sqlx-ts --config=.sqlxrc.json ./src/app -g
         ```
     </TabItem>
     <TabItem value="yarn" label="yarn">
         ```bash
-        yarn dlx sqlx-ts --config=.sqlxrc.json --ext=ts ./src/app
+        yarn dlx sqlx-ts --config=.sqlxrc.json ./src/app -g
         ```
     </TabItem>
 </Tabs>
@@ -286,12 +286,47 @@ File path to generate types
 <Tabs>
     <TabItem value="npm" label="npm" default>
         ```bash
-        npx sqlx-ts --config=.sqlxrc.json --ext=ts ./src/app
+        npx sqlx-ts --config=.sqlxrc.json --generate-path=src/app/queries.ts ./src/app
         ```
     </TabItem>
     <TabItem value="yarn" label="yarn">
         ```bash
-        yarn dlx sqlx-ts --config=.sqlxrc.json --ext=ts ./src/app
+        yarn dlx sqlx-ts --config=.sqlxrc.json --generate-path=src/app/queries.ts ./src/app
+        ```
+    </TabItem>
+</Tabs>
+
+### -h, --help
+
+Shows all sqlx-ts CLI options
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --help
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --help
+        ```
+    </TabItem>
+</Tabs>
+
+
+### -h, --help
+
+Shows all sqlx-ts CLI options
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --help
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --help
         ```
     </TabItem>
 </Tabs>

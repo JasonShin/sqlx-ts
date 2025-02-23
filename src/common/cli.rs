@@ -71,7 +71,7 @@ pub struct Cli {
   #[clap(long, parse(from_os_str))]
   pub generate_path: Option<std::path::PathBuf>,
 
-  /// log level to be used for the CLI debug > info > warn > error
+  /// log level to be used for the CLI debug > info > warning > error
   #[clap(value_enum, long)]
   pub log_level: Option<LogLevel>,
 }
