@@ -314,9 +314,10 @@ Shows all sqlx-ts CLI options
 </Tabs>
 
 
-### -h, --help
+### --ignore
 
-Shows all sqlx-ts CLI options
+File/Folder path patterns to ignore. The additional ignore patterns provided by this flag will
+be added to the base ignore patters (`*.queries.ts` and `*.queries.js` also the patterns provided by [.sqlxrcignore file](/connect/sqlxignore))
 
 <Tabs>
     <TabItem value="npm" label="npm" default>

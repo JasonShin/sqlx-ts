@@ -4,7 +4,7 @@ you can use `.sqlxignore` file in order to ignore certain files from being proce
 
 The `.sqlxignore` file must be located at the same directory as you run `sqlx-ts` CLI. Typically the file should live at the same level as _.gitignore._
 
-By default, `*.queries.ts` files are ignored.
+By default, `*.queries.ts` and `*.queries.js` files are ignored.
 
 You can include more files in the ignore list by creating `.sqlxignore`
 
