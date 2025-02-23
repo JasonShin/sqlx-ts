@@ -69,15 +69,6 @@ export interface ISimpleQueryQuery{
 sqlx-ts will pick up name of the variable and use it when generating the type definitions. You can override
 the type name by setting the `@name` annotation, you can read more in the section [below](#annotations).
 
-## Configuration
-
-You can configure type generation in `.sqlxrc.json`; available configurations:
-
-**Todo**
-We need configurations for following:
-- generate type paths
-- file names (by default, it should be file_name.types.ts)
-
 ## Q/A
 
 ##### Why doesn't SQLx support named parameterised queries? `e.g. SELECT * FROM items WHERE point = :point`

@@ -46,6 +46,8 @@ Example `.sqlxrc.json`
 }
 ```
 
+## Configuration options
+
 ### connections (required)
 
 For default database, you must call it `default` like example above. Any extra DB connections 
