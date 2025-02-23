@@ -44,7 +44,7 @@ in the query. Also, it will use `mysql` database connection that you configured 
 
 # Overrides
 
-sqlx-ts cannot generate typing for complex SQL syntax such as JSON functions. In this scenario, sqlx-ts will return `any` and you can use annotations
+SQLX-TS cannot generate typing for complex SQL syntax such as JSON functions. In this scenario, sqlx-ts will return `any` and you can use annotations
 to override the result to a type that you anticipate.
 
 ## Supported types
@@ -79,11 +79,11 @@ export interface ISimpleQueryQuery{
 }
 ```
 
-It's important that you give it an alias so sqlx-ts can match it with your custom annotation.
+It's important that you give it an alias so SQLX-TS can match it with your custom annotation.
 
 
 > Rust provides pattern matching that enforces you to handle all patterns of an enum.
-> Based on this, we can exhaustively handle all SQL syntax and narrow down the patterns that sqlx-ts cannot handle.
+> Based on this, we can exhaustively handle all SQL syntax and narrow down the patterns that SQLX-TS cannot handle.
 > If you ever use following SQL syntax, it is encouraged to override the type using @result annotation.
 
 ## Overriding params

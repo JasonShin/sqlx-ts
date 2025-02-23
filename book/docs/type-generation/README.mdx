@@ -18,7 +18,7 @@ $ cargo run --generate-types --config=.sqlxrc.json ./src/app
 
 ## Capabilities
 
-sqlx-ts supports following type generations and other SQL syntax will be ignored from type generation
+SQLX-TS supports following type generations and other SQL syntax will be ignored from type generation
 
 - [SELECT statements](/type-generation/select)
 - [INSERT statements](/type-generation/insert)
@@ -26,7 +26,7 @@ sqlx-ts supports following type generations and other SQL syntax will be ignored
 - [DELETE statements](/type-generation/delete)
 
 Also type generation supports parameterised query as per the requirements of PREPARE statements of the databases
-that sqlx-ts currently supports.
+that SQLX-TS currently supports.
 
 - [MySQL PREPARE](https://dev.mysql.com/doc/refman/8.0/en/prepare.html)
 - [Postgres PREPARE](https://www.postgresql.org/docs/current/sql-prepare.html)
@@ -63,7 +63,7 @@ export interface ISimpleQueryQuery{
 }
 ```
 
-sqlx-ts will pick up name of the variable and use it when generating the type definitions. You can override
+SQLX-TS will pick up name of the variable and use it when generating the type definitions. You can override
 the type name by setting the `@name` annotation, you can read more in the section [below](#annotations).
 
 
@@ -81,5 +81,5 @@ the true type safetiness that we are trying to achieve. Furthermore, name parame
 they are an additional syntax supported by popular ORM libraries such as Sequelize.
 
 The closest type safety that exists in TypeScript world is by emulating Opaque type e.g. https://github.com/sindresorhus/type-fest/blob/main/source/opaque.d.ts.
-In the future, sqlx-ts will support Opaque type overrides natively to solve this matter.
+In the future, SQLX-TS will support Opaque type overrides natively to solve this matter.
 

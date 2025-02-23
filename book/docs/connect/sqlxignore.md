@@ -1,6 +1,6 @@
 # Ignore files
 
-you can use `.sqlxignore` file in order to ignore certain files from being processed by sqlx-ts.
+you can use `.sqlxignore` file in order to ignore certain files from being processed by SQLX-TS.
 
 The `.sqlxignore` file must be located at the same directory as you run `sqlx-ts` CLI. Typically the file should live at the same level as _.gitignore._
 

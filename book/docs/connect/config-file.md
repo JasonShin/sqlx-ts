@@ -3,7 +3,7 @@
 If you have a project that you need requires connections to multiple databases, you can support 
 that by using file based configuration.
 
-By default, configuration file is named `.sqlxrc.json` and sqlx-ts will try to find a file with 
+By default, configuration file is named `.sqlxrc.json` and SQLX-TS will try to find a file with 
 this name, unless you give it a custom path to override it using `--config` CLI option.
 
 ```bash

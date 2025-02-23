@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # UPDATE statements
 
-To read more about how sqlx-ts translates query parameters, [visit this page](/type-generation#capabilities)
+To read more about how SQLX-TS translates query parameters, [visit this page](/type-generation#capabilities)
 
 ## MySQL
 

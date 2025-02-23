@@ -3,13 +3,13 @@ import TabItem from '@theme/TabItem'
 
 # Command Line Interface References
 
-The `sqlx-ts` Command Line Interface (CLI) lets you execute linting from the terminal. The CLI has a variety of options that you can pass to configure sqlx-ts.
+The `SQLX-TS` Command Line Interface (CLI) lets you execute linting from the terminal. The CLI has a variety of options that you can pass to configure sqlx-ts.
 
 ## Run the CLI
 
-sqlx-ts requires Node.js for installation. Follow the instructions in the Getting Started Guide to install [sqlx-ts](/installation).
+SQLX-TS requires Node.js for installation. Follow the instructions in the Getting Started Guide to install [sqlx-ts](/installation).
 
-Most users use npx to run sqlx-ts on the command line like this:
+Most users use npx to run SQLX-TS on the command line like this:
 
 <Tabs>
   <TabItem value="npm" label="npm" default>
@@ -29,7 +29,7 @@ such as:
 <Tabs>
     <TabItem value="npm" label="npm" default>
         ```bash
-        # run sqlx-ts to validates SQLs and generate types
+        # run SQLX-TS to validates SQLs and generate types
         npx sqlx-ts \
             --db-type=postgres \
             --db-host=127.0.01 \
@@ -41,7 +41,7 @@ such as:
     </TabItem>
     <TabItem value="yarn" label="yarn">
         ```bash
-        # run sqlx-ts to validates SQLs and generate types
+        # run SQLX-TS to validates SQLs and generate types
         yarn dlx sqlx-ts \
             --db-type=postgres \
             --db-host=127.0.01 \
@@ -64,7 +64,7 @@ or
     </TabItem>
     <TabItem value="yarn" label="yarn">
         ```bash
-        # run sqlx-ts to validates SQLs and generate types
+        # run SQLX-TS to validates SQLs and generate types
         yarn dlx sqlx-ts --config=.sqlxrc.json ./src/app
         ```
     </TabItem>
@@ -139,7 +139,7 @@ sqlx-ts [OPTIONS] <PATH>
 
 ### --config
 
-This option allows you to specify an additional configuration file for sqlx-ts. (See [Configuration File](/connect/config-file) for more)
+This option allows you to specify an additional configuration file for SQLX-TS. (See [Configuration File](/connect/config-file) for more)
 
 
 <Tabs>
@@ -157,7 +157,7 @@ This option allows you to specify an additional configuration file for sqlx-ts. 
 
 ### --db-host
 
-URL to the database that sqlx-ts should point to
+URL to the database that SQLX-TS should point to
 
 <Tabs>
     <TabItem value="npm" label="npm" default>
@@ -263,7 +263,7 @@ File extensions to search. It can be either `ts` | `js` - [default: ts]
 
 ### -g, --generate-types
 
-generate type definitions of SQLs detected by sqlx-ts
+generate type definitions of SQLs detected by SQLX-TS
 
 <Tabs>
     <TabItem value="npm" label="npm" default>
@@ -298,7 +298,7 @@ File path to generate types
 
 ### -h, --help
 
-Shows all sqlx-ts CLI options
+Shows all SQLX-TS CLI options
 
 <Tabs>
     <TabItem value="npm" label="npm" default>
