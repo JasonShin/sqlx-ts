@@ -67,7 +67,7 @@ pub struct Cli {
   #[clap(long, short)]
   pub generate_types: bool,
 
-  /// generates types in a target directory path or a file
+  /// generates types in a target file path (example: src/app/queries.ts)
   #[clap(long, parse(from_os_str))]
   pub generate_path: Option<std::path::PathBuf>,
 

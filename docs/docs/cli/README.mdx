@@ -261,8 +261,6 @@ File extensions to search. It can be either `ts` | `js` - [default: ts]
     </TabItem>
 </Tabs>
 
-
-
 ### -g, --generate-types
 
 generate type definitions of SQLs detected by sqlx-ts
@@ -279,3 +277,22 @@ generate type definitions of SQLs detected by sqlx-ts
         ```
     </TabItem>
 </Tabs>
+
+
+### --generate-path
+
+File path to generate types
+
+<Tabs>
+    <TabItem value="npm" label="npm" default>
+        ```bash
+        npx sqlx-ts --config=.sqlxrc.json --ext=ts ./src/app
+        ```
+    </TabItem>
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn dlx sqlx-ts --config=.sqlxrc.json --ext=ts ./src/app
+        ```
+    </TabItem>
+</Tabs>
+
