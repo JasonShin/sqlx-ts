@@ -34,6 +34,7 @@ use color_eyre::eyre::Result;
 use std::env;
 use std::path::PathBuf;
 use std::sync::LazyLock;
+use crate::common::types::FileExtension;
 
 fn set_default_env_var() {
   if env::var("SQLX_TS_LOG").is_err() {
@@ -64,7 +65,13 @@ async fn main() -> Result<()> {
   set_default_env_var();
 
   let source_folder = &CLI_ARGS.path;
-  let exts = &CLI_ARGS.ext;
+  // If no file extensions were provided
+  let exts = if CLI_ARGS.ext.is_empty() {
+    vec![FileExtension::Ts]
+  } else {
+    CLI_ARGS.ext.clone()
+  };
+
   let exts_str = exts.iter().map(|ext| ext.to_string()).collect::<Vec<String>>().join(",");
 
   info!("Scanning {:?} for SQLs with extensions [{}]", source_folder, exts_str);
