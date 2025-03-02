@@ -24,7 +24,6 @@ pub struct Cli {
   #[clap(
     value_enum,
     long,
-    default_value_t = vec![FileExtension::Ts],
     multiple_values = true
     )]
   pub ext: Vec<FileExtension>,
