@@ -1,12 +1,13 @@
-use crate::common::types::{DatabaseType, JsExtension, LogLevel};
+use crate::common::types::{DatabaseType, FileExtension, LogLevel};
 use clap::Parser;
 use std::fmt;
 
-impl fmt::Display for JsExtension {
+impl fmt::Display for FileExtension {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     let extension = match self {
-      JsExtension::Ts => ".ts".to_string(),
-      JsExtension::Js => ".js".to_string(),
+      FileExtension::Ts => ".ts".to_string(),
+      FileExtension::Js => ".js".to_string(),
+      FileExtension::Sql => ".sql".to_string(),
     };
     write!(f, "{}", extension)
   }
@@ -19,13 +20,14 @@ pub struct Cli {
   #[clap(parse(from_os_str))]
   pub path: std::path::PathBuf,
 
-  /// Javascript Extension
+  /// file extensions
   #[clap(
     value_enum,
     long,
-    default_value_t=JsExtension::Ts
+    default_value_t = vec![FileExtension::Ts],
+    multiple_values = true
     )]
-  pub ext: JsExtension,
+  pub ext: Vec<FileExtension>,
 
   /// Type of primary database to connect
   #[clap(value_enum, long)]
