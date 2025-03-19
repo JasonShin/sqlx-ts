@@ -40,7 +40,7 @@ jobs:
             command: cross
           - build: windows-32-bit
             os: ubuntu-latest
-            target: i686-pc-windows-gnu
+            target: i686-pc-windows-msvc
             command: cross
           # 64-bit (x86)
           - build: linux-64-bit
@@ -53,7 +53,7 @@ jobs:
             command: cargo
           - build: windows-64-bit
             os: ubuntu-latest
-            target: x86_64-pc-windows-gnu
+            target: x86_64-pc-windows-msvc
             command: cross
           # 64-bit (ARM)
           # aarch64-pc-windows-gnullvm is Tier 3.
