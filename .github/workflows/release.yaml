@@ -41,7 +41,7 @@ jobs:
           - build: windows-32-bit
             os: windows-latest
             target: i686-pc-windows-msvc
-            command: cross
+            command: cargo
           # 64-bit (x86)
           - build: linux-64-bit
             os: ubuntu-latest
