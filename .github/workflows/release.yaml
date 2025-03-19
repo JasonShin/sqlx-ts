@@ -40,7 +40,7 @@ jobs:
             command: cross
           - build: windows-32-bit
             os: ubuntu-latest
-            target: i686-pc-windows-gnu
+            target: i686-pc-windows-msvc
             command: cross
           # 64-bit (x86)
           - build: linux-64-bit
