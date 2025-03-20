@@ -185,7 +185,11 @@ echo "URL to download $url"
 
 curl -LSfs $url --output $td/sqlx-ts.zip
 unzip -j $td/sqlx-ts.zip -d $td
-cp $td/sqlx-ts.exe .
+if [[ "$os" == "win32" ]]; then
+    cp $td/sqlx-ts.exe .
+else
+    cp $td/sqlx-ts .
+fi
 
 # shellcheck disable=SC2045
 for f in $(ls $td); do
