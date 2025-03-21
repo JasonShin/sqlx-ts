@@ -185,7 +185,7 @@ echo "URL to download $url"
 
 curl -LSfs $url --output $td/sqlx-ts.zip
 unzip -j $td/sqlx-ts.zip -d $td
-if [[ "$os" == "win32" ]]; then
+if [ "$os" == "win32" ]; then
     cp $td/sqlx-ts.exe .
 else
     cp $td/sqlx-ts .
