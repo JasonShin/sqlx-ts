@@ -11,33 +11,11 @@ env:
 
 jobs:
   clippy:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, my-machine-2]
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
-
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
-      - run: rustup toolchain install stable --profile minimal
-
-      - run: rustup component add clippy
-
-      - run: rustup component add rustfmt
-
-      - uses: Swatinem/rust-cache@v2
-        with:
-          # To only cache runs from `master`:
-          save-if: ${{ github.ref == 'refs/heads/master' }}
-          # Specifies what to use as the backend providing cache
-          # Can be set to either "github" or "buildjet"
-          # default: "github"
-          cache-provider: "github"
 
       - name: Run clippy
         run: cargo clippy

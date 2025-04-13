@@ -11,19 +11,7 @@ env:
 
 jobs:
   build:
-    runs-on: self-hosted
-    strategy:
-      matrix:
-        db:
-          - mysql: 8
-          - mysql: 5.7
-          - mysql: 5.6
-          - postgres: 16
-          - postgres: 15
-          - postgres: 14
-          - postgres: 13
-          - postgres: 12
-
+    runs-on: [self-hosted, my-machine-1]
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
