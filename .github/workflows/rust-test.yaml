@@ -16,6 +16,12 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v2
 
+      - name: test
+        run: sysctl hw.model
+
+      - name: hmm
+        run: pwd
+
       - name: Check the docker-compose services running
         run: docker ps -a
 

@@ -17,6 +17,12 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v2
 
+      - name: test
+        run: sysctl hw.model
+
+      - name: hmm
+        run: pwd
+
       - name: Run clippy
         run: cargo clippy
 
