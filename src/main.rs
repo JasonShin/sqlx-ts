@@ -92,6 +92,6 @@ async fn main() -> Result<()> {
 
   info!("No SQL errors detected!\n");
   // NOTE: There are different exit code depending on the platform https://doc.rust-lang.org/std/process/fn.exit.html#platform-specific-behavior
-  // Make sure to consider exit code all major platforms
+  // Make sure to consider exit code all major platformsz
   std::process::exit(0);
 }
