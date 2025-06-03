@@ -3,6 +3,7 @@ use crate::common::dotenv::Dotenv;
 use crate::common::lazy::{CLI_ARGS, CONFIG};
 use crate::common::logger::*;
 use crate::common::types::{DatabaseType, LogLevel};
+use color_eyre::config;
 use colored::Colorize;
 use regex::Regex;
 use serde;
@@ -89,6 +90,7 @@ impl Config {
   pub fn new() -> Config {
     let dotenv = Dotenv::new();
 
+    println!("93: {:?}", dotenv);
     let default_config_path = PathBuf::from_str(".sqlxrc.json").unwrap();
     let default_ignore_config_path = PathBuf::from_str(".sqlxignore").unwrap();
     let file_config_path = &CLI_ARGS.config.clone().unwrap_or(default_config_path);
@@ -218,6 +220,8 @@ impl Config {
         Self::error("Unable to retrieve a database type, please check your configuration and try again");
         panic!("")
       });
+    
+    print!("{:?}", dotenv);
 
     let db_host = &CLI_ARGS
       .db_host

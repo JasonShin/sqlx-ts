@@ -20,7 +20,7 @@ impl bb8::ManageConnection for PostgresConnectionManager {
   type Error = Error;
 
   async fn connect(&self) -> Result<Client, Error> {
-    let conn_url = self.conn_url.clone();
+    let _ = self.conn_url.clone();
 
     let (client, connection) =
       tokio_postgres::connect(&self.conn_url, NoTls)
