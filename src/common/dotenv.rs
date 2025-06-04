@@ -37,7 +37,7 @@ impl Dotenv {
       },
       db_user: Self::get_var("DB_USER"),
       db_host: Self::get_var("DB_HOST"),
-      db_port: Self::get_var("DB_HOST")
+      db_port: Self::get_var("DB_PORT")
         .map(|val| val.parse::<u16>()
         .expect("DB_PORT is not a valid integer")),
       db_pass: Self::get_var("DB_PASS"),
