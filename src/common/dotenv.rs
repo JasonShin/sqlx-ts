@@ -20,7 +20,7 @@ impl Default for Dotenv {
 impl Dotenv {
 
   fn get_var(key: &str) -> Option<String> {
-    std::env::var(key).or_else(|_| dotenv::var(key)).ok()
+    dotenv::var(key).ok()
   }
 
   pub fn new() -> Dotenv {
