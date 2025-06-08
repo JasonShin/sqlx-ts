@@ -33,7 +33,7 @@ pub fn get_query_name(sql: &SQL) -> Result<String> {
       .unwrap()
       .as_str()
       .split(':')
-      .last()
+      .next_back()
       .unwrap()
       .to_string();
 
