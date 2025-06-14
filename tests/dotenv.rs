@@ -1,18 +1,14 @@
 #[cfg(test)]
 mod dotenv_test {
   use assert_cmd::Command;
-  use std::env::current_dir;
-  use std::fs;
+  use std::fs::{self, File};
   use std::io::Write;
   use tempfile::tempdir;
-
   #[test]
-  fn uses_dotenv_when_no_db_flags_are_provided() -> Result<(), Box<dyn std::error::Error>> {
-    // SETUP
-    let demo_dir = current_dir().unwrap().join("tests/dotenv");
-    let dotenv_path = demo_dir.join(".env");
+  fn loads_env_vars_from_dotenv_file() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = tempdir()?;
+    let dotenv_path = temp_dir.path().join(".env");
 
-    // Write a sample .env file with database credentials
     let dotenv_content = r#"
 DB_TYPE=postgres
 DB_HOST=127.0.0.1
@@ -21,30 +17,24 @@ DB_USER=postgres
 DB_PASS=postgres
 DB_NAME=postgres
 "#;
-    fs::create_dir_all(&demo_dir)?;
     fs::write(&dotenv_path, dotenv_content)?;
 
-    // Create an empty config file
-    let temp_config_dir = tempdir()?;
-    let config_file_path = temp_config_dir.path().join(".sqlxrc.json");
-    fs::write(&config_file_path, "{}")?;
+    let sample_dir = temp_dir.path().join("sample");
+    fs::create_dir_all(&sample_dir)?;
+    fs::copy("tests/sample/sample.ts", sample_dir.join("sample.ts"))?;
 
-    // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = Command::cargo_bin("sqlx-ts")?;
     cmd
-      .arg(demo_dir.to_str().unwrap())
+      .current_dir(temp_dir.path())
       .arg("--ext=ts")
-      .arg(format!("--config={}", config_file_path.to_str().unwrap()))
-      .arg("-g");
+      .arg("-g")
+      .arg(sample_dir.to_str().unwrap());
 
-    cmd.assert().failure().stderr(predicates::str::contains(
-      "Empty or invalid JSON provided for file based configuration - config file:",
-    ));
-
-    fs::remove_file(dotenv_path)?; // optional: clean .env if needed
+    cmd
+      .assert()
+      .success()
+      .stdout(predicates::str::contains("No SQL errors detected!")); // adjust if your CLI errors differently
 
     Ok(())
   }
-
-
 }
