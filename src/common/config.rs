@@ -87,7 +87,7 @@ impl Default for Config {
 
 impl Config {
   pub fn new() -> Config {
-    let dotenv = Dotenv::new();
+    let dotenv = Dotenv::new(CLI_ARGS.env.clone());
 
     let default_config_path = PathBuf::from_str(".sqlxrc.json").unwrap();
     let default_ignore_config_path = PathBuf::from_str(".sqlxignore").unwrap();

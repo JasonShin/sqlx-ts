@@ -74,4 +74,8 @@ pub struct Cli {
   /// log level to be used for the CLI debug > info > warning > error
   #[clap(value_enum, long)]
   pub log_level: Option<LogLevel>,
+
+  /// Dotfile name (example: .env or .env.dev) [default: .env or environment]
+  #[clap(long)]
+  pub env: Option<String>,
 }
