@@ -6,12 +6,12 @@ export interface IAnotherTestObjectQueryResult {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-};
+}
 
 export interface IAnotherTestObjectQueryQuery {
 	params: AnotherTestObjectQueryParams;
 	result: IAnotherTestObjectQueryResult;
-};
+}
 
 export type NestedTestObjectQueryParams = [];
 
@@ -21,9 +21,9 @@ export interface INestedTestObjectQueryResult {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-};
+}
 
 export interface INestedTestObjectQueryQuery {
 	params: NestedTestObjectQueryParams;
 	result: INestedTestObjectQueryResult;
-};
+}

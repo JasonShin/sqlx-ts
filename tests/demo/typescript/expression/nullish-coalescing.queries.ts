@@ -6,9 +6,9 @@ export interface ITestNullishCoalescingQueryResult {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-};
+}
 
 export interface ITestNullishCoalescingQueryQuery {
 	params: TestNullishCoalescingQueryParams;
 	result: ITestNullishCoalescingQueryResult;
-};
+}

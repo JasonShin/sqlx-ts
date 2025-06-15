@@ -30,12 +30,12 @@ export type SomeUpdateQueryParams = [string, number];
 
 export interface ISomeUpdateQueryResult {
     
-};
+}
 
 export interface ISomeUpdateQueryQuery {
     params: SomeUpdateQueryParams;
     result: ISomeUpdateQueryResult;
-};
+}
 "#);
 
   #[rustfmt::skip]
@@ -59,11 +59,11 @@ export type SomeUpdateQueryParams = [string, number | null, number];
 
 export interface ISomeUpdateQueryResult {
     
-};
+}
 
 export interface ISomeUpdateQueryQuery {
     params: SomeUpdateQueryParams;
     result: ISomeUpdateQueryResult;
-};
+}
 "#);
 }

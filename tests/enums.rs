@@ -30,12 +30,12 @@ export type UsersQueryParams = [];
 
 export interface IUsersQueryResult {
     enum1: 'alliance' | 'horde' | null;
-};
+}
 
 export interface IUsersQueryQuery {
     params: UsersQueryParams;
     result: IUsersQueryResult;
-};
+}
 "#);
 
   #[rustfmt::skip]
@@ -57,11 +57,11 @@ export type UsersQueryParams = [];
 
 export interface IUsersQueryResult {
     enum1: 'alliance' | 'horde' | null;
-};
+}
 
 export interface IUsersQueryQuery {
     params: UsersQueryParams;
     result: IUsersQueryResult;
-};
+}
 "#);
 }

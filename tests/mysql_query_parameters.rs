@@ -34,12 +34,12 @@ export interface ISomeQueryResult {
     inventory_id: number | null;
     name: string;
     rarity: string | null;
-};
+}
 
 export interface ISomeQueryQuery {
     params: SomeQueryParams;
     result: ISomeQueryResult;
-};
+}
 "#);
 
   #[rustfmt::skip]
@@ -64,12 +64,12 @@ export interface ISomeQueryResult {
     inventory_id: number | null;
     name: string;
     rarity: string | null;
-};
+}
 
 export interface ISomeQueryQuery {
     params: SomeQueryParams;
     result: ISomeQueryResult;
-};
+}
 "#);
 
   #[rustfmt::skip]
@@ -103,12 +103,12 @@ export interface ISomeQueryResult {
     inventory_id: number | null;
     name: string;
     rarity: string | null;
-};
+}
 
 export interface ISomeQueryQuery {
     params: SomeQueryParams;
     result: ISomeQueryResult;
-};
+}
 "#);
 
   #[rustfmt::skip]
@@ -142,11 +142,11 @@ export interface ISomeQueryResult {
     inventory_id: number | null;
     name: string;
     rarity: string | null;
-};
+}
 
 export interface ISomeQueryQuery {
     params: SomeQueryParams;
     result: ISomeQueryResult;
-};
+}
 "#);
 }

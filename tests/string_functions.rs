@@ -29,12 +29,12 @@ export type SomeQueryParams = [string, string, number];
 
 export interface ISomeQueryResult {
     test: string;
-};
+}
 
 export interface ISomeQueryQuery {
     params: SomeQueryParams;
     result: ISomeQueryResult;
-};
+}
 "#
 );
 
@@ -50,12 +50,12 @@ export type SomeQueryParams = [string];
 
 export interface ISomeQueryResult {
     test: string;
-};
+}
 
 export interface ISomeQueryQuery {
     params: SomeQueryParams;
     result: ISomeQueryResult;
-};
+}
 "#
 );
 
@@ -71,12 +71,12 @@ export type SomeQueryParams = [string];
 
 export interface ISomeQueryResult {
     ExtractString: string;
-};
+}
 
 export interface ISomeQueryQuery {
     params: SomeQueryParams;
     result: ISomeQueryResult;
-};
+}
 "#
 );
 
@@ -92,12 +92,12 @@ export type SomeQueryParams = [string];
 
 export interface ISomeQueryResult {
     id: number;
-};
+}
 
 export interface ISomeQueryQuery {
     params: SomeQueryParams;
     result: ISomeQueryResult;
-};
+}
 "#
 );
 }

@@ -6,10 +6,10 @@ export interface ITestParenthesisQueryResult {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-};
+}
 
 export interface ITestParenthesisQueryQuery {
 	params: TestParenthesisQueryParams;
 	result: ITestParenthesisQueryResult;
-};
+}
 
