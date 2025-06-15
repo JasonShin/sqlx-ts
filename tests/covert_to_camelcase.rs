@@ -35,12 +35,12 @@ export interface ISomeQueryResult {
     HelloWorld: number;
     hello_world: number;
     inventory_id: number | null;
-};
+}
 
 export interface ISomeQueryQuery {
     params: SomeQueryParams;
     result: ISomeQueryResult;
-};
+}
 "#
 );
 
@@ -66,12 +66,12 @@ export interface ISomeQueryResult {
     helloWorld1: number;
     helloWorld2: number;
     inventoryId: number | null;
-};
+}
 
 export interface ISomeQueryQuery {
     params: SomeQueryParams;
     result: ISomeQueryResult;
-};
+}
 "#
 );
 
@@ -97,12 +97,12 @@ export interface ISomeQueryResult {
     HelloWorld1: number;
     hello_world2: number;
     inventory_id: number | null;
-};
+}
 
 export interface ISomeQueryQuery {
     params: SomeQueryParams;
     result: ISomeQueryResult;
-};
+}
 "#
 );
 }

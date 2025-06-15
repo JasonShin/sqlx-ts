@@ -391,7 +391,7 @@ impl fmt::Display for TsQuery {
 
     let result = format!("export interface I{name}Result {{\n\t{result_str}\n}}");
 
-    let query = format!("export interface I{name}Query {{\n\tparams: {name}Params;\n\tresult: I{name}Result\n}}");
+    let query = format!("export interface I{name}Query {{\n\tparams: {name}Params;\n\tresult: I{name}Result;\n}}");
 
     let final_code = format!("{params}\n\n{result}\n\n{query}");
 

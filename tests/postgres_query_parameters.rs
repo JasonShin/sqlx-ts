@@ -33,11 +33,11 @@ export interface ISomeQueryResult {
     character_id: number | null;
     id: number;
     quantity: number | null;
-};
+}
 
 export interface ISomeQueryQuery {
     params: SomeQueryParams;
     result: ISomeQueryResult;
-};
+}
 "#);
 }

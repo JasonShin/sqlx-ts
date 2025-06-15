@@ -6,10 +6,10 @@ export interface ITestAsyncUsingResult {
 	inventory_id: number | null;
 	name: string;
 	rarity: string | null;
-};
+}
 
 export interface ITestAsyncUsingQuery {
 	params: TestAsyncUsingParams;
 	result: ITestAsyncUsingResult;
-};
+}
 

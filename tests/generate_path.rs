@@ -35,12 +35,12 @@ export interface ISomeQueryResult {
     HelloWorld: number;
     hello_world: number;
     name: string;
-};
+}
 
 export interface ISomeQueryQuery {
     params: SomeQueryParams;
     result: ISomeQueryResult;
-};
+}
 "#
 );
 }

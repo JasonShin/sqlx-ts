@@ -3,12 +3,12 @@ export type CeilParams = [];
 export interface ICeilResult {
 	id: number;
 	someNumber: number;
-};
+}
 
 export interface ICeilQuery {
 	params: CeilParams;
 	result: ICeilResult;
-};
+}
 
 export type AllParams = [];
 
@@ -45,9 +45,9 @@ export interface IAllResult {
 	sum1: number;
 	tan1: number;
 	trunc1: number;
-};
+}
 
 export interface IAllQuery {
 	params: AllParams;
 	result: IAllResult;
-};
+}

@@ -34,12 +34,13 @@ export type SomeQueryParams = [];
 export interface ISomeQueryResult {
     helloWorld: number;
     name: string;
-};
+}
 
 export interface ISomeQueryQuery {
     params: SomeQueryParams;
     result: ISomeQueryResult;
-};
+}
+
 "#
 );
 
@@ -65,12 +66,12 @@ export interface ISomeQueryResult {
     HelloWorld1: number;
     HelloWorld2: number;
     Name: string;
-};
+}
 
 export interface ISomeQueryQuery {
     params: SomeQueryParams;
     result: ISomeQueryResult;
-};
+}
 "#
 );
 
@@ -96,12 +97,12 @@ export interface ISomeQueryResult {
     HelloWorld1: number;
     HelloWorld2: number;
     Name: string;
-};
+}
 
 export interface ISomeQueryQuery {
     params: SomeQueryParams;
     result: ISomeQueryResult;
-};
+}
 "#
 );
 }

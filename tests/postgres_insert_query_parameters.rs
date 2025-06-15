@@ -29,12 +29,12 @@ export type SomeInputQueryParams = [string, number];
 
 export interface ISomeInputQueryResult {
     
-};
+}
 
 export interface ISomeInputQueryQuery {
     params: SomeInputQueryParams;
     result: ISomeInputQueryResult;
-};
+}
 "#);
 
   #[rustfmt::skip]
@@ -56,11 +56,11 @@ export type SomeInputQueryParams = [string, number, string | null, number, strin
 
 export interface ISomeInputQueryResult {
     
-};
+}
 
 export interface ISomeInputQueryQuery {
     params: SomeInputQueryParams;
     result: ISomeInputQueryResult;
-};
+}
 "#);
 }

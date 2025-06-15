@@ -30,12 +30,12 @@ export type SomeDeleteQueryParams = [number | null, number];
 
 export interface ISomeDeleteQueryResult {
     
-};
+}
 
 export interface ISomeDeleteQueryQuery {
     params: SomeDeleteQueryParams;
     result: ISomeDeleteQueryResult;
-};
+}
 "#);
 
   #[rustfmt::skip]
@@ -57,11 +57,11 @@ export type SomeDeleteQueryParams = [number, number];
 
 export interface ISomeDeleteQueryResult {
     
-};
+}
 
 export interface ISomeDeleteQueryQuery {
     params: SomeDeleteQueryParams;
     result: ISomeDeleteQueryResult;
-};
+}
 "#);
 }
