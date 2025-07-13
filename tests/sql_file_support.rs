@@ -132,9 +132,9 @@ WHERE f.name = $1;
     let types_content = fs::read_to_string(types_file)?;
 
     // Verify generated types contain expected interfaces
-    assert!(types_content.contains("IGetCharacterByIdParams"));
+    assert!(types_content.contains("GetCharacterByIdParams"));
     assert!(types_content.contains("IGetCharacterByIdResult"));
-    assert!(types_content.contains("IGetCharactersByFactionParams"));
+    assert!(types_content.contains("GetCharactersByFactionParams"));
     assert!(types_content.contains("IGetCharactersByFactionResult"));
 
     Ok(())
@@ -228,9 +228,10 @@ INSERT INTO characters (name, race_id, class_id, level) VALUES (?, ?, ?, ?);
       .arg("--ext=sql")
       .arg("--db-type=mysql")
       .arg("--db-host=127.0.0.1")
-      .arg("--db-port=3306")
+      .arg("--db-port=33306")
       .arg("--db-user=root")
-      .arg("--db-name=test");
+      .arg("--db-pass=")
+      .arg("--db-name=sqlx-ts");
 
     // ASSERT
     cmd
@@ -475,7 +476,7 @@ SELECT id, name, level, experience FROM characters WHERE id = $1;
 
     assert!(types_file.exists());
     let types_content = fs::read_to_string(types_file)?;
-    assert!(types_content.contains("IGetCharacterParams"));
+    assert!(types_content.contains("GetCharacterParams"));
     assert!(types_content.contains("IGetCharacterResult"));
 
     Ok(())
