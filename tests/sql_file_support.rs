@@ -370,7 +370,9 @@ SELECT id, name, FROM characters WHERE; -- Missing table and incomplete WHERE cl
     cmd
       .assert()
       .failure()
-      .stderr(predicates::str::contains("error: internal compiler error: syntax error at or near \"FROM\""))
+      .stderr(predicates::str::contains(
+        "error: internal compiler error: syntax error at or near \"FROM\"",
+      ))
       .stderr(predicates::str::contains("SQLs failed to compile!"));
 
     Ok(())
