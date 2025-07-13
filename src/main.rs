@@ -24,7 +24,6 @@ extern crate clap;
 extern crate dotenv;
 
 use crate::core::execute::execute;
-use std::cell::LazyCell;
 
 use crate::common::lazy::*;
 use crate::common::logger::*;
@@ -36,7 +35,7 @@ use std::env;
 use std::path::PathBuf;
 use std::sync::LazyLock;
 
-fn set_default_env_var() {
+unsafe fn set_default_env_var() {
   if env::var("SQLX_TS_LOG").is_err() {
     env::set_var("SQLX_TS_LOG", "info");
   }
@@ -62,7 +61,7 @@ async fn main() -> Result<()> {
     }
   }));
 
-  set_default_env_var();
+  unsafe { set_default_env_var(); }
 
   let source_folder = &CLI_ARGS.path;
   // If no file extensions were provided
