@@ -98,14 +98,27 @@ async fn main() -> Result<()> {
     std::process::exit(0);
   }
 
+  let mut num_sqls = 0;
   for file_path in files.iter() {
     let (sqls, handler) = parse_source(file_path)?;
     let failed = execute(&sqls, &handler).await?;
+
+    for sql in sqls {
+      num_sqls += sql.1.iter().len();
+    }
+
     #[allow(clippy::print_stderr)]
     if failed {
       error!("SQLs failed to compile!\n");
       std::process::exit(1)
     }
+  }
+
+  if num_sqls == 0 {
+    info!("No SQL queries found");
+  } else {
+    let num_sqls_msg = format!("Found {num_sqls} SQL queries");
+    info!(num_sqls_msg);
   }
 
   info!("No SQL errors detected!\n");

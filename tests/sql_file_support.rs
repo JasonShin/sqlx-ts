@@ -15,8 +15,8 @@ mod sql_file_tests {
     let sql_file = dir_path.join("users.sql");
 
     let sql_content = r#"
--- Simple user query
-SELECT id, name, email FROM users WHERE active = true;
+-- Simple character query matching playpen schema
+SELECT id, name, level, experience FROM characters WHERE level > 1;
 "#;
 
     fs::write(&sql_file, sql_content)?;
@@ -50,15 +50,15 @@ SELECT id, name, email FROM users WHERE active = true;
     let sql_file = dir_path.join("multiple_queries.sql");
 
     let sql_content = r#"
--- @name: getUserById
-SELECT id, name, email FROM users WHERE id = $1;
+-- @name: getCharacterById
+SELECT id, name, level, race_id, class_id FROM characters WHERE id = $1;
 
--- @name: getUsersByStatus
+-- @name: getCharactersByRace
 -- @db: postgres
-SELECT id, name, email FROM users WHERE status = $1 ORDER BY created_at DESC;
+SELECT id, name, level FROM characters WHERE race_id = $1 ORDER BY level DESC;
 
--- @name: createUser
-INSERT INTO users (name, email, status) VALUES ($1, $2, $3) RETURNING id;
+-- @name: createCharacter
+INSERT INTO characters (name, race_id, class_id, level) VALUES ($1, $2, $3, $4) RETURNING id;
 "#;
 
     fs::write(&sql_file, sql_content)?;
@@ -90,14 +90,18 @@ INSERT INTO users (name, email, status) VALUES ($1, $2, $3) RETURNING id;
     // SETUP
     let dir = tempdir()?;
     let dir_path = dir.path();
-    let sql_file = dir_path.join("user_queries.sql");
+    let sql_file = dir_path.join("character_queries.sql");
 
     let sql_content = r#"
--- @name: getUserById
-SELECT id, name, email, created_at FROM users WHERE id = $1;
+-- @name: getCharacterById
+SELECT id, name, level, experience, gold FROM characters WHERE id = $1;
 
--- @name: getUsersByEmail
-SELECT id, name, email FROM users WHERE email = $1;
+-- @name: getCharactersByFaction
+SELECT c.id, c.name, c.level, r.name as race_name, f.name as faction_name
+FROM characters c
+JOIN races r ON c.race_id = r.id
+JOIN factions f ON r.faction_id = f.id
+WHERE f.name = $1;
 "#;
 
     fs::write(&sql_file, sql_content)?;
@@ -122,16 +126,16 @@ SELECT id, name, email FROM users WHERE email = $1;
       .stdout(predicates::str::contains("No SQL errors detected!"));
 
     // Check that types file was generated
-    let types_file = dir_path.join("user_queries.queries.ts");
+    let types_file = dir_path.join("character_queries.queries.ts");
     assert!(types_file.exists());
 
     let types_content = fs::read_to_string(types_file)?;
 
     // Verify generated types contain expected interfaces
-    assert!(types_content.contains("IGetUserByIdParams"));
-    assert!(types_content.contains("IGetUserByIdResult"));
-    assert!(types_content.contains("IGetUsersByEmailParams"));
-    assert!(types_content.contains("IGetUsersByEmailResult"));
+    assert!(types_content.contains("IGetCharacterByIdParams"));
+    assert!(types_content.contains("IGetCharacterByIdResult"));
+    assert!(types_content.contains("IGetCharactersByFactionParams"));
+    assert!(types_content.contains("IGetCharactersByFactionResult"));
 
     Ok(())
   }
@@ -144,31 +148,33 @@ SELECT id, name, email FROM users WHERE email = $1;
     let sql_file = dir_path.join("complex_queries.sql");
 
     let sql_content = r#"
--- @name: getUsersWithOrders
+-- @name: getCharactersWithInventory
 SELECT
-  u.id,
-  u.name,
-  u.email,
-  COUNT(o.id) as order_count,
-  SUM(o.total) as total_spent
-FROM users u
-LEFT JOIN orders o ON u.id = o.user_id
-WHERE u.status = $1
-GROUP BY u.id, u.name, u.email
-HAVING COUNT(o.id) > $2
-ORDER BY total_spent DESC
+  c.id,
+  c.name,
+  c.level,
+  COUNT(i.id) as item_count,
+  SUM(inv.quantity) as total_items
+FROM characters c
+LEFT JOIN inventory inv ON c.id = inv.character_id
+LEFT JOIN items i ON inv.id = i.inventory_id
+WHERE c.level >= $1
+GROUP BY c.id, c.name, c.level
+HAVING COUNT(i.id) > $2
+ORDER BY total_items DESC
 LIMIT $3;
 
--- @name: getOrdersByDateRange
+-- @name: getGuildMembersByRank
 SELECT
-  o.id,
-  o.total,
-  o.created_at,
-  u.name as user_name
-FROM orders o
-JOIN users u ON o.user_id = u.id
-WHERE o.created_at BETWEEN $1 AND $2
-ORDER BY o.created_at DESC;
+  g.name as guild_name,
+  c.name as character_name,
+  gm.rank,
+  c.level
+FROM guild_members gm
+JOIN guilds g ON gm.guild_id = g.id
+JOIN characters c ON gm.character_id = c.id
+WHERE gm.rank = $1
+ORDER BY c.level DESC;
 "#;
 
     fs::write(&sql_file, sql_content)?;
@@ -203,14 +209,14 @@ ORDER BY o.created_at DESC;
     let sql_file = dir_path.join("mysql_queries.sql");
 
     let sql_content = r#"
--- @name: getUserById
-SELECT id, name, email FROM users WHERE id = ?;
+-- @name: getCharacterById
+SELECT id, name, level, race_id FROM characters WHERE id = ?;
 
--- @name: getUsersByStatus
-SELECT id, name, email FROM users WHERE status = ? ORDER BY created_at DESC LIMIT ?;
+-- @name: getCharactersByLevel
+SELECT id, name, level FROM characters WHERE level >= ? ORDER BY level DESC LIMIT ?;
 
--- @name: createUser
-INSERT INTO users (name, email, status) VALUES (?, ?, ?);
+-- @name: createCharacter
+INSERT INTO characters (name, race_id, class_id, level) VALUES (?, ?, ?, ?);
 "#;
 
     fs::write(&sql_file, sql_content)?;
@@ -251,25 +257,25 @@ INSERT INTO users (name, email, status) VALUES (?, ?, ?);
 
 -- Single line comment
 
--- @name: getUserData
+-- @name: getCharacterData
 -- This is a comment that should be preserved
 SELECT
-  id,           -- User ID
-  name,         -- Full name
-  email,        -- Email address
-  created_at    -- Account creation date
-FROM users
-WHERE id = $1;  -- Filter by user ID
+  id,           -- Character ID
+  name,         -- Character name
+  level,        -- Character level
+  experience    -- Total experience points
+FROM characters
+WHERE id = $1;  -- Filter by character ID
 
 /*
  * Another multi-line comment
  */
 
--- @name: getActiveUsers
-SELECT id, name, email
-FROM users
-WHERE status = 'active'
-  AND deleted_at IS NULL; -- Exclude soft deleted users
+-- @name: getActiveCharacters
+SELECT id, name, level
+FROM characters
+WHERE level > 1
+  AND created_at > NOW() - INTERVAL '30 days'; -- Active in last 30 days
 "#;
 
     fs::write(&sql_file, sql_content)?;
@@ -302,14 +308,14 @@ WHERE status = 'active'
     let dir = tempdir()?;
     let dir_path = dir.path();
 
-    // Create multiple SQL files
-    let users_sql = dir_path.join("users.sql");
-    let orders_sql = dir_path.join("orders.sql");
-    let products_sql = dir_path.join("products.sql");
+    // Create multiple SQL files using playpen schema
+    let characters_sql = dir_path.join("characters.sql");
+    let guilds_sql = dir_path.join("guilds.sql");
+    let inventory_sql = dir_path.join("inventory.sql");
 
-    fs::write(&users_sql, "SELECT * FROM users WHERE id = $1;")?;
-    fs::write(&orders_sql, "SELECT * FROM orders WHERE user_id = $1;")?;
-    fs::write(&products_sql, "SELECT * FROM products WHERE category = $1;")?;
+    fs::write(&characters_sql, "SELECT * FROM characters WHERE level >= $1;")?;
+    fs::write(&guilds_sql, "SELECT * FROM guilds WHERE created_at > $1;")?;
+    fs::write(&inventory_sql, "SELECT * FROM inventory WHERE character_id = $1;")?;
 
     // EXECUTE
     let mut cmd = Command::cargo_bin("sqlx-ts")?;
@@ -342,7 +348,7 @@ WHERE status = 'active'
 
     let sql_content = r#"
 -- This query has invalid SQL syntax
-SELECT id, name, FROM users WHERE; -- Missing table and incomplete WHERE clause
+SELECT id, name, FROM characters WHERE; -- Missing table and incomplete WHERE clause
 "#;
 
     fs::write(&sql_file, sql_content)?;
@@ -377,12 +383,12 @@ SELECT id, name, FROM users WHERE; -- Missing table and incomplete WHERE clause
     let config_file = dir_path.join(".sqlxrc.json");
 
     let sql_content = r#"
--- @name: getDefaultUsers
-SELECT * FROM users;
+-- @name: getDefaultCharacters
+SELECT * FROM characters;
 
--- @name: getOrdersFromSecondDB
+-- @name: getCharactersFromSecondDB
 -- @db: secondary
-SELECT * FROM orders WHERE status = $1;
+SELECT * FROM characters WHERE level > $1;
 "#;
 
     let config_content = r#"
@@ -440,8 +446,8 @@ SELECT * FROM orders WHERE status = $1;
     fs::create_dir_all(&types_dir)?;
 
     let sql_content = r#"
--- @name: getUser
-SELECT id, name, email FROM users WHERE id = $1;
+-- @name: getCharacter
+SELECT id, name, level, experience FROM characters WHERE id = $1;
 "#;
 
     fs::write(&sql_file, sql_content)?;
@@ -468,8 +474,8 @@ SELECT id, name, email FROM users WHERE id = $1;
 
     assert!(types_file.exists());
     let types_content = fs::read_to_string(types_file)?;
-    assert!(types_content.contains("IGetUserParams"));
-    assert!(types_content.contains("IGetUserResult"));
+    assert!(types_content.contains("IGetCharacterParams"));
+    assert!(types_content.contains("IGetCharacterResult"));
 
     Ok(())
   }
@@ -500,6 +506,58 @@ SELECT id, name, email FROM users WHERE id = $1;
       .assert()
       .success()
       .stdout(predicates::str::contains("No SQL queries found"))
+      .stdout(predicates::str::contains("No SQL errors detected!"));
+
+    Ok(())
+  }
+
+  #[test]
+  fn test_playpen_schema_inventory_items_relationship() -> Result<(), Box<dyn std::error::Error>> {
+    // SETUP
+    let dir = tempdir()?;
+    let dir_path = dir.path();
+    let sql_file = dir_path.join("inventory_items.sql");
+
+    let sql_content = r#"
+-- @name: getCharacterInventory
+-- Query using the correct playpen schema relationship
+SELECT
+  c.name as character_name,
+  i.name as item_name,
+  inv.quantity
+FROM characters c
+JOIN inventory inv ON c.id = inv.character_id
+JOIN items i ON inv.id = i.inventory_id
+WHERE c.id = $1;
+
+-- @name: getItemsByRarity
+SELECT
+  i.name,
+  i.rarity,
+  i.flavor_text
+FROM items i
+WHERE i.rarity = $1;
+"#;
+
+    fs::write(&sql_file, sql_content)?;
+
+    // EXECUTE
+    let mut cmd = Command::cargo_bin("sqlx-ts")?;
+    cmd
+      .arg(dir_path.to_str().unwrap())
+      .arg("--ext=sql")
+      .arg("--db-type=postgres")
+      .arg("--db-host=127.0.0.1")
+      .arg("--db-port=54321")
+      .arg("--db-user=postgres")
+      .arg("--db-pass=postgres")
+      .arg("--db-name=postgres");
+
+    // ASSERT
+    cmd
+      .assert()
+      .success()
+      .stdout(predicates::str::contains("Found 2 SQL queries"))
       .stdout(predicates::str::contains("No SQL errors detected!"));
 
     Ok(())
