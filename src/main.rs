@@ -28,13 +28,13 @@ use std::cell::LazyCell;
 
 use crate::common::lazy::*;
 use crate::common::logger::*;
+use crate::common::types::FileExtension;
 use crate::ts_generator::generator::clear_single_ts_file_if_exists;
 use crate::{parser::parse_source, scan_folder::scan_folder};
 use color_eyre::eyre::Result;
 use std::env;
 use std::path::PathBuf;
 use std::sync::LazyLock;
-use crate::common::types::FileExtension;
 
 fn set_default_env_var() {
   if env::var("SQLX_TS_LOG").is_err() {
@@ -67,19 +67,28 @@ async fn main() -> Result<()> {
   let source_folder = &CLI_ARGS.path;
   // If no file extensions were provided
   let exts = if CLI_ARGS.ext.is_empty() {
-    vec![FileExtension::Ts]
+    vec![FileExtension::Ts, FileExtension::Sql]
   } else {
     CLI_ARGS.ext.clone()
   };
 
-  let exts_str = exts.iter().map(|ext| ext.to_string()).collect::<Vec<String>>().join(",");
+  let exts_str = exts
+    .iter()
+    .map(|ext| ext.to_string())
+    .collect::<Vec<String>>()
+    .join(",");
 
   info!("Scanning {:?} for SQLs with extensions [{}]", source_folder, exts_str);
 
   // If CLI_ARGS.generate_types is true, it will clear the single TS file so `execute` will generate a new one from scratch
   clear_single_ts_file_if_exists()?;
 
-  let files: Vec<PathBuf> = exts.iter().map(|ext| scan_folder(source_folder, ext)).into_iter().flatten().collect();
+  let files: Vec<PathBuf> = exts
+    .iter()
+    .map(|ext| scan_folder(source_folder, ext))
+    .into_iter()
+    .flatten()
+    .collect();
 
   if files.is_empty() {
     info!(

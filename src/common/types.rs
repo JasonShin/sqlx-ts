@@ -1,4 +1,4 @@
-use clap::{ValueEnum, ArgEnum};
+use clap::{ArgEnum, ValueEnum};
 use convert_case::{Case, Casing};
 use serde::{Deserialize, Serialize};
 

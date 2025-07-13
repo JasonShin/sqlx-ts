@@ -21,11 +21,7 @@ pub struct Cli {
   pub path: std::path::PathBuf,
 
   /// file extensions
-  #[clap(
-    value_enum,
-    long,
-    multiple_values = true
-    )]
+  #[clap(value_enum, long, multiple_values = true)]
   pub ext: Vec<FileExtension>,
 
   /// Type of primary database to connect
