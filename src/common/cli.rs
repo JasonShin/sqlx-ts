@@ -9,7 +9,7 @@ impl fmt::Display for FileExtension {
       FileExtension::Js => ".js".to_string(),
       FileExtension::Sql => ".sql".to_string(),
     };
-    write!(f, "{}", extension)
+    write!(f, "{extension}")
   }
 }
 

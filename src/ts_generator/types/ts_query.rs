@@ -346,7 +346,7 @@ impl TsQuery {
             .join(", ")
         })
         // Wrap the result of row .to_string in `[]`
-        .map(|row| format!("[{}]", row))
+        .map(|row| format!("[{row}]"))
         .collect::<Vec<String>>()
         .join(", ");
     }
@@ -395,6 +395,6 @@ impl fmt::Display for TsQuery {
 
     let final_code = format!("{params}\n\n{result}\n\n{query}");
 
-    writeln!(f, "{}", final_code)
+    writeln!(f, "{final_code}")
   }
 }

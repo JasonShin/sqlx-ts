@@ -8,7 +8,7 @@ use walkdir::WalkDir;
 fn pattern_to_regex(pattern: &str) -> Result<Regex, RegexError> {
   let pattern = pattern.replace('.', "\\.");
   let pattern = pattern.replace('*', ".*");
-  let pattern = format!("^{}$", pattern);
+  let pattern = format!("^{pattern}$");
   Regex::new(&pattern)
 }
 
@@ -16,11 +16,9 @@ fn is_match(pattern: &str, path: &Path) -> bool {
   let regex = pattern_to_regex(pattern);
 
   if regex.is_err() {
-    let invalid_pattern = format!(
-      "Invalid ignore path pattern found in the ignore file - pattern: ${:?}, path: ${:?}",
-      pattern, path
-    );
-    panic!("{}", invalid_pattern);
+    let invalid_pattern =
+      format!("Invalid ignore path pattern found in the ignore file - pattern: ${pattern}, path: ${path:?}");
+    panic!("{invalid_pattern}");
   }
 
   let regex = regex.unwrap();

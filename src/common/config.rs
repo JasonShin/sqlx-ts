@@ -172,8 +172,7 @@ impl Config {
         panic!(
           "{}",
           format!(
-            "Empty or invalid JSON provided for file based configuration - config file: {:?}, error: {:?}",
-            file_config_path, result,
+            "Empty or invalid JSON provided for file based configuration - config file: {file_config_path:?}, error: {result:?}",
           )
         );
       }
@@ -186,7 +185,7 @@ impl Config {
       .map(|config| config.connections.clone())
       .unwrap_or_else(|_| {
         Self::warning(
-          format!("Failed to read config file from the path: {:?}", file_config_path).as_str(),
+          format!("Failed to read config file from the path: {file_config_path:?}").as_str(),
           Self::get_log_level(file_config_path),
         );
         Default::default()

@@ -61,7 +61,9 @@ async fn main() -> Result<()> {
     }
   }));
 
-  unsafe { set_default_env_var(); }
+  unsafe {
+    set_default_env_var();
+  }
 
   let source_folder = &CLI_ARGS.path;
   // If no file extensions were provided
