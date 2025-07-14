@@ -2,12 +2,9 @@ use color_eyre::eyre::Result;
 use swc_common::MultiSpan;
 use swc_ecma_ast::{ClassDecl, ClassMember, Decl, DefaultDecl};
 
+use super::tag::{get_sql_from_expr, get_sql_from_var_decl};
 use crate::common::SQL;
-
-use super::{
-  get_var_decl_name_from_key, recurse_and_find_sql,
-  tag::{get_sql_from_expr, get_sql_from_var_decl},
-};
+use crate::parser::js_parser::{get_var_decl_name_from_key, recurse_and_find_sql};
 
 fn process_class_member(sqls: &mut Vec<SQL>, body_stmt: &ClassMember, import_alias: &String) -> Result<()> {
   match body_stmt {

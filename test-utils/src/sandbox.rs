@@ -17,7 +17,7 @@ pub struct DbConnectionConfig {
 #[derive(Clone, Debug)]
 pub struct TestConfig {
     pub db_type: String,
-    pub js_extension: String,
+    pub file_extension: String,
     pub db_host: String,
     pub db_port: i32,
     pub db_user: String,
@@ -31,10 +31,11 @@ pub struct TestConfig {
 impl TestConfig {
     pub fn new(db_type: &str, generate_types: bool, generate_path: Option<PathBuf>, config_file_name: Option<String>) -> Self {
         let generate_path = generate_path.clone();
+        println!("checking db_type: {db_type}");
         if db_type == "mysql" {
             return TestConfig {
                 db_type: "mysql".into(),
-                js_extension: "ts".to_string(),
+                file_extension: "ts".to_string(),
                 db_host: "127.0.0.1".to_string(),
                 db_port: 33306,
                 db_user: "root".to_string(),
@@ -47,7 +48,7 @@ impl TestConfig {
         }
         TestConfig {
             db_type: "postgres".into(),
-            js_extension: "ts".to_string(),
+            file_extension: "ts".to_string(),
             db_host: "127.0.0.1".to_string(),
             db_port: 54321,
             db_user: "postgres".to_string(),
@@ -64,8 +65,8 @@ impl TestConfig {
         self.clone()
     }
 
-    pub fn set_js_extension(&mut self, js_extension: String) -> Self {
-        self.js_extension = js_extension;
+    pub fn set_file_extension(&mut self, file_extension: String) -> Self {
+        self.file_extension = file_extension;
         self.clone()
     }
 
@@ -105,7 +106,8 @@ $(
     fn $name() -> Result<(), Box<dyn std::error::Error>> {
       let ts_content = $ts_content;
       let test_config: TestConfig = $test_config;
-      let js_extension = test_config.js_extension;
+      println!("checking test config {:?}", test_config);
+      let file_extension = test_config.file_extension;
       let db_type = test_config.db_type;
       let db_host = test_config.db_host;
       let db_port = test_config.db_port;
@@ -118,7 +120,7 @@ $(
       // SETUP
       let dir = tempdir()?;
       let parent_path = dir.path();
-      let file_path = parent_path.join(format!("index.{js_extension}"));
+      let file_path = parent_path.join(format!("index.{file_extension}"));
 
       let mut temp_file = fs::File::create(&file_path)?;
       writeln!(temp_file, "{}", ts_content)?;
@@ -128,7 +130,7 @@ $(
       let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
 
       cmd.arg(parent_path.to_str().unwrap())
-          .arg(format!("--ext={js_extension}"))
+          .arg(format!("--ext={file_extension}"))
           .arg(format!("--db-type={db_type}"))
           .arg(format!("--db-host={db_host}"))
           .arg(format!("--db-port={db_port}"))
@@ -159,6 +161,8 @@ $(
       if (db_pass.is_some()) {
         let db_pass = db_pass.unwrap();
         cmd.arg(format!("--db-pass={db_pass}"));
+      } else {
+        cmd.arg("--db-pass=");
       }
 
       cmd.assert()

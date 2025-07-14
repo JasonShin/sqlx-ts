@@ -126,12 +126,12 @@ pub async fn get_sql_query_param(
         .await
         .fetch_table(&table_names, db_conn)
         .await
-        .unwrap_or_else(|| panic!("Failed to fetch columns for table {:?}", table_name));
+        .unwrap_or_else(|| panic!("Failed to fetch columns for table {table_name}"));
 
       // get column and return TsFieldType
       let column = columns
         .get(column_name.as_str())
-        .unwrap_or_else(|| panic!("Failed to find the column from the table schema of {:?}", table_name));
+        .unwrap_or_else(|| panic!("Failed to find the column from the table schema of {table_name}"));
       Some((column.field_type.to_owned(), column.is_nullable, Some(expr_placeholder)))
     }
     _ => None,
@@ -190,7 +190,7 @@ pub async fn translate_expr(
           let field = table_details.get(&ident).unwrap();
 
           // if the select item is a compound identifier and does not has an alias, we should use `table_name.ident` as the key name
-          let key_name = format!("{}_{}", table_name, ident);
+          let key_name = format!("{table_name}_{ident}");
           let key_name = &alias.unwrap_or_else(|| {
                         warning!(
                             "Missing an alias for a compound identifier, using {} as the key name. Prefer adding an alias for example: `{} AS {}`",

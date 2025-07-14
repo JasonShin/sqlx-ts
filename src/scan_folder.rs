@@ -1,14 +1,14 @@
 use std::path::{Path, PathBuf};
 
 use crate::common::lazy::CONFIG;
-use crate::common::types::JsExtension;
+use crate::common::types::FileExtension;
 use regex::{Error as RegexError, Regex};
 use walkdir::WalkDir;
 
 fn pattern_to_regex(pattern: &str) -> Result<Regex, RegexError> {
   let pattern = pattern.replace('.', "\\.");
   let pattern = pattern.replace('*', ".*");
-  let pattern = format!("^{}$", pattern);
+  let pattern = format!("^{pattern}$");
   Regex::new(&pattern)
 }
 
@@ -16,11 +16,9 @@ fn is_match(pattern: &str, path: &Path) -> bool {
   let regex = pattern_to_regex(pattern);
 
   if regex.is_err() {
-    let invalid_pattern = format!(
-      "Invalid ignore path pattern found in the ignore file - pattern: ${:?}, path: ${:?}",
-      pattern, path
-    );
-    panic!("{}", invalid_pattern);
+    let invalid_pattern =
+      format!("Invalid ignore path pattern found in the ignore file - pattern: ${pattern}, path: ${path:?}");
+    panic!("{invalid_pattern}");
   }
 
   let regex = regex.unwrap();
@@ -32,7 +30,7 @@ fn is_match(pattern: &str, path: &Path) -> bool {
   }
 }
 
-pub fn scan_folder<'a>(folder: &'a PathBuf, js_extension: &'a JsExtension) -> Vec<PathBuf> {
+pub fn scan_folder<'a>(folder: &'a PathBuf, file_extension: &'a FileExtension) -> Vec<PathBuf> {
   let ignore_paths = &CONFIG.ignore_patterns;
   let node_modules_path = folder.join(Path::new("node_modules"));
   let path = Path::new(folder);
@@ -56,7 +54,7 @@ pub fn scan_folder<'a>(folder: &'a PathBuf, js_extension: &'a JsExtension) -> Ve
 
       let f_name = entry.file_name().to_string_lossy();
 
-      f_name.ends_with(js_extension.to_string().as_str())
+      f_name.ends_with(file_extension.to_string().as_str())
     })
     .map(|entry| entry.path().to_owned())
     .collect();

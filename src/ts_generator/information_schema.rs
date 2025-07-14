@@ -87,15 +87,14 @@ impl DBSchema {
           from pg_type t
               join pg_enum e on t.oid = e.enumtypid
               join pg_catalog.pg_namespace n ON n.oid = t.typnamespace
-          where n.nspname = '{}'
+          where n.nspname = '{schema}'
           and t.typname = udt_name
           group by n.nspname, t.typname
           ) as enum_values
       FROM information_schema.COLUMNS
-      WHERE TABLE_SCHEMA = '{}'
-      AND TABLE_NAME IN ({});
-                ",
-      schema, schema, table_names,
+      WHERE TABLE_SCHEMA = '{schema}'
+      AND TABLE_NAME IN ({table_names});
+                "
     );
 
     let mut fields: HashMap<String, Field> = HashMap::new();
@@ -171,9 +170,8 @@ impl DBSchema {
             ) AS enums
         FROM information_schema.COLUMNS C
         WHERE TABLE_SCHEMA = (SELECT DATABASE())
-        AND TABLE_NAME IN ({})
-                ",
-      table_names
+        AND TABLE_NAME IN ({table_names})
+                "
     );
 
     let mut fields: HashMap<String, Field> = HashMap::new();

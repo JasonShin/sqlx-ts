@@ -1,11 +1,12 @@
-use clap::ValueEnum;
+use clap::{ArgEnum, ValueEnum};
 use convert_case::{Case, Casing};
 use serde::{Deserialize, Serialize};
 
-#[derive(ValueEnum, Debug, Clone)]
-pub enum JsExtension {
+#[derive(ArgEnum, Debug, Clone)]
+pub enum FileExtension {
   Ts,
   Js,
+  Sql,
 }
 
 #[derive(ValueEnum, Debug, Clone, Serialize, Deserialize)]

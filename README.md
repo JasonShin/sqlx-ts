@@ -78,6 +78,22 @@ const { sql } = require('sqlx-ts')
 const query = sql`SELECT * FROM some_table;`
 ```
 
+#### Using Raw SQL Files
+
+Create a SQL file with annotations:
+
+```sql
+-- users.sql
+-- @name: getUserById
+SELECT id, name, email FROM users WHERE id = $1;
+
+-- @name: createUser
+INSERT INTO users (name, email) VALUES ($1, $2) RETURNING id;
+```
+
+Then, you can use the `sqlx-ts` CLI to generate TypeScript types and check the SQL queries
+
+
 ##### Installing binary separately
 
 You may choose to install sqlx-ts separately instead of using `npm i`

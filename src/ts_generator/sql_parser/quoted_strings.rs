@@ -20,7 +20,7 @@ impl fmt::Display for DisplayIndent<'_> {
     let quote_style = &self.0.quote_style;
     let name = &self.0.value;
     let name = trim_table_name(name, quote_style);
-    write!(f, "{}", name)
+    write!(f, "{name}")
   }
 }
 
@@ -31,7 +31,7 @@ impl fmt::Display for DisplayObjectName<'_> {
     let quote_style = &self.0 .0[0].quote_style;
     let name = &self.0 .0[0].value;
     let name = trim_table_name(name, quote_style);
-    write!(f, "{}", name)
+    write!(f, "{name}")
   }
 }
 
@@ -42,6 +42,6 @@ impl fmt::Display for DisplayTableAlias<'_> {
     let quote_style = &self.0.name.quote_style;
     let name = &self.0.name.value;
     let name = trim_table_name(name, quote_style);
-    write!(f, "{}", name)
+    write!(f, "{name}")
   }
 }
