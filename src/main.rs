@@ -84,10 +84,7 @@ async fn main() -> Result<()> {
   // If CLI_ARGS.generate_types is true, it will clear the single TS file so `execute` will generate a new one from scratch
   clear_single_ts_file_if_exists()?;
 
-  let files: Vec<PathBuf> = exts
-    .iter()
-    .flat_map(|ext| scan_folder(source_folder, ext))
-    .collect();
+  let files: Vec<PathBuf> = exts.iter().flat_map(|ext| scan_folder(source_folder, ext)).collect();
 
   if files.is_empty() {
     info!(
