@@ -1,5 +1,6 @@
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::{core::connection::DBConn, ts_generator::sql_parser::translate_insert::translate_insert_returning};
+use async_recursion::async_recursion;
 
 use crate::ts_generator::sql_parser::quoted_strings::DisplayObjectName;
 use crate::ts_generator::sql_parser::translate_delete::translate_delete;
@@ -11,6 +12,7 @@ use crate::ts_generator::types::ts_query::TsQuery;
 use super::expressions::translate_table_with_joins::get_default_table;
 use sqlparser::ast::{FromTable, Statement};
 
+#[async_recursion]
 pub async fn translate_stmt(
   ts_query: &mut TsQuery,
   sql_statement: &Statement,

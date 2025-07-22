@@ -3,10 +3,13 @@ use crate::core::connection::DBConn;
 use crate::ts_generator::sql_parser::expressions::translate_expr::{get_expr_placeholder, translate_expr};
 use crate::ts_generator::sql_parser::quoted_strings::DisplayIndent;
 use crate::ts_generator::sql_parser::translate_query::{translate_query, translate_select};
+use crate::ts_generator::sql_parser::translate_stmt::translate_stmt;
 use crate::ts_generator::{errors::TsGeneratorError, types::ts_query::TsQuery};
+use async_recursion::async_recursion;
 use color_eyre::Result;
 use sqlparser::ast::{Ident, Query, Select, SelectItem, SetExpr};
 
+#[async_recursion]
 pub async fn translate_insert(
   ts_query: &mut TsQuery,
   columns: &[Ident],
@@ -95,9 +98,9 @@ VALUES (value1, value2, value3, ...);
       };
       translate_query(ts_query, &None, &right_query, conn, None, false).await?;
     }
-    SetExpr::Insert(_) => {}
-    SetExpr::Update(_) => {}
-    SetExpr::Table(_) => {}
+    SetExpr::Insert(insert) => translate_stmt(ts_query, &insert, None, conn).await?,
+    SetExpr::Update(update) => translate_stmt(ts_query, &update, None, conn).await?,
+    SetExpr::Table(_) => unimplemented!("Table expressions are not supported in INSERT statements"),
   }
 
   Ok(())
