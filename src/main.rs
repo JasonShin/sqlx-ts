@@ -86,9 +86,7 @@ async fn main() -> Result<()> {
 
   let files: Vec<PathBuf> = exts
     .iter()
-    .map(|ext| scan_folder(source_folder, ext))
-    .into_iter()
-    .flatten()
+    .flat_map(|ext| scan_folder(source_folder, ext))
     .collect();
 
   if files.is_empty() {
