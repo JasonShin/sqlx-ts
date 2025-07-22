@@ -2,10 +2,10 @@ use crate::common::lazy::DB_SCHEMA;
 use crate::core::connection::DBConn;
 use crate::ts_generator::sql_parser::expressions::translate_expr::{get_expr_placeholder, translate_expr};
 use crate::ts_generator::sql_parser::quoted_strings::DisplayIndent;
+use crate::ts_generator::sql_parser::translate_query::{translate_query, translate_select};
 use crate::ts_generator::{errors::TsGeneratorError, types::ts_query::TsQuery};
 use color_eyre::Result;
 use sqlparser::ast::{Ident, Query, Select, SelectItem, SetExpr};
-use crate::ts_generator::sql_parser::translate_query::translate_query;
 
 pub async fn translate_insert(
   ts_query: &mut TsQuery,
@@ -66,12 +66,35 @@ VALUES (value1, value2, value3, ...);
           }
         }
       }
-    },
-    SetExpr::Select(expr) => {
-      let z = expr.from;
     }
+    SetExpr::Select(expr) => translate_select(ts_query, &None, &expr, conn, None, false).await?,
     SetExpr::Query(query) => translate_query(ts_query, &None, &query, conn, None, false).await?,
-    SetExpr::SetOperation { .. } => {}
+    SetExpr::SetOperation { left, right, .. } => {
+      let left_query = Query {
+        with: None,
+        body: left.clone(),
+        order_by: vec![],
+        limit: None,
+        limit_by: vec![],
+        offset: None,
+        fetch: None,
+        locks: vec![],
+        for_clause: None,
+      };
+      translate_query(ts_query, &None, &left_query, conn, None, false).await?;
+      let right_query = Query {
+        with: None,
+        body: right.clone(),
+        order_by: vec![],
+        limit: None,
+        limit_by: vec![],
+        offset: None,
+        fetch: None,
+        locks: vec![],
+        for_clause: None,
+      };
+      translate_query(ts_query, &None, &right_query, conn, None, false).await?;
+    }
     SetExpr::Insert(_) => {}
     SetExpr::Update(_) => {}
     SetExpr::Table(_) => {}

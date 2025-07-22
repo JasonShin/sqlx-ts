@@ -55,7 +55,7 @@ pub async fn translate_select(
           db_conn,
           is_selection,
         )
-          .await?;
+        .await?;
       }
       SelectItem::ExprWithAlias { expr, alias } => {
         let alias = DisplayIndent(alias).to_string();
@@ -71,7 +71,7 @@ pub async fn translate_select(
           db_conn,
           is_selection,
         )
-          .await?;
+        .await?;
       }
       SelectItem::QualifiedWildcard(_, _) => {
         // TODO: If there's are two tables and two qualifieid wildcards are provided
@@ -94,7 +94,7 @@ pub async fn translate_select(
     let current_scope_table_name = get_default_table(&child_table_with_joins);
     let current_scope_table_name = current_scope_table_name.as_str();
     translate_expr(
-      &selection,
+      selection,
       &Some(current_scope_table_name),
       full_table_with_joins,
       None,
@@ -102,7 +102,7 @@ pub async fn translate_select(
       db_conn,
       false,
     )
-      .await?;
+    .await?;
   }
   Ok(())
 }
