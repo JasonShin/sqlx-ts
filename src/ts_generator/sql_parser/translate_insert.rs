@@ -4,7 +4,8 @@ use crate::ts_generator::sql_parser::expressions::translate_expr::{get_expr_plac
 use crate::ts_generator::sql_parser::quoted_strings::DisplayIndent;
 use crate::ts_generator::{errors::TsGeneratorError, types::ts_query::TsQuery};
 use color_eyre::Result;
-use sqlparser::ast::{Ident, Query, SelectItem, SetExpr};
+use sqlparser::ast::{Ident, Query, Select, SelectItem, SetExpr};
+use crate::ts_generator::sql_parser::translate_query::translate_query;
 
 pub async fn translate_insert(
   ts_query: &mut TsQuery,
@@ -65,8 +66,15 @@ VALUES (value1, value2, value3, ...);
           }
         }
       }
+    },
+    SetExpr::Select(expr) => {
+      let z = expr.from;
     }
-    _ => unimplemented!(),
+    SetExpr::Query(query) => translate_query(ts_query, &None, &query, conn, None, false).await?,
+    SetExpr::SetOperation { .. } => {}
+    SetExpr::Insert(_) => {}
+    SetExpr::Update(_) => {}
+    SetExpr::Table(_) => {}
   }
 
   Ok(())
