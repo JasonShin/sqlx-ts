@@ -2,7 +2,7 @@
 mod dotenv_test {
   use assert_cmd::Command;
   use std::fs::{self};
-  use std::io::Write;
+  
   use tempfile::tempdir;
 
   #[test]

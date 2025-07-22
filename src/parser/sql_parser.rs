@@ -3,7 +3,7 @@ use color_eyre::eyre::Result;
 use regex::Regex;
 use std::collections::HashMap;
 use std::path::PathBuf;
-use std::{fs, path::Path};
+use std::fs;
 use swc_common::{
   errors::{ColorConfig, Handler},
   sync::Lrc,

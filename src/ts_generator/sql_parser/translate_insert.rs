@@ -7,7 +7,7 @@ use crate::ts_generator::sql_parser::translate_stmt::translate_stmt;
 use crate::ts_generator::{errors::TsGeneratorError, types::ts_query::TsQuery};
 use async_recursion::async_recursion;
 use color_eyre::Result;
-use sqlparser::ast::{Ident, Query, Select, SelectItem, SetExpr};
+use sqlparser::ast::{Ident, Query, SelectItem, SetExpr};
 
 #[async_recursion]
 pub async fn translate_insert(

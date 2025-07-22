@@ -6,7 +6,7 @@ use crate::ts_generator::sql_parser::quoted_strings::DisplayObjectName;
 use crate::ts_generator::types::ts_query::TsFieldType;
 use crate::ts_generator::types::ts_query::TsQuery;
 use color_eyre::eyre::Result;
-use sqlparser::ast::{Join, Query, Select, SetExpr, TableFactor, TableWithJoins};
+use sqlparser::ast::{Join, Select, TableFactor};
 
 pub fn get_all_table_names_from_select(select: &Box<Select>) -> Result<Vec<String>, TsGeneratorError> {
   let table_with_joins = select
