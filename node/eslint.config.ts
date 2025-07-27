@@ -70,4 +70,4 @@ export default [
             '*.min.js',
         ],
     },
-];
+]
