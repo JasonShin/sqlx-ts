@@ -2,8 +2,8 @@ use crate::common::SQL;
 use color_eyre::eyre::Result;
 use regex::Regex;
 use std::collections::HashMap;
+use std::fs;
 use std::path::PathBuf;
-use std::{fs, path::Path};
 use swc_common::{
   errors::{ColorConfig, Handler},
   sync::Lrc,

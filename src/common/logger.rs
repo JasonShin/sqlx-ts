@@ -1,7 +1,3 @@
-use crate::common::lazy::CONFIG;
-use crate::common::types::LogLevel;
-use colored::*;
-
 #[allow(unused_macros)]
 macro_rules! debug {
     ($arg:tt) => ({

@@ -340,8 +340,8 @@ impl TsQuery {
         .map(|row| {
           // Process each row and produce Number, String, Boolean
           row
-            .iter()
-            .map(|(_j, col)| col.to_string())
+            .values()
+            .map(|col| col.to_string())
             .collect::<Vec<String>>()
             .join(", ")
         })

@@ -44,7 +44,7 @@ mod demo_happy_path_tests {
 
           if !snapshot_path.exists() {
             let mut snapshot_file = fs::File::create(&snapshot_path)?;
-            writeln!(snapshot_file, "{}", generated_types)?;
+            writeln!(snapshot_file, "{generated_types}")?;
           }
 
           assert_eq!(

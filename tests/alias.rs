@@ -21,7 +21,7 @@ JOIN inventory ON items.inventory_id = inventory.id
     let parent_path = dir.path();
     let file_path = parent_path.join("index.ts");
     let mut temp_file = fs::File::create(file_path)?;
-    writeln!(temp_file, "{}", ts_content)?;
+    writeln!(temp_file, "{ts_content}")?;
 
     // EXECUTE
     let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
@@ -57,7 +57,7 @@ JOIN inventory ON items.inventory_id = inventory.id
     let parent_path = dir.path();
     let file_path = parent_path.join("index.ts");
     let mut temp_file = fs::File::create(file_path).unwrap();
-    writeln!(temp_file, "{}", ts_content).unwrap();
+    writeln!(temp_file, "{ts_content}").unwrap();
 
     // EXECUTE
     let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
@@ -92,7 +92,7 @@ JOIN inventory ON items.inventory_id = inventory.id
     let parent_path = dir.path();
     let file_path = parent_path.join("index.ts");
     let mut temp_file = fs::File::create(file_path)?;
-    writeln!(temp_file, "{}", ts_content)?;
+    writeln!(temp_file, "{ts_content}")?;
 
     // EXECUTE
     let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();

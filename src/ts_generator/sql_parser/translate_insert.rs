@@ -2,10 +2,14 @@ use crate::common::lazy::DB_SCHEMA;
 use crate::core::connection::DBConn;
 use crate::ts_generator::sql_parser::expressions::translate_expr::{get_expr_placeholder, translate_expr};
 use crate::ts_generator::sql_parser::quoted_strings::DisplayIndent;
+use crate::ts_generator::sql_parser::translate_query::{translate_query, translate_select};
+use crate::ts_generator::sql_parser::translate_stmt::translate_stmt;
 use crate::ts_generator::{errors::TsGeneratorError, types::ts_query::TsQuery};
+use async_recursion::async_recursion;
 use color_eyre::Result;
 use sqlparser::ast::{Ident, Query, SelectItem, SetExpr};
 
+#[async_recursion]
 pub async fn translate_insert(
   ts_query: &mut TsQuery,
   columns: &[Ident],
@@ -66,7 +70,37 @@ VALUES (value1, value2, value3, ...);
         }
       }
     }
-    _ => unimplemented!(),
+    SetExpr::Select(expr) => translate_select(ts_query, &None, &expr, conn, None, false).await?,
+    SetExpr::Query(query) => translate_query(ts_query, &None, &query, conn, None, false).await?,
+    SetExpr::SetOperation { left, right, .. } => {
+      let left_query = Query {
+        with: None,
+        body: left.clone(),
+        order_by: vec![],
+        limit: None,
+        limit_by: vec![],
+        offset: None,
+        fetch: None,
+        locks: vec![],
+        for_clause: None,
+      };
+      translate_query(ts_query, &None, &left_query, conn, None, false).await?;
+      let right_query = Query {
+        with: None,
+        body: right.clone(),
+        order_by: vec![],
+        limit: None,
+        limit_by: vec![],
+        offset: None,
+        fetch: None,
+        locks: vec![],
+        for_clause: None,
+      };
+      translate_query(ts_query, &None, &right_query, conn, None, false).await?;
+    }
+    SetExpr::Insert(insert) => translate_stmt(ts_query, &insert, None, conn).await?,
+    SetExpr::Update(update) => translate_stmt(ts_query, &update, None, conn).await?,
+    SetExpr::Table(_) => unimplemented!("Table expressions are not supported in INSERT statements"),
   }
 
   Ok(())
@@ -90,19 +124,19 @@ pub async fn translate_insert_returning(
   for select_item in returning {
     match &select_item {
       SelectItem::UnnamedExpr(unnamed_expr) => {
-        translate_expr(unnamed_expr, &Some(table_name), &None, None, ts_query, conn, true).await;
+        let _ = translate_expr(unnamed_expr, &Some(table_name), &None, None, ts_query, conn, true).await;
       }
       SelectItem::ExprWithAlias { expr, alias } => {
         let alias = DisplayIndent(alias).to_string();
         let alias = alias.as_str();
-        translate_expr(expr, &Some(table_name), &None, Some(alias), ts_query, conn, true).await;
+        let _ = translate_expr(expr, &Some(table_name), &None, Some(alias), ts_query, conn, true).await;
       }
       SelectItem::Wildcard(_) | SelectItem::QualifiedWildcard(_, _) => {
         let keys = table_details.keys();
         for key in keys {
           let field = table_details.get(key).unwrap();
           let value = vec![field.field_type.clone()];
-          ts_query.insert_result(Some(key), &value, true, field.is_nullable, query_for_logging);
+          let _ = ts_query.insert_result(Some(key), &value, true, field.is_nullable, query_for_logging);
         }
       }
     }

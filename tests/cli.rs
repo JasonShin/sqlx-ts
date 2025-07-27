@@ -20,7 +20,7 @@ mod cli_test {
     }
     let mut temp_file = fs::File::create(&config_file_path)?;
     let config_content = r#"{}"#;
-    writeln!(temp_file, "{}", config_content)?;
+    writeln!(temp_file, "{config_content}")?;
 
     // EXECUTE
     let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
@@ -58,7 +58,7 @@ mod cli_test {
     }
     let mut temp_file = fs::File::create(&config_file_path)?;
     let config_content = r#""#;
-    writeln!(temp_file, "{}", config_content)?;
+    writeln!(temp_file, "{config_content}")?;
 
     // EXECUTE
     let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
@@ -111,7 +111,7 @@ mod cli_test {
         }
     }
 }"#;
-    writeln!(temp_file, "{}", config_content)?;
+    writeln!(temp_file, "{config_content}")?;
 
     // EXECUTE
     let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
@@ -157,7 +157,7 @@ mod cli_test {
         }
     }
 }"#;
-    writeln!(temp_file, "{}", config_content)?;
+    writeln!(temp_file, "{config_content}")?;
 
     // EXECUTE
     let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
@@ -206,7 +206,7 @@ mod cli_test {
         }
     }
 }"#;
-    writeln!(temp_file, "{}", config_content)?;
+    writeln!(temp_file, "{config_content}")?;
 
     // EXECUTE
     let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
