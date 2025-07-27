@@ -41,9 +41,6 @@ impl bb8::ManageConnection for MySqlConnectionManager {
                 panic!("I/O error occurred while connection to MySQL database - connection: {connection_name}, error: {io_err}")
               }
             }
-            IoError::Tls(tls_err) => {
-              panic!("TLS error occurred while connecting to MySQL database - connection: {connection_name}, error: {tls_err}");
-            }
           }
         }
         Error::Other(other_err) => {

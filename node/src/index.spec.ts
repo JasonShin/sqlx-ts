@@ -8,16 +8,16 @@ test("should return single line", () => {
 
 test("should return multiple lines", () => {
   const rawSql = sql`
-        SELECT *
-        FROM test
-        WHERE createdAt > 2019-1-1;
-    `;
+      SELECT *
+      FROM test
+      WHERE createdAt > 2019-1-1;
+  `;
 
   expect(rawSql).toBe(`
-        SELECT *
-        FROM test
-        WHERE createdAt > 2019-1-1;
-    `);
+      SELECT *
+      FROM test
+      WHERE createdAt > 2019-1-1;
+  `);
 });
 
 test("should return empty", () => {
