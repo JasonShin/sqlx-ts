@@ -18,11 +18,14 @@
     "prepublishOnly": "cp ../README.md . && npm i && npm run compile"
   },
   "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@types/eslint": "^9.6.1",
     "@types/jest": "^30.0.0",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
     "eslint": "^9.32.0",
     "jest": "^30.0.5",
+    "jiti": "^2.5.1",
     "ts-jest": "^29.4.0",
     "typescript": "^5.8.3"
   },

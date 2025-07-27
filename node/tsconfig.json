@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "eslint.config.ts"],
   "exclude": ["src/**/*.spec.ts"],
   "compilerOptions": {
     "outDir": "dist",
