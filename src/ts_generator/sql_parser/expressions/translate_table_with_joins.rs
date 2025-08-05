@@ -23,7 +23,7 @@ pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
 pub fn find_table_name_from_identifier(
   table_with_joins: &Vec<TableWithJoins>,
   identifiers: &Vec<String>, // can be the actual identifier or an alias
-) -> Result<String, TsGeneratorError> {
+) -> Result<Option<String>, TsGeneratorError> {
   let left = identifiers
     .first()
     .expect("The first identifier must exist in order to find the table name")
@@ -146,11 +146,15 @@ pub fn translate_table_from_assignments(
 pub fn translate_table_with_joins(
   table_with_joins: &Option<Vec<TableWithJoins>>,
   select_item: &SelectItem,
-) -> Result<String, TsGeneratorError> {
+) -> Result<Option<String>, TsGeneratorError> {
   if table_with_joins.is_none() {
     return Err(TsGeneratorError::UnknownErrorWhileProcessingTableWithJoins(
       "".to_string(),
     ));
+  }
+
+  if table_with_joins.as_ref().unwrap().is_empty() {
+    return Ok(None);
   }
 
   let table_with_joins = table_with_joins.as_ref().unwrap();
@@ -167,14 +171,14 @@ pub fn translate_table_with_joins(
             .collect();
           find_table_name_from_identifier(table_with_joins, identifiers)
         }
-        _ => Ok(default_table_name),
+        _ => Ok(Some(default_table_name)),
       }
     }
-    SelectItem::Wildcard(_) => Ok(default_table_name),
+    SelectItem::Wildcard(_) => Ok(Some(default_table_name)),
     SelectItem::ExprWithAlias { expr, alias: _ } => match &expr {
       Expr::Identifier(_) => {
         // if the select item is not a compound identifier with an expression, just return the default table name
-        Ok(default_table_name)
+        Ok(Some(default_table_name))
       }
       Expr::CompoundIdentifier(compound_identifier) => {
         let identifiers = &compound_identifier
@@ -183,7 +187,7 @@ pub fn translate_table_with_joins(
           .collect();
         find_table_name_from_identifier(table_with_joins, identifiers)
       }
-      _ => Ok(default_table_name),
+      _ => Ok(Some(default_table_name)),
     },
     // This condition would never reach because translate_table_with_joins is only used when processing non wildcard select items
     SelectItem::QualifiedWildcard(_, _) => {

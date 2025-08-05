@@ -42,9 +42,11 @@ pub async fn translate_select(
   for select_item in projection {
     match &select_item {
       SelectItem::UnnamedExpr(unnamed_expr) => {
+        println!("unnamed_expr: {unnamed_expr:?} {full_table_with_joins:?}");
         let table_name = translate_table_with_joins(full_table_with_joins, &select_item)
           .unwrap_or_else(|_| panic!("{}", format!("Default FROM table is not found from the query {select}")));
 
+        println!("checking table_name: {table_name}");
         // Handles SQL Expression and appends result
         translate_expr(
           unnamed_expr,
