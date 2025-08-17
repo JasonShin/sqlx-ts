@@ -21,7 +21,6 @@ pub async fn translate_select(
   alias: Option<&str>,
   is_selection: bool,
 ) -> Result<(), TsGeneratorError> {
-  println!("Translating select: {:?}", select);
   let projection = select.clone().projection;
 
   // We create a new table with joins within the scope of this select (it could be within a subquery)
@@ -99,7 +98,6 @@ pub async fn translate_select(
 
   // If there's any WHERE statements, process it
   if let Some(selection) = &select.selection {
-    println!("Processing selection: {:?}", selection);
     let current_scope_table_name = get_default_table(&child_table_with_joins);
     let current_scope_table_name = current_scope_table_name.as_str();
     translate_expr(
