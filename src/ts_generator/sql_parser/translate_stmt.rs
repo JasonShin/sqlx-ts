@@ -64,6 +64,7 @@ pub async fn translate_stmt(
     } => match &from {
       FromTable::WithFromKeyword(from) => {
         let table_name = get_default_table(from);
+        let table_name = table_name.ok_or_else(|| TsGeneratorError::FromWithoutKeyword(sql_statement.to_string()))?;
         let table_name = table_name.as_str();
         let selection = selection.to_owned().unwrap();
         translate_delete(ts_query, &selection, table_name, db_conn).await?;

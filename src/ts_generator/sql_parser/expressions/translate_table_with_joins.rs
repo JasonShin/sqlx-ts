@@ -3,7 +3,7 @@ use crate::ts_generator::sql_parser::quoted_strings::*;
 use color_eyre::eyre::Result;
 use sqlparser::ast::{Assignment, Expr, Join, SelectItem, TableFactor, TableWithJoins};
 
-pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
+pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> Option<String> {
   table_with_joins
     .first()
     .and_then(|x| match &x.relation {
@@ -17,19 +17,23 @@ pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
       } => Some(DisplayObjectName(name).to_string()),
       _ => None,
     })
-    .expect("The query does not have a default table, impossible to generate types")
 }
 
 pub fn find_table_name_from_identifier(
   table_with_joins: &Vec<TableWithJoins>,
   identifiers: &Vec<String>, // can be the actual identifier or an alias
-) -> Result<Option<String>, TsGeneratorError> {
+) -> Result<String, TsGeneratorError> {
   let left = identifiers
     .first()
     .expect("The first identifier must exist in order to find the table name")
     .to_owned();
   let right = identifiers.get(1);
-  let default_table_name = get_default_table(table_with_joins);
+  if table_with_joins.is_empty() {
+    return Err(TsGeneratorError::UnknownErrorWhileProcessingTableWithJoins(
+      "No table with joins provided".to_string(),
+    ));
+  }
+  let default_table_name = get_default_table(table_with_joins).unwrap();
 
   // Check the default table with joins to see if any left identifier (table name) matches any alias of tables or table name itself
   for relation in table_with_joins.iter().map(|tj| tj.relation.clone()) {
@@ -85,7 +89,7 @@ pub fn find_table_name_from_identifier(
     }
   }
   // if the identifier of a compound identifier is exactly same as the default table name, we just return it
-  if left == default_table_name || right.is_none() {
+  if Some(left) == default_table_name || right.is_none() {
     // If right is none, it means we cannot further assume and try to find the table name
     // we should simply return the default table name
     return Ok(default_table_name);
@@ -104,7 +108,7 @@ pub fn find_table_name_from_identifier(
 pub fn translate_table_from_expr(
   table_with_joins: &Option<Vec<TableWithJoins>>,
   expr: &Expr,
-) -> Result<String, TsGeneratorError> {
+) -> Result<Option<String>, TsGeneratorError> {
   if table_with_joins.is_none() {
     return Err(TsGeneratorError::UnknownErrorWhileProcessingTableWithJoins(
       expr.to_string(),
@@ -120,7 +124,7 @@ pub fn translate_table_from_expr(
         .iter()
         .map(|x| DisplayIndent(x).to_string())
         .collect();
-      find_table_name_from_identifier(table_with_joins, identifiers)
+      find_table_name_from_identifier(table_with_joins, identifiers).map(Some)
     }
     _ => Err(TsGeneratorError::UnknownErrorWhileProcessingTableWithJoins(
       expr.to_string(),
@@ -131,11 +135,11 @@ pub fn translate_table_from_expr(
 pub fn translate_table_from_assignments(
   table_with_joins: &Vec<TableWithJoins>,
   assignment: &Assignment,
-) -> Result<String, TsGeneratorError> {
+) -> Result<Option<String>, TsGeneratorError> {
   let identifier = assignment.id.first();
 
   match identifier {
-    Some(identifier) => find_table_name_from_identifier(table_with_joins, &vec![identifier.value.to_string()]),
+    Some(identifier) => find_table_name_from_identifier(table_with_joins, &vec![identifier.value.to_string()]).map(Some),
     None => Ok(get_default_table(table_with_joins)),
   }
 }
@@ -170,15 +174,16 @@ pub fn translate_table_with_joins(
             .map(|x| DisplayIndent(x).to_string())
             .collect();
           find_table_name_from_identifier(table_with_joins, identifiers)
+            .map(Some)
         }
-        _ => Ok(Some(default_table_name)),
+        _ => Ok(default_table_name),
       }
     }
-    SelectItem::Wildcard(_) => Ok(Some(default_table_name)),
+    SelectItem::Wildcard(_) => Ok(default_table_name),
     SelectItem::ExprWithAlias { expr, alias: _ } => match &expr {
       Expr::Identifier(_) => {
         // if the select item is not a compound identifier with an expression, just return the default table name
-        Ok(Some(default_table_name))
+        Ok(default_table_name)
       }
       Expr::CompoundIdentifier(compound_identifier) => {
         let identifiers = &compound_identifier
@@ -186,8 +191,9 @@ pub fn translate_table_with_joins(
           .map(|x| DisplayIndent(x).to_string())
           .collect();
         find_table_name_from_identifier(table_with_joins, identifiers)
+          .map(Some)
       }
-      _ => Ok(Some(default_table_name)),
+      _ => Ok(default_table_name),
     },
     // This condition would never reach because translate_table_with_joins is only used when processing non wildcard select items
     SelectItem::QualifiedWildcard(_, _) => {
