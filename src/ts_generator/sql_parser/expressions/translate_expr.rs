@@ -528,7 +528,13 @@ pub async fn translate_expr(
           expr_for_logging,
         )?;
       } else {
-        return Err(TsGeneratorError::FunctionUnknown(expr.to_string()));
+        ts_query.insert_result(
+          Some(alias),
+          &[TsFieldType::Any],
+          is_selection,
+          false,
+          expr_for_logging,
+        )?;
       }
 
       Ok(())
