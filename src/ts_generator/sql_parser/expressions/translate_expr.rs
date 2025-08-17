@@ -1,4 +1,3 @@
-use std::slice::from_ref;
 use super::functions::{is_date_function, is_numeric_function};
 use crate::common::lazy::DB_SCHEMA;
 use crate::common::logger::warning;
@@ -16,6 +15,7 @@ use async_recursion::async_recursion;
 use color_eyre::Result;
 use regex::Regex;
 use sqlparser::ast::{Assignment, Expr, TableWithJoins, Value};
+use std::slice::from_ref;
 
 /// Given an expression
 /// e.g.
@@ -529,13 +529,7 @@ pub async fn translate_expr(
           expr_for_logging,
         )?;
       } else {
-        ts_query.insert_result(
-          Some(alias),
-          &[TsFieldType::Any],
-          is_selection,
-          false,
-          expr_for_logging,
-        )?;
+        ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_for_logging)?;
       }
 
       Ok(())

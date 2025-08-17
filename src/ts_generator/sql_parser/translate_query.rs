@@ -40,21 +40,19 @@ pub async fn translate_select(
 
   // Handle all select projects and figure out each field's type
   for select_item in projection {
-
     // Determine the default table name within the scope of this select item
     let mut table_name_owned: Option<String> = None;
     let mut table_name: Option<&str> = None;
     if full_table_with_joins.is_some() && !full_table_with_joins.as_ref().unwrap().is_empty() {
       table_name_owned = Some(
         translate_table_with_joins(full_table_with_joins, &select_item)
-          .unwrap_or_else(|_| panic!("{}", format!("Default FROM table is not found from the query {select}")))
+          .unwrap_or_else(|_| panic!("{}", format!("Default FROM table is not found from the query {select}"))),
       );
       table_name = table_name_owned.as_deref();
     }
 
     match &select_item {
       SelectItem::UnnamedExpr(unnamed_expr) => {
-
         translate_expr(
           unnamed_expr,
           &table_name,
