@@ -1,3 +1,4 @@
+use std::slice::from_ref;
 use super::functions::{is_date_function, is_numeric_function};
 use crate::common::lazy::DB_SCHEMA;
 use crate::common::logger::warning;
@@ -387,7 +388,7 @@ pub async fn translate_expr(
       format: _,
     } => {
       let data_type = translate_data_type(data_type);
-      ts_query.insert_result(alias, &[data_type.clone()], is_selection, false, expr_for_logging)?;
+      ts_query.insert_result(alias, from_ref(&data_type), is_selection, false, expr_for_logging)?;
       ts_query.insert_param(&data_type, &false, &Some(expr.to_string()))?;
       Ok(())
     }
