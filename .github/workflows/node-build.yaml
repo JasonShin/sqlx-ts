@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ 12, 14, 15, 16, 17, 18, 19, 20 ]
+        node: [ 14, 15, 16, 17, 18, 19, 20 ]
     defaults:
       run:
         working-directory: ./node
