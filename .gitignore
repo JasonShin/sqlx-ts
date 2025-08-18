@@ -30,3 +30,4 @@ coverage
 
 # staging area for testing TS files
 tests/staging
+node/sqlx-ts
