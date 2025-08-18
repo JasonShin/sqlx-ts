@@ -15,6 +15,8 @@
 dist
 node_modules
 node/README.md
+node/sqlx-ts
+
 
 # book
 _book/book
@@ -30,4 +32,3 @@ coverage
 
 # staging area for testing TS files
 tests/staging
-node/sqlx-ts
