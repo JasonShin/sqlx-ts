@@ -186,8 +186,6 @@ pub fn translate_table_with_joins(
       _ => Ok(default_table_name),
     },
     // This condition would never reach because translate_table_with_joins is only used when processing non wildcard select items
-    SelectItem::QualifiedWildcard(_, _) => {
-      unimplemented!("QualifiedWildcard is not supported yet when translating table with joins")
-    }
+    SelectItem::QualifiedWildcard(left, _) => Ok(left.to_string()),
   }
 }

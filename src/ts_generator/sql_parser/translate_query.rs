@@ -40,15 +40,22 @@ pub async fn translate_select(
 
   // Handle all select projects and figure out each field's type
   for select_item in projection {
+    // Determine the default table name within the scope of this select item
+    let mut table_name_owned: Option<String> = None;
+    let mut table_name: Option<&str> = None;
+    if full_table_with_joins.is_some() && !full_table_with_joins.as_ref().unwrap().is_empty() {
+      table_name_owned = Some(
+        translate_table_with_joins(full_table_with_joins, &select_item)
+          .unwrap_or_else(|_| panic!("{}", format!("Default FROM table is not found from the query {select}"))),
+      );
+      table_name = table_name_owned.as_deref();
+    }
+
     match &select_item {
       SelectItem::UnnamedExpr(unnamed_expr) => {
-        let table_name = translate_table_with_joins(full_table_with_joins, &select_item)
-          .unwrap_or_else(|_| panic!("{}", format!("Default FROM table is not found from the query {select}")));
-
-        // Handles SQL Expression and appends result
         translate_expr(
           unnamed_expr,
-          &Some(table_name.as_str()),
+          &table_name,
           full_table_with_joins,
           alias,
           ts_query,
@@ -59,12 +66,10 @@ pub async fn translate_select(
       }
       SelectItem::ExprWithAlias { expr, alias } => {
         let alias = DisplayIndent(alias).to_string();
-        let table_name = translate_table_with_joins(full_table_with_joins, &select_item);
-        let table_name = table_name.expect("Unknown table name");
 
         translate_expr(
           expr,
-          &Some(table_name.as_str()),
+          &table_name,
           full_table_with_joins,
           Some(alias.as_str()),
           ts_query,

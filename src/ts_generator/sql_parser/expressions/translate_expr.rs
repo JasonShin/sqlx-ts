@@ -15,6 +15,7 @@ use async_recursion::async_recursion;
 use color_eyre::Result;
 use regex::Regex;
 use sqlparser::ast::{Assignment, Expr, TableWithJoins, Value};
+use std::slice::from_ref;
 
 /// Given an expression
 /// e.g.
@@ -387,7 +388,7 @@ pub async fn translate_expr(
       format: _,
     } => {
       let data_type = translate_data_type(data_type);
-      ts_query.insert_result(alias, &[data_type.clone()], is_selection, false, expr_for_logging)?;
+      ts_query.insert_result(alias, from_ref(&data_type), is_selection, false, expr_for_logging)?;
       ts_query.insert_param(&data_type, &false, &Some(expr.to_string()))?;
       Ok(())
     }
@@ -528,7 +529,7 @@ pub async fn translate_expr(
           expr_for_logging,
         )?;
       } else {
-        return Err(TsGeneratorError::FunctionUnknown(expr.to_string()));
+        ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_for_logging)?;
       }
 
       Ok(())

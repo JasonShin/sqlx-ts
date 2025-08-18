@@ -41,6 +41,13 @@ pub static STRING_FUNCTIONS: &[&str] = &[
   "TRIM",
   "UCASE",
   "UPPER",
+  "ENCODE",
+  "TO_CHAR",
+  "TO_DATE",
+  "TO_TIMESTAMP",
+  "DATE_PART",
+  "AGE",
+  "DATE_TRUNC",
 ];
 
 pub static DATE_FUNCTIONS: &[&str] = &[
