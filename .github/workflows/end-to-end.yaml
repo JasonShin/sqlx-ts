@@ -32,6 +32,15 @@ jobs:
       - name: run sqlx-ts help
         run: ./sqlx-ts --help
 
+      - name: Install using local install.sh
+        run: node local-postinstall.js
+
+      - name: Run sqlx-ts version
+        run: ./sqlx-ts --version
+
+      - name: run sqlx-ts help
+        run: ./sqlx-ts --help
+
   e2e:
     runs-on: ubuntu-latest
     strategy:
