@@ -23,22 +23,22 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Install sqlx-ts
+      - name: Install sqlx-ts using npm
         run: npm install
 
-      - name: Run sqlx-ts version
+      - name: Run sqlx-ts version after install
         run: ./sqlx-ts --version
 
-      - name: run sqlx-ts help
+      - name: run sqlx-ts help after install
         run: ./sqlx-ts --help
 
       - name: Install using local install.sh
         run: node local-postinstall.js
 
-      - name: Run sqlx-ts version
+      - name: Run sqlx-ts version after local install
         run: ./sqlx-ts --version
 
-      - name: run sqlx-ts help
+      - name: run sqlx-ts help after local install
         run: ./sqlx-ts --help
 
   e2e:
