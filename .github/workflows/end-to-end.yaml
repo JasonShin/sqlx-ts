@@ -73,7 +73,7 @@ jobs:
           `
           EOF
 
-      - name: Run sample
+      - name: Run failure test
         run: |
           set +e
           ./target/debug/sqlx-ts --config=.sqlxrc.sample.json tests/staging
@@ -82,3 +82,20 @@ jobs:
             exit 1
           fi
           echo "Command failed as expected."
+          
+          rm -f tests/staging/failure.ts
+
+      - name: Add happy.ts test file
+        run: |
+          mkdir -p tests/staging
+          cat << 'EOF' > tests/staging/happy.ts
+          import { sql } from 'sqlx-ts'
+
+          const selectSql4 = sql`
+          SELECT items.*
+          FROM items;
+          `
+          EOF
+
+      - name: Run happy test
+        run: ./target/debug/sqlx-ts --config=.sqlxrc.sample.json tests/staging
