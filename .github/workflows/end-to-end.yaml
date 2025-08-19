@@ -9,7 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         db:
@@ -66,13 +65,13 @@ jobs:
         run: |
           mkdir -p tests/staging
           cat << 'EOF' > tests/staging/failure.ts
-import { sql } from 'sqlx-ts'
+          import { sql } from 'sqlx-ts'
 
-const selectSql4 = sql`
-SELECT itemz.*
-FROM items;
-`
-EOF
+          const selectSql4 = sql`
+          SELECT itemz.*
+          FROM items;
+          `
+          EOF
 
       - name: Run sample
         run: ./target/debug/sqlx-ts-sample --help
