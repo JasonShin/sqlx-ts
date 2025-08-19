@@ -27,8 +27,8 @@ say_err() {
 }
 
 err() {
-    if [ ! -z $td ]; then
-        rm -rf $td
+    if [ -n "$td" ]; then
+        rm -rf "$td"
     fi
 
     say_err "ERROR $1"
@@ -119,7 +119,7 @@ say_err "GitHub repository: $url"
 url="$url/releases"
 
 if [ -z $tag ]; then
-    if [ ! -z $artifact ]; then
+    if [ -n $artifact ]; then
       echo "artifact was given, it will override tag - artifact: $artifact, tag: $tag"
     fi
 
