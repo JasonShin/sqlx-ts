@@ -74,7 +74,7 @@ jobs:
           EOF
 
       - name: Run sample
-        run: ./target/debug/sqlx-ts-sample --help
+        run: ./target/debug/sqlx-ts --help
 
       - name: check file
         run: cat tests/staging/failure.ts
