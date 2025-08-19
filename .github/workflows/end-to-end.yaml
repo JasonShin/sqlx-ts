@@ -63,3 +63,6 @@ EOF
 
       - name: Run sample
         run: ./target/debug/sqlx-ts-sample --help
+
+      - name: check file
+        run: cat tests/staging/failure.ts
