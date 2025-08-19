@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
@@ -27,8 +27,8 @@ say_err() {
 }
 
 err() {
-    if [ ! -z $td ]; then
-        rm -rf $td
+    if [ -n "$td" ]; then
+        rm -rf "$td"
     fi
 
     say_err "ERROR $1"
@@ -119,17 +119,23 @@ say_err "GitHub repository: $url"
 url="$url/releases"
 
 if [ -z $tag ]; then
-    if [ ! -z $artifact ]; then
+    if [ -n $artifact ]; then
       echo "artifact was given, it will override tag - artifact: $artifact, tag: $tag"
     fi
 
     tag=$(curl --silent "https://api.github.com/repos/jasonshin/sqlx-ts/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
     say_err "Tag: latest ($tag)"
 else
-    if [[ $tag != v* ]]; then
-      echo "received tag does not start with v, it will be prefixed with v - tag: $tag"
-      tag="v$tag"
-    fi
+    case $tag in
+        v*)
+            # Tag already starts with v
+            ;;
+        *)
+            # Tag doesn't start with v, add it
+            echo "received tag does not start with v, it will be prefixed with v - tag: $tag"
+            tag="v$tag"
+            ;;
+    esac
 
     say_err "Tag: $tag"
 fi
