@@ -1,3 +1,5 @@
+// This script is executed as part of sqlx-ts CI pipeline to test local ../scripts/install.sh changes
+// DO NOT USE THIS IN PRODUCTION
 let execSync = require('child_process').execSync
 let tag = require('./package.json').version
 
