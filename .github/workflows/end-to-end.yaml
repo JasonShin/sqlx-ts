@@ -74,7 +74,11 @@ jobs:
           EOF
 
       - name: Run sample
-        run: ./target/debug/sqlx-ts --help
-
-      - name: check file
-        run: cat tests/staging/failure.ts
+        run: |
+          set +e
+          ./target/debug/sqlx-ts --config=.sqlxrc.sample.json tests/staging
+          if [ $? -eq 0 ]; then
+            echo "Expected failure, but command succeeded."
+            exit 1
+          fi
+          echo "Command failed as expected."
