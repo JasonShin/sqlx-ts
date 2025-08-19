@@ -1,0 +1,65 @@
+name: Node build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - run: rustup toolchain install stable --profile minimal
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          # To only cache runs from `master`:
+          save-if: ${{ github.ref == 'refs/heads/master' }}
+          # Specifies what to use as the backend providing cache
+          # Can be set to either "github" or "buildjet"
+          # default: "github"
+          cache-provider: "github"
+
+
+      - name: build docker-compose services for integration tests
+        run: docker compose -f docker-compose.yml up -d
+        env:
+          MYSQL_VERSION: ${{ matrix.db.mysql }}
+          PG_VERSION: ${{ matrix.db.postgres }}
+          MYSQL_MIGRATION_FILE: "${{ matrix.db.mysql == '5.6' && 'mysql_migration_5_6.sql' || 'mysql_migration.sql' }}"
+
+      - uses: GuillaumeFalourd/wait-sleep-action@v1
+        with:
+          time: '10' # for 10 seconds
+
+      - name: Check the docker-compose services running
+        run: docker ps -a
+
+      - name: build
+        run: cargo build
+
+      - name: Add failure.ts test file
+        run: |
+          mkdir -p tests/staging
+          cat << 'EOF' > tests/staging/failure.ts
+import { sql } from 'sqlx-ts'
+
+const selectSql4 = sql`
+SELECT itemz.*
+FROM items;
+`
+EOF
+
+      - name: Run sample
+        run: ./target/debug/sqlx-ts-sample --help
