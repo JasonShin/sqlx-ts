@@ -514,7 +514,10 @@ pub async fn translate_expr(
         if let Some(first_arg) = func_obj.args.first() {
           let first_expr = match first_arg {
             FunctionArg::Unnamed(FunctionArgExpr::Expr(expr)) => Some(expr),
-            FunctionArg::Named { arg: FunctionArgExpr::Expr(expr), .. } => Some(expr),
+            FunctionArg::Named {
+              arg: FunctionArgExpr::Expr(expr),
+              ..
+            } => Some(expr),
             _ => None,
           };
 
@@ -542,7 +545,11 @@ pub async fn translate_expr(
               Expr::CompoundIdentifier(idents) if idents.len() == 2 => {
                 let column_name = DisplayIndent(&idents[1]).to_string();
                 if let Ok(table_name) = translate_table_from_expr(table_with_joins, arg_expr) {
-                  let table_details = &DB_SCHEMA.lock().await.fetch_table(&vec![table_name.as_str()], db_conn).await;
+                  let table_details = &DB_SCHEMA
+                    .lock()
+                    .await
+                    .fetch_table(&vec![table_name.as_str()], db_conn)
+                    .await;
 
                   if let Some(table_details) = table_details {
                     if let Some(field) = table_details.get(&column_name) {
@@ -560,13 +567,7 @@ pub async fn translate_expr(
               Expr::Value(val) => {
                 // If first arg is a literal value, infer from that
                 if let Some(ts_field_type) = translate_value(val) {
-                  return ts_query.insert_result(
-                    Some(alias),
-                    &[ts_field_type],
-                    is_selection,
-                    false,
-                    expr_for_logging,
-                  );
+                  return ts_query.insert_result(Some(alias), &[ts_field_type], is_selection, false, expr_for_logging);
                 }
               }
               _ => {}

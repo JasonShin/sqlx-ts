@@ -2,8 +2,8 @@
 mod tests {
   extern crate rand;
   use crate::ts_generator::sql_parser::expressions::functions::{
-    is_date_function, is_numeric_function, is_string_function, is_type_polymorphic_function,
-    DATE_FUNCTIONS, NUMERIC_FUNCTIONS, STRING_FUNCTIONS, TYPE_POLYMORPHIC_FUNCTIONS,
+    is_date_function, is_numeric_function, is_string_function, is_type_polymorphic_function, DATE_FUNCTIONS,
+    NUMERIC_FUNCTIONS, STRING_FUNCTIONS, TYPE_POLYMORPHIC_FUNCTIONS,
   };
   use rand::seq::SliceRandom;
 
