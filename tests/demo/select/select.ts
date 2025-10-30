@@ -79,3 +79,90 @@ SELECT "items"."id", "inventory"."id" AS "id2", inventory.id
 FROM "items"
 JOIN "inventory" ON "items"."inventory_id" = "inventory"."id"
 `
+
+// SELECT IFNULL with ENUM type
+const selectSql16 = sql`
+SELECT IFNULL(name, 'defaultName') AS name FROM factions;
+`
+
+// SELECT IFNULL with VARCHAR type
+const selectSql17 = sql`
+SELECT IFNULL(rarity, 'common') AS item_rarity FROM items;
+`
+
+// SELECT IFNULL with INT type
+const selectSql18 = sql`
+SELECT IFNULL(quantity, 0) AS qty FROM inventory;
+`
+
+// SELECT IFNULL with SMALLINT type
+const selectSql19 = sql`
+SELECT IFNULL(level, 1) AS character_level FROM characters;
+`
+
+// SELECT IFNULL with DOUBLE type
+const selectSql20 = sql`
+SELECT IFNULL(gold, 0.0) AS gold_amount FROM characters;
+`
+
+// SELECT IFNULL with TEXT type
+const selectSql21 = sql`
+SELECT IFNULL(description, 'No description') AS desc FROM factions;
+`
+
+// SELECT COALESCE with multiple arguments
+const selectSql22 = sql`
+SELECT COALESCE(rarity, flavor_text, 'unknown') AS item_info FROM items;
+`
+
+// SELECT COALESCE with VARCHAR column
+const selectSql23 = sql`
+SELECT COALESCE(name, 'Unknown Character') AS char_name FROM characters;
+`
+
+// SELECT COALESCE with INT column
+const selectSql24 = sql`
+SELECT COALESCE(required_level, 1) AS quest_level FROM quests;
+`
+
+// SELECT NULLIF with VARCHAR
+const selectSql25 = sql`
+SELECT NULLIF(name, 'default') AS guild_name FROM guilds;
+`
+
+// SELECT NULLIF with INT
+const selectSql26 = sql`
+SELECT NULLIF(quantity, 0) AS inv_quantity FROM inventory;
+`
+
+// SELECT NVL with VARCHAR (Oracle-style, but should work)
+const selectSql27 = sql`
+SELECT NVL(guild_rank, 'Member') AS rank FROM guild_members;
+`
+
+// SELECT IFNULL with compound identifier
+const selectSql28 = sql`
+-- @db: db_mysql
+SELECT IFNULL(items.name, 'Unknown Item') AS item_name
+FROM items;
+`
+
+// SELECT IFNULL with JOIN
+const selectSql29 = sql`
+-- @db: db_mysql
+SELECT
+  IFNULL(items.name, 'No item') AS item_name,
+  IFNULL(inventory.quantity, 0) AS qty
+FROM items
+JOIN inventory ON items.inventory_id = inventory.id;
+`
+
+// SELECT multiple type-polymorphic functions in one query
+const selectSql30 = sql`
+-- @db: db_mysql
+SELECT
+  IFNULL(name, 'Unknown') AS char_name,
+  COALESCE(level, 1) AS lvl,
+  NULLIF(gold, 0) AS non_zero_gold
+FROM characters;
+`
