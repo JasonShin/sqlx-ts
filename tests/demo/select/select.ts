@@ -79,3 +79,8 @@ SELECT "items"."id", "inventory"."id" AS "id2", inventory.id
 FROM "items"
 JOIN "inventory" ON "items"."inventory_id" = "inventory"."id"
 `
+
+// SELECT IFNULL
+const selectSql16 = sql`
+SELECT IFNULL(name, 'defaultName') AS name FROM factions;
+`

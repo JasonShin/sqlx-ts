@@ -111,3 +111,10 @@ pub fn is_string_function(func_name: &str) -> bool {
 pub fn is_date_function(func_name: &str) -> bool {
   DATE_FUNCTIONS.contains(&func_name.to_uppercase().as_str())
 }
+
+// Type-polymorphic functions that return the type of their first argument
+pub static TYPE_POLYMORPHIC_FUNCTIONS: &[&str] = &["IFNULL", "COALESCE", "NULLIF", "NVL"];
+
+pub fn is_type_polymorphic_function(func_name: &str) -> bool {
+  TYPE_POLYMORPHIC_FUNCTIONS.contains(&func_name.to_uppercase().as_str())
+}

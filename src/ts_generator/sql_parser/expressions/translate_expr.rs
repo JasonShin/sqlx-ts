@@ -1,4 +1,4 @@
-use super::functions::{is_date_function, is_numeric_function};
+use super::functions::{is_date_function, is_numeric_function, is_type_polymorphic_function};
 use crate::common::lazy::DB_SCHEMA;
 use crate::common::logger::warning;
 use crate::core::connection::DBConn;
@@ -500,11 +500,86 @@ pub async fn translate_expr(
         false,
         expr.to_string().as_str(),
       ),
-    Expr::Function(function) => {
-      let function = function.name.to_string();
-      let function = function.as_str();
+    Expr::Function(func_obj) => {
+      let function_name = func_obj.name.to_string();
+      let function_name_str = function_name.as_str();
       let alias = alias.ok_or(TsGeneratorError::FunctionWithoutAliasInSelectClause(expr.to_string()))?;
-      if is_string_function(function) {
+
+      // Handle type-polymorphic functions (IFNULL, COALESCE, etc.)
+      // These functions return the type of their first argument
+      if is_type_polymorphic_function(function_name_str) {
+        use sqlparser::ast::{FunctionArg, FunctionArgExpr};
+
+        // Try to get the first argument and infer its type
+        if let Some(first_arg) = func_obj.args.first() {
+          let first_expr = match first_arg {
+            FunctionArg::Unnamed(FunctionArgExpr::Expr(expr)) => Some(expr),
+            FunctionArg::Named { arg: FunctionArgExpr::Expr(expr), .. } => Some(expr),
+            _ => None,
+          };
+
+          if let Some(arg_expr) = first_expr {
+            // Try to infer type from the first argument
+            match arg_expr {
+              Expr::Identifier(ident) => {
+                let column_name = DisplayIndent(ident).to_string();
+                if let Some(table_name) = single_table_name {
+                  let table_details = &DB_SCHEMA.lock().await.fetch_table(&vec![table_name], db_conn).await;
+
+                  if let Some(table_details) = table_details {
+                    if let Some(field) = table_details.get(&column_name) {
+                      return ts_query.insert_result(
+                        Some(alias),
+                        &[field.field_type.to_owned()],
+                        is_selection,
+                        false, // IFNULL/COALESCE removes nullability
+                        expr_for_logging,
+                      );
+                    }
+                  }
+                }
+              }
+              Expr::CompoundIdentifier(idents) if idents.len() == 2 => {
+                let column_name = DisplayIndent(&idents[1]).to_string();
+                if let Ok(table_name) = translate_table_from_expr(table_with_joins, arg_expr) {
+                  let table_details = &DB_SCHEMA.lock().await.fetch_table(&vec![table_name.as_str()], db_conn).await;
+
+                  if let Some(table_details) = table_details {
+                    if let Some(field) = table_details.get(&column_name) {
+                      return ts_query.insert_result(
+                        Some(alias),
+                        &[field.field_type.to_owned()],
+                        is_selection,
+                        false, // IFNULL/COALESCE removes nullability
+                        expr_for_logging,
+                      );
+                    }
+                  }
+                }
+              }
+              Expr::Value(val) => {
+                // If first arg is a literal value, infer from that
+                if let Some(ts_field_type) = translate_value(val) {
+                  return ts_query.insert_result(
+                    Some(alias),
+                    &[ts_field_type],
+                    is_selection,
+                    false,
+                    expr_for_logging,
+                  );
+                }
+              }
+              _ => {}
+            }
+          }
+        }
+
+        // Fallback to Any if we couldn't infer the type
+        return ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_for_logging);
+      }
+
+      // Handle other function types
+      if is_string_function(function_name_str) {
         ts_query.insert_result(
           Some(alias),
           &[TsFieldType::String],
@@ -512,7 +587,7 @@ pub async fn translate_expr(
           false,
           expr_for_logging,
         )?;
-      } else if is_numeric_function(function) {
+      } else if is_numeric_function(function_name_str) {
         ts_query.insert_result(
           Some(alias),
           &[TsFieldType::Number],
@@ -520,7 +595,7 @@ pub async fn translate_expr(
           false,
           expr_for_logging,
         )?;
-      } else if is_date_function(function) {
+      } else if is_date_function(function_name_str) {
         ts_query.insert_result(
           Some(alias),
           &[TsFieldType::String],
