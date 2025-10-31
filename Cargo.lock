@@ -245,17 +245,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
 
 [[package]]
-name = "chacha20"
-version = "0.10.0-rc.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9bd162f2b8af3e0639d83f28a637e4e55657b7a74508dba5a9bf4da523d5c9e9"
-dependencies = [
- "cfg-if",
- "cpufeatures",
- "rand_core 0.9.3",
-]
-
-[[package]]
 name = "clap"
 version = "3.2.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1481,16 +1470,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rand"
-version = "0.10.0-rc.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ec474812b9de55111b29da8a1559f1718ef3dc20fa36f031f1b5d9e3836ad6c"
-dependencies = [
- "chacha20",
- "rand_core 0.9.3",
-]
-
-[[package]]
 name = "rand_chacha"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1762,7 +1741,6 @@ version = "0.27.0"
 dependencies = [
  "assert_cmd",
  "async-recursion",
- "async-trait",
  "bb8",
  "clap",
  "color-eyre",
@@ -1773,7 +1751,6 @@ dependencies = [
  "mysql_async",
  "predicates",
  "pretty_assertions",
- "rand 0.10.0-rc.0",
  "regex",
  "serde",
  "serde_json",
