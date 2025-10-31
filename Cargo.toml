@@ -22,7 +22,7 @@ walkdir = "2.5.0"
 clap = { version = "3.2.25", features = ["derive"] }
 serde = { version = "=1.0.209", features = ["derive"] }
 serde_json = { version = "1.0.143" }
-sqlparser = { version = "0.45.0" }
+sqlparser = { version = "0.59.0" }
 regex = { version = "1.12.2" }
 convert_case = "0.8.0"
 colored = "3.0.0"
