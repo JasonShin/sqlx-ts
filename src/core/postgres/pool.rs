@@ -47,8 +47,8 @@ impl bb8::ManageConnection for PostgresConnectionManager {
     }
   }
 
-  fn is_valid(&self, client: &mut Client) -> impl std::future::Future<Output = Result<(), Error>> + Send {
-    async move { client.simple_query("SELECT 1;").await.map(|_| ()) }
+  async fn is_valid(&self, client: &mut Client) -> Result<(), Error> {
+    client.simple_query("SELECT 1;").await.map(|_| ())
   }
 
   fn has_broken(&self, client: &mut Client) -> bool {
