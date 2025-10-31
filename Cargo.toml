@@ -21,11 +21,11 @@ swc_ecma_parser = "0.149.1"
 walkdir = "2.5.0"
 clap = { version = "3.2.25", features = ["derive"] }
 serde = { version = "=1.0.209", features = ["derive"] }
-serde_json = { version = "1.0.127" }
+serde_json = { version = "1.0.143" }
 sqlparser = { version = "0.45.0" }
 regex = { version = "1.12.2" }
 convert_case = "0.8.0"
-colored = "2.1.0"
+colored = "3.0.0"
 mysql_async = { version = "0.36.1", features = ["minimal"] }
 tokio-postgres = "0.7.15"
 tokio = { version = "1.48.0", features = ["rt-multi-thread", "macros", "default"]}
@@ -38,4 +38,4 @@ assert_cmd = "2.1.1"
 predicates = "3.1.3"
 tempfile = "3.23.0"
 test_utils = { path="test-utils" }
-pretty_assertions = "1.4.0"
+pretty_assertions = "1.4.1"
