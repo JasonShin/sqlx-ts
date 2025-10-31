@@ -33,7 +33,16 @@ impl bb8::ManageConnection for PostgresConnectionManager {
               );
               panic!("{message}")
             }
-            None => panic!("Postgres database connection error: {err}"),
+            None => {
+              // Include the source error details for better error messages
+              use std::error::Error as StdError;
+              let error_msg = if let Some(source) = err.source() {
+                format!("Postgres database connection error: {err}: {source}")
+              } else {
+                format!("Postgres database connection error: {err}")
+              };
+              panic!("{error_msg}")
+            }
           })?;
 
       // The connection object performs the actual communication with the database,
