@@ -61,16 +61,14 @@ impl bb8::ManageConnection for MySqlConnectionManager {
     Ok(conn)
   }
 
-  fn is_valid(&self, conn: &mut Self::Connection) -> impl std::future::Future<Output = Result<(), Self::Error>> + Send {
+  async fn is_valid(&self, conn: &mut Self::Connection) -> Result<(), Self::Error> {
     let connection_name = self.connection_name.clone();
 
-    async move {
-      conn
-        .query("SELECT 1")
-        .await
-        .map(|_: Vec<String>| ())
-        .map_err(|err| panic!("Failed to validate MySQL connection for connection: {connection_name}. Error: {err}"))
-    }
+    conn
+      .query("SELECT 1")
+      .await
+      .map(|_: Vec<String>| ())
+      .map_err(|err| panic!("Failed to validate MySQL connection for connection: {connection_name}. Error: {err}"))
   }
 
   fn has_broken(&self, conn: &mut Self::Connection) -> bool {
