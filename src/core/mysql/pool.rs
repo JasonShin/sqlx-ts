@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use mysql_async::{prelude::*, Conn, Error, IoError, Opts};
 use tokio::{runtime::Handle, task};
 
@@ -18,56 +17,62 @@ impl MySqlConnectionManager {
   }
 }
 
-#[async_trait]
 impl bb8::ManageConnection for MySqlConnectionManager {
   type Connection = Conn;
   type Error = Error;
 
-  async fn connect(&self) -> Result<Self::Connection, Self::Error> {
-    let connection_name = &self.connection_name;
-    let conn_opts = Opts::from_url(self.conn_url.as_str())?;
+  fn connect(&self) -> impl std::future::Future<Output = Result<Self::Connection, Self::Error>> + Send {
+    let connection_name = self.connection_name.clone();
+    let conn_url = self.conn_url.clone();
 
-    let conn = Conn::new(conn_opts).await.map_err(|err| {
-      match err {
-        Error::Driver(driver_error) => {
-          panic!("Driver error occurred while connecting to MySQL database - connection: {connection_name}, error: {driver_error}");
-        }
-        Error::Io(io_err) => {
-          match io_err {
-            IoError::Io(io_err) => {
-              if io_err.kind() == std::io::ErrorKind::ConnectionRefused {
-                panic!("Connection Refused - check your connection config for MySQL database - connection: {connection_name}")
-              } else {
-                panic!("I/O error occurred while connection to MySQL database - connection: {connection_name}, error: {io_err}")
+    async move {
+      let conn_opts = Opts::from_url(conn_url.as_str())?;
+
+      let conn = Conn::new(conn_opts).await.map_err(|err| {
+        match err {
+          Error::Driver(driver_error) => {
+            panic!("Driver error occurred while connecting to MySQL database - connection: {connection_name}, error: {driver_error}");
+          }
+          Error::Io(io_err) => {
+            match io_err {
+              IoError::Io(io_err) => {
+                if io_err.kind() == std::io::ErrorKind::ConnectionRefused {
+                  panic!("Connection Refused - check your connection config for MySQL database - connection: {connection_name}")
+                } else {
+                  panic!("I/O error occurred while connection to MySQL database - connection: {connection_name}, error: {io_err}")
+                }
               }
-            }
-            IoError::Tls(tls_err) => {
-              panic!("TLS error occurred while connecting to MySQL database - connection: {connection_name}, error: {tls_err}");
+              // IoError::Tls(tls_err) => {
+              //   panic!("TLS error occurred while connecting to MySQL database - connection: {connection_name}, error: {tls_err}");
+              // }
             }
           }
+          Error::Other(other_err) => {
+            panic!("An unexpected error occurred while connecting to MySQL database - connection: {connection_name}, error: {other_err}");
+          }
+          Error::Server(server_err) => {
+            panic!("Server error occurred while connecting to MySQL database - connection: {connection_name}, error: {server_err}");
+          }
+          Error::Url(_) => {
+            panic!("Invalid URL format for MySQL connection string - connection: {connection_name}");
+          }
         }
-        Error::Other(other_err) => {
-          panic!("An unexpected error occurred while connecting to MySQL database - connection: {connection_name}, error: {other_err}");
-        }
-        Error::Server(server_err) => {
-          panic!("Server error occurred while connecting to MySQL database - connection: {connection_name}, error: {server_err}");
-        }
-        Error::Url(_) => {
-          panic!("Invalid URL format for MySQL connection string - connection: {connection_name}");
-        }
-      }
-    }).unwrap();
+      }).unwrap();
 
-    Ok(conn)
+      Ok(conn)
+    }
   }
 
-  async fn is_valid(&self, conn: &mut Self::Connection) -> Result<(), Self::Error> {
-    let connection_name = &self.connection_name;
-    conn
-      .query("SELECT 1")
-      .await
-      .map(|_: Vec<String>| ())
-      .map_err(|err| panic!("Failed to validate MySQL connection for connection: {connection_name}. Error: {err}"))
+  fn is_valid(&self, conn: &mut Self::Connection) -> impl std::future::Future<Output = Result<(), Self::Error>> + Send {
+    let connection_name = self.connection_name.clone();
+
+    async move {
+      conn
+        .query("SELECT 1")
+        .await
+        .map(|_: Vec<String>| ())
+        .map_err(|err| panic!("Failed to validate MySQL connection for connection: {connection_name}. Error: {err}"))
+    }
   }
 
   fn has_broken(&self, conn: &mut Self::Connection) -> bool {

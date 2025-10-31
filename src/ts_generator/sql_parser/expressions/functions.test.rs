@@ -1,18 +1,16 @@
 #[cfg(test)]
 mod tests {
-  extern crate rand;
   use crate::ts_generator::sql_parser::expressions::functions::{
-    is_date_function, is_numeric_function, is_string_function, is_type_polymorphic_function, DATE_FUNCTIONS,
-    NUMERIC_FUNCTIONS, STRING_FUNCTIONS, TYPE_POLYMORPHIC_FUNCTIONS,
+    is_date_function, is_numeric_function, is_string_function, is_type_polymorphic_function,
   };
-  use rand::seq::SliceRandom;
 
   #[test]
   fn should_return_numeric_method_truthy() {
-    let funcs = NUMERIC_FUNCTIONS.to_vec();
-    let random_func = funcs.choose(&mut rand::thread_rng());
-    let result = is_numeric_function(random_func.unwrap());
-    assert!(result)
+    // Test with a known numeric function
+    let result = is_numeric_function("ABS");
+    assert!(result);
+    let result = is_numeric_function("COUNT");
+    assert!(result);
   }
 
   #[test]
@@ -23,10 +21,11 @@ mod tests {
 
   #[test]
   fn should_return_string_method_truthy() {
-    let funcs = STRING_FUNCTIONS.to_vec();
-    let random_func = funcs.choose(&mut rand::thread_rng());
-    let result = is_string_function(random_func.unwrap());
-    assert!(result)
+    // Test with a known string function
+    let result = is_string_function("CONCAT");
+    assert!(result);
+    let result = is_string_function("UPPER");
+    assert!(result);
   }
 
   #[test]
@@ -37,10 +36,11 @@ mod tests {
 
   #[test]
   fn should_return_date_method_truthy() {
-    let funcs = DATE_FUNCTIONS.to_vec();
-    let random_func = funcs.choose(&mut rand::thread_rng());
-    let result = is_date_function(random_func.unwrap());
-    assert!(result)
+    // Test with a known date function
+    let result = is_date_function("NOW");
+    assert!(result);
+    let result = is_date_function("DATE");
+    assert!(result);
   }
 
   #[test]
@@ -51,10 +51,11 @@ mod tests {
 
   #[test]
   fn should_return_type_polymorphic_function_truthy() {
-    let funcs = TYPE_POLYMORPHIC_FUNCTIONS.to_vec();
-    let random_func = funcs.choose(&mut rand::thread_rng());
-    let result = is_type_polymorphic_function(random_func.unwrap());
-    assert!(result)
+    // Test with a known type-polymorphic function
+    let result = is_type_polymorphic_function("IFNULL");
+    assert!(result);
+    let result = is_type_polymorphic_function("COALESCE");
+    assert!(result);
   }
 
   #[test]
