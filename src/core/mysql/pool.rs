@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use mysql_async::{prelude::*, Conn, Error, IoError, Opts};
 use tokio::{runtime::Handle, task};
 
@@ -18,14 +17,15 @@ impl MySqlConnectionManager {
   }
 }
 
-#[async_trait]
 impl bb8::ManageConnection for MySqlConnectionManager {
   type Connection = Conn;
   type Error = Error;
 
   async fn connect(&self) -> Result<Self::Connection, Self::Error> {
-    let connection_name = &self.connection_name;
-    let conn_opts = Opts::from_url(self.conn_url.as_str())?;
+    let connection_name = self.connection_name.clone();
+    let conn_url = self.conn_url.clone();
+
+    let conn_opts = Opts::from_url(conn_url.as_str())?;
 
     let conn = Conn::new(conn_opts).await.map_err(|err| {
       match err {
@@ -41,9 +41,9 @@ impl bb8::ManageConnection for MySqlConnectionManager {
                 panic!("I/O error occurred while connection to MySQL database - connection: {connection_name}, error: {io_err}")
               }
             }
-            IoError::Tls(tls_err) => {
-              panic!("TLS error occurred while connecting to MySQL database - connection: {connection_name}, error: {tls_err}");
-            }
+            // IoError::Tls(tls_err) => {
+            //   panic!("TLS error occurred while connecting to MySQL database - connection: {connection_name}, error: {tls_err}");
+            // }
           }
         }
         Error::Other(other_err) => {
@@ -62,7 +62,8 @@ impl bb8::ManageConnection for MySqlConnectionManager {
   }
 
   async fn is_valid(&self, conn: &mut Self::Connection) -> Result<(), Self::Error> {
-    let connection_name = &self.connection_name;
+    let connection_name = self.connection_name.clone();
+
     conn
       .query("SELECT 1")
       .await

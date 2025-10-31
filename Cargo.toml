@@ -12,34 +12,30 @@ categories = ["command-line-utilities"]
 documentation = "https://jasonshin.github.io/sqlx-ts/"
 
 [dependencies]
-color-eyre = "0.6.3"
-thiserror = "1.0.63"
+color-eyre = "0.6.5"
+thiserror = "2.0.17"
 dotenv = "0.15.0"
 swc_common = { version = "0.37.5", features = ["tty-emitter"] }
 swc_ecma_ast = "0.118.2"
 swc_ecma_parser = "0.149.1"
-string_cache = "0.8.7"
-walkdir = "2.4.0"
+walkdir = "2.5.0"
 clap = { version = "3.2.25", features = ["derive"] }
-serde = { version = "1.0.209", features = ["derive"] }
-serde_json = { version = "1.0.127" }
+serde = { version = "=1.0.209", features = ["derive"] }
+serde_json = { version = "1.0.143" }
 sqlparser = { version = "0.45.0" }
-regex = { version = "1.10.6" }
-convert_case = "0.6.0"
-openssl = { version = "0.10.66", features = ["vendored"] }
-colored = "2.1.0"
-mysql_async = { version = "0.34.2", features = ["minimal"] }
-tokio-postgres = "0.7.11"
-tokio = { version = "1.40.0", features = ["rt-multi-thread", "macros", "default"]}
+regex = { version = "1.12.2" }
+convert_case = "0.8.0"
+colored = "3.0.0"
+mysql_async = { version = "0.36.1", features = ["minimal"] }
+tokio-postgres = "0.7.15"
+tokio = { version = "1.48.0", features = ["rt-multi-thread", "macros", "default"]}
 async-recursion = "1.1.1"
-async-trait = "0.1.82"
-bb8 = "0.8.5"
+bb8 = "0.9.0"
 log = "0.4.22"
 
 [dev-dependencies]
-assert_cmd = "2.0.16"
-predicates = "3.1.2"
-tempfile = "3.11.0"
+assert_cmd = "2.1.1"
+predicates = "3.1.3"
+tempfile = "3.23.0"
 test_utils = { path="test-utils" }
-pretty_assertions = "1.4.0"
-rand = "0.8.5"
+pretty_assertions = "1.4.1"

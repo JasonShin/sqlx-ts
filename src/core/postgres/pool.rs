@@ -1,6 +1,5 @@
 pub use bb8;
 
-use async_trait::async_trait;
 use tokio;
 use tokio_postgres::{Client, Error, NoTls};
 
@@ -14,14 +13,15 @@ impl PostgresConnectionManager {
   }
 }
 
-#[async_trait]
 impl bb8::ManageConnection for PostgresConnectionManager {
   type Connection = Client;
   type Error = Error;
 
   async fn connect(&self) -> Result<Client, Error> {
+    let conn_url = self.conn_url.clone();
+
     let (client, connection) =
-      tokio_postgres::connect(&self.conn_url, NoTls)
+      tokio_postgres::connect(&conn_url, NoTls)
         .await
         .map_err(|err| match err.as_db_error() {
           Some(db_err) => {
@@ -32,7 +32,16 @@ impl bb8::ManageConnection for PostgresConnectionManager {
             );
             panic!("{message}")
           }
-          None => panic!("Postgres database connection error: {err}"),
+          None => {
+            // Include the source error details for better error messages
+            use std::error::Error as StdError;
+            let error_msg = if let Some(source) = err.source() {
+              format!("Postgres database connection error: {err}: {source}")
+            } else {
+              format!("Postgres database connection error: {err}")
+            };
+            panic!("{error_msg}")
+          }
         })?;
 
     // The connection object performs the actual communication with the database,
