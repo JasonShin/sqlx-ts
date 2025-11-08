@@ -14,7 +14,7 @@ use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
 use async_recursion::async_recursion;
 use color_eyre::Result;
 use regex::Regex;
-use sqlparser::ast::{Assignment, Expr, TableWithJoins, Value};
+use sqlparser::ast::{Assignment, Expr, FunctionArguments, TableWithJoins, Value};
 use std::slice::from_ref;
 
 /// Given an expression
@@ -459,8 +459,9 @@ pub async fn translate_expr(
     Expr::Case {
       operand: _,
       conditions: _,
-      results: _,
       else_result: _,
+      case_token: _,
+      end_token: _,
     } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging),
     Expr::Exists { subquery, negated: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, false, expr_for_logging)?;
@@ -472,8 +473,7 @@ pub async fn translate_expr(
     | Expr::Cube(_)
     | Expr::Rollup(_)
     | Expr::Tuple(_)
-    | Expr::Array(_)
-    | Expr::ArraySubquery(_) => {
+    | Expr::Array(_) => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
     }
     Expr::ArrayIndex { obj: _, indexes: _ } => {
@@ -525,7 +525,7 @@ pub async fn translate_expr(
             // Try to infer type from the first argument
             match arg_expr {
               Expr::Identifier(ident) => {
-                let column_name = DisplayIndent(ident).to_string();
+                let column_name = DisplayIndent(&ident).to_string();
                 if let Some(table_name) = single_table_name {
                   let table_details = &DB_SCHEMA.lock().await.fetch_table(&vec![table_name], db_conn).await;
 
@@ -544,7 +544,7 @@ pub async fn translate_expr(
               }
               Expr::CompoundIdentifier(idents) if idents.len() == 2 => {
                 let column_name = DisplayIndent(&idents[1]).to_string();
-                if let Ok(table_name) = translate_table_from_expr(table_with_joins, arg_expr) {
+                if let Ok(table_name) = translate_table_from_expr(table_with_joins, &arg_expr) {
                   let table_details = &DB_SCHEMA
                     .lock()
                     .await
@@ -566,7 +566,7 @@ pub async fn translate_expr(
               }
               Expr::Value(val) => {
                 // If first arg is a literal value, infer from that
-                if let Some(ts_field_type) = translate_value(val) {
+                if let Some(ts_field_type) = translate_value(&val) {
                   return ts_query.insert_result(Some(alias), &[ts_field_type], is_selection, false, expr_for_logging);
                 }
               }
