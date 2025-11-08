@@ -39,16 +39,19 @@ use std::slice::from_ref;
 /// it should return None
 pub fn get_expr_placeholder(expr: &Expr) -> Option<String> {
   let re = Regex::new(r"(\$\d+)").unwrap();
-  if let Expr::Value(Value::Placeholder(placeholder)) = &expr {
-    let indexed_binding_params = re.captures(placeholder);
-    if placeholder == "?" {
-      return Some("?".to_string());
-    } else if indexed_binding_params.is_some() {
-      // Rarely we will get an unwrap issue at this point because invalid syntax should be caught
-      // during `prepare` step
-      let placeholder = indexed_binding_params.unwrap().get(1).unwrap().as_str().to_string();
+  // In sqlparser 0.59.0, Expr::Value contains ValueWithSpan instead of Value
+  if let Expr::Value(value_with_span) = &expr {
+    if let Value::Placeholder(placeholder) = &value_with_span.value {
+      let indexed_binding_params = re.captures(placeholder);
+      if placeholder == "?" {
+        return Some("?".to_string());
+      } else if indexed_binding_params.is_some() {
+        // Rarely we will get an unwrap issue at this point because invalid syntax should be caught
+        // during `prepare` step
+        let placeholder = indexed_binding_params.unwrap().get(1).unwrap().as_str().to_string();
 
-      return Some(placeholder);
+        return Some(placeholder);
+      }
     }
   }
 
@@ -345,7 +348,7 @@ pub async fn translate_expr(
       .await
     }
     Expr::Value(placeholder) => {
-      let ts_field_type = translate_value(placeholder);
+      let ts_field_type = translate_value(&placeholder.value);
 
       if let Some(ts_field_type) = ts_field_type {
         return ts_query.insert_result(alias, &[ts_field_type], is_selection, false, expr_for_logging);
@@ -578,7 +581,7 @@ pub async fn translate_expr(
               }
               Expr::Value(val) => {
                 // If first arg is a literal value, infer from that
-                if let Some(ts_field_type) = translate_value(&val) {
+                if let Some(ts_field_type) = translate_value(&val.value) {
                   return ts_query.insert_result(Some(alias), &[ts_field_type], is_selection, false, expr_for_logging);
                 }
               }

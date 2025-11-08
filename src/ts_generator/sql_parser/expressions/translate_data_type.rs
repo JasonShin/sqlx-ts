@@ -2,7 +2,7 @@ use crate::ts_generator::types::ts_query::TsFieldType;
 use sqlparser::ast::{DataType, ValueWithSpan};
 use sqlparser::ast::Value;
 
-pub fn translate_value(value: &ValueWithSpan) -> Option<TsFieldType> {
+pub fn translate_value(value: &Value) -> Option<TsFieldType> {
   match &value {
     Value::Number(_, _) => Some(TsFieldType::Number),
     Value::SingleQuotedString(_) => Some(TsFieldType::String),
