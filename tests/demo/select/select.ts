@@ -82,61 +82,73 @@ JOIN "inventory" ON "items"."inventory_id" = "inventory"."id"
 
 // SELECT IFNULL with ENUM type
 const selectSql16 = sql`
+-- @db: db_mysql
 SELECT IFNULL(name, 'defaultName') AS name FROM factions;
 `
 
 // SELECT IFNULL with VARCHAR type
 const selectSql17 = sql`
+-- @db: db_mysql
 SELECT IFNULL(rarity, 'common') AS item_rarity FROM items;
 `
 
 // SELECT IFNULL with INT type
 const selectSql18 = sql`
+-- @db: db_mysql
 SELECT IFNULL(quantity, 0) AS qty FROM inventory;
 `
 
 // SELECT IFNULL with SMALLINT type
 const selectSql19 = sql`
+-- @db: db_mysql
 SELECT IFNULL(level, 1) AS character_level FROM characters;
 `
 
 // SELECT IFNULL with DOUBLE type
 const selectSql20 = sql`
+-- @db: db_mysql
 SELECT IFNULL(gold, 0.0) AS gold_amount FROM characters;
 `
 
 // SELECT IFNULL with TEXT type
 const selectSql21 = sql`
+-- @db: db_mysql
 SELECT IFNULL(description, 'No description') AS desc FROM factions;
 `
 
 // SELECT COALESCE with multiple arguments
 const selectSql22 = sql`
+-- @db: db_mysql
 SELECT COALESCE(rarity, flavor_text, 'unknown') AS item_info FROM items;
 `
 
 // SELECT COALESCE with VARCHAR column
 const selectSql23 = sql`
+-- @db: db_mysql
 SELECT COALESCE(name, 'Unknown Character') AS char_name FROM characters;
 `
 
 // SELECT COALESCE with INT column
 const selectSql24 = sql`
+-- @db: db_mysql
 SELECT COALESCE(required_level, 1) AS quest_level FROM quests;
 `
 
 // SELECT NULLIF with VARCHAR
 const selectSql25 = sql`
+-- @db: db_mysql
 SELECT NULLIF(name, 'default') AS guild_name FROM guilds;
 `
 
 // SELECT NULLIF with INT
 const selectSql26 = sql`
+-- @db: db_mysql
 SELECT NULLIF(quantity, 0) AS inv_quantity FROM inventory;
 `
 
 // SELECT NVL with VARCHAR (Oracle-style, but should work)
 const selectSql27 = sql`
+-- @db: db_mysql
 SELECT NVL(guild_rank, 'Member') AS rank FROM guild_members;
 `
 
