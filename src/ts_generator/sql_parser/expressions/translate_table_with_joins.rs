@@ -41,6 +41,10 @@ pub fn find_table_name_from_identifier(
         with_hints: _,
         version: _,
         partitions: _,
+        with_ordinality: _,
+        json_path: _,
+        sample: _,
+        index_hints: _,
       } => {
         let alias = alias.clone().map(|alias| DisplayTableAlias(&alias).to_string());
         let name = DisplayObjectName(name).to_string();
@@ -70,6 +74,10 @@ pub fn find_table_name_from_identifier(
         with_hints: _,
         version: _,
         partitions: _,
+        with_ordinality: _,
+        json_path: _,
+        sample: _,
+        index_hints: _,
       } => {
         let alias = alias.clone().map(|alias| DisplayTableAlias(&alias).to_string());
         let name = DisplayObjectName(name).to_string();
