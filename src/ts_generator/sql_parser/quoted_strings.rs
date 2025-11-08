@@ -30,7 +30,7 @@ impl fmt::Display for DisplayObjectName<'_> {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
     // In sqlparser 0.59.0, ObjectName contains Vec<ObjectNamePart> instead of Vec<Ident>
     // We need to extract the Ident from the first ObjectNamePart
-    let first_part = &self.0.0[0];
+    let first_part = &self.0 .0[0];
     if let Some(ident) = first_part.as_ident() {
       let quote_style = &ident.quote_style;
       let name = &ident.value;

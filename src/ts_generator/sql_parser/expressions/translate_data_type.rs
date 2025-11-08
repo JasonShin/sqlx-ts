@@ -1,6 +1,6 @@
 use crate::ts_generator::types::ts_query::TsFieldType;
-use sqlparser::ast::{DataType, ValueWithSpan};
 use sqlparser::ast::Value;
+use sqlparser::ast::{DataType, ValueWithSpan};
 
 pub fn translate_value(value: &Value) -> Option<TsFieldType> {
   match &value {

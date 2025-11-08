@@ -89,7 +89,9 @@ pub fn translate_column_name_assignment(assignment: &Assignment) -> Option<Strin
         parts[0].as_ident().map(|ident| DisplayIndent(ident).to_string())
       } else if parts.len() > 1 {
         // For qualified names like table.column, return the column name
-        parts[parts.len() - 1].as_ident().map(|ident| DisplayIndent(ident).to_string())
+        parts[parts.len() - 1]
+          .as_ident()
+          .map(|ident| DisplayIndent(ident).to_string())
       } else {
         None
       }
@@ -97,7 +99,11 @@ pub fn translate_column_name_assignment(assignment: &Assignment) -> Option<Strin
     AssignmentTarget::Tuple(object_names) => {
       // For tuple assignment, return the first column name
       object_names.first().and_then(|obj_name| {
-        obj_name.0.first().and_then(|part| part.as_ident()).map(|ident| DisplayIndent(ident).to_string())
+        obj_name
+          .0
+          .first()
+          .and_then(|part| part.as_ident())
+          .map(|ident| DisplayIndent(ident).to_string())
       })
     }
   }
@@ -404,11 +410,7 @@ pub async fn translate_expr(
       ts_query.insert_param(&TsFieldType::String, &false, &Some(time_zone.to_string()))?;
       Ok(())
     }
-    Expr::Extract {
-      field,
-      syntax: _,
-      expr,
-    } => {
+    Expr::Extract { field, syntax: _, expr } => {
       ts_query.insert_result(alias, &[TsFieldType::Date], is_selection, false, expr_for_logging)?;
       ts_query.insert_param(&TsFieldType::String, &false, &Some(field.to_string()))?;
       ts_query.insert_param(&TsFieldType::String, &false, &Some(expr.to_string()))?;
@@ -471,18 +473,15 @@ pub async fn translate_expr(
     }
     // Note: ListAgg and ArrayAgg were removed in sqlparser 0.59.0
     // They are now represented as Function variants
-    Expr::GroupingSets(_)
-    | Expr::Cube(_)
-    | Expr::Rollup(_)
-    | Expr::Tuple(_)
-    | Expr::Array(_) => {
+    Expr::GroupingSets(_) | Expr::Cube(_) | Expr::Rollup(_) | Expr::Tuple(_) | Expr::Array(_) => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
     }
     // Note: ArrayIndex was replaced with CompoundFieldAccess in sqlparser 0.59.0
     // CompoundFieldAccess handles array indexing, map access, and composite field access
-    Expr::CompoundFieldAccess { root: _, access_chain: _ } => {
-      ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
-    }
+    Expr::CompoundFieldAccess {
+      root: _,
+      access_chain: _,
+    } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging),
     // JsonAccess handles semi-structured data access (e.g., Snowflake VARIANT type)
     Expr::JsonAccess { value: _, path: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
@@ -540,7 +539,7 @@ pub async fn translate_expr(
             // Try to infer type from the first argument
             match arg_expr {
               Expr::Identifier(ident) => {
-                let column_name = DisplayIndent(&ident).to_string();
+                let column_name = DisplayIndent(ident).to_string();
                 if let Some(table_name) = single_table_name {
                   let table_details = &DB_SCHEMA.lock().await.fetch_table(&vec![table_name], db_conn).await;
 
@@ -559,7 +558,7 @@ pub async fn translate_expr(
               }
               Expr::CompoundIdentifier(idents) if idents.len() == 2 => {
                 let column_name = DisplayIndent(&idents[1]).to_string();
-                if let Ok(table_name) = translate_table_from_expr(table_with_joins, &arg_expr) {
+                if let Ok(table_name) = translate_table_from_expr(table_with_joins, arg_expr) {
                   let table_details = &DB_SCHEMA
                     .lock()
                     .await
