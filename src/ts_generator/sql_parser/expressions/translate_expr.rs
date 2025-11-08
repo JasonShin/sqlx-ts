@@ -14,7 +14,7 @@ use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
 use async_recursion::async_recursion;
 use color_eyre::Result;
 use regex::Regex;
-use sqlparser::ast::{Assignment, Expr, FunctionArguments, TableWithJoins, Value};
+use sqlparser::ast::{Assignment, Expr, TableWithJoins, Value};
 use std::slice::from_ref;
 
 /// Given an expression
