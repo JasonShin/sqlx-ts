@@ -1,7 +1,7 @@
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::quoted_strings::*;
 use color_eyre::eyre::Result;
-use sqlparser::ast::{Assignment, Expr, Join, SelectItem, TableFactor, TableWithJoins};
+use sqlparser::ast::{Assignment, AssignmentTarget, Expr, Join, SelectItem, TableFactor, TableWithJoins};
 
 pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
   table_with_joins
@@ -14,6 +14,10 @@ pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
         with_hints: _,
         version: _,
         partitions: _,
+        with_ordinality: _,
+        json_path: _,
+        sample: _,
+        index_hints: _,
       } => Some(DisplayObjectName(name).to_string()),
       _ => None,
     })
@@ -41,6 +45,10 @@ pub fn find_table_name_from_identifier(
         with_hints: _,
         version: _,
         partitions: _,
+        with_ordinality: _,
+        json_path: _,
+        sample: _,
+        index_hints: _,
       } => {
         let alias = alias.clone().map(|alias| DisplayTableAlias(&alias).to_string());
         let name = DisplayObjectName(name).to_string();
@@ -70,6 +78,10 @@ pub fn find_table_name_from_identifier(
         with_hints: _,
         version: _,
         partitions: _,
+        with_ordinality: _,
+        json_path: _,
+        sample: _,
+        index_hints: _,
       } => {
         let alias = alias.clone().map(|alias| DisplayTableAlias(&alias).to_string());
         let name = DisplayObjectName(name).to_string();
@@ -132,10 +144,29 @@ pub fn translate_table_from_assignments(
   table_with_joins: &Vec<TableWithJoins>,
   assignment: &Assignment,
 ) -> Result<String, TsGeneratorError> {
-  let identifier = assignment.id.first();
+  // In sqlparser 0.59.0, Assignment.id was replaced with Assignment.target
+  // which is an AssignmentTarget enum (ColumnName or Tuple)
+  let object_name = match &assignment.target {
+    AssignmentTarget::ColumnName(name) => Some(name),
+    AssignmentTarget::Tuple(names) => names.first(),
+  };
 
-  match identifier {
-    Some(identifier) => find_table_name_from_identifier(table_with_joins, &vec![identifier.value.to_string()]),
+  match object_name {
+    Some(name) => {
+      // Extract the first identifier from the ObjectName
+      let first_part = name.0.first();
+      match first_part {
+        Some(part) => {
+          if let Some(ident) = part.as_ident() {
+            find_table_name_from_identifier(table_with_joins, &vec![ident.value.to_string()])
+          } else {
+            // If it's a function-based name, use default table
+            Ok(get_default_table(table_with_joins))
+          }
+        }
+        None => Ok(get_default_table(table_with_joins)),
+      }
+    }
     None => Ok(get_default_table(table_with_joins)),
   }
 }

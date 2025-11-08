@@ -306,7 +306,7 @@ export interface ISelectSql26Query {
 export type SelectSql27Params = [];
 
 export interface ISelectSql27Result {
-	rank: any;
+	rank: string;
 }
 
 export interface ISelectSql27Query {

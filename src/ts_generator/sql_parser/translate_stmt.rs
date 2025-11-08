@@ -10,7 +10,7 @@ use crate::ts_generator::sql_parser::translate_update::translate_update;
 use crate::ts_generator::types::ts_query::TsQuery;
 
 use super::expressions::translate_table_with_joins::get_default_table;
-use sqlparser::ast::{FromTable, Statement};
+use sqlparser::ast::{FromTable, Statement, TableObject, UpdateTableFromKind};
 
 #[async_recursion]
 pub async fn translate_stmt(
@@ -23,49 +23,35 @@ pub async fn translate_stmt(
     Statement::Query(query) => {
       translate_query(ts_query, &None, query, db_conn, alias, true).await?;
     }
-    Statement::Insert {
-      or: _,
-      into: _,
-      table_name,
-      columns,
-      overwrite: _,
-      source,
-      partitioned: _,
-      after_columns: _,
-      table: _,
-      on: _,
-      returning,
-      ignore: _,
-      table_alias: _,
-      replace_into: _,
-      priority: _,
-      insert_alias: _,
-    } => {
-      let source = *source.to_owned().unwrap();
-      let table_name = DisplayObjectName(table_name).to_string();
-      let table_name = table_name.as_str();
+    Statement::Insert(insert) => {
+      let source = *insert.source.to_owned().unwrap();
+
+      // Extract table name from TableObject
+      let table_name = match &insert.table {
+        TableObject::TableName(obj_name) => DisplayObjectName(obj_name).to_string(),
+        TableObject::TableFunction(_) => {
+          return Err(TsGeneratorError::Unknown(
+            "INSERT into table function is not supported".to_string(),
+          ));
+        }
+      };
+
+      let table_name_str = table_name.as_str();
       let query_for_logging = sql_statement.to_string();
-      let query_for_logging = &query_for_logging.as_str();
-      translate_insert(ts_query, columns, &source, table_name, db_conn).await?;
-      if returning.is_some() {
-        let returning = returning.clone();
-        let returning = &returning.unwrap();
-        translate_insert_returning(ts_query, returning, table_name, db_conn, query_for_logging).await?;
+      let query_for_logging_str = &query_for_logging.as_str();
+
+      translate_insert(ts_query, &insert.columns, &source, table_name_str, db_conn).await?;
+
+      if insert.returning.is_some() {
+        let returning = insert.returning.clone().unwrap();
+        translate_insert_returning(ts_query, &returning, table_name_str, db_conn, query_for_logging_str).await?;
       }
     }
-    Statement::Delete {
-      tables: _,
-      selection,
-      using: _,
-      returning: _,
-      from,
-      order_by: _,
-      limit: _,
-    } => match &from {
+    Statement::Delete(delete) => match &delete.from {
       FromTable::WithFromKeyword(from) => {
         let table_name = get_default_table(from);
         let table_name = table_name.as_str();
-        let selection = selection.to_owned().unwrap();
+        let selection = delete.selection.to_owned().unwrap();
         translate_delete(ts_query, &selection, table_name, db_conn).await?;
       }
       FromTable::WithoutKeyword(_) => Err(TsGeneratorError::FromWithoutKeyword(sql_statement.to_string()))?,
@@ -76,8 +62,23 @@ pub async fn translate_stmt(
       from,
       selection,
       returning: _,
+      or: _,
+      limit: _,
     } => {
-      translate_update(ts_query, table, assignments, from, selection, db_conn).await?;
+      // Convert UpdateTableFromKind to Option<TableWithJoins>
+      let from_table = match from {
+        Some(UpdateTableFromKind::AfterSet(tables)) => {
+          // For AfterSet, we take the first TableWithJoins if available
+          tables.first().cloned()
+        }
+        Some(UpdateTableFromKind::BeforeSet(tables)) => {
+          // For BeforeSet, we take the first TableWithJoins if available
+          tables.first().cloned()
+        }
+        None => None,
+      };
+
+      translate_update(ts_query, table, assignments, &from_table, selection, db_conn).await?;
     }
     _ => {}
   }

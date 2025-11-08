@@ -71,10 +71,10 @@ export interface IAllStringsResult {
 	extractYear1: Date;
 	jsonArray1: any;
 	jsonBuildObject1: any;
-	jsonExtractPathText1: any;
+	jsonExtractPathText1: string;
 	jsonbArray1: any;
 	jsonbBuildObject1: any;
-	jsonbExtractPathText1: any;
+	jsonbExtractPathText1: string;
 	left1: string;
 	length1: string;
 	localtime1: string;

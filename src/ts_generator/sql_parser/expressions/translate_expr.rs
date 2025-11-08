@@ -39,16 +39,19 @@ use std::slice::from_ref;
 /// it should return None
 pub fn get_expr_placeholder(expr: &Expr) -> Option<String> {
   let re = Regex::new(r"(\$\d+)").unwrap();
-  if let Expr::Value(Value::Placeholder(placeholder)) = &expr {
-    let indexed_binding_params = re.captures(placeholder);
-    if placeholder == "?" {
-      return Some("?".to_string());
-    } else if indexed_binding_params.is_some() {
-      // Rarely we will get an unwrap issue at this point because invalid syntax should be caught
-      // during `prepare` step
-      let placeholder = indexed_binding_params.unwrap().get(1).unwrap().as_str().to_string();
+  // In sqlparser 0.59.0, Expr::Value contains ValueWithSpan instead of Value
+  if let Expr::Value(value_with_span) = &expr {
+    if let Value::Placeholder(placeholder) = &value_with_span.value {
+      let indexed_binding_params = re.captures(placeholder);
+      if placeholder == "?" {
+        return Some("?".to_string());
+      } else if indexed_binding_params.is_some() {
+        // Rarely we will get an unwrap issue at this point because invalid syntax should be caught
+        // during `prepare` step
+        let placeholder = indexed_binding_params.unwrap().get(1).unwrap().as_str().to_string();
 
-      return Some(placeholder);
+        return Some(placeholder);
+      }
     }
   }
 
@@ -76,15 +79,34 @@ pub fn translate_column_name_expr(expr: &Expr) -> Option<String> {
 }
 
 pub fn translate_column_name_assignment(assignment: &Assignment) -> Option<String> {
-  let left = assignment.id.first();
-  let right = assignment.id.get(1);
+  use sqlparser::ast::AssignmentTarget;
 
-  if left.is_some() && right.is_some() {
-    return right.map(|ident| DisplayIndent(ident).to_string());
-  } else if left.is_some() && right.is_none() {
-    return left.map(|ident| DisplayIndent(ident).to_string());
+  match &assignment.target {
+    AssignmentTarget::ColumnName(object_name) => {
+      // For simple column name, get the last ident
+      let parts = &object_name.0;
+      if parts.len() == 1 {
+        parts[0].as_ident().map(|ident| DisplayIndent(ident).to_string())
+      } else if parts.len() > 1 {
+        // For qualified names like table.column, return the column name
+        parts[parts.len() - 1]
+          .as_ident()
+          .map(|ident| DisplayIndent(ident).to_string())
+      } else {
+        None
+      }
+    }
+    AssignmentTarget::Tuple(object_names) => {
+      // For tuple assignment, return the first column name
+      object_names.first().and_then(|obj_name| {
+        obj_name
+          .0
+          .first()
+          .and_then(|part| part.as_ident())
+          .map(|ident| DisplayIndent(ident).to_string())
+      })
+    }
   }
-  None
 }
 
 /// handle an expression from where clauses (or it can be from anywhere)
@@ -301,6 +323,7 @@ pub async fn translate_expr(
       left: _,
       compare_op: _,
       right: expr,
+      is_some: _,
     }
     | Expr::AllOp {
       left: _,
@@ -331,18 +354,14 @@ pub async fn translate_expr(
       .await
     }
     Expr::Value(placeholder) => {
-      let ts_field_type = translate_value(placeholder);
+      let ts_field_type = translate_value(&placeholder.value);
 
       if let Some(ts_field_type) = ts_field_type {
         return ts_query.insert_result(alias, &[ts_field_type], is_selection, false, expr_for_logging);
       }
       ts_query.insert_param(&TsFieldType::Boolean, &false, &Some(placeholder.to_string()))
     }
-    Expr::JsonAccess {
-      left: _,
-      operator: _,
-      right: _,
-    } => {
+    Expr::JsonAccess { value: _, path: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)?;
       ts_query.insert_param(&TsFieldType::Any, &false, &None)
     }
@@ -359,12 +378,14 @@ pub async fn translate_expr(
     }
     | Expr::ILike {
       negated: _,
+      any: _,
       expr: _,
       pattern,
       escape_char: _,
     }
     | Expr::Like {
       negated: _,
+      any: _,
       expr: _,
       pattern,
       escape_char: _,
@@ -372,17 +393,8 @@ pub async fn translate_expr(
       // If the pattern has a placeholder, then we should append the param to ts_query
       ts_query.insert_param(&TsFieldType::String, &false, &Some(pattern.to_string()))
     }
-    Expr::TryCast {
-      expr,
-      data_type,
-      format: _,
-    }
-    | Expr::SafeCast {
-      expr,
-      data_type,
-      format: _,
-    }
-    | Expr::Cast {
+    Expr::Cast {
+      kind: _,
       expr,
       data_type,
       format: _,
@@ -398,7 +410,7 @@ pub async fn translate_expr(
       ts_query.insert_param(&TsFieldType::String, &false, &Some(time_zone.to_string()))?;
       Ok(())
     }
-    Expr::Extract { field, expr } => {
+    Expr::Extract { field, syntax: _, expr } => {
       ts_query.insert_result(alias, &[TsFieldType::Date], is_selection, false, expr_for_logging)?;
       ts_query.insert_param(&TsFieldType::String, &false, &Some(field.to_string()))?;
       ts_query.insert_param(&TsFieldType::String, &false, &Some(expr.to_string()))?;
@@ -416,6 +428,7 @@ pub async fn translate_expr(
       substring_from: _,
       substring_for: _,
       special: _,
+      shorthand: _,
     } => {
       ts_query.insert_result(alias, &[TsFieldType::String], is_selection, false, expr_for_logging)?;
       ts_query.insert_param(&TsFieldType::String, &false, &Some(expr.to_string()))
@@ -443,40 +456,34 @@ pub async fn translate_expr(
     Expr::Collate { expr: _, collation: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
     }
-    Expr::IntroducedString {
-      introducer: _,
-      value: _,
-    } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging),
-    Expr::TypedString { data_type: _, value: _ } => {
-      ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
-    }
-    Expr::MapAccess { column: _, keys: _ } => {
-      ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
-    }
-    Expr::AggregateExpressionWithFilter { expr: _, filter: _ } => {
-      ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
-    }
+    Expr::TypedString(_) => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging),
+    Expr::Map(_) => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging),
+    // Note: AggregateExpressionWithFilter was removed in sqlparser 0.59.0
+    // Aggregate functions with filters are now part of the Function variant
     Expr::Case {
       operand: _,
       conditions: _,
-      results: _,
       else_result: _,
+      case_token: _,
+      end_token: _,
     } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging),
     Expr::Exists { subquery, negated: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, false, expr_for_logging)?;
       translate_query(ts_query, &None, subquery, db_conn, alias, false).await
     }
-    Expr::ListAgg(_)
-    | Expr::ArrayAgg(_)
-    | Expr::GroupingSets(_)
-    | Expr::Cube(_)
-    | Expr::Rollup(_)
-    | Expr::Tuple(_)
-    | Expr::Array(_)
-    | Expr::ArraySubquery(_) => {
+    // Note: ListAgg and ArrayAgg were removed in sqlparser 0.59.0
+    // They are now represented as Function variants
+    Expr::GroupingSets(_) | Expr::Cube(_) | Expr::Rollup(_) | Expr::Tuple(_) | Expr::Array(_) => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
     }
-    Expr::ArrayIndex { obj: _, indexes: _ } => {
+    // Note: ArrayIndex was replaced with CompoundFieldAccess in sqlparser 0.59.0
+    // CompoundFieldAccess handles array indexing, map access, and composite field access
+    Expr::CompoundFieldAccess {
+      root: _,
+      access_chain: _,
+    } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging),
+    // JsonAccess handles semi-structured data access (e.g., Snowflake VARIANT type)
+    Expr::JsonAccess { value: _, path: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
     }
     Expr::Interval(_) => ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, false, expr_for_logging),
@@ -508,10 +515,17 @@ pub async fn translate_expr(
       // Handle type-polymorphic functions (IFNULL, COALESCE, etc.)
       // These functions return the type of their first argument
       if is_type_polymorphic_function(function_name_str) {
-        use sqlparser::ast::{FunctionArg, FunctionArgExpr};
+        use sqlparser::ast::{FunctionArg, FunctionArgExpr, FunctionArguments};
 
-        // Try to get the first argument and infer its type
-        if let Some(first_arg) = func_obj.args.first() {
+        // In sqlparser 0.59.0, args is a FunctionArguments enum
+        // Extract the first argument from the appropriate variant
+        let first_arg = match &func_obj.args {
+          FunctionArguments::List(arg_list) => arg_list.args.first(),
+          FunctionArguments::None => None,
+          FunctionArguments::Subquery(_) => None, // Can't infer type from subquery easily
+        };
+
+        if let Some(first_arg) = first_arg {
           let first_expr = match first_arg {
             FunctionArg::Unnamed(FunctionArgExpr::Expr(expr)) => Some(expr),
             FunctionArg::Named {
@@ -566,7 +580,7 @@ pub async fn translate_expr(
               }
               Expr::Value(val) => {
                 // If first arg is a literal value, infer from that
-                if let Some(ts_field_type) = translate_value(val) {
+                if let Some(ts_field_type) = translate_value(&val.value) {
                   return ts_query.insert_result(Some(alias), &[ts_field_type], is_selection, false, expr_for_logging);
                 }
               }
@@ -613,9 +627,8 @@ pub async fn translate_expr(
     /////////////////////
     // FUNCTIONS END //
     /////////////////////
-    Expr::CompositeAccess { expr: _, key: _ } => {
-      ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
-    }
+    // Note: CompositeAccess was replaced with CompoundFieldAccess in sqlparser 0.59.0
+    // (already handled above)
     Expr::Subquery(sub_query) => {
       // For the first layer of subquery, we consider the first field selected as the result
       if is_selection && table_with_joins.clone().unwrap().len() == 1 {

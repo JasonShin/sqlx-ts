@@ -28,10 +28,18 @@ pub struct DisplayObjectName<'a>(pub &'a ObjectName);
 
 impl fmt::Display for DisplayObjectName<'_> {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-    let quote_style = &self.0 .0[0].quote_style;
-    let name = &self.0 .0[0].value;
-    let name = trim_table_name(name, quote_style);
-    write!(f, "{name}")
+    // In sqlparser 0.59.0, ObjectName contains Vec<ObjectNamePart> instead of Vec<Ident>
+    // We need to extract the Ident from the first ObjectNamePart
+    let first_part = &self.0 .0[0];
+    if let Some(ident) = first_part.as_ident() {
+      let quote_style = &ident.quote_style;
+      let name = &ident.value;
+      let name = trim_table_name(name, quote_style);
+      write!(f, "{name}")
+    } else {
+      // Fallback: if it's a function-based name, use the default Display implementation
+      write!(f, "{}", first_part)
+    }
   }
 }
 

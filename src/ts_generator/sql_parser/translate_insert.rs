@@ -76,30 +76,34 @@ VALUES (value1, value2, value3, ...);
       let left_query = Query {
         with: None,
         body: left.clone(),
-        order_by: vec![],
-        limit: None,
-        limit_by: vec![],
-        offset: None,
+        order_by: None,
+        limit_clause: None,
         fetch: None,
         locks: vec![],
         for_clause: None,
+        settings: None,
+        format_clause: None,
+        pipe_operators: vec![],
       };
       translate_query(ts_query, &None, &left_query, conn, None, false).await?;
       let right_query = Query {
         with: None,
         body: right.clone(),
-        order_by: vec![],
-        limit: None,
-        limit_by: vec![],
-        offset: None,
+        order_by: None,
+        limit_clause: None,
         fetch: None,
         locks: vec![],
         for_clause: None,
+        settings: None,
+        format_clause: None,
+        pipe_operators: vec![],
       };
       translate_query(ts_query, &None, &right_query, conn, None, false).await?;
     }
     SetExpr::Insert(insert) => translate_stmt(ts_query, &insert, None, conn).await?,
     SetExpr::Update(update) => translate_stmt(ts_query, &update, None, conn).await?,
+    SetExpr::Delete(delete) => translate_stmt(ts_query, &delete, None, conn).await?,
+    SetExpr::Merge(merge) => translate_stmt(ts_query, &merge, None, conn).await?,
     SetExpr::Table(_) => unimplemented!("Table expressions are not supported in INSERT statements"),
   }
 
