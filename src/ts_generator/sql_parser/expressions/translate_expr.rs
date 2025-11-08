@@ -453,9 +453,8 @@ pub async fn translate_expr(
     }
     Expr::TypedString(_) => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging),
     Expr::Map(_) => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging),
-    Expr::AggregateExpressionWithFilter { expr: _, filter: _ } => {
-      ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
-    }
+    // Note: AggregateExpressionWithFilter was removed in sqlparser 0.59.0
+    // Aggregate functions with filters are now part of the Function variant
     Expr::Case {
       operand: _,
       conditions: _,
@@ -467,16 +466,22 @@ pub async fn translate_expr(
       ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, false, expr_for_logging)?;
       translate_query(ts_query, &None, subquery, db_conn, alias, false).await
     }
-    Expr::ListAgg(_)
-    | Expr::ArrayAgg(_)
-    | Expr::GroupingSets(_)
+    // Note: ListAgg and ArrayAgg were removed in sqlparser 0.59.0
+    // They are now represented as Function variants
+    Expr::GroupingSets(_)
     | Expr::Cube(_)
     | Expr::Rollup(_)
     | Expr::Tuple(_)
     | Expr::Array(_) => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
     }
-    Expr::ArrayIndex { obj: _, indexes: _ } => {
+    // Note: ArrayIndex was replaced with CompoundFieldAccess in sqlparser 0.59.0
+    // CompoundFieldAccess handles array indexing, map access, and composite field access
+    Expr::CompoundFieldAccess { root: _, access_chain: _ } => {
+      ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
+    }
+    // JsonAccess handles semi-structured data access (e.g., Snowflake VARIANT type)
+    Expr::JsonAccess { value: _, path: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
     }
     Expr::Interval(_) => ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, false, expr_for_logging),
@@ -508,10 +513,17 @@ pub async fn translate_expr(
       // Handle type-polymorphic functions (IFNULL, COALESCE, etc.)
       // These functions return the type of their first argument
       if is_type_polymorphic_function(function_name_str) {
-        use sqlparser::ast::{FunctionArg, FunctionArgExpr};
+        use sqlparser::ast::{FunctionArg, FunctionArgExpr, FunctionArguments};
 
-        // Try to get the first argument and infer its type
-        if let Some(first_arg) = func_obj.args.first() {
+        // In sqlparser 0.59.0, args is a FunctionArguments enum
+        // Extract the first argument from the appropriate variant
+        let first_arg = match &func_obj.args {
+          FunctionArguments::List(arg_list) => arg_list.args.first(),
+          FunctionArguments::None => None,
+          FunctionArguments::Subquery(_) => None, // Can't infer type from subquery easily
+        };
+
+        if let Some(first_arg) = first_arg {
           let first_expr = match first_arg {
             FunctionArg::Unnamed(FunctionArgExpr::Expr(expr)) => Some(expr),
             FunctionArg::Named {
@@ -613,9 +625,8 @@ pub async fn translate_expr(
     /////////////////////
     // FUNCTIONS END //
     /////////////////////
-    Expr::CompositeAccess { expr: _, key: _ } => {
-      ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
-    }
+    // Note: CompositeAccess was replaced with CompoundFieldAccess in sqlparser 0.59.0
+    // (already handled above)
     Expr::Subquery(sub_query) => {
       // For the first layer of subquery, we consider the first field selected as the result
       if is_selection && table_with_joins.clone().unwrap().len() == 1 {
