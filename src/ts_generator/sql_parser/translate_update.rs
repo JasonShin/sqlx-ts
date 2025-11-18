@@ -17,7 +17,7 @@ async fn translate_assignments(
   db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
   for assignment in assignments {
-    let table = translate_table_from_assignments(&vec![table_with_joins.to_owned()], assignment)?;
+    let table = translate_table_from_assignments(&[table_with_joins.to_owned()], assignment)?;
 
     translate_assignment(assignment, table.as_str(), ts_query, db_conn)
       .await
@@ -30,7 +30,7 @@ pub async fn translate_update(
   ts_query: &mut TsQuery,
   table_with_joins: &TableWithJoins,
   assignments: &Vec<Assignment>,
-  from: &Option<TableWithJoins>,
+  _from: &Option<TableWithJoins>,
   selection: &Option<Expr>,
   db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {

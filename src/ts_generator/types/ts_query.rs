@@ -191,6 +191,7 @@ impl TsQuery {
     self.annotated_params = annotated_params;
   }
 
+  #[allow(deprecated)]
   pub fn format_column_name(&self, column_name: &str) -> String {
     let convert_to_camel_case_column_name = &CONFIG
       .generate_types_config

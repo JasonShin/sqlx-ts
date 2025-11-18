@@ -92,7 +92,7 @@ pub async fn translate_stmt(
       if returning.is_some() {
         let returning_items = returning.clone().unwrap();
         // Extract table name from TableWithJoins
-        let table_name = get_default_table(&vec![table.clone()]);
+        let table_name = get_default_table(std::slice::from_ref(table));
         let table_name_str = table_name.as_str();
         let query_for_logging = sql_statement.to_string();
         let query_for_logging_str = &query_for_logging.as_str();

@@ -8,7 +8,7 @@ use crate::ts_generator::types::ts_query::TsQuery;
 use color_eyre::eyre::Result;
 use sqlparser::ast::{Join, Select, TableFactor};
 
-pub fn get_all_table_names_from_select(select: &Box<Select>) -> Result<Vec<String>, TsGeneratorError> {
+pub fn get_all_table_names_from_select(select: &Select) -> Result<Vec<String>, TsGeneratorError> {
   let table_with_joins = select
     .from
     .first()
@@ -53,7 +53,7 @@ pub fn get_all_table_names_from_select(select: &Box<Select>) -> Result<Vec<Strin
 ///
 /// and it appends result into the hashmap for type generation
 pub async fn translate_wildcard_expr(
-  select: &Box<Select>,
+  select: &Select,
   ts_query: &mut TsQuery,
   db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {

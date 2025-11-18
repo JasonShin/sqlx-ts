@@ -3,7 +3,7 @@ use color_eyre::eyre::Result;
 use regex::Regex;
 use std::collections::HashMap;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use swc_common::{
   errors::{ColorConfig, Handler},
   sync::Lrc,
@@ -27,7 +27,7 @@ pub fn parse_sql_file(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Han
 
 /// Extract SQL queries from raw SQL file content
 /// Supports multiple queries separated by semicolons and annotations
-fn extract_sql_queries_from_file(content: &str, file_path: &PathBuf) -> Result<Vec<SQL>> {
+fn extract_sql_queries_from_file(content: &str, file_path: &Path) -> Result<Vec<SQL>> {
   let mut queries = Vec::new();
 
   // Split content by semicolons to handle multiple queries
@@ -42,7 +42,7 @@ fn extract_sql_queries_from_file(content: &str, file_path: &PathBuf) -> Result<V
     }
 
     // Extract annotations and clean query
-    let (query_name, db_connection, cleaned_query) = extract_annotations_from_sql(trimmed_block);
+    let (query_name, _db_connection, cleaned_query) = extract_annotations_from_sql(trimmed_block);
 
     // Skip if no actual SQL content after cleaning
     if cleaned_query.trim().is_empty() {
@@ -191,8 +191,8 @@ fn extract_annotations_from_sql(content: &str) -> (Option<String>, Option<String
     }
 
     // Check for name annotation in comments
-    if trimmed_line.starts_with("--") {
-      let comment_content = &trimmed_line[2..].trim();
+    if let Some(stripped) = trimmed_line.strip_prefix("--") {
+      let comment_content = &stripped.trim();
 
       if let Some(captures) = name_re.captures(comment_content) {
         query_name = Some(captures.get(1).unwrap().as_str().trim().to_string());
@@ -232,7 +232,7 @@ fn extract_annotations_from_sql(content: &str) -> (Option<String>, Option<String
 }
 
 /// Generate a default query name from file path and index
-fn generate_default_query_name(file_path: &PathBuf, index: usize) -> Option<String> {
+fn generate_default_query_name(file_path: &Path, index: usize) -> Option<String> {
   let file_stem = file_path.file_stem()?.to_str()?;
 
   // Convert to camelCase and add index if multiple queries

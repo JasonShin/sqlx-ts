@@ -3,7 +3,7 @@ use crate::ts_generator::sql_parser::quoted_strings::*;
 use color_eyre::eyre::Result;
 use sqlparser::ast::{Assignment, AssignmentTarget, Expr, Join, SelectItem, TableFactor, TableWithJoins};
 
-pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
+pub fn get_default_table(table_with_joins: &[TableWithJoins]) -> String {
   table_with_joins
     .first()
     .and_then(|x| match &x.relation {
@@ -25,8 +25,8 @@ pub fn get_default_table(table_with_joins: &Vec<TableWithJoins>) -> String {
 }
 
 pub fn find_table_name_from_identifier(
-  table_with_joins: &Vec<TableWithJoins>,
-  identifiers: &Vec<String>, // can be the actual identifier or an alias
+  table_with_joins: &[TableWithJoins],
+  identifiers: &[String], // can be the actual identifier or an alias
 ) -> Result<String, TsGeneratorError> {
   let left = identifiers
     .first()
@@ -128,11 +128,11 @@ pub fn translate_table_from_expr(
     Expr::Identifier(_) => Ok(get_default_table(table_with_joins)),
     Expr::CompoundIdentifier(compound_identifier) => {
       // Assumes that [0] of the compound identifiers is the alias that points to the table
-      let identifiers = &compound_identifier
+      let identifiers: Vec<String> = compound_identifier
         .iter()
         .map(|x| DisplayIndent(x).to_string())
         .collect();
-      find_table_name_from_identifier(table_with_joins, identifiers)
+      find_table_name_from_identifier(table_with_joins, &identifiers)
     }
     _ => Err(TsGeneratorError::UnknownErrorWhileProcessingTableWithJoins(
       expr.to_string(),
@@ -141,7 +141,7 @@ pub fn translate_table_from_expr(
 }
 
 pub fn translate_table_from_assignments(
-  table_with_joins: &Vec<TableWithJoins>,
+  table_with_joins: &[TableWithJoins],
   assignment: &Assignment,
 ) -> Result<String, TsGeneratorError> {
   // In sqlparser 0.59.0, Assignment.id was replaced with Assignment.target
@@ -158,7 +158,7 @@ pub fn translate_table_from_assignments(
       match first_part {
         Some(part) => {
           if let Some(ident) = part.as_ident() {
-            find_table_name_from_identifier(table_with_joins, &vec![ident.value.to_string()])
+            find_table_name_from_identifier(table_with_joins, &[ident.value.to_string()])
           } else {
             // If it's a function-based name, use default table
             Ok(get_default_table(table_with_joins))
@@ -192,11 +192,11 @@ pub fn translate_table_with_joins(
       match expr {
         Expr::CompoundIdentifier(compound_identifier) => {
           // Assumes that [0] of the compound identifiers is the alias that points to the table
-          let identifiers = &compound_identifier
+          let identifiers: Vec<String> = compound_identifier
             .iter()
             .map(|x| DisplayIndent(x).to_string())
             .collect();
-          find_table_name_from_identifier(table_with_joins, identifiers)
+          find_table_name_from_identifier(table_with_joins, &identifiers)
         }
         _ => Ok(default_table_name),
       }
@@ -208,11 +208,11 @@ pub fn translate_table_with_joins(
         Ok(default_table_name)
       }
       Expr::CompoundIdentifier(compound_identifier) => {
-        let identifiers = &compound_identifier
+        let identifiers: Vec<String> = compound_identifier
           .iter()
           .map(|x| DisplayIndent(x).to_string())
           .collect();
-        find_table_name_from_identifier(table_with_joins, identifiers)
+        find_table_name_from_identifier(table_with_joins, &identifiers)
       }
       _ => Ok(default_table_name),
     },
