@@ -23,6 +23,7 @@ pub enum TsGeneratorError {
   #[error("[E009] When translating a function in a SELECT clause, you must provide an alias - query : `{0}`")]
   FunctionWithoutAliasInSelectClause(String),
   #[error("[E010] Unknown function detected while processing a SELECT clause - query: `{0}`")]
+  #[allow(dead_code)]
   FunctionUnknown(String),
   // Errors while handling FROM statement
   #[error("[E012] Failed to handle a from statement without the `FROM` keyword - query: `{0}`")]

@@ -16,7 +16,7 @@ use crate::{
 pub async fn translate_select(
   ts_query: &mut TsQuery,
   table_with_joins: &Option<Vec<TableWithJoins>>,
-  select: &Box<Select>,
+  select: &Select,
   db_conn: &DBConn,
   alias: Option<&str>,
   is_selection: bool,
@@ -41,7 +41,7 @@ pub async fn translate_select(
   // Handle all select projects and figure out each field's type
   for select_item in projection {
     // Determine the default table name within the scope of this select item
-    let mut table_name_owned: Option<String> = None;
+    let table_name_owned: Option<String>;
     let mut table_name: Option<&str> = None;
     if full_table_with_joins.is_some() && !full_table_with_joins.as_ref().unwrap().is_empty() {
       table_name_owned = Some(

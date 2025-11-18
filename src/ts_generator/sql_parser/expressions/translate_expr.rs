@@ -482,10 +482,6 @@ pub async fn translate_expr(
       root: _,
       access_chain: _,
     } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging),
-    // JsonAccess handles semi-structured data access (e.g., Snowflake VARIANT type)
-    Expr::JsonAccess { value: _, path: _ } => {
-      ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
-    }
     Expr::Interval(_) => ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, false, expr_for_logging),
     Expr::MatchAgainst {
       columns: _,

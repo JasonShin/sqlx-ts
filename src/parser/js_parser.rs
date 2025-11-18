@@ -15,16 +15,16 @@ use crate::parser::decl::{process_decl, process_default_decl};
 use crate::parser::import::find_sqlx_import_alias;
 use crate::parser::tag::get_sql_from_expr;
 use swc_ecma_ast::{Key, ModuleDecl, ModuleItem, Stmt};
-use swc_ecma_parser::TsConfig;
+use swc_ecma_parser::TsSyntax;
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 
-fn insert_or_append_sqls(sqls_container: &mut HashMap<PathBuf, Vec<SQL>>, sqls: &Vec<SQL>, file_path: &PathBuf) {
+fn insert_or_append_sqls(sqls_container: &mut HashMap<PathBuf, Vec<SQL>>, sqls: &[SQL], file_path: &PathBuf) {
   if sqls_container.contains_key(&*file_path.clone()) {
     let mut value = sqls_container.get(file_path).unwrap().clone();
-    value.extend(sqls.clone());
+    value.extend(sqls.to_owned());
     sqls_container.insert(file_path.clone(), (*value.to_owned()).to_owned());
   } else {
-    sqls_container.insert(file_path.clone(), sqls.clone());
+    sqls_container.insert(file_path.clone(), sqls.to_owned());
   }
 }
 
@@ -135,7 +135,7 @@ pub fn parse_js_file(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Hand
 
   let file_path = path.as_os_str().to_str().unwrap().to_string();
   let fm = cm.new_source_file(Rc::new(FileName::Custom(file_path)), contents);
-  let ts_config: TsConfig = TsConfig {
+  let ts_syntax = TsSyntax {
     tsx: false,
     decorators: true,
     dts: false,
@@ -143,7 +143,7 @@ pub fn parse_js_file(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Hand
     disallow_ambiguous_jsx_like: false,
   };
   let lexer = Lexer::new(
-    Syntax::Typescript(ts_config),
+    Syntax::Typescript(ts_syntax),
     Default::default(),
     StringInput::from(&*fm),
     None,

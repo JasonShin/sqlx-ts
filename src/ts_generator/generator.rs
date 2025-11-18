@@ -2,7 +2,7 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use std::{
   fs,
-  path::{Path, PathBuf},
+  path::Path,
 };
 
 use super::annotations::extract_param_annotations;
@@ -52,7 +52,7 @@ pub fn get_query_name(sql: &SQL) -> Result<String> {
 }
 
 /// Write colocated Type definition file next to the TS source code
-pub fn write_colocated_ts_file(file_path: &PathBuf, sqls_to_write: String) -> Result<()> {
+pub fn write_colocated_ts_file(file_path: &Path, sqls_to_write: String) -> Result<()> {
   let path = file_path.parent().unwrap();
   let file = file_path.file_stem().unwrap();
   let file_name = file.to_str().unwrap();
