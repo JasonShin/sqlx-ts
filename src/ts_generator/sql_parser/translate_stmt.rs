@@ -96,7 +96,14 @@ pub async fn translate_stmt(
         let table_name_str = table_name.as_str();
         let query_for_logging = sql_statement.to_string();
         let query_for_logging_str = &query_for_logging.as_str();
-        translate_insert_returning(ts_query, &returning_items, table_name_str, db_conn, query_for_logging_str).await?;
+        translate_insert_returning(
+          ts_query,
+          &returning_items,
+          table_name_str,
+          db_conn,
+          query_for_logging_str,
+        )
+        .await?;
       }
     }
     _ => {}
