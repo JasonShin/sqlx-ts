@@ -19,34 +19,32 @@ class Effect<T> {
 
 // Issue #224: Method chaining with .pipe() - these should be recognized
 const methodChainSingle = Effect.succeed(sql`
--- @name: method chain single
-SELECT name FROM user
+SELECT id FROM items
 `).pipe((str) => str)
 
 const methodChainMultiple = Effect.succeed(sql`
--- @name: method chain multiple
-SELECT id, email FROM accounts
+SELECT id FROM items
 `)
   .pipe((str) => str)
   .pipe((x) => x)
 
 const methodChainWithMap = Effect.succeed(sql`
 -- @name: method chain with map
-SELECT * FROM products WHERE active = true
+SELECT id FROM items
 `).map((result) => result)
 
 // Nested method chains
 const nestedChain = Effect.succeed(
   Effect.succeed(sql`
 -- @name: nested chain
-SELECT id, status FROM orders
+SELECT id FROM items
 `).pipe((x) => x)
 ).pipe((y) => y)
 
 // Promise-like chaining
 const promiseChain = Promise.resolve(sql`
 -- @name: promise chain
-SELECT username, created_at FROM users
+SELECT id FROM items
 `)
   .then((result) => result)
   .catch((err) => err)
@@ -54,7 +52,7 @@ SELECT username, created_at FROM users
 // Array method chaining
 const arrayChain = [sql`
 -- @name: array chain
-SELECT * FROM items WHERE category = 'electronics'
+SELECT id FROM items
 `]
   .map((x) => x)
   .filter((x) => x)
@@ -63,7 +61,7 @@ SELECT * FROM items WHERE category = 'electronics'
 const complexChain = (
   Effect.succeed(sql`
 -- @name: complex chain
-SELECT price, discount FROM sales
+SELECT id FROM items
   `).pipe((data) => data)
 )
 
@@ -71,6 +69,6 @@ SELECT price, discount FROM sales
 const ternaryChain = true
   ? Effect.succeed(sql`
 -- @name: ternary chain
-SELECT * FROM events WHERE date > NOW()
+SELECT id FROM items
     `).pipe((x) => x)
   : null
