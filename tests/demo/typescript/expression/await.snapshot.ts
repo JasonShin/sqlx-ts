@@ -20,6 +20,17 @@ export interface IAsyncLambdaAwaitedQuery {
 	result: IAsyncLambdaAwaitedResult;
 }
 
+export type AsyncLambdaParams = [];
+
+export interface IAsyncLambdaResult {
+	id: number;
+}
+
+export interface IAsyncLambdaQuery {
+	params: AsyncLambdaParams;
+	result: IAsyncLambdaResult;
+}
+
 export type IifLambdaParams = [];
 
 export interface IIifLambdaResult {
