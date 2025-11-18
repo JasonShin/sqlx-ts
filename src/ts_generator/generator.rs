@@ -1,9 +1,6 @@
 use std::fs::OpenOptions;
 use std::io::Write;
-use std::{
-  fs,
-  path::Path,
-};
+use std::{fs, path::Path};
 
 use super::annotations::extract_param_annotations;
 
