@@ -75,13 +75,11 @@ pub fn get_sql_from_expr(
       get_sql_from_expr(sqls, var_decl_name, &expr.expr, span, import_alias);
     }
     Expr::Call(call_expr) => {
-      let num_args = &call_expr.args.len();
-
+      // Always traverse the callee to detect SQL queries in method chains
       if let Some(callee_expr) = &call_expr.callee.as_expr() {
-        if num_args == &0 {
-          get_sql_from_expr(sqls, var_decl_name, callee_expr, span, import_alias);
-        }
+        get_sql_from_expr(sqls, var_decl_name, callee_expr, span, import_alias);
       }
+      // Also traverse all arguments
       for arg in &call_expr.args {
         get_sql_from_expr(sqls, var_decl_name, &arg.expr, span, import_alias);
       }
