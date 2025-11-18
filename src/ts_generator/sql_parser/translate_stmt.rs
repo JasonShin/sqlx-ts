@@ -50,9 +50,17 @@ pub async fn translate_stmt(
     Statement::Delete(delete) => match &delete.from {
       FromTable::WithFromKeyword(from) => {
         let table_name = get_default_table(from);
-        let table_name = table_name.as_str();
+        let table_name_str = table_name.as_str();
         let selection = delete.selection.to_owned().unwrap();
-        translate_delete(ts_query, &selection, table_name, db_conn).await?;
+        translate_delete(ts_query, &selection, table_name_str, db_conn).await?;
+
+        // Handle RETURNING clause if present
+        if delete.returning.is_some() {
+          let returning = delete.returning.clone().unwrap();
+          let query_for_logging = sql_statement.to_string();
+          let query_for_logging_str = &query_for_logging.as_str();
+          translate_insert_returning(ts_query, &returning, table_name_str, db_conn, query_for_logging_str).await?;
+        }
       }
       FromTable::WithoutKeyword(_) => Err(TsGeneratorError::FromWithoutKeyword(sql_statement.to_string()))?,
     },
@@ -61,7 +69,7 @@ pub async fn translate_stmt(
       assignments,
       from,
       selection,
-      returning: _,
+      returning,
       or: _,
       limit: _,
     } => {
@@ -79,6 +87,24 @@ pub async fn translate_stmt(
       };
 
       translate_update(ts_query, table, assignments, &from_table, selection, db_conn).await?;
+
+      // Handle RETURNING clause if present
+      if returning.is_some() {
+        let returning_items = returning.clone().unwrap();
+        // Extract table name from TableWithJoins
+        let table_name = get_default_table(&vec![table.clone()]);
+        let table_name_str = table_name.as_str();
+        let query_for_logging = sql_statement.to_string();
+        let query_for_logging_str = &query_for_logging.as_str();
+        translate_insert_returning(
+          ts_query,
+          &returning_items,
+          table_name_str,
+          db_conn,
+          query_for_logging_str,
+        )
+        .await?;
+      }
     }
     _ => {}
   }
