@@ -36,30 +36,30 @@ pub async fn translate_stmt(
         }
       };
 
-      let table_name = table_name.as_str();
+      let table_name_str = table_name.as_str();
       let query_for_logging = sql_statement.to_string();
       let query_for_logging_str = &query_for_logging.as_str();
 
-      translate_insert(ts_query, &insert.columns, &source, table_name, db_conn).await?;
+      translate_insert(ts_query, &insert.columns, &source, table_name_str, db_conn).await?;
 
       if insert.returning.is_some() {
         let returning = insert.returning.clone().unwrap();
-        translate_insert_returning(ts_query, &returning, table_name, db_conn, query_for_logging_str).await?;
+        translate_insert_returning(ts_query, &returning, table_name_str, db_conn, query_for_logging_str).await?;
       }
     }
     Statement::Delete(delete) => match &delete.from {
       FromTable::WithFromKeyword(from) => {
         let table_name = get_default_table(from);
-        let table_name = table_name.as_str();
+        let table_name_str = table_name.as_str();
         let selection = delete.selection.to_owned().unwrap();
-        translate_delete(ts_query, &selection, table_name, db_conn).await?;
+        translate_delete(ts_query, &selection, table_name_str, db_conn).await?;
 
         // Handle RETURNING clause if present
         if delete.returning.is_some() {
           let returning = delete.returning.clone().unwrap();
           let query_for_logging = sql_statement.to_string();
           let query_for_logging_str = &query_for_logging.as_str();
-          translate_insert_returning(ts_query, &returning, table_name, db_conn, query_for_logging_str).await?;
+          translate_insert_returning(ts_query, &returning, table_name_str, db_conn, query_for_logging_str).await?;
         }
       }
       FromTable::WithoutKeyword(_) => Err(TsGeneratorError::FromWithoutKeyword(sql_statement.to_string()))?,
