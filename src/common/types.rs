@@ -7,6 +7,10 @@ pub enum FileExtension {
   Ts,
   Js,
   Sql,
+  Mts,
+  Cts,
+  Mjs,
+  Cjs,
 }
 
 #[derive(ValueEnum, Debug, Clone, Serialize, Deserialize)]

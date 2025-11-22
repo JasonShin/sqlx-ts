@@ -8,6 +8,10 @@ impl fmt::Display for FileExtension {
       FileExtension::Ts => ".ts".to_string(),
       FileExtension::Js => ".js".to_string(),
       FileExtension::Sql => ".sql".to_string(),
+      FileExtension::Mts => ".mts".to_string(),
+      FileExtension::Cts => ".cts".to_string(),
+      FileExtension::Mjs => ".mjs".to_string(),
+      FileExtension::Cjs => ".cjs".to_string(),
     };
     write!(f, "{extension}")
   }

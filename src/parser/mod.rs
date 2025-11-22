@@ -15,7 +15,7 @@ use swc_common::errors::Handler;
 pub fn parse_source(path: &PathBuf) -> Result<(HashMap<PathBuf, Vec<SQL>>, Handler)> {
   let extension = path.extension().and_then(|s| s.to_str()).unwrap_or("");
   let result = match extension {
-    "ts" | "js" => parse_js_file(path),
+    "ts" | "js" | "mts" | "cts" | "mjs" | "cjs" => parse_js_file(path),
     "sql" => parse_sql_file(path),
     _ => {
       return Err(color_eyre::eyre::eyre!("Unsupported file extension: {}", extension));

@@ -57,4 +57,174 @@ mod demo_happy_path_tests {
 
     Ok(())
   }
+
+  #[test]
+  fn test_js_files() -> Result<(), Box<dyn std::error::Error>> {
+    // SETUP
+    let root_path = current_dir().unwrap();
+    let demo_path = root_path.join("tests/demo/file_extensions");
+
+    // EXECUTE
+    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    cmd
+      .arg(demo_path.to_str().unwrap())
+      .arg("--ext=js")
+      .arg("--config=.sqlxrc.sample.json")
+      .arg("-g");
+
+    // ASSERT
+    cmd
+      .assert()
+      .success()
+      .stdout(predicates::str::contains("Found 2 SQL queries"))
+      .stdout(predicates::str::contains("No SQL errors detected!"));
+
+    Ok(())
+  }
+
+  #[test]
+  fn test_mts_files() -> Result<(), Box<dyn std::error::Error>> {
+    // SETUP
+    let root_path = current_dir().unwrap();
+    let demo_path = root_path.join("tests/demo/file_extensions");
+
+    // EXECUTE
+    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    cmd
+      .arg(demo_path.to_str().unwrap())
+      .arg("--ext=mts")
+      .arg("--config=.sqlxrc.sample.json")
+      .arg("-g");
+
+    // ASSERT
+    cmd
+      .assert()
+      .success()
+      .stdout(predicates::str::contains("Found 2 SQL queries"))
+      .stdout(predicates::str::contains("No SQL errors detected!"));
+
+    Ok(())
+  }
+
+  #[test]
+  fn test_cts_files() -> Result<(), Box<dyn std::error::Error>> {
+    // SETUP
+    let root_path = current_dir().unwrap();
+    let demo_path = root_path.join("tests/demo/file_extensions");
+
+    // EXECUTE
+    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    cmd
+      .arg(demo_path.to_str().unwrap())
+      .arg("--ext=cts")
+      .arg("--config=.sqlxrc.sample.json")
+      .arg("-g");
+
+    // ASSERT
+    cmd
+      .assert()
+      .success()
+      .stdout(predicates::str::contains("Found 2 SQL queries"))
+      .stdout(predicates::str::contains("No SQL errors detected!"));
+
+    Ok(())
+  }
+
+  #[test]
+  fn test_mjs_files() -> Result<(), Box<dyn std::error::Error>> {
+    // SETUP
+    let root_path = current_dir().unwrap();
+    let demo_path = root_path.join("tests/demo/file_extensions");
+
+    // EXECUTE
+    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    cmd
+      .arg(demo_path.to_str().unwrap())
+      .arg("--ext=mjs")
+      .arg("--config=.sqlxrc.sample.json")
+      .arg("-g");
+
+    // ASSERT
+    cmd
+      .assert()
+      .success()
+      .stdout(predicates::str::contains("Found 2 SQL queries"))
+      .stdout(predicates::str::contains("No SQL errors detected!"));
+
+    Ok(())
+  }
+
+  #[test]
+  fn test_cjs_files() -> Result<(), Box<dyn std::error::Error>> {
+    // SETUP
+    let root_path = current_dir().unwrap();
+    let demo_path = root_path.join("tests/demo/file_extensions");
+
+    // EXECUTE
+    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    cmd
+      .arg(demo_path.to_str().unwrap())
+      .arg("--ext=cjs")
+      .arg("--config=.sqlxrc.sample.json")
+      .arg("-g");
+
+    // ASSERT
+    cmd
+      .assert()
+      .success()
+      .stdout(predicates::str::contains("Found 2 SQL queries"))
+      .stdout(predicates::str::contains("No SQL errors detected!"));
+
+    Ok(())
+  }
+
+  #[test]
+  fn test_sql_files() -> Result<(), Box<dyn std::error::Error>> {
+    // SETUP
+    let root_path = current_dir().unwrap();
+    let demo_path = root_path.join("tests/demo/sql_files");
+
+    // EXECUTE
+    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    cmd
+      .arg(demo_path.to_str().unwrap())
+      .arg("--ext=sql")
+      .arg("--config=.sqlxrc.sample.json")
+      .arg("-g");
+
+    // ASSERT
+    cmd
+      .assert()
+      .success()
+      .stdout(predicates::str::contains("Found 5 SQL queries"))
+      .stdout(predicates::str::contains("No SQL errors detected!"));
+
+    Ok(())
+  }
+
+  #[test]
+  fn test_multiple_extensions() -> Result<(), Box<dyn std::error::Error>> {
+    // SETUP
+    let root_path = current_dir().unwrap();
+    let demo_path = root_path.join("tests/demo/file_extensions");
+
+    // EXECUTE - Test scanning multiple extensions at once
+    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    cmd
+      .arg(demo_path.to_str().unwrap())
+      .arg("--ext=js")
+      .arg("--ext=mts")
+      .arg("--ext=cjs")
+      .arg("--config=.sqlxrc.sample.json")
+      .arg("-g");
+
+    // ASSERT
+    cmd
+      .assert()
+      .success()
+      .stdout(predicates::str::contains("Found 6 SQL queries"))
+      .stdout(predicates::str::contains("No SQL errors detected!"));
+
+    Ok(())
+  }
 }
