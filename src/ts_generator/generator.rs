@@ -15,7 +15,8 @@ use color_eyre::eyre::eyre;
 use color_eyre::eyre::Result;
 use convert_case::{Case, Casing};
 use regex::Regex;
-use sqlparser::{dialect::GenericDialect, parser::Parser};
+use sqlparser::{dialect::{Dialect, MySqlDialect, PostgreSqlDialect}, parser::Parser};
+use crate::common::types::DatabaseType;
 
 use super::errors::TsGeneratorError;
 
@@ -117,9 +118,13 @@ pub fn clear_single_ts_file_if_exists() -> Result<()> {
 }
 
 pub async fn generate_ts_interface(sql: &SQL, db_conn: &DBConn) -> Result<TsQuery> {
-  let dialect = GenericDialect {}; // or AnsiDialect, or your own dialect ...
+  // Use the appropriate SQL dialect based on the database type
+  let dialect: Box<dyn Dialect> = match db_conn.get_db_type() {
+    DatabaseType::Postgres => Box::new(PostgreSqlDialect {}),
+    DatabaseType::Mysql => Box::new(MySqlDialect {}),
+  };
 
-  let sql_ast = Parser::parse_sql(&dialect, &sql.query)?;
+  let sql_ast = Parser::parse_sql(&*dialect, &sql.query)?;
   let mut ts_query = TsQuery::new(get_query_name(sql)?);
 
   let annotated_result_types = extract_result_annotations(sql.query.as_str());
