@@ -184,16 +184,16 @@ pub async fn translate_expr(
 
       // TODO: We can also memoize this method
       if let Some(table_details) = table_details {
-        let field = table_details.get(&column_name).unwrap();
-
-        let field_name = alias.unwrap_or(column_name.as_str());
-        ts_query.insert_result(
-          Some(field_name),
-          &[field.field_type.to_owned()],
-          is_selection,
-          field.is_nullable,
-          expr_for_logging,
-        )?
+        if let Some(field) = table_details.get(&column_name) {
+          let field_name = alias.unwrap_or(column_name.as_str());
+          ts_query.insert_result(
+            Some(field_name),
+            &[field.field_type.to_owned()],
+            is_selection,
+            field.is_nullable,
+            expr_for_logging,
+          )?
+        }
       }
       Ok(())
     }
@@ -210,25 +210,25 @@ pub async fn translate_expr(
           .await;
 
         if let Some(table_details) = table_details {
-          let field = table_details.get(&ident).unwrap();
+          if let Some(field) = table_details.get(&ident) {
+            // if the select item is a compound identifier and does not has an alias, we should use `table_name.ident` as the key name
+            let key_name = format!("{table_name}_{ident}");
+            let key_name = &alias.unwrap_or_else(|| {
+                          warning!(
+                              "Missing an alias for a compound identifier, using {} as the key name. Prefer adding an alias for example: `{} AS {}`",
+                              key_name, expr, ident
+                          );
+                          key_name.as_str()
+                      });
 
-          // if the select item is a compound identifier and does not has an alias, we should use `table_name.ident` as the key name
-          let key_name = format!("{table_name}_{ident}");
-          let key_name = &alias.unwrap_or_else(|| {
-                        warning!(
-                            "Missing an alias for a compound identifier, using {} as the key name. Prefer adding an alias for example: `{} AS {}`",
-                            key_name, expr, ident
-                        );
-                        key_name.as_str()
-                    });
-
-          ts_query.insert_result(
-            Some(key_name),
-            &[field.field_type.to_owned()],
-            is_selection,
-            field.is_nullable,
-            expr_for_logging,
-          )?;
+            ts_query.insert_result(
+              Some(key_name),
+              &[field.field_type.to_owned()],
+              is_selection,
+              field.is_nullable,
+              expr_for_logging,
+            )?;
+          }
         }
       }
       Ok(())
@@ -359,7 +359,8 @@ pub async fn translate_expr(
       if let Some(ts_field_type) = ts_field_type {
         return ts_query.insert_result(alias, &[ts_field_type], is_selection, false, expr_for_logging);
       }
-      ts_query.insert_param(&TsFieldType::Boolean, &false, &Some(placeholder.to_string()))
+      // For placeholders where we can't infer the type, use Any
+      ts_query.insert_param(&TsFieldType::Any, &false, &Some(placeholder.to_string()))
     }
     Expr::JsonAccess { value: _, path: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)?;
