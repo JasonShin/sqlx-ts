@@ -38,6 +38,53 @@ pub async fn translate_select(
 
   let full_table_with_joins = &Some(full_table_with_joins.clone());
 
+  // Process table functions in FROM clause to extract parameters
+  // Note: Table-valued functions like jsonb_to_recordset are parsed as TableFactor::Table with args
+  for twj in &child_table_with_joins {
+    match &twj.relation {
+      sqlparser::ast::TableFactor::Table { args: Some(table_fn_args), .. } => {
+        // This is a table-valued function (e.g., jsonb_to_recordset($1))
+        use sqlparser::ast::{FunctionArg, FunctionArgExpr};
+        for arg in &table_fn_args.args {
+          if let FunctionArg::Unnamed(FunctionArgExpr::Expr(expr)) |
+                 FunctionArg::Named { arg: FunctionArgExpr::Expr(expr), .. } = arg {
+            // Process the expression to extract any parameters
+            translate_expr(
+              expr,
+              &None,
+              full_table_with_joins,
+              None,
+              ts_query,
+              db_conn,
+              false,
+            )
+            .await?;
+          }
+        }
+      }
+      sqlparser::ast::TableFactor::Function { args, .. } => {
+        // Handle LATERAL functions
+        use sqlparser::ast::{FunctionArg, FunctionArgExpr};
+        for arg in args {
+          if let FunctionArg::Unnamed(FunctionArgExpr::Expr(expr)) |
+                 FunctionArg::Named { arg: FunctionArgExpr::Expr(expr), .. } = arg {
+            translate_expr(
+              expr,
+              &None,
+              full_table_with_joins,
+              None,
+              ts_query,
+              db_conn,
+              false,
+            )
+            .await?;
+          }
+        }
+      }
+      _ => {}
+    }
+  }
+
   // Handle all select projects and figure out each field's type
   for select_item in projection {
     // Determine the default table name within the scope of this select item
