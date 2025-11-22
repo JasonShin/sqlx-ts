@@ -14,7 +14,7 @@ mod demo_happy_path_tests {
     let root_path = current_dir().unwrap();
     let demo_path = root_path.join("tests/demo");
 
-    // EXECUTE
+    // EXECUTE - Generate types for .ts files
     let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
     cmd
       .arg(demo_path.to_str().unwrap())
@@ -28,6 +28,39 @@ mod demo_happy_path_tests {
       .success()
       .stdout(predicates::str::contains("No SQL errors detected!"));
 
+    // Also generate types for other extensions in file_extensions directory
+    let file_extensions_path = demo_path.join("file_extensions");
+    if file_extensions_path.exists() {
+      for ext in &["js", "mts", "cts", "mjs", "cjs"] {
+        let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+        cmd
+          .arg(file_extensions_path.to_str().unwrap())
+          .arg(format!("--ext={}", ext))
+          .arg("--config=.sqlxrc.sample.json")
+          .arg("-g");
+        cmd
+          .assert()
+          .success()
+          .stdout(predicates::str::contains("No SQL errors detected!"));
+      }
+    }
+
+    // Also generate types for SQL files
+    let sql_files_path = demo_path.join("sql_files");
+    if sql_files_path.exists() {
+      let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+      cmd
+        .arg(sql_files_path.to_str().unwrap())
+        .arg("--ext=sql")
+        .arg("--config=.sqlxrc.sample.json")
+        .arg("-g");
+      cmd
+        .assert()
+        .success()
+        .stdout(predicates::str::contains("No SQL errors detected!"));
+    }
+
+    // Verify all generated types match snapshots
     for entry in WalkDir::new(demo_path) {
       if entry.is_ok() {
         let entry = entry.unwrap();
