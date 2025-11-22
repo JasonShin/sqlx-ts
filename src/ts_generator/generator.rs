@@ -11,12 +11,15 @@ use crate::ts_generator::annotations::extract_result_annotations;
 use crate::ts_generator::sql_parser::translate_stmt::translate_stmt;
 use crate::ts_generator::types::ts_query::TsQuery;
 
+use crate::common::types::DatabaseType;
 use color_eyre::eyre::eyre;
 use color_eyre::eyre::Result;
 use convert_case::{Case, Casing};
 use regex::Regex;
-use sqlparser::{dialect::{Dialect, MySqlDialect, PostgreSqlDialect}, parser::Parser};
-use crate::common::types::DatabaseType;
+use sqlparser::{
+  dialect::{Dialect, MySqlDialect, PostgreSqlDialect},
+  parser::Parser,
+};
 
 use super::errors::TsGeneratorError;
 

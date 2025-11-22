@@ -199,7 +199,10 @@ pub async fn translate_expr(
           );
         }
       } else {
-        error!("Table '{}' not found in schema. This may be a table-valued function.", table_name);
+        error!(
+          "Table '{}' not found in schema. This may be a table-valued function.",
+          table_name
+        );
       }
       Ok(())
     }
