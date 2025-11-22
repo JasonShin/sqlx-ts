@@ -22,6 +22,13 @@ pub fn get_all_table_names_from_select(select: &Select) -> Result<Vec<String>, T
       let name = DisplayObjectName(&name).to_string();
       Ok(name)
     }
+    TableFactor::Function { .. } => {
+      // Wildcard queries with table-valued functions are not supported
+      // because we cannot query the database schema for function result types
+      Err(TsGeneratorError::WildcardStatementUnsupportedTableExpr(
+        select.to_string(),
+      ))
+    }
     _ => Err(TsGeneratorError::WildcardStatementUnsupportedTableExpr(
       select.to_string(),
     )),
