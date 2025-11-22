@@ -106,7 +106,7 @@ sqlx-ts [OPTIONS] <PATH>
     Primary DB user
 
     --ext <EXT>
-    file extensions [possible values: ts, js, sql]
+    file extensions [possible values: ts, js, sql, mjs, cjs, mts, cts]
 
     -g, --generate-types
     generate types of raw SQLs using default configuration
@@ -246,7 +246,7 @@ user of the database that you connect to
 
 ### --ext
 
-File extensions to search. It can be either `ts` | `js` - [default: ts]
+File extensions to search. Supported extensions: `ts` | `js` | `sql` | `mjs` | `cjs` | `mts` | `cts` - [default: ts]
 
 <Tabs>
     <TabItem value="npm" label="npm" default>
