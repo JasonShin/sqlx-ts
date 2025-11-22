@@ -378,8 +378,8 @@ pub async fn translate_expr(
       if let Some(ts_field_type) = ts_field_type {
         return ts_query.insert_result(alias, &[ts_field_type], is_selection, false, expr_for_logging);
       }
-      // For placeholders where we can't infer the type, use Any
-      ts_query.insert_param(&TsFieldType::Any, &false, &Some(placeholder.to_string()))
+      // For placeholders where we can't infer the type, use Boolean
+      ts_query.insert_param(&TsFieldType::Boolean, &false, &Some(placeholder.to_string()))
     }
     Expr::JsonAccess { value: _, path: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)?;
