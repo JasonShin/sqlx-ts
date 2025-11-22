@@ -1,6 +1,6 @@
 use super::functions::{is_date_function, is_numeric_function, is_type_polymorphic_function};
 use crate::common::lazy::DB_SCHEMA;
-use crate::common::logger::warning;
+use crate::common::logger::{error, warning};
 use crate::core::connection::DBConn;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::expressions::translate_data_type::translate_value;
@@ -182,7 +182,6 @@ pub async fn translate_expr(
       let table_name = single_table_name.expect("Missing table name for identifier");
       let table_details = &DB_SCHEMA.lock().await.fetch_table(&vec![table_name], db_conn).await;
 
-      // TODO: We can also memoize this method
       if let Some(table_details) = table_details {
         if let Some(field) = table_details.get(&column_name) {
           let field_name = alias.unwrap_or(column_name.as_str());
@@ -193,7 +192,14 @@ pub async fn translate_expr(
             field.is_nullable,
             expr_for_logging,
           )?
+        } else {
+          error!(
+            "Column '{}' not found in table '{}'. This may be a table-valued function or the column may not exist.",
+            column_name, table_name
+          );
         }
+      } else {
+        error!("Table '{}' not found in schema. This may be a table-valued function.", table_name);
       }
       Ok(())
     }
@@ -228,7 +234,17 @@ pub async fn translate_expr(
               field.is_nullable,
               expr_for_logging,
             )?;
+          } else {
+            error!(
+              "Column '{}' not found in table '{}' for compound identifier '{}.{}'. This may be a table-valued function.",
+              ident, table_name, table_name, ident
+            );
           }
+        } else {
+          error!(
+            "Table '{}' not found in schema for compound identifier '{}.{}'. This may be a table-valued function.",
+            table_name, table_name, ident
+          );
         }
       }
       Ok(())
