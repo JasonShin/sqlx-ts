@@ -302,13 +302,28 @@ pub fn get_sql_from_expr(
     Expr::JSXEmpty(_) => {}
     Expr::JSXElement(_) => {}
     Expr::JSXFragment(_) => {}
-    Expr::TsTypeAssertion(_) => {}
-    Expr::TsConstAssertion(_) => {}
-    Expr::TsAs(_) => {}
-    Expr::TsInstantiation(_) => {}
+    Expr::TsTypeAssertion(ts_type_assertion) => {
+      // Traverse into type assertions like `<Type>expr`
+      get_sql_from_expr(sqls, var_decl_name, &ts_type_assertion.expr, span, import_alias);
+    }
+    Expr::TsConstAssertion(ts_const_assertion) => {
+      // Traverse into const assertions like `expr as const`
+      get_sql_from_expr(sqls, var_decl_name, &ts_const_assertion.expr, span, import_alias);
+    }
+    Expr::TsAs(ts_as) => {
+      // Traverse into type assertions like `expr as Type`
+      get_sql_from_expr(sqls, var_decl_name, &ts_as.expr, span, import_alias);
+    }
+    Expr::TsInstantiation(ts_instantiation) => {
+      // Traverse into generic instantiations like `expr<Type>`
+      get_sql_from_expr(sqls, var_decl_name, &ts_instantiation.expr, span, import_alias);
+    }
     Expr::PrivateName(_) => {}
     Expr::Invalid(_) => {}
-    Expr::TsSatisfies(_) => {}
+    Expr::TsSatisfies(ts_satisfies) => {
+      // Traverse into satisfies expressions like `expr satisfies Type`
+      get_sql_from_expr(sqls, var_decl_name, &ts_satisfies.expr, span, import_alias);
+    }
   }
 }
 
