@@ -142,6 +142,55 @@ impl TsFieldType {
     }
     Self::Any
   }
+
+  /// Converts a sqlparser DataType from table alias column definitions to TsFieldType
+  /// This is used to infer types from table-valued function aliases like:
+  /// `jsonb_to_recordset($1) AS t(id INT, name TEXT)`
+  pub fn from_sqlparser_datatype(data_type: &sqlparser::ast::DataType) -> Self {
+    use sqlparser::ast::DataType;
+
+    match data_type {
+      // Integer types
+      DataType::SmallInt(_) | DataType::SmallIntUnsigned(_) |
+      DataType::Int(_) | DataType::Int2(_) | DataType::Int4(_) | DataType::Int8(_) |
+      DataType::Integer(_) | DataType::IntUnsigned(_) | DataType::IntegerUnsigned(_) |
+      DataType::BigInt(_) | DataType::BigIntUnsigned(_) |
+      DataType::TinyInt(_) | DataType::TinyIntUnsigned(_) |
+      DataType::MediumInt(_) | DataType::MediumIntUnsigned(_) |
+      DataType::Int16 | DataType::Int32 | DataType::Int64 | DataType::Int128 | DataType::Int256 |
+      DataType::UInt8 | DataType::UInt16 | DataType::UInt32 | DataType::UInt64 | DataType::UInt128 | DataType::UInt256 |
+      // Floating point types
+      DataType::Real | DataType::Float(_) | DataType::Float4 | DataType::Float8 |
+      DataType::Double(_) | DataType::DoublePrecision | DataType::Float64 |
+      DataType::Decimal(_) | DataType::Dec(_) | DataType::Numeric(_) |
+      DataType::BigNumeric(_) | DataType::BigDecimal(_) => Self::Number,
+
+      // String types
+      DataType::Character(_) | DataType::Char(_) |
+      DataType::CharacterVarying(_) | DataType::CharVarying(_) |
+      DataType::Varchar(_) | DataType::Nvarchar(_) |
+      DataType::Text | DataType::String(_) |
+      DataType::Uuid |
+      DataType::Bytea | DataType::Binary(_) | DataType::Varbinary(_) |
+      DataType::Blob(_) | DataType::Clob(_) => Self::String,
+
+      // Boolean type
+      DataType::Boolean | DataType::Bool => Self::Boolean,
+
+      // JSON types
+      DataType::JSON | DataType::JSONB => Self::Object,
+
+      // Date/Time types
+      DataType::Date | DataType::Datetime(_) | DataType::Timestamp(_, _) |
+      DataType::Time(_, _) => Self::Date,
+
+      // Array types
+      DataType::Array(_) => Self::Any,
+
+      // Everything else defaults to Any
+      _ => Self::Any,
+    }
+  }
 }
 
 /// TsQuery holds information required to generate typescript type definition
@@ -166,6 +215,11 @@ pub struct TsQuery {
   pub result: HashMap<String, Vec<TsFieldType>>,
   // Holds any annotated @result and perform replacement when generating TS types
   pub annotated_results: HashMap<String, Vec<TsFieldType>>,
+
+  // Stores column type definitions from table-valued functions like:
+  // jsonb_to_recordset($1) AS t(id INT, name TEXT)
+  // Maps table alias name -> (column name -> type)
+  pub table_valued_function_columns: HashMap<String, HashMap<String, TsFieldType>>,
 }
 
 impl TsQuery {
@@ -179,6 +233,7 @@ impl TsQuery {
       insert_params: BTreeMap::new(),
       annotated_results: HashMap::new(),
       annotated_insert_params: BTreeMap::new(),
+      table_valued_function_columns: HashMap::new(),
     }
   }
 

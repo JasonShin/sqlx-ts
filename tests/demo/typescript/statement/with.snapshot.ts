@@ -1,4 +1,4 @@
-export type WithSqlParams = [boolean];
+export type WithSqlParams = [any];
 
 export interface IWithSqlResult {
 	id: number;
