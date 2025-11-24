@@ -44,9 +44,14 @@ jobs:
         run: ./sqlx-ts --help
 
   e2e:
-    runs-on: ubuntu-latest
+    name: E2E tests with Node.js npm package
+    runs-on: ${{ matrix.os }}
+    # Skip this job for version bump commits (binary won't exist yet)
+    if: "!contains(github.event.head_commit.message, 'Release')"
     strategy:
+      fail-fast: false
       matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
         db:
           - mysql: 8
           - mysql: 5.7
@@ -56,50 +61,79 @@ jobs:
           - postgres: 14
           - postgres: 13
           - postgres: 12
+        # Only run database tests on ubuntu-latest to save CI time
+        exclude:
+          - os: macos-latest
+            db: { mysql: 5.7 }
+          - os: macos-latest
+            db: { mysql: 5.6 }
+          - os: macos-latest
+            db: { postgres: 15 }
+          - os: macos-latest
+            db: { postgres: 14 }
+          - os: macos-latest
+            db: { postgres: 13 }
+          - os: macos-latest
+            db: { postgres: 12 }
+          - os: windows-latest
+            db: { mysql: 5.7 }
+          - os: windows-latest
+            db: { mysql: 5.6 }
+          - os: windows-latest
+            db: { postgres: 15 }
+          - os: windows-latest
+            db: { postgres: 14 }
+          - os: windows-latest
+            db: { postgres: 13 }
+          - os: windows-latest
+            db: { postgres: 12 }
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v3
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
+          node-version: '20'
 
-      - run: rustup toolchain install stable --profile minimal
-
-      - uses: Swatinem/rust-cache@v2
-        with:
-          # To only cache runs from `master`:
-          save-if: ${{ github.ref == 'refs/heads/master' }}
-          # Specifies what to use as the backend providing cache
-          # Can be set to either "github" or "buildjet"
-          # default: "github"
-          cache-provider: "github"
-
-
-      - name: build docker-compose services for integration tests
+      - name: Build docker-compose services for integration tests (Linux only)
+        if: runner.os == 'Linux'
         run: docker compose -f docker-compose.yml up -d
         env:
           MYSQL_VERSION: ${{ matrix.db.mysql }}
           PG_VERSION: ${{ matrix.db.postgres }}
           MYSQL_MIGRATION_FILE: "${{ matrix.db.mysql == '5.6' && 'mysql_migration_5_6.sql' || 'mysql_migration.sql' }}"
 
-      - uses: GuillaumeFalourd/wait-sleep-action@v1
+      - name: Wait for databases to be ready (Linux only)
+        if: runner.os == 'Linux'
+        uses: GuillaumeFalourd/wait-sleep-action@v1
         with:
-          time: '10' # for 10 seconds
+          time: '10'
 
-      - name: Check the docker-compose services running
+      - name: Check docker-compose services (Linux only)
+        if: runner.os == 'Linux'
         run: docker ps -a
 
-      - name: build
-        run: cargo build
+      - name: Install sqlx-ts from npm
+        working-directory: ./node
+        run: npm install
 
-      - name: Add failure.ts test file
+      - name: Verify sqlx-ts installation
+        working-directory: ./node
+        shell: bash
         run: |
-          mkdir -p tests/staging
+          ./sqlx-ts --version
+          ./sqlx-ts --help
+
+      - name: Create test directory
+        shell: bash
+        run: mkdir -p tests/staging
+
+      - name: Add failure.ts test file (Linux only)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
           cat << 'EOF' > tests/staging/failure.ts
           import { sql } from 'sqlx-ts'
 
@@ -109,21 +143,29 @@ jobs:
           `
           EOF
 
-      - name: Run failure test
+      - name: Run failure test (Linux only)
+        if: runner.os == 'Linux'
+        working-directory: ./node
+        shell: bash
         run: |
           set +e
-          ./target/debug/sqlx-ts --config=.sqlxrc.sample.json tests/staging
-          if [ $? -eq 0 ]; then
+          ./sqlx-ts --config=../.sqlxrc.sample.json ../tests/staging
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -eq 0 ]; then
             echo "Expected failure, but command succeeded."
             exit 1
           fi
-          echo "Command failed as expected."
-          
-          rm -f tests/staging/failure.ts
+          echo "Command failed as expected with exit code $EXIT_CODE."
 
-      - name: Add happy.ts test file
+      - name: Remove failure test file
+        if: runner.os == 'Linux'
+        shell: bash
+        run: rm -f tests/staging/failure.ts
+
+      - name: Add happy.ts test file (Linux only)
+        if: runner.os == 'Linux'
+        shell: bash
         run: |
-          mkdir -p tests/staging
           cat << 'EOF' > tests/staging/happy.ts
           import { sql } from 'sqlx-ts'
 
@@ -133,5 +175,171 @@ jobs:
           `
           EOF
 
-      - name: Run happy test
-        run: ./target/debug/sqlx-ts --config=.sqlxrc.sample.json tests/staging
+      - name: Run happy test (Linux only)
+        if: runner.os == 'Linux'
+        working-directory: ./node
+        shell: bash
+        run: ./sqlx-ts --config=../.sqlxrc.sample.json ../tests/staging
+
+      - name: Test sqlx-ts on ${{ matrix.os }} (no database)
+        if: runner.os != 'Linux'
+        working-directory: ./node
+        shell: bash
+        run: |
+          echo "✅ sqlx-ts successfully installed and runs on ${{ matrix.os }}"
+          ./sqlx-ts --version
+          ./sqlx-ts --help
+  e2e-linux-distros:
+    name: E2E npm package on Linux distros with databases
+    runs-on: ubuntu-latest
+    # Skip this job for version bump commits (binary won't exist yet)
+    if: "!contains(github.event.head_commit.message, 'Release')"
+    strategy:
+      fail-fast: false
+      matrix:
+        distro:
+          - ubuntu:20.04
+          - ubuntu:22.04
+          - ubuntu:24.04
+          - debian:11
+          - debian:12
+          - alpine:3.18
+          - alpine:3.19
+          - fedora:38
+          - fedora:39
+        db:
+          - mysql: 8
+          - postgres: 16
+        # Test fewer combinations to save CI time
+        exclude:
+          - distro: ubuntu:20.04
+            db: { postgres: 16 }
+          - distro: ubuntu:22.04
+            db: { postgres: 16 }
+          - distro: debian:11
+            db: { postgres: 16 }
+          - distro: debian:12
+            db: { mysql: 8 }
+          - distro: alpine:3.18
+            db: { postgres: 16 }
+          - distro: alpine:3.19
+            db: { mysql: 8 }
+          - distro: fedora:38
+            db: { postgres: 16 }
+          - distro: fedora:39
+            db: { mysql: 8 }
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Build docker-compose services
+        run: docker compose -f docker-compose.yml up -d
+        env:
+          MYSQL_VERSION: ${{ matrix.db.mysql }}
+          PG_VERSION: ${{ matrix.db.postgres }}
+          MYSQL_MIGRATION_FILE: "${{ matrix.db.mysql == '5.6' && 'mysql_migration_5_6.sql' || 'mysql_migration.sql' }}"
+
+      - name: Wait for databases to be ready
+        uses: GuillaumeFalourd/wait-sleep-action@v1
+        with:
+          time: '10'
+
+      - name: Create test file
+        run: |
+          mkdir -p tests/staging
+          cat << 'TESTEOF' > tests/staging/distro-test.ts
+          import { sql } from 'sqlx-ts'
+
+          const selectSql = sql`
+          SELECT items.*
+          FROM items;
+          `
+          TESTEOF
+
+      - name: Test npm install and run in ${{ matrix.distro }} container
+        run: |
+          docker run --rm \
+            --network host \
+            -v $(pwd):/workspace \
+            -w /workspace \
+            ${{ matrix.distro }} sh -c '
+              # Install Node.js based on distro
+              if command -v apk > /dev/null; then
+                # Alpine
+                apk add --no-cache nodejs npm bash
+              elif command -v apt-get > /dev/null; then
+                # Debian/Ubuntu
+                apt-get update && apt-get install -y curl
+                curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+                apt-get install -y nodejs
+              elif command -v dnf > /dev/null; then
+                # Fedora
+                dnf install -y nodejs npm
+              fi
+
+              # Install sqlx-ts
+              cd node
+              npm install
+
+              # Verify installation
+              ./sqlx-ts --version
+              ./sqlx-ts --help
+
+              # Run integration test
+              ./sqlx-ts --config=../.sqlxrc.sample.json ../tests/staging
+
+              echo "✅ sqlx-ts npm package works on ${{ matrix.distro }} with DB"
+            '
+
+  linux-distro-static-binary-test:
+    name: Test static binary on Linux distributions
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        distro:
+          - ubuntu:20.04
+          - ubuntu:22.04
+          - ubuntu:24.04
+          - debian:11
+          - debian:12
+          - alpine:3.18
+          - alpine:3.19
+          - fedora:38
+          - fedora:39
+          - archlinux:latest
+          - nixos/nix:latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install stable Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-musl
+
+      - name: Install musl tools
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+
+      - name: Build static binary with musl
+        run: cargo build --release --target x86_64-unknown-linux-musl
+
+      - name: Verify binary is statically linked
+        run: |
+          file target/x86_64-unknown-linux-musl/release/sqlx-ts
+          ldd target/x86_64-unknown-linux-musl/release/sqlx-ts 2>&1 | grep -q "not a dynamic executable" || (echo "Binary is not static!" && exit 1)
+
+      - name: Test binary in ${{ matrix.distro }} container
+        run: |
+          docker run --rm -v $(pwd)/target/x86_64-unknown-linux-musl/release/sqlx-ts:/usr/local/bin/sqlx-ts:ro \
+            ${{ matrix.distro }} sh -c "
+              if command -v sqlx-ts > /dev/null 2>&1; then
+                sqlx-ts --version
+                sqlx-ts --help
+                echo '✅ sqlx-ts works on ${{ matrix.distro }}'
+              else
+                echo '❌ Failed to execute sqlx-ts'
+                exit 1
+              fi
+            "
