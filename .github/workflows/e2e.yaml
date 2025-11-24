@@ -8,7 +8,7 @@ on:
 
 jobs:
   node-install:
-    name: Test Node.js install (npm + local script)
+    name: Test Node.js install (npm + local install.sh)
     # Skip this job for version bump commits (binary won't exist yet)
     if: "!contains(github.event.head_commit.message, 'Release')"
     runs-on: ${{ matrix.os }}
