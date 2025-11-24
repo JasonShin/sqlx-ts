@@ -208,6 +208,8 @@ jobs:
           - alpine:3.19
           - fedora:38
           - fedora:39
+          - archlinux:latest
+          - nixos/nix:latest
         db:
           - mysql: 8
           - postgres: 16
