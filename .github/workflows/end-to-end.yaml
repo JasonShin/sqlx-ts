@@ -189,6 +189,7 @@ jobs:
           echo "✅ sqlx-ts successfully installed and runs on ${{ matrix.os }}"
           ./sqlx-ts --version
           ./sqlx-ts --help
+
   e2e-linux-distros:
     name: E2E npm package on Linux distros with databases
     runs-on: ubuntu-latest
@@ -327,8 +328,22 @@ jobs:
 
       - name: Verify binary is statically linked
         run: |
+          echo "=== File output ==="
           file target/x86_64-unknown-linux-musl/release/sqlx-ts
-          ldd target/x86_64-unknown-linux-musl/release/sqlx-ts 2>&1 | grep -q "not a dynamic executable" || (echo "Binary is not static!" && exit 1)
+          echo ""
+          echo "=== ldd output ==="
+          ldd target/x86_64-unknown-linux-musl/release/sqlx-ts 2>&1 || true
+          echo ""
+          # Check that it's either "not a dynamic executable" or "statically linked"
+          # static-pie is also acceptable (it's a statically linked PIE)
+          if file target/x86_64-unknown-linux-musl/release/sqlx-ts | grep -q "static"; then
+            echo "✅ Binary is statically linked"
+          elif ldd target/x86_64-unknown-linux-musl/release/sqlx-ts 2>&1 | grep -q "not a dynamic executable"; then
+            echo "✅ Binary is statically linked (not a dynamic executable)"
+          else
+            echo "❌ Binary appears to be dynamically linked!"
+            exit 1
+          fi
 
       - name: Test binary in ${{ matrix.distro }} container
         run: |
