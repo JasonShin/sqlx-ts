@@ -1,4 +1,8 @@
-name: Node build
+name: node
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 on:
   push:
@@ -11,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ 12, 14, 15, 16, 17, 18, 19, 20 ]
+        node: [ 20 ]
     defaults:
       run:
         working-directory: ./node

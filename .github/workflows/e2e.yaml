@@ -1,0 +1,116 @@
+name: e2e
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  node-install:
+    name: Test Node.js install (npm + local install.sh)
+    # Skip this job for version bump commits (binary won't exist yet)
+    if: "!contains(github.event.head_commit.message, 'Release')"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, macos-latest, macos-13, windows-latest ]   # You can add windows-latest if needed
+        node: [ 16, 18, 20, 22 ]
+    defaults:
+      run:
+        working-directory: ./node
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install dependencies (npm install)
+        run: npm install
+
+      - name: Verify sqlx-ts binary from npm install
+        run: |
+          chmod +x ./sqlx-ts || true
+          ./sqlx-ts --version
+          ./sqlx-ts --help
+
+      - name: Install using local install.sh
+        run: node local-postinstall.js
+
+      - name: Verify sqlx-ts binary from local install
+        run: |
+          chmod +x ./sqlx-ts || true
+          ./sqlx-ts --version
+          ./sqlx-ts --help
+
+  linux-distro-static-binary-test:
+    name: Test static binary on Linux distributions
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        distro:
+          - ubuntu:20.04
+          - ubuntu:22.04
+          - ubuntu:24.04
+          - debian:11
+          - debian:12
+          - alpine:3.18
+          - alpine:3.19
+          - fedora:38
+          - fedora:39
+          - archlinux:latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install stable Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-musl
+
+      - name: Install musl tools
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+
+      - name: Build static binary with musl
+        run: cargo build --release --target x86_64-unknown-linux-musl
+
+      - name: Verify binary is statically linked
+        run: |
+          echo "=== File output ==="
+          file target/x86_64-unknown-linux-musl/release/sqlx-ts
+          echo ""
+          echo "=== ldd output ==="
+          ldd target/x86_64-unknown-linux-musl/release/sqlx-ts 2>&1 || true
+          echo ""
+          # Check that it's either "not a dynamic executable" or "statically linked"
+          # static-pie is also acceptable (it's a statically linked PIE)
+          if file target/x86_64-unknown-linux-musl/release/sqlx-ts | grep -q "static"; then
+            echo "✅ Binary is statically linked"
+          elif ldd target/x86_64-unknown-linux-musl/release/sqlx-ts 2>&1 | grep -q "not a dynamic executable"; then
+            echo "✅ Binary is statically linked (not a dynamic executable)"
+          else
+            echo "❌ Binary appears to be dynamically linked!"
+            exit 1
+          fi
+
+      - name: Test binary in ${{ matrix.distro }} container
+        run: |
+          docker run --rm -v $(pwd)/target/x86_64-unknown-linux-musl/release/sqlx-ts:/usr/local/bin/sqlx-ts:ro \
+            ${{ matrix.distro }} sh -c "
+              if command -v sqlx-ts > /dev/null 2>&1; then
+                sqlx-ts --version
+                sqlx-ts --help
+                echo '✅ sqlx-ts works on ${{ matrix.distro }}'
+              else
+                echo '❌ Failed to execute sqlx-ts'
+                exit 1
+              fi
+            "
