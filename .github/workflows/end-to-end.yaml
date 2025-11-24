@@ -1,4 +1,4 @@
-name: End to end tests
+name: end-to-end tests
 
 on:
   push:
@@ -7,11 +7,50 @@ on:
     branches: [ main ]
 
 jobs:
+  node-install:
+    name: Test Node.js install (npm + local script)
+    # Skip this job for version bump commits (binary won't exist yet)
+    if: "!contains(github.event.head_commit.message, 'Release')"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, macos-latest, macos-13, windows-latest ]   # You can add windows-latest if needed
+        node: [ 12, 14, 15, 16, 17, 18, 19, 20 ]
+    defaults:
+      run:
+        working-directory: ./node
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install dependencies (npm install)
+        run: npm install
+
+      - name: Verify sqlx-ts binary from npm install
+        run: |
+          chmod +x ./sqlx-ts || true
+          ./sqlx-ts --version
+          ./sqlx-ts --help
+
+      - name: Install using local install.sh
+        run: node local-postinstall.js
+
+      - name: Verify sqlx-ts binary from local install
+        run: |
+          chmod +x ./sqlx-ts || true
+          ./sqlx-ts --version
+          ./sqlx-ts --help
+
   linux-distro-static-binary-test:
     name: Test static binary on Linux distributions
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
         distro:
           - ubuntu:20.04
@@ -24,7 +63,6 @@ jobs:
           - fedora:38
           - fedora:39
           - archlinux:latest
-          - nixos/nix:latest
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3

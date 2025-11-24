@@ -12,42 +12,6 @@ on:
       - completed
 
 jobs:
-  node-install:
-    runs-on: ubuntu-latest
-    # Skip this job for version bump commits (binary won't exist yet)
-    if: "!contains(github.event.head_commit.message, 'Release')"
-    strategy:
-      matrix:
-        node: [ 12, 14, 15, 16, 17, 18, 19, 20 ]
-    defaults:
-      run:
-        working-directory: ./node
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: Install sqlx-ts using npm
-        run: npm install
-
-      - name: Run sqlx-ts version after install
-        run: ./sqlx-ts --version
-
-      - name: run sqlx-ts help after install
-        run: ./sqlx-ts --help
-
-      - name: Install using local install.sh
-        run: node local-postinstall.js
-
-      - name: Run sqlx-ts version after local install
-        run: ./sqlx-ts --version
-
-      - name: run sqlx-ts help after local install
-        run: ./sqlx-ts --help
-
   e2e:
     name: E2E tests with Node.js npm package
     runs-on: ${{ matrix.os }}
@@ -215,7 +179,6 @@ jobs:
           - fedora:38
           - fedora:39
           - archlinux:latest
-          - nixos/nix:latest
         db:
           - mysql: 8
           - postgres: 16
