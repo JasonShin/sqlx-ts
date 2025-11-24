@@ -5,7 +5,7 @@ on:
     branches: [ main ]
   workflow_dispatch: { }
   schedule:
-    - cron: "0 0 * * *"  # weekly
+    - cron: "0 0 * * *"  # daily at midnight UTC
   workflow_run:
     workflows: ["Release"]
     types:

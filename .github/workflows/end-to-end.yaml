@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest, macos-latest, macos-13, windows-latest ]   # You can add windows-latest if needed
-        node: [ 12, 14, 15, 16, 17, 18, 19, 20 ]
+        node: [ 16, 18, 20, 22 ]
     defaults:
       run:
         working-directory: ./node
