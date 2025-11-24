@@ -1,4 +1,4 @@
-name: Deploy docs/install-script to gh-pages branch for public use
+name: gh-pages
 on:
   push:
     branches: [main]
