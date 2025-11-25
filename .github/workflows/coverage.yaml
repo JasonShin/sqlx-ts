@@ -1,4 +1,4 @@
-name: coverage
+name: coverage.yaml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

@@ -1,4 +1,4 @@
-name: Compatibility tests
+name: compatibility.yaml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

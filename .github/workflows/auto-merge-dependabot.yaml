@@ -1,4 +1,4 @@
-name: auto-merge
+name: auto-merge-dependabot.yaml
 on: pull_request
 
 permissions:
