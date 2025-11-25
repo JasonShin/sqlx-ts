@@ -17,7 +17,7 @@ on:
 
 jobs:
   e2e:
-    name: E2E ${{ matrix.os }}_${{ join(matrix.db, '-') }}
+    name: E2E ${{ matrix.os }}_${{ join(values(matrix.db), '-') }}
     environment: e2e-${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     # Skip this job for version bump commits (binary won't exist yet)
@@ -166,7 +166,7 @@ jobs:
 
 
   e2e-linux-distros:
-    name: E2E linux distro ${{ matrix.distro }})_${{ join(matrix.db, '-') }}
+    name: E2E linux distro ${{ matrix.distro }})_${{ join(values(matrix.db), '-') }}
     environment: e2e-linux-distros
     runs-on: ubuntu-latest
     # Skip this job for version bump commits (binary won't exist yet)
