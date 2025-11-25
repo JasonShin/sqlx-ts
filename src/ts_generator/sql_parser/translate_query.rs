@@ -1,4 +1,4 @@
-use sqlparser::ast::{Query, Select, SelectItem, SetExpr, TableWithJoins, TableFactor, FunctionArg, FunctionArgExpr};
+use sqlparser::ast::{FunctionArg, FunctionArgExpr, Query, Select, SelectItem, SetExpr, TableFactor, TableWithJoins};
 use std::collections::HashMap;
 
 use super::expressions::{
@@ -9,8 +9,9 @@ use crate::ts_generator::sql_parser::quoted_strings::{DisplayIndent, DisplayTabl
 use crate::{
   core::connection::DBConn,
   ts_generator::{
-    errors::TsGeneratorError, sql_parser::expressions::translate_table_with_joins::get_default_table,
-    types::ts_query::{TsQuery, TsFieldType},
+    errors::TsGeneratorError,
+    sql_parser::expressions::translate_table_with_joins::get_default_table,
+    types::ts_query::{TsFieldType, TsQuery},
   },
 };
 
