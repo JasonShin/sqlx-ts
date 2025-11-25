@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, macos-latest, macos-13, windows-latest ]   # You can add windows-latest if needed
+        os: [ ubuntu-latest, macos-latest, windows-latest ]   # You can add windows-latest if needed
         node: [ 16, 18, 20, 22 ]
     defaults:
       run:
