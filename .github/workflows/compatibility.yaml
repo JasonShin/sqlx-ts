@@ -17,7 +17,7 @@ on:
 
 jobs:
   e2e:
-    name: E2E tests with Node.js npm package
+    name: E2E ${{ matrix.os }} with ${{ matrix.db }}
     environment: e2e-${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     # Skip this job for version bump commits (binary won't exist yet)
@@ -166,7 +166,7 @@ jobs:
 
 
   e2e-linux-distros:
-    name: E2E npm package on Linux distros with databases
+    name: E2E linux distro ${{ matrix.distro }} with ${{ matrix.db }}
     environment: e2e-linux-distros
     runs-on: ubuntu-latest
     # Skip this job for version bump commits (binary won't exist yet)
