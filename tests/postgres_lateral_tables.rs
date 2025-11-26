@@ -65,7 +65,7 @@ r#"
 export type JsonbToRecordSet12Params = [any];
 
 export interface IJsonbToRecordSet12Result {
-	flavorText: string;
+	flavor_text: string;
 	id: number;
 	name: string;
 	rarity: string;
