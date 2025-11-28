@@ -167,7 +167,7 @@ async function install() {
       await verifyHash(zipPath, expectedHash)
       success('Checksum verified successfully')
     } catch (err) {
-      warn('Warning: Could not download or verify checksum.')
+      warn('Could not download or verify checksum.')
       warn('This is expected for releases before SHA-256 checksums were added.')
       warn('Proceeding without verification (not recommended for production).')
       warn(`Checksum URL: ${checksumUrl}`)
