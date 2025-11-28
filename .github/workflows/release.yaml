@@ -92,11 +92,22 @@ jobs:
           7z a "$DIRECTORY.zip" "$DIRECTORY"
           echo "ASSET=$DIRECTORY.zip" >> $GITHUB_ENV
 
+      - name: Generate SHA-256 checksum
+        shell: bash
+        run: |
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            certutil -hashfile "${{ env.ASSET }}" SHA256 | findstr /v "hash" | findstr /v "CertUtil" > "${{ env.ASSET }}.sha256"
+          else
+            shasum -a 256 "${{ env.ASSET }}" | awk '{print $1}' > "${{ env.ASSET }}.sha256"
+          fi
+          cat "${{ env.ASSET }}.sha256"
+
       - name: Upload release archive
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ${{ env.ASSET }}          
+            ${{ env.ASSET }}
+            ${{ env.ASSET }}.sha256          
 
   node:
     needs: assets

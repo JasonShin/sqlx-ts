@@ -1,6 +1,7 @@
 module.exports = {
   "env": {
-    "browser": true,
+    "browser": false,
+    "node": true,
     "es2021": true,
   },
   "extends": [
@@ -15,5 +16,7 @@ module.exports = {
   "plugins": [
     "@typescript-eslint",
   ],
-  "rules": {},
+  "rules": {
+    "@typescript-eslint/no-var-requires": "off"
+  },
 };

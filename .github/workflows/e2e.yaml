@@ -43,7 +43,7 @@ jobs:
           ./sqlx-ts --help
 
       - name: Install using local install.sh
-        run: node local-postinstall.js
+        run: node postinstall.js
 
       - name: Verify sqlx-ts binary from local install
         run: |
