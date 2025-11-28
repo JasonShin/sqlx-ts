@@ -193,7 +193,7 @@ async function install() {
     info('sqlx-ts installation successful')
     process.exit(0)
   } catch (err) {
-    error('Installation failed:', err.message)
+    error(`Installation failed: ${err.message}`)
     process.exit(1)
   }
 }
