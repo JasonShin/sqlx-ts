@@ -17,6 +17,9 @@
     "test": "npx jest",
     "prepublishOnly": "cp ../README.md . && npm i && npm run compile"
   },
+  "dependencies": {
+    "adm-zip": "^0.5.16"
+  },
   "devDependencies": {
     "@types/jest": "^27.4.1",
     "@types/node": "^20.14.8",
