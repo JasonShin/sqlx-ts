@@ -2,6 +2,11 @@
 
 set -e
 
+echo "⚠️  This install.sh script is deprecated and will be removed in a future release."
+echo "   Please use the Node.js installer instead:"
+echo "   npm install -g sqlx-ts"
+echo ""
+
 help() {
     cat <<'EOF'
 Install a binary release of a Rust crate hosted on GitHub
