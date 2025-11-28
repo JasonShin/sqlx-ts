@@ -55,6 +55,16 @@ function getBinaryInfo() {
   }
 }
 
+function safeUnlink(filePath) {
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath)
+    }
+  } catch (err) {
+    warn(`Failed to delete file: filePath: ${filePath}, err: ${err.message}`)
+  }
+}
+
 // Download file from URL
 function downloadFile(url, destination, redirectCount = 0) {
   return new Promise((resolve, reject) => {
@@ -69,7 +79,7 @@ function downloadFile(url, destination, redirectCount = 0) {
         // Close the current file and delete it
         // Then download from the new location
         file.close()
-        fs.unlinkSync(destination)
+        safeUnlink(destination)
         return downloadFile(response.headers.location, destination, redirectCount + 1)
           .then(resolve)
           .catch(reject)
@@ -77,7 +87,7 @@ function downloadFile(url, destination, redirectCount = 0) {
 
       if (response.statusCode !== 200) {
         file.close()
-        fs.unlinkSync(destination)
+        safeUnlink(destination)
         return reject(new Error(`Failed to download: ${response.statusCode} ${response.statusMessage}`))
       }
 
@@ -86,7 +96,7 @@ function downloadFile(url, destination, redirectCount = 0) {
         file.close(resolve)
       })
     }).on('error', (err) => {
-      fs.unlinkSync(destination)
+      safeUnlink(destination)
       reject(err)
     })
   })
