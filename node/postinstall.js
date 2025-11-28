@@ -1,10 +1,10 @@
-const { ZipReader, BlobReader, Uint8ArrayWriter } = require('@zip.js/zip.js');
 const { createHash } = require('crypto')
 const fs = require('fs')
 const https = require('https')
 const path = require('path')
 const os = require('os')
 const tag = require('./package.json').version
+const AdmZip = require('adm-zip')
 
 const platform = process.platform
 const cpu = process.arch
@@ -119,24 +119,21 @@ async function verifyHash(filePath, expectedHash) {
   return true
 }
 
-async function extractBinary(zipPath, binaryName, targetPath) {
-  const zipData = fs.readFileSync(zipPath);
-  const reader = new ZipReader(new BlobReader(new Blob([zipData])));
+function extractBinary(zipPath, binaryName, targetPath) {
+  const zip = new AdmZip(zipPath)
+  const zipEntries = zip.getEntries()
 
-  const entries = await reader.getEntries();
-
-  for (const entry of entries) {
-    if (entry.filename.endsWith(binaryName)) {
-      const writer = new Uint8ArrayWriter();
-      const data = await entry.getData(writer);
-      fs.writeFileSync(targetPath, Buffer.from(data));
-      fs.chmodSync(targetPath, 0o755);
-      await reader.close();
-      return;
+  for (const entry of zipEntries) {
+    if (entry.entryName.endsWith(binaryName)) {
+      // Extract the entry's content directly
+      const data = entry.getData()
+      fs.writeFileSync(targetPath, data)
+      fs.chmodSync(targetPath, 0o755)
+      return
     }
   }
 
-  throw new Error(`Binary ${binaryName} not found in zip`);
+  throw new Error(`Binary ${binaryName} not found in archive`)
 }
 
 async function install() {
@@ -149,7 +146,6 @@ async function install() {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sqlx-ts-'))
     const zipPath = path.join(tmpDir, filename)
     const checksumPath = path.join(tmpDir, `${filename}.sha256`)
-    info('checking checksum url:', checksumUrl)
     const targetPath = path.join(__dirname, 'sqlx-ts' + (platform === 'win32' ? '.exe' : ''))
 
     info(`Downloading sqlx-ts v${tag} for ${platform}-${cpu}...`)
@@ -179,7 +175,7 @@ async function install() {
 
     // Extract the binary
     info('Extracting binary...')
-    await extractBinary(zipPath, binaryName, targetPath)
+    extractBinary(zipPath, binaryName, targetPath)
 
     // Cleanup
     fs.rmSync(tmpDir, { recursive: true, force: true })
