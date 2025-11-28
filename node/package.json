@@ -18,7 +18,7 @@
     "prepublishOnly": "cp ../README.md . && npm i && npm run compile"
   },
   "dependencies": {
-    "adm-zip": "^0.5.16"
+    "@zip.js/zip.js": "^2.6.15"
   },
   "devDependencies": {
     "@types/jest": "^27.4.1",

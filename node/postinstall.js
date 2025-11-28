@@ -1,54 +1,64 @@
-const { execSync } = require('child_process')
+const { ZipReader, BlobReader, Uint8ArrayWriter } = require('@zip.js/zip.js');
 const { createHash } = require('crypto')
 const fs = require('fs')
 const https = require('https')
 const path = require('path')
-const { promisify } = require('util')
-const { pipeline } = require('stream')
-const streamPipeline = promisify(pipeline)
-
+const os = require('os')
 const tag = require('./package.json').version
-const os = process.platform
+
+const platform = process.platform
 const cpu = process.arch
 
 // Map Node.js platform and architecture to binary names
 function getBinaryInfo() {
-  const buildMap = {
-    'linux-ia32': 'linux-32-bit',
-    'linux-x32': 'linux-32-bit',
-    'linux-x64': 'linux-64-bit',
-    'linux-arm64': 'linux-arm',
-    'darwin-x64': 'macos-64-bit',
-    'darwin-arm64': 'macos-arm',
-    'win32-ia32': 'windows-32-bit',
-    'win32-x32': 'windows-32-bit',
-    'win32-x64': 'windows-64-bit',
-  }
-
-  const key = `${os}-${cpu}`
-  const build = buildMap[key]
-
-  if (!build) {
-    throw new Error(`Unsupported platform: ${os}-${cpu}`)
+  let build = ''
+  if (platform === 'darwin') {
+    if (cpu === 'arm64') {
+      build = 'macos-arm'
+    } else {
+      build = 'macos-64-bit'
+    }
+  } else if (platform === 'win32') {
+    if (cpu === 'x64') {
+      build = 'windows-64-bit'
+    } else {
+      build = 'windows-32-bit'
+    }
+  } else if (platform === 'linux') {
+    if (cpu === 'x64') {
+      build = 'linux-64-bit'
+    } else if (cpu === 'arm64') {
+      build = 'linux-arm'
+    } else {
+      build = 'linux-32-bit'
+    }
+  } else {
+    throw new Error(`Unsupported platform: ${platform}-${cpu}`)
   }
 
   return {
     build,
     filename: `sqlx-ts-v${tag}-${build}.zip`,
-    binaryName: os === 'win32' ? 'sqlx-ts.exe' : 'sqlx-ts'
+    binaryName: platform === 'win32' ? 'sqlx-ts.exe' : 'sqlx-ts'
   }
 }
 
 // Download file from URL
-function downloadFile(url, destination) {
+function downloadFile(url, destination, redirectCount = 0) {
   return new Promise((resolve, reject) => {
+    if (redirectCount > 5) {
+      return reject(new Error("Too many redirects while downloading file"))
+    }
+
     const file = fs.createWriteStream(destination)
     https.get(url, (response) => {
       if (response.statusCode === 302 || response.statusCode === 301) {
-        // Handle redirect
+        // Handle redirects
+        // Close the current file and delete it
+        // Then download from the new location
         file.close()
         fs.unlinkSync(destination)
-        return downloadFile(response.headers.location, destination)
+        return downloadFile(response.headers.location, destination, redirectCount + 1)
           .then(resolve)
           .catch(reject)
       }
@@ -82,7 +92,6 @@ function calculateSHA256(filePath) {
   })
 }
 
-// Verify file hash
 async function verifyHash(filePath, expectedHash) {
   const actualHash = await calculateSHA256(filePath)
 
@@ -98,38 +107,40 @@ async function verifyHash(filePath, expectedHash) {
   return true
 }
 
-// Extract binary from zip
-function extractBinary(zipPath, binaryName, targetPath) {
-  const AdmZip = require('adm-zip')
-  const zip = new AdmZip(zipPath)
-  const zipEntries = zip.getEntries()
+async function extractBinary(zipPath, binaryName, targetPath) {
+  const zipData = fs.readFileSync(zipPath);
+  const reader = new ZipReader(new BlobReader(new Blob([zipData])));
 
-  for (const entry of zipEntries) {
-    if (entry.entryName.endsWith(binaryName)) {
-      // Extract the entry's content directly
-      const data = entry.getData()
-      fs.writeFileSync(targetPath, data)
-      fs.chmodSync(targetPath, 0o755)
-      return
+  const entries = await reader.getEntries();
+
+  for (const entry of entries) {
+    if (entry.filename.endsWith(binaryName)) {
+      const writer = new Uint8ArrayWriter();
+      const data = await entry.getData(writer);
+      fs.writeFileSync(targetPath, Buffer.from(data));
+      fs.chmodSync(targetPath, 0o755);
+      await reader.close();
+      return;
     }
   }
 
-  throw new Error(`Binary ${binaryName} not found in archive`)
+  throw new Error(`Binary ${binaryName} not found in zip`);
 }
 
 async function install() {
   try {
-    const { build, filename, binaryName } = getBinaryInfo()
+    const { filename, binaryName } = getBinaryInfo()
     const baseUrl = `https://github.com/JasonShin/sqlx-ts/releases/download/v${tag}`
     const zipUrl = `${baseUrl}/${filename}`
     const checksumUrl = `${zipUrl}.sha256`
 
-    const tmpDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'sqlx-ts-'))
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sqlx-ts-'))
     const zipPath = path.join(tmpDir, filename)
     const checksumPath = path.join(tmpDir, `${filename}.sha256`)
-    const targetPath = path.join(__dirname, 'sqlx-ts' + (os === 'win32' ? '.exe' : ''))
+    console.log('checking checksum url:', checksumUrl)
+    const targetPath = path.join(__dirname, 'sqlx-ts' + (platform === 'win32' ? '.exe' : ''))
 
-    console.info(`Downloading sqlx-ts v${tag} for ${os}-${cpu}...`)
+    console.info(`Downloading sqlx-ts v${tag} for ${platform}-${cpu}...`)
     console.info(`URL: ${zipUrl}`)
 
     // Download the zip file
@@ -156,12 +167,13 @@ async function install() {
 
     // Extract the binary
     console.info('Extracting binary...')
-    extractBinary(zipPath, binaryName, targetPath)
+    await extractBinary(zipPath, binaryName, targetPath)
 
     // Cleanup
     fs.rmSync(tmpDir, { recursive: true, force: true })
 
     console.info('sqlx-ts installation successful')
+    process.exit(0)
   } catch (error) {
     console.error('Installation failed:', error.message)
     process.exit(1)
