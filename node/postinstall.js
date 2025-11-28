@@ -166,22 +166,15 @@ async function install() {
     success('Download complete')
 
     // Download and verify the checksum
-    try {
-      info('Downloading checksum...')
-      await downloadFile(checksumUrl, checksumPath)
-      const expectedHash = fs.readFileSync(checksumPath, 'utf8').trim()
-      info(`Expected SHA-256: ${expectedHash}`)
+    info('Downloading checksum...')
+    await downloadFile(checksumUrl, checksumPath)
+    const expectedHash = fs.readFileSync(checksumPath, 'utf8').trim()
+    info(`Expected SHA-256: ${expectedHash}`)
 
-      // Verify the hash
-      info('Verifying checksum...')
-      await verifyHash(zipPath, expectedHash)
-      success('Checksum verified successfully')
-    } catch (err) {
-      warn('Could not download or verify checksum.')
-      warn('This is expected for releases before SHA-256 checksums were added.')
-      warn('Proceeding without verification (not recommended for production).')
-      warn(`Checksum URL: ${checksumUrl}`)
-    }
+    // Verify the hash
+    info('Verifying checksum...')
+    await verifyHash(zipPath, expectedHash)
+    success('Checksum verified successfully')
 
     // Extract the binary
     info('Extracting binary...')
