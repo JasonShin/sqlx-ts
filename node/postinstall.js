@@ -9,7 +9,19 @@ const tag = require('./package.json').version
 const platform = process.platform
 const cpu = process.arch
 
-// Map Node.js platform and architecture to binary names
+const colors = {
+  reset: "\x1b[0m",
+  red: "\x1b[31m",
+  green: "\x1b[32m",
+  yellow: "\x1b[33m",
+  cyan: "\x1b[36m",
+}
+
+const info = (msg) => console.log(`${colors.cyan}INFO: ${msg} ${colors.reset}`)
+const success = (msg) => console.log(`${colors.green}SUCCESS: ${msg} ${colors.reset}`)
+const warn = (msg) => console.warn(`${colors.yellow}WARNING: ${msg} ${colors.reset}`)
+const error = (msg) => console.error(`${colors.red}ERROR: ${msg} ${colors.reset}`)
+
 function getBinaryInfo() {
   let build = ''
   if (platform === 'darwin') {
@@ -137,45 +149,45 @@ async function install() {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sqlx-ts-'))
     const zipPath = path.join(tmpDir, filename)
     const checksumPath = path.join(tmpDir, `${filename}.sha256`)
-    console.log('checking checksum url:', checksumUrl)
+    info('checking checksum url:', checksumUrl)
     const targetPath = path.join(__dirname, 'sqlx-ts' + (platform === 'win32' ? '.exe' : ''))
 
-    console.info(`Downloading sqlx-ts v${tag} for ${platform}-${cpu}...`)
-    console.info(`URL: ${zipUrl}`)
+    info(`Downloading sqlx-ts v${tag} for ${platform}-${cpu}...`)
+    info(`URL: ${zipUrl}`)
 
     // Download the zip file
     await downloadFile(zipUrl, zipPath)
-    console.info('Download complete')
+    success('Download complete')
 
     // Download and verify the checksum
     try {
-      console.info('Downloading checksum...')
+      info('Downloading checksum...')
       await downloadFile(checksumUrl, checksumPath)
       const expectedHash = fs.readFileSync(checksumPath, 'utf8').trim()
-      console.info(`Expected SHA-256: ${expectedHash}`)
+      info(`Expected SHA-256: ${expectedHash}`)
 
       // Verify the hash
-      console.info('Verifying checksum...')
+      info('Verifying checksum...')
       await verifyHash(zipPath, expectedHash)
-      console.info('Checksum verified successfully')
-    } catch (error) {
-      console.warn('Warning: Could not download or verify checksum.')
-      console.warn('This is expected for releases before SHA-256 checksums were added.')
-      console.warn('Proceeding without verification (not recommended for production).')
-      console.warn(`Checksum URL: ${checksumUrl}`)
+      success('Checksum verified successfully')
+    } catch (err) {
+      warn('Warning: Could not download or verify checksum.')
+      warn('This is expected for releases before SHA-256 checksums were added.')
+      warn('Proceeding without verification (not recommended for production).')
+      warn(`Checksum URL: ${checksumUrl}`)
     }
 
     // Extract the binary
-    console.info('Extracting binary...')
+    info('Extracting binary...')
     await extractBinary(zipPath, binaryName, targetPath)
 
     // Cleanup
     fs.rmSync(tmpDir, { recursive: true, force: true })
 
-    console.info('sqlx-ts installation successful')
+    info('sqlx-ts installation successful')
     process.exit(0)
-  } catch (error) {
-    console.error('Installation failed:', error.message)
+  } catch (err) {
+    error('Installation failed:', err.message)
     process.exit(1)
   }
 }
