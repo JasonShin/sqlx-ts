@@ -96,7 +96,7 @@ jobs:
         shell: bash
         run: |
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            certutil -hashfile "${{ env.ASSET }}" SHA256 | findstr /v "hash" | findstr /v "CertUtil" > "${{ env.ASSET }}.sha256"
+            powershell -Command "(Get-FileHash -Algorithm SHA256 '${{ env.ASSET }}').Hash.ToLower()" > "${{ env.ASSET }}.sha256"
           else
             shasum -a 256 "${{ env.ASSET }}" | awk '{print $1}' > "${{ env.ASSET }}.sha256"
           fi
