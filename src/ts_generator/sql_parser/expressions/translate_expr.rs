@@ -421,9 +421,9 @@ pub async fn translate_expr(
         return ts_query.insert_result(alias, &[ts_field_type], is_selection, false, expr_for_logging);
       }
       // For placeholders where we can't infer the type:
-      // - If is_selection is false (e.g., in a WHERE clause), it's likely a boolean condition
-      // - Otherwise, use Any for flexibility
-      let inferred_type = if !is_selection {
+      // - If we're in a WHERE clause (is_selection is false AND we have a table context), infer as Boolean
+      // - Otherwise, use Any for flexibility (e.g., for table-valued function arguments)
+      let inferred_type = if !is_selection && single_table_name.is_some() {
         TsFieldType::Boolean
       } else {
         TsFieldType::Any
