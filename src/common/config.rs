@@ -40,16 +40,18 @@ pub struct GenerateTypesConfig {
 pub struct DbConnectionConfig {
   #[serde(rename = "DB_TYPE")]
   pub db_type: DatabaseType,
-  #[serde(rename = "DB_HOST")]
+  #[serde(rename = "DB_HOST", default)]
   pub db_host: String,
-  #[serde(rename = "DB_PORT")]
+  #[serde(rename = "DB_PORT", default)]
   pub db_port: u16,
-  #[serde(rename = "DB_USER")]
+  #[serde(rename = "DB_USER", default)]
   pub db_user: String,
   #[serde(rename = "DB_PASS")]
   pub db_pass: Option<String>,
   #[serde(rename = "DB_NAME")]
   pub db_name: Option<String>,
+  #[serde(rename = "DB_URL")]
+  pub db_url: Option<String>,
   #[serde(rename = "PG_SEARCH_PATH")]
   pub pg_search_path: Option<String>,
   #[serde(rename = "POOL_SIZE", default = "default_pool_size")]
@@ -218,43 +220,77 @@ impl Config {
         panic!("")
       });
 
-    let db_host = &CLI_ARGS
-      .db_host
+    // Check if a custom DB_URL is provided
+    let db_url = &CLI_ARGS
+      .db_url
       .clone()
-      .or_else(|| dotenv.db_host.clone())
-      .or_else(|| default_config.map(|x| x.db_host.clone()))
-      .expect(
-        r"
+      .or_else(|| dotenv.db_url.clone())
+      .or_else(|| default_config.map(|x| x.db_url.clone()).flatten());
+
+    // If DB_URL is provided, we don't require individual connection parameters
+    let db_host = if db_url.is_some() {
+      CLI_ARGS
+        .db_host
+        .clone()
+        .or_else(|| dotenv.db_host.clone())
+        .or_else(|| default_config.map(|x| x.db_host.clone()))
+        .unwrap_or_default()
+    } else {
+      CLI_ARGS
+        .db_host
+        .clone()
+        .or_else(|| dotenv.db_host.clone())
+        .or_else(|| default_config.map(|x| x.db_host.clone()))
+        .expect(
+          r"
              Failed to fetch DB host.
              Please provide it at least through a CLI arg or an environment variable or through
-             file based configuration
+             file based configuration, or provide a custom DB_URL
              ",
-      );
+        )
+    };
 
-    let db_port = &CLI_ARGS
-      .db_port
-      .or(dotenv.db_port)
-      .or_else(|| default_config.map(|x| x.db_port))
-      .expect(
-        r"
+    let db_port = if db_url.is_some() {
+      CLI_ARGS
+        .db_port
+        .or(dotenv.db_port)
+        .or_else(|| default_config.map(|x| x.db_port))
+        .unwrap_or_default()
+    } else {
+      CLI_ARGS
+        .db_port
+        .or(dotenv.db_port)
+        .or_else(|| default_config.map(|x| x.db_port))
+        .expect(
+          r"
              Failed to fetch DB port.
              Please provide it at least through a CLI arg or an environment variable or through
-             file based configuration
+             file based configuration, or provide a custom DB_URL
              ",
-      );
+        )
+    };
 
-    let db_user = &CLI_ARGS
-      .db_user
-      .clone()
-      .or_else(|| dotenv.db_user.clone())
-      .or_else(|| default_config.map(|x| x.db_user.clone()))
-      .expect(
-        r"
+    let db_user = if db_url.is_some() {
+      CLI_ARGS
+        .db_user
+        .clone()
+        .or_else(|| dotenv.db_user.clone())
+        .or_else(|| default_config.map(|x| x.db_user.clone()))
+        .unwrap_or_default()
+    } else {
+      CLI_ARGS
+        .db_user
+        .clone()
+        .or_else(|| dotenv.db_user.clone())
+        .or_else(|| default_config.map(|x| x.db_user.clone()))
+        .expect(
+          r"
              Failed to fetch DB user.
              Please provide it at least through a CLI arg or an environment variable or through
-             file based configuration
+             file based configuration, or provide a custom DB_URL
              ",
-      );
+        )
+    };
 
     let db_pass = &CLI_ARGS
       .db_pass
@@ -286,11 +322,12 @@ impl Config {
 
     DbConnectionConfig {
       db_type: db_type.to_owned(),
-      db_host: db_host.to_owned(),
-      db_port: db_port.to_owned(),
-      db_user: db_user.to_owned(),
+      db_host,
+      db_port,
+      db_user,
       db_pass: db_pass.to_owned(),
       db_name: db_name.to_owned(),
+      db_url: db_url.to_owned(),
       pg_search_path: pg_search_path.to_owned(),
       pool_size,
       connection_timeout,
@@ -332,6 +369,11 @@ impl Config {
   /// This is to follow the spec of connection string for MySQL
   /// https://dev.mysql.com/doc/connector-j/8.1/en/connector-j-reference-jdbc-url-format.html
   pub fn get_mysql_cred_str(&self, conn: &DbConnectionConfig) -> String {
+    // If custom DB_URL is provided, use it directly
+    if let Some(db_url) = &conn.db_url {
+      return db_url.to_owned();
+    }
+
     format!(
       "mysql://{user}:{pass}@{host}:{port}/{db_name}",
       user = &conn.db_user,
@@ -344,6 +386,11 @@ impl Config {
   }
 
   pub fn get_postgres_cred(&self, conn: &DbConnectionConfig) -> String {
+    // If custom DB_URL is provided, use it directly
+    if let Some(db_url) = &conn.db_url {
+      return db_url.to_owned();
+    }
+
     format!(
       "postgresql://{user}:{pass}@{host}:{port}/{db_name}",
       user = &conn.db_user,
