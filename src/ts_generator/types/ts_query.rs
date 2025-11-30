@@ -20,6 +20,7 @@ pub enum TsFieldType {
   Null,
   Enum(Vec<String>),
   Any,
+  Unknown,
   #[allow(dead_code)]
   Array2D(Array2DContent),
   Array(Box<TsFieldType>),
@@ -38,6 +39,7 @@ impl fmt::Display for TsFieldType {
       TsFieldType::Any => write!(f, "any"),
       TsFieldType::Null => write!(f, "null"),
       TsFieldType::Never => write!(f, "never"),
+      TsFieldType::Unknown => write!(f, "unknown"),
       TsFieldType::Array(ts_field_type) => {
         let ts_field_type = ts_field_type.clone();
         let ts_field_type = *ts_field_type;
@@ -90,7 +92,7 @@ impl TsFieldType {
       "character" | "character varying" | "bytea" | "uuid" | "text" => Self::String,
       "boolean" => Self::Boolean,
       "json" | "jsonb" => Self::Object,
-      "ARRAY" | "array" => Self::Any,
+      "ARRAY" | "array" => Self::Unknown,
       "date" => Self::Date,
       "USER-DEFINED" => {
         if let Some(enum_values) = enum_values {
@@ -98,9 +100,9 @@ impl TsFieldType {
         }
         let warning_message = format!("Failed to find enum values for field {field_name} of table {table_name}");
         warning!(warning_message);
-        Self::Any
+        Self::Unknown
       }
-      _ => Self::Any,
+      _ => Self::Unknown,
     }
   }
 
@@ -122,9 +124,9 @@ impl TsFieldType {
 
         let warning_message = format!("Failed to find enum values for field {field_name} of table {table_name}");
         warning!(warning_message);
-        Self::Any
+        Self::Unknown
       }
-      _ => Self::Any,
+      _ => Self::Unknown,
     }
   }
 
@@ -140,7 +142,7 @@ impl TsFieldType {
     } else if annotated_type == "null" {
       return Self::Null;
     }
-    Self::Any
+    Self::Unknown
   }
 
   /// Converts a sqlparser DataType from table alias column definitions to TsFieldType
