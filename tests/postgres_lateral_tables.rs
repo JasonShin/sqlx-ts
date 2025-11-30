@@ -41,7 +41,7 @@ export interface IJsonbToRecordSet1Query {
 "#);
 
   #[rustfmt::skip]
-run_test!(should_support_jsonb_to_recordset_with_multiple_columns, TestConfig::new("postgres", true, None, None),
+run_test!(should_support_jsonb_to_recordset_select_with_multiple_columns, TestConfig::new("postgres", true, None, None),
 
 //// TS query ////
 r#"
