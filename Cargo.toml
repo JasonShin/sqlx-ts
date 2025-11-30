@@ -21,16 +21,16 @@ swc_ecma_parser = "0.149.1"
 walkdir = "2.5.0"
 clap = { version = "3.2.25", features = ["derive"] }
 serde = { version = "=1.0.209", features = ["derive"] }
-serde_json = { version = "1.0.143" }
+serde_json = { version = "1.0.145" }
 sqlparser = { version = "0.59.0" }
 regex = { version = "1.12.2" }
-convert_case = "0.8.0"
+convert_case = "0.10.0"
 colored = "3.0.0"
 mysql_async = { version = "0.36.1", features = ["minimal"] }
 tokio-postgres = "0.7.15"
 tokio = { version = "1.48.0", features = ["rt-multi-thread", "macros", "default"]}
 async-recursion = "1.1.1"
-bb8 = "0.9.0"
+bb8 = "0.9.1"
 log = "0.4.22"
 
 [dev-dependencies]
