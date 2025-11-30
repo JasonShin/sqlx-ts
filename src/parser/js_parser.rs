@@ -33,7 +33,7 @@ pub fn get_var_decl_name_from_key(key: &Key) -> Option<String> {
     swc_ecma_ast::Key::Private(private) => Some(private.name.to_string()),
     swc_ecma_ast::Key::Public(public) => match &public {
       swc_ecma_ast::PropName::Ident(ident) => Some(ident.sym.to_string()),
-      swc_ecma_ast::PropName::Str(val) => Some(val.value.to_string()),
+      swc_ecma_ast::PropName::Str(val) => Some(val.value.to_string_lossy().to_string()),
       swc_ecma_ast::PropName::Num(_) => None,
       swc_ecma_ast::PropName::Computed(_) => None,
       swc_ecma_ast::PropName::BigInt(_) => None,
