@@ -41,7 +41,7 @@ pub async fn translate_select(
   let full_table_with_joins = &Some(full_table_with_joins.clone());
 
   // Process table functions in FROM clause to extract parameters and column definitions
-  // Note: Table-valued functions like jsonb_to_recordset are parsed as TableFactor::Table with args
+  // Note: Table-valued functions (e.g., jsonb_to_recordset) can be parsed as either TableFactor::Table with args or TableFactor::Function.
   for twj in &child_table_with_joins {
     match &twj.relation {
       TableFactor::Table {
