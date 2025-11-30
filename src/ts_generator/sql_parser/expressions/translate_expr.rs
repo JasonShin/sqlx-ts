@@ -1,6 +1,6 @@
 use super::functions::{is_date_function, is_numeric_function, is_type_polymorphic_function};
 use crate::common::lazy::DB_SCHEMA;
-use crate::common::logger::warning;
+use crate::common::logger::{error, warning};
 use crate::core::connection::DBConn;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::expressions::translate_data_type::translate_value;
@@ -180,20 +180,46 @@ pub async fn translate_expr(
     Expr::Identifier(ident) => {
       let column_name = DisplayIndent(ident).to_string();
       let table_name = single_table_name.expect("Missing table name for identifier");
+
+      // First check if this is a table-valued function column
+      if let Some(tvf_columns) = ts_query.table_valued_function_columns.get(table_name) {
+        if let Some(ts_type) = tvf_columns.get(&column_name) {
+          let field_name = alias.unwrap_or(column_name.as_str());
+          ts_query.insert_result(
+            Some(field_name),
+            &[ts_type.to_owned()],
+            is_selection,
+            false, // Table-valued function columns are not nullable by default
+            expr_for_logging,
+          )?;
+          return Ok(());
+        }
+      }
+
+      // Fall back to database schema
       let table_details = &DB_SCHEMA.lock().await.fetch_table(&vec![table_name], db_conn).await;
 
-      // TODO: We can also memoize this method
       if let Some(table_details) = table_details {
-        let field = table_details.get(&column_name).unwrap();
-
-        let field_name = alias.unwrap_or(column_name.as_str());
-        ts_query.insert_result(
-          Some(field_name),
-          &[field.field_type.to_owned()],
-          is_selection,
-          field.is_nullable,
-          expr_for_logging,
-        )?
+        if let Some(field) = table_details.get(&column_name) {
+          let field_name = alias.unwrap_or(column_name.as_str());
+          ts_query.insert_result(
+            Some(field_name),
+            &[field.field_type.to_owned()],
+            is_selection,
+            field.is_nullable,
+            expr_for_logging,
+          )?
+        } else {
+          error!(
+            "Column '{}' not found in table '{}'. If '{}' is a table-valued function, verify that the column is defined in its alias. Otherwise, the column may not exist in the table.",
+            column_name, table_name, table_name
+          );
+        }
+      } else {
+        error!(
+          "Table '{}' not found in schema. This may be a table-valued function.",
+          table_name
+        );
       }
       Ok(())
     }
@@ -203,6 +229,31 @@ pub async fn translate_expr(
 
         let table_name = translate_table_from_expr(table_with_joins, expr)?;
 
+        // First check if this is a table-valued function column
+        if let Some(tvf_columns) = ts_query.table_valued_function_columns.get(&table_name) {
+          if let Some(ts_type) = tvf_columns.get(&ident) {
+            // if the select item is a compound identifier and does not has an alias, we should use `table_name.ident` as the key name
+            let key_name = format!("{table_name}_{ident}");
+            let key_name = &alias.unwrap_or_else(|| {
+                          warning!(
+                              "Missing an alias for a compound identifier, using {} as the key name. Prefer adding an alias for example: `{} AS {}`",
+                              key_name, expr, ident
+                          );
+                          key_name.as_str()
+                      });
+
+            ts_query.insert_result(
+              Some(key_name),
+              &[ts_type.to_owned()],
+              is_selection,
+              false, // Table-valued function columns are not nullable by default
+              expr_for_logging,
+            )?;
+            return Ok(());
+          }
+        }
+
+        // Fall back to database schema
         let table_details = &DB_SCHEMA
           .lock()
           .await
@@ -210,25 +261,35 @@ pub async fn translate_expr(
           .await;
 
         if let Some(table_details) = table_details {
-          let field = table_details.get(&ident).unwrap();
+          if let Some(field) = table_details.get(&ident) {
+            // if the select item is a compound identifier and does not has an alias, we should use `table_name.ident` as the key name
+            let key_name = format!("{table_name}_{ident}");
+            let key_name = &alias.unwrap_or_else(|| {
+                          warning!(
+                              "Missing an alias for a compound identifier, using {} as the key name. Prefer adding an alias for example: `{} AS {}`",
+                              key_name, expr, ident
+                          );
+                          key_name.as_str()
+                      });
 
-          // if the select item is a compound identifier and does not has an alias, we should use `table_name.ident` as the key name
-          let key_name = format!("{table_name}_{ident}");
-          let key_name = &alias.unwrap_or_else(|| {
-                        warning!(
-                            "Missing an alias for a compound identifier, using {} as the key name. Prefer adding an alias for example: `{} AS {}`",
-                            key_name, expr, ident
-                        );
-                        key_name.as_str()
-                    });
-
-          ts_query.insert_result(
-            Some(key_name),
-            &[field.field_type.to_owned()],
-            is_selection,
-            field.is_nullable,
-            expr_for_logging,
-          )?;
+            ts_query.insert_result(
+              Some(key_name),
+              &[field.field_type.to_owned()],
+              is_selection,
+              field.is_nullable,
+              expr_for_logging,
+            )?;
+          } else {
+            error!(
+              "Column '{}' not found in table '{}' for compound identifier '{}.{}'. This may be a table-valued function.",
+              ident, table_name, table_name, ident
+            );
+          }
+        } else {
+          error!(
+            "Table '{}' not found in schema for compound identifier '{}.{}'. This may be a table-valued function.",
+            table_name, table_name, ident
+          );
         }
       }
       Ok(())
@@ -359,7 +420,15 @@ pub async fn translate_expr(
       if let Some(ts_field_type) = ts_field_type {
         return ts_query.insert_result(alias, &[ts_field_type], is_selection, false, expr_for_logging);
       }
-      ts_query.insert_param(&TsFieldType::Boolean, &false, &Some(placeholder.to_string()))
+      // For placeholders where we can't infer the type:
+      // - If we're in a WHERE clause (is_selection is false AND we have a table context), infer as Boolean
+      // - Otherwise, use Any for flexibility (e.g., for table-valued function arguments)
+      let inferred_type = if !is_selection && single_table_name.is_some() {
+        TsFieldType::Boolean
+      } else {
+        TsFieldType::Any
+      };
+      ts_query.insert_param(&inferred_type, &false, &Some(placeholder.to_string()))
     }
     Expr::JsonAccess { value: _, path: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)?;

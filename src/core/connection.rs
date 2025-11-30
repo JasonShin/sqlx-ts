@@ -1,4 +1,5 @@
 use crate::common::lazy::CONFIG;
+use crate::common::types::DatabaseType;
 use crate::common::SQL;
 use crate::core::mysql::prepare as mysql_explain;
 use crate::core::postgres::prepare as postgres_explain;
@@ -33,6 +34,14 @@ impl DBConn {
     };
 
     Ok((explain_failed, ts_query))
+  }
+
+  /// Get the database type for this connection
+  pub fn get_db_type(&self) -> DatabaseType {
+    match self {
+      DBConn::MySQLPooledConn(_) => DatabaseType::Mysql,
+      DBConn::PostgresConn(_) => DatabaseType::Postgres,
+    }
   }
 }
 

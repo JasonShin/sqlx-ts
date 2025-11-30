@@ -3,14 +3,36 @@ use crate::ts_generator::sql_parser::quoted_strings::*;
 use color_eyre::eyre::Result;
 use sqlparser::ast::{Assignment, AssignmentTarget, Expr, Join, SelectItem, TableFactor, TableWithJoins};
 
+/// Check if the given table name corresponds to a table-valued function alias
+/// by examining the table_with_joins to see if it's a TableFactor::Function
+#[allow(dead_code)]
+pub fn is_table_function(table_name: &str, table_with_joins: &[TableWithJoins]) -> bool {
+  for twj in table_with_joins {
+    if let TableFactor::Function { alias: Some(alias), .. } = &twj.relation {
+      if DisplayTableAlias(alias).to_string() == table_name {
+        return true;
+      }
+    }
+    // Also check joins
+    for join in &twj.joins {
+      if let TableFactor::Function { alias: Some(alias), .. } = &join.relation {
+        if DisplayTableAlias(alias).to_string() == table_name {
+          return true;
+        }
+      }
+    }
+  }
+  false
+}
+
 pub fn get_default_table(table_with_joins: &[TableWithJoins]) -> String {
   table_with_joins
     .first()
     .and_then(|x| match &x.relation {
       TableFactor::Table {
         name,
-        alias: _,
-        args: _,
+        alias,
+        args,
         with_hints: _,
         version: _,
         partitions: _,
@@ -18,7 +40,19 @@ pub fn get_default_table(table_with_joins: &[TableWithJoins]) -> String {
         json_path: _,
         sample: _,
         index_hints: _,
-      } => Some(DisplayObjectName(name).to_string()),
+      } => {
+        // If args is Some, it's a table-valued function (e.g., jsonb_to_recordset($1))
+        // In that case, use the alias name if available
+        if args.is_some() {
+          alias.as_ref().map(|a| DisplayTableAlias(a).to_string())
+        } else {
+          Some(DisplayObjectName(name).to_string())
+        }
+      }
+      TableFactor::Function { alias, .. } => {
+        // For LATERAL functions, use the alias name as the table name
+        alias.as_ref().map(|a| DisplayTableAlias(a).to_string())
+      }
       _ => None,
     })
     .expect("The query does not have a default table, impossible to generate types")
@@ -41,7 +75,7 @@ pub fn find_table_name_from_identifier(
       TableFactor::Table {
         name,
         alias,
-        args: _,
+        args,
         with_hints: _,
         version: _,
         partitions: _,
@@ -50,11 +84,30 @@ pub fn find_table_name_from_identifier(
         sample: _,
         index_hints: _,
       } => {
-        let alias = alias.clone().map(|alias| DisplayTableAlias(&alias).to_string());
-        let name = DisplayObjectName(name).to_string();
-        if Some(left.to_string()) == alias || left == name {
-          // If the identifier matches the alias, then return the table name
-          return Ok(name.to_owned());
+        let alias_str = alias.clone().map(|alias| DisplayTableAlias(&alias).to_string());
+        let name_str = DisplayObjectName(name).to_string();
+
+        // If this is a table-valued function (args is Some), use alias as the effective name
+        if args.is_some() {
+          if let Some(alias) = alias_str {
+            if left == alias {
+              return Ok(alias);
+            }
+          }
+        } else {
+          // Regular table
+          if Some(left.to_string()) == alias_str || left == name_str {
+            return Ok(name_str.to_owned());
+          }
+        }
+      }
+      TableFactor::Function { alias, .. } => {
+        // For LATERAL functions, the alias is the effective table name
+        if let Some(alias) = alias {
+          let alias_name = DisplayTableAlias(alias).to_string();
+          if left == alias_name {
+            return Ok(alias_name);
+          }
         }
       }
       _ => {
@@ -87,6 +140,15 @@ pub fn find_table_name_from_identifier(
         let name = DisplayObjectName(name).to_string();
         if Some(left.to_owned()) == alias || left == name {
           return Ok(name);
+        }
+      }
+      TableFactor::Function { alias, .. } => {
+        // For table-valued functions in joins, the alias is the effective table name
+        if let Some(alias) = alias {
+          let alias_name = DisplayTableAlias(alias).to_string();
+          if left == alias_name {
+            return Ok(alias_name);
+          }
         }
       }
       _ => {

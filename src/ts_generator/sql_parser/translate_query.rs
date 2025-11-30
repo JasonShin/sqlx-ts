@@ -1,15 +1,17 @@
-use sqlparser::ast::{Query, Select, SelectItem, SetExpr, TableWithJoins};
+use sqlparser::ast::{FunctionArg, FunctionArgExpr, Query, Select, SelectItem, SetExpr, TableFactor, TableWithJoins};
+use std::collections::HashMap;
 
 use super::expressions::{
   translate_expr::translate_expr, translate_table_with_joins::translate_table_with_joins,
   translate_wildcard_expr::translate_wildcard_expr,
 };
-use crate::ts_generator::sql_parser::quoted_strings::DisplayIndent;
+use crate::ts_generator::sql_parser::quoted_strings::{DisplayIndent, DisplayTableAlias};
 use crate::{
   core::connection::DBConn,
   ts_generator::{
-    errors::TsGeneratorError, sql_parser::expressions::translate_table_with_joins::get_default_table,
-    types::ts_query::TsQuery,
+    errors::TsGeneratorError,
+    sql_parser::expressions::translate_table_with_joins::get_default_table,
+    types::ts_query::{TsFieldType, TsQuery},
   },
 };
 
@@ -37,6 +39,82 @@ pub async fn translate_select(
   }
 
   let full_table_with_joins = &Some(full_table_with_joins.clone());
+
+  // Process table functions in FROM clause to extract parameters and column definitions
+  // Note: Table-valued functions (e.g., jsonb_to_recordset) can be parsed as either TableFactor::Table with args or TableFactor::Function.
+  for twj in &child_table_with_joins {
+    match &twj.relation {
+      TableFactor::Table {
+        args: Some(table_fn_args),
+        alias,
+        ..
+      } => {
+        // Extract parameters from function arguments
+        for arg in &table_fn_args.args {
+          if let FunctionArg::Unnamed(FunctionArgExpr::Expr(expr))
+          | FunctionArg::Named {
+            arg: FunctionArgExpr::Expr(expr),
+            ..
+          } = arg
+          {
+            // Process the expression to extract any parameters
+            translate_expr(expr, &None, full_table_with_joins, None, ts_query, db_conn, false).await?;
+          }
+        }
+
+        // Extract column definitions from alias if present
+        // e.g., AS t(id INT, name TEXT)
+        if let Some(alias) = alias {
+          let table_name = DisplayTableAlias(alias).to_string();
+          let mut columns = HashMap::new();
+
+          for col_def in &alias.columns {
+            let col_name = DisplayIndent(&col_def.name).to_string();
+            if let Some(data_type) = &col_def.data_type {
+              let ts_type = TsFieldType::from_sqlparser_datatype(data_type);
+              columns.insert(col_name, ts_type);
+            }
+          }
+
+          if !columns.is_empty() {
+            ts_query.table_valued_function_columns.insert(table_name, columns);
+          }
+        }
+      }
+      TableFactor::Function { args, alias, .. } => {
+        // Handle LATERAL functions
+        for arg in args {
+          if let FunctionArg::Unnamed(FunctionArgExpr::Expr(expr))
+          | FunctionArg::Named {
+            arg: FunctionArgExpr::Expr(expr),
+            ..
+          } = arg
+          {
+            translate_expr(expr, &None, full_table_with_joins, None, ts_query, db_conn, false).await?;
+          }
+        }
+
+        // Extract column definitions from LATERAL function alias if present
+        if let Some(alias) = alias {
+          let table_name = DisplayTableAlias(alias).to_string();
+          let mut columns = HashMap::new();
+
+          for col_def in &alias.columns {
+            let col_name = DisplayIndent(&col_def.name).to_string();
+            if let Some(data_type) = &col_def.data_type {
+              let ts_type = TsFieldType::from_sqlparser_datatype(data_type);
+              columns.insert(col_name, ts_type);
+            }
+          }
+
+          if !columns.is_empty() {
+            ts_query.table_valued_function_columns.insert(table_name, columns);
+          }
+        }
+      }
+      _ => {}
+    }
+  }
 
   // Handle all select projects and figure out each field's type
   for select_item in projection {
