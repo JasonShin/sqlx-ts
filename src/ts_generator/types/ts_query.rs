@@ -20,6 +20,7 @@ pub enum TsFieldType {
   Null,
   Enum(Vec<String>),
   Any,
+  Unknown,
   #[allow(dead_code)]
   Array2D(Array2DContent),
   Array(Box<TsFieldType>),
@@ -38,6 +39,7 @@ impl fmt::Display for TsFieldType {
       TsFieldType::Any => write!(f, "any"),
       TsFieldType::Null => write!(f, "null"),
       TsFieldType::Never => write!(f, "never"),
+      TsFieldType::Unknown => write!(f, "unknown"),
       TsFieldType::Array(ts_field_type) => {
         let ts_field_type = ts_field_type.clone();
         let ts_field_type = *ts_field_type;
@@ -90,7 +92,7 @@ impl TsFieldType {
       "character" | "character varying" | "bytea" | "uuid" | "text" => Self::String,
       "boolean" => Self::Boolean,
       "json" | "jsonb" => Self::Object,
-      "ARRAY" | "array" => Self::Any,
+      "ARRAY" | "array" => Self::Unknown,
       "date" => Self::Date,
       "USER-DEFINED" => {
         if let Some(enum_values) = enum_values {
@@ -98,9 +100,9 @@ impl TsFieldType {
         }
         let warning_message = format!("Failed to find enum values for field {field_name} of table {table_name}");
         warning!(warning_message);
-        Self::Any
+        Self::Unknown
       }
-      _ => Self::Any,
+      _ => Self::Unknown,
     }
   }
 
@@ -122,9 +124,9 @@ impl TsFieldType {
 
         let warning_message = format!("Failed to find enum values for field {field_name} of table {table_name}");
         warning!(warning_message);
-        Self::Any
+        Self::Unknown
       }
-      _ => Self::Any,
+      _ => Self::Unknown,
     }
   }
 
@@ -140,7 +142,56 @@ impl TsFieldType {
     } else if annotated_type == "null" {
       return Self::Null;
     }
-    Self::Any
+    Self::Unknown
+  }
+
+  /// Converts a sqlparser DataType from table alias column definitions to TsFieldType
+  /// This is used to infer types from table-valued function aliases like:
+  /// `jsonb_to_recordset($1) AS t(id INT, name TEXT)`
+  pub fn from_sqlparser_datatype(data_type: &sqlparser::ast::DataType) -> Self {
+    use sqlparser::ast::DataType;
+
+    match data_type {
+      // Integer types
+      DataType::SmallInt(_) | DataType::SmallIntUnsigned(_) |
+      DataType::Int(_) | DataType::Int2(_) | DataType::Int4(_) | DataType::Int8(_) |
+      DataType::Integer(_) | DataType::IntUnsigned(_) | DataType::IntegerUnsigned(_) |
+      DataType::BigInt(_) | DataType::BigIntUnsigned(_) |
+      DataType::TinyInt(_) | DataType::TinyIntUnsigned(_) |
+      DataType::MediumInt(_) | DataType::MediumIntUnsigned(_) |
+      DataType::Int16 | DataType::Int32 | DataType::Int64 | DataType::Int128 | DataType::Int256 |
+      DataType::UInt8 | DataType::UInt16 | DataType::UInt32 | DataType::UInt64 | DataType::UInt128 | DataType::UInt256 |
+      // Floating point types
+      DataType::Real | DataType::Float(_) | DataType::Float4 | DataType::Float8 |
+      DataType::Double(_) | DataType::DoublePrecision | DataType::Float64 |
+      DataType::Decimal(_) | DataType::Dec(_) | DataType::Numeric(_) |
+      DataType::BigNumeric(_) | DataType::BigDecimal(_) => Self::Number,
+
+      // String types
+      DataType::Character(_) | DataType::Char(_) |
+      DataType::CharacterVarying(_) | DataType::CharVarying(_) |
+      DataType::Varchar(_) | DataType::Nvarchar(_) |
+      DataType::Text | DataType::String(_) |
+      DataType::Uuid |
+      DataType::Bytea | DataType::Binary(_) | DataType::Varbinary(_) |
+      DataType::Blob(_) | DataType::Clob(_) => Self::String,
+
+      // Boolean type
+      DataType::Boolean | DataType::Bool => Self::Boolean,
+
+      // JSON types
+      DataType::JSON | DataType::JSONB => Self::Object,
+
+      // Date/Time types
+      DataType::Date | DataType::Datetime(_) | DataType::Timestamp(_, _) |
+      DataType::Time(_, _) => Self::Date,
+
+      // Array types
+      DataType::Array(_) => Self::Any,
+
+      // Everything else defaults to Any
+      _ => Self::Any,
+    }
   }
 
   /// Converts a sqlparser DataType from table alias column definitions to TsFieldType
@@ -448,6 +499,8 @@ impl fmt::Display for TsQuery {
     let result = format!("export interface I{name}Result {{\n\t{result_str}\n}}");
 
     let query = format!("export interface I{name}Query {{\n\tparams: {name}Params;\n\tresult: I{name}Result;\n}}");
+
+    // let jenericResult = format!("export interface I{name}Results<T = object> {{\n\t{result_str}\n}}");
 
     let final_code = format!("{params}\n\n{result}\n\n{query}");
 
