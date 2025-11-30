@@ -211,8 +211,8 @@ pub async fn translate_expr(
           )?
         } else {
           error!(
-            "Column '{}' not found in table '{}'. This may be a table-valued function or the column may not exist.",
-            column_name, table_name
+            "Column '{}' not found in table '{}'. If '{}' is a table-valued function, verify that the column is defined in its alias. Otherwise, the column may not exist in the table.",
+            column_name, table_name, table_name
           );
         }
       } else {
