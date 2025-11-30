@@ -1,4 +1,4 @@
-export type WhileSqlParams = [any];
+export type WhileSqlParams = [boolean];
 
 export interface IWhileSqlResult {
 	id: number;

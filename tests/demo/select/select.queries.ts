@@ -84,7 +84,7 @@ export interface ISelectSql6Query {
 	result: ISelectSql6Result;
 }
 
-export type SelectSql9Params = [any];
+export type SelectSql9Params = [boolean];
 
 export interface ISelectSql9Result {
 	flavor_text: string | null;
