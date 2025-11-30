@@ -220,76 +220,72 @@ impl Config {
         panic!("")
       });
 
-    // Check if a custom DB_URL is provided
     let db_url = &CLI_ARGS
       .db_url
       .clone()
       .or_else(|| dotenv.db_url.clone())
       .or_else(|| default_config.map(|x| x.db_url.clone()).flatten());
 
-    // If DB_URL is provided, we don't require individual connection parameters
-    let db_host = if db_url.is_some() {
+    let db_host_chain = || {
       CLI_ARGS
         .db_host
         .clone()
         .or_else(|| dotenv.db_host.clone())
         .or_else(|| default_config.map(|x| x.db_host.clone()))
-        .unwrap_or_default()
-    } else {
-      CLI_ARGS
-        .db_host
-        .clone()
-        .or_else(|| dotenv.db_host.clone())
-        .or_else(|| default_config.map(|x| x.db_host.clone()))
-        .expect(
-          r"
-             Failed to fetch DB host.
-             Please provide it at least through a CLI arg or an environment variable or through
-             file based configuration, or provide a custom DB_URL
-             ",
-        )
     };
 
-    let db_port = if db_url.is_some() {
+    let db_host = match (db_url.is_some(), db_host_chain()) {
+      (true, Some(v)) => v,
+      (true, None) => String::new(),
+      (false, Some(v)) => v,
+      (false, None) => panic!(
+        r"
+       Failed to fetch DB host.
+       Please provide it at least through a CLI arg or an environment variable or through
+       file based configuration, or provide a custom DB_URL
+       "
+      ),
+    };
+
+    let db_port_chain = || {
       CLI_ARGS
         .db_port
         .or(dotenv.db_port)
         .or_else(|| default_config.map(|x| x.db_port))
-        .unwrap_or_default()
-    } else {
-      CLI_ARGS
-        .db_port
-        .or(dotenv.db_port)
-        .or_else(|| default_config.map(|x| x.db_port))
-        .expect(
-          r"
-             Failed to fetch DB port.
-             Please provide it at least through a CLI arg or an environment variable or through
-             file based configuration, or provide a custom DB_URL
-             ",
-        )
     };
 
-    let db_user = if db_url.is_some() {
+    let db_port = match (db_url.is_some(), db_port_chain()) {
+      (true, Some(v)) => v,
+      (true, None) => 0,
+      (false, Some(v)) => v,
+      (false, None) => panic!(
+        r"
+       Failed to fetch DB port.
+       Please provide it at least through a CLI arg or an environment variable or through
+       file based configuration, or provide a custom DB_URL
+       "
+      ),
+    };
+
+    let db_user_chain = || {
       CLI_ARGS
         .db_user
         .clone()
         .or_else(|| dotenv.db_user.clone())
         .or_else(|| default_config.map(|x| x.db_user.clone()))
-        .unwrap_or_default()
-    } else {
-      CLI_ARGS
-        .db_user
-        .clone()
-        .or_else(|| dotenv.db_user.clone())
-        .or_else(|| default_config.map(|x| x.db_user.clone()))
-        .expect(
-          r"
-             Failed to fetch DB user.
-             Please provide it at least through a CLI arg or an environment variable or through
-             file based configuration, or provide a custom DB_URL
-             ",
-        )
+    };
+
+    let db_user = match (db_url.is_some(), db_user_chain()) {
+      (true, Some(v)) => v,
+      (true, None) => String::new(),
+      (false, Some(v)) => v,
+      (false, None) => panic!(
+        r"
+       Failed to fetch DB user.
+       Please provide it at least through a CLI arg or an environment variable or through
+       file based configuration, or provide a custom DB_URL
+       "
+      ),
     };
 
     let db_pass = &CLI_ARGS
