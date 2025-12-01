@@ -132,7 +132,11 @@ pub async fn get_sql_query_param(
   } else if single_table_name.is_some() {
     table_name = single_table_name.map(|x| x.to_string());
   } else {
-    panic!("failed to find an appropriate table name while processing WHERE statement")
+    error!(
+      "Failed to infer table name while processing WHERE clause. Expression: {}",
+      left
+    );
+    return None;
   }
 
   let column_name = translate_column_name_expr(left);
@@ -148,13 +152,30 @@ pub async fn get_sql_query_param(
         .lock()
         .await
         .fetch_table(&table_names, db_conn)
-        .await
-        .unwrap_or_else(|| panic!("Failed to fetch columns for table {table_name}"));
+        .await;
+
+      if columns.is_none() {
+        error!(
+          "Table '{}' not found in database schema. Check that the table exists and is accessible.",
+          table_name
+        );
+        return None;
+      }
+
+      let columns = columns.unwrap();
 
       // get column and return TsFieldType
-      let column = columns
-        .get(column_name.as_str())
-        .unwrap_or_else(|| panic!("Failed to find the column from the table schema of {table_name}"));
+      let column = columns.get(column_name.as_str());
+      if column.is_none() {
+        let available_columns = columns.keys().map(|k| k.as_str()).collect::<Vec<_>>().join(", ");
+        error!(
+          "Column '{}' not found in table '{}'. Available columns: {}",
+          column_name, table_name, available_columns
+        );
+        return None;
+      }
+
+      let column = column.unwrap();
       Some((column.field_type.to_owned(), column.is_nullable, Some(expr_placeholder)))
     }
     _ => None,
@@ -731,16 +752,35 @@ pub async fn translate_assignment(
   let value = get_expr_placeholder(&assignment.value);
 
   if value.is_some() {
-    let table_details = &DB_SCHEMA
+    let table_details = DB_SCHEMA
       .lock()
       .await
       .fetch_table(&vec![table_name], db_conn)
       .await
-      .unwrap();
-    let column_name = translate_column_name_assignment(assignment).unwrap();
-    let field = table_details
-      .get(&column_name)
-      .unwrap_or_else(|| panic!("Failed to find the column detail for {column_name}"));
+      .ok_or_else(|| TsGeneratorError::TableNotFoundInSchema {
+        table: table_name.to_string(),
+      })?;
+
+    let column_name = translate_column_name_assignment(assignment).ok_or_else(|| {
+      TsGeneratorError::InsertStatementProcessingFailed {
+        reason: "Failed to extract column name from assignment".to_string(),
+        query: format!("UPDATE {} SET {} = ...", table_name, assignment),
+      }
+    })?;
+
+    let field = table_details.get(&column_name).ok_or_else(|| {
+      let available_columns = table_details
+        .keys()
+        .map(|k| k.as_str())
+        .collect::<Vec<_>>()
+        .join(", ");
+      TsGeneratorError::ColumnNotFoundInTable {
+        column: column_name.clone(),
+        table: table_name.to_string(),
+        available_columns,
+      }
+    })?;
+
     let _ = ts_query.insert_param(&field.field_type, &field.is_nullable, &value);
   }
   Ok(())

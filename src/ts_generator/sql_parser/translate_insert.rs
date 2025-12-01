@@ -41,24 +41,28 @@ pub async fn translate_insert(
           if placeholder.is_some() {
             let match_col = &columns
               .get(column)
-              .unwrap_or_else(|| {
-                panic!(
-                  r#"
-Failed to process values of insert statement as column names are not provided or incorrectly specified
-
-Try specifying column names
-```
-INSERT INTO table_name (column1, column2, column3, ...)
-VALUES (value1, value2, value3, ...);
-```
-              "#
-                )
-              })
+              .ok_or_else(|| {
+                TsGeneratorError::InsertStatementProcessingFailed {
+                  reason: format!(
+                    "Column at position {} is not provided in the column list. Expected {} columns but found {} values.",
+                    column, columns.len(), values.len()
+                  ),
+                  query: format!(
+                    "INSERT INTO {} VALUES (...). Try specifying column names explicitly: INSERT INTO {} (column1, column2, ...) VALUES (...)",
+                    table_name, table_name
+                  ),
+                }
+              })?
               .value;
 
-            let field = table_details
-              .get(match_col.as_str())
-              .unwrap_or_else(|| panic!("Column {match_col} is not found while processing insert params"));
+            let field = table_details.get(match_col.as_str()).ok_or_else(|| {
+              let available_columns = table_details.keys().map(|k| k.as_str()).collect::<Vec<_>>().join(", ");
+              TsGeneratorError::ColumnNotFoundInTable {
+                column: match_col.clone(),
+                table: table_name.to_string(),
+                available_columns,
+              }
+            })?;
 
             if value.to_string() == "?" {
               // If the placeholder is `'?'`, we can process it using insert_value_params and generate nested params type

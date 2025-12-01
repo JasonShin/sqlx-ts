@@ -34,6 +34,20 @@ pub enum TsGeneratorError {
   UnknownErrorWhileProcessingTableWithJoins(String),
   #[error("[E015] Table expressions are not supported in INSERT statements - query: `{0}`")]
   TableExpressionInInsertStatement(String),
+  #[error("[E016] Column '{column}' not found in table '{table}'. Available columns: {available_columns}")]
+  ColumnNotFoundInTable {
+    column: String,
+    table: String,
+    available_columns: String,
+  },
+  #[error("[E017] Failed to process INSERT statement: {reason}. Query: `{query}`")]
+  InsertStatementProcessingFailed { reason: String, query: String },
+  #[error("[E018] Table '{table}' not found in database schema. Check that the table exists and is accessible.")]
+  TableNotFoundInSchema { table: String },
+  #[error("[E019] Failed to infer table name while processing WHERE clause. Query: `{query}`")]
+  TableNameInferenceFailedInWhere { query: String },
+  #[error("[E020] Invalid column reference '{column}' for table '{table}'. Ensure the column exists in the table schema.")]
+  InvalidColumnReference { column: String, table: String },
   #[error("Unknown error: `{0}`")]
   Unknown(String),
 }
