@@ -32,6 +32,8 @@ pub enum TsGeneratorError {
   TableFactorWhileProcessingTableWithJoins(String),
   #[error("[E014] Failed to find a table name from a FROM statement: statement: `{0}`")]
   UnknownErrorWhileProcessingTableWithJoins(String),
+  #[error("[E015] Table expressions are not supported in INSERT statements - query: `{0}`")]
+  TableExpressionInInsertStatement(String),
   #[error("Unknown error: `{0}`")]
   Unknown(String),
 }

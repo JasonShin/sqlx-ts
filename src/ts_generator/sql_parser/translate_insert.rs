@@ -104,7 +104,11 @@ VALUES (value1, value2, value3, ...);
     SetExpr::Update(update) => translate_stmt(ts_query, &update, None, conn).await?,
     SetExpr::Delete(delete) => translate_stmt(ts_query, &delete, None, conn).await?,
     SetExpr::Merge(merge) => translate_stmt(ts_query, &merge, None, conn).await?,
-    SetExpr::Table(_) => unimplemented!("Table expressions are not supported in INSERT statements"),
+    SetExpr::Table(table) => {
+      return Err(TsGeneratorError::TableExpressionInInsertStatement(
+        format!("INSERT INTO {} ... FROM {}", table_name, table),
+      ));
+    }
   }
 
   Ok(())
