@@ -148,11 +148,7 @@ pub async fn get_sql_query_param(
   match (column_name, expr_placeholder, table_name) {
     (Some(column_name), Some(expr_placeholder), Some(table_name)) => {
       let table_names = vec![table_name.as_str()];
-      let columns = DB_SCHEMA
-        .lock()
-        .await
-        .fetch_table(&table_names, db_conn)
-        .await;
+      let columns = DB_SCHEMA.lock().await.fetch_table(&table_names, db_conn).await;
 
       if columns.is_none() {
         error!(

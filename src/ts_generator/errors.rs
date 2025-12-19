@@ -46,7 +46,9 @@ pub enum TsGeneratorError {
   TableNotFoundInSchema { table: String },
   #[error("[E019] Failed to infer table name while processing WHERE clause. Query: `{query}`")]
   TableNameInferenceFailedInWhere { query: String },
-  #[error("[E020] Invalid column reference '{column}' for table '{table}'. Ensure the column exists in the table schema.")]
+  #[error(
+    "[E020] Invalid column reference '{column}' for table '{table}'. Ensure the column exists in the table schema."
+  )]
   InvalidColumnReference { column: String, table: String },
   #[error("Unknown error: `{0}`")]
   Unknown(String),

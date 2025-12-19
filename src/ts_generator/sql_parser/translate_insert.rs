@@ -56,7 +56,11 @@ pub async fn translate_insert(
               .value;
 
             let field = table_details.get(match_col.as_str()).ok_or_else(|| {
-              let available_columns = table_details.keys().map(|k| k.as_str()).collect::<Vec<_>>().join(", ");
+              let available_columns = table_details
+                .keys()
+                .map(|k| k.as_str())
+                .collect::<Vec<_>>()
+                .join(", ");
               TsGeneratorError::ColumnNotFoundInTable {
                 column: match_col.clone(),
                 table: table_name.to_string(),
@@ -109,9 +113,10 @@ pub async fn translate_insert(
     SetExpr::Delete(delete) => translate_stmt(ts_query, &delete, None, conn).await?,
     SetExpr::Merge(merge) => translate_stmt(ts_query, &merge, None, conn).await?,
     SetExpr::Table(table) => {
-      return Err(TsGeneratorError::TableExpressionInInsertStatement(
-        format!("INSERT INTO {} ... FROM {}", table_name, table),
-      ));
+      return Err(TsGeneratorError::TableExpressionInInsertStatement(format!(
+        "INSERT INTO {} ... FROM {}",
+        table_name, table
+      )));
     }
   }
 
