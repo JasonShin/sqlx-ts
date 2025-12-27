@@ -276,7 +276,6 @@ mod cli_test {
     Ok(())
   }
 
-
   #[test]
   fn postgres_db_url_from_config_test() -> Result<(), Box<dyn std::error::Error>> {
     // SETUP
