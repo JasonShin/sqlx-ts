@@ -380,14 +380,14 @@ mod cli_test {
     // SETUP
     let demo_dir = tempdir()?;
     let demo_path = demo_dir.path();
-    let sql_file_path = demo_path.join("test-query.sql");
+    let ts_file_path = demo_path.join("test-query.ts");
 
     let config_dir = tempdir()?;
     let config_file_path = config_dir.path().join(".sqlxrc.json");
 
-    // Create a demo SQL file (MySQL uses ? placeholders)
-    let mut sql_file = fs::File::create(&sql_file_path)?;
-    writeln!(sql_file, "INSERT INTO items (name) VALUES (?)")?;
+    // Create a demo TS file with SQL query (MySQL uses ? placeholders)
+    let mut ts_file = fs::File::create(&ts_file_path)?;
+    writeln!(ts_file, "const someQuery = sql`INSERT INTO items (name) VALUES (?);`")?;
 
     // Create config file
     let mut config_file = fs::File::create(&config_file_path)?;
