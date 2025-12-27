@@ -755,7 +755,7 @@ pub async fn translate_assignment(
       })?;
 
     let column_name = translate_column_name_assignment(assignment).ok_or_else(|| {
-      TsGeneratorError::InsertStatementProcessingFailed {
+      TsGeneratorError::UpdateStatementProcessingFailed {
         reason: "Failed to extract column name from assignment".to_string(),
         query: format!("UPDATE {} SET {} = ...", table_name, assignment),
       }
