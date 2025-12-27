@@ -9,6 +9,7 @@ pub struct Dotenv {
   pub db_port: Option<u16>,
   pub db_pass: Option<String>,
   pub db_name: Option<String>,
+  pub db_url: Option<String>,
   pub pg_search_path: Option<String>,
 }
 
@@ -44,6 +45,7 @@ impl Dotenv {
       db_port: Self::get_var("DB_PORT").map(|val| val.parse::<u16>().expect("DB_PORT is not a valid integer")),
       db_pass: Self::get_var("DB_PASS"),
       db_name: Self::get_var("DB_NAME"),
+      db_url: Self::get_var("DB_URL"),
       pg_search_path: Self::get_var("PG_SEARCH_PATH"),
     }
   }

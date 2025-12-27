@@ -52,6 +52,10 @@ pub struct Cli {
   #[clap(long)]
   pub db_name: Option<String>,
 
+  /// Custom database connection URL (overrides individual connection parameters if provided)
+  #[clap(long)]
+  pub db_url: Option<String>,
+
   /// PostgreSQL schema search path (default is "$user,public") https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH
   #[clap(long)]
   pub pg_search_path: Option<String>,
