@@ -363,7 +363,7 @@ impl TsQuery {
           .and_then(|m| m.as_str().parse::<i32>().ok())
           .ok_or(TsGeneratorError::UnknownPlaceholder(format!(
             "{placeholder} is not a valid placeholder parameter in PostgreSQL"
-          )))? as i32
+          )))?
       } else {
         // No pattern matches the provided placeholder, simply exit out of the function
         return Ok(());

@@ -123,8 +123,12 @@ pub async fn translate_select(
     let mut table_name: Option<&str> = None;
     if full_table_with_joins.is_some() && !full_table_with_joins.as_ref().unwrap().is_empty() {
       table_name_owned = Some(
-        translate_table_with_joins(full_table_with_joins, &select_item)
-          .unwrap_or_else(|_| panic!("{}", format!("Default FROM table is not found from the query {select}"))),
+        translate_table_with_joins(full_table_with_joins, &select_item).map_err(|_| {
+          TsGeneratorError::UnknownErrorWhileProcessingTableWithJoins(format!(
+            "Default FROM table is not found from the query: {}. Ensure your query has a valid FROM clause.",
+            select
+          ))
+        })?,
       );
       table_name = table_name_owned.as_deref();
     }
