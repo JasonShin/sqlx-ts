@@ -124,7 +124,7 @@ pub async fn get_sql_query_param(
   single_table_name: &Option<&str>,
   table_with_joins: &Option<Vec<TableWithJoins>>,
   db_conn: &DBConn,
-) -> Option<(TsFieldType, bool, Option<String>)> {
+) -> Result<Option<(TsFieldType, bool, Option<String>)>, TsGeneratorError> {
   let table_name: Option<String>;
 
   if table_with_joins.is_some() {
@@ -132,11 +132,12 @@ pub async fn get_sql_query_param(
   } else if single_table_name.is_some() {
     table_name = single_table_name.map(|x| x.to_string());
   } else {
-    error!(
-      "Failed to infer table name while processing WHERE clause. Expression: {}",
-      left
-    );
-    return None;
+    return Err(TsGeneratorError::TableNameInferenceFailedInWhere {
+      query: format!(
+        "Failed to infer table name while processing WHERE clause. Expression: {}. Ensure your query has a FROM clause or table reference.",
+        left
+      ),
+    });
   }
 
   let column_name = translate_column_name_expr(left);
@@ -148,33 +149,32 @@ pub async fn get_sql_query_param(
   match (column_name, expr_placeholder, table_name) {
     (Some(column_name), Some(expr_placeholder), Some(table_name)) => {
       let table_names = vec![table_name.as_str()];
-      let columns = DB_SCHEMA.lock().await.fetch_table(&table_names, db_conn).await;
-
-      if columns.is_none() {
-        error!(
-          "Table '{}' not found in database schema. Check that the table exists and is accessible.",
-          table_name
-        );
-        return None;
-      }
-
-      let columns = columns.unwrap();
+      let columns = DB_SCHEMA
+        .lock()
+        .await
+        .fetch_table(&table_names, db_conn)
+        .await
+        .ok_or_else(|| TsGeneratorError::TableNotFoundInSchema {
+          table: table_name.clone(),
+        })?;
 
       // get column and return TsFieldType
-      let column = columns.get(column_name.as_str());
-      if column.is_none() {
+      let column = columns.get(column_name.as_str()).ok_or_else(|| {
         let available_columns = columns.keys().map(|k| k.as_str()).collect::<Vec<_>>().join(", ");
-        error!(
-          "Column '{}' not found in table '{}'. Available columns: {}",
-          column_name, table_name, available_columns
-        );
-        return None;
-      }
+        TsGeneratorError::ColumnNotFoundInTable {
+          column: column_name.clone(),
+          table: table_name.clone(),
+          available_columns,
+        }
+      })?;
 
-      let column = column.unwrap();
-      Some((column.field_type.to_owned(), column.is_nullable, Some(expr_placeholder)))
+      Ok(Some((
+        column.field_type.to_owned(),
+        column.is_nullable,
+        Some(expr_placeholder),
+      )))
     }
-    _ => None,
+    _ => Ok(None),
   }
 }
 
@@ -315,7 +315,7 @@ pub async fn translate_expr(
     // OPERATORS START //
     /////////////////////
     Expr::BinaryOp { left, op: _, right } => {
-      let param = get_sql_query_param(left, right, single_table_name, table_with_joins, db_conn).await;
+      let param = get_sql_query_param(left, right, single_table_name, table_with_joins, db_conn).await?;
       if let Some((value, is_nullable, index)) = param {
         let _ = ts_query.insert_param(&value, &is_nullable, &index);
         Ok(())
@@ -358,7 +358,7 @@ pub async fn translate_expr(
           table_with_joins,
           db_conn,
         )
-        .await;
+        .await?;
 
         if let Some((value, is_nullable, index)) = result {
           let array_item = TsFieldType::Array(Box::new(value));
@@ -386,8 +386,8 @@ pub async fn translate_expr(
       low,
       high,
     } => {
-      let low = get_sql_query_param(expr, low, single_table_name, table_with_joins, db_conn).await;
-      let high = get_sql_query_param(expr, high, single_table_name, table_with_joins, db_conn).await;
+      let low = get_sql_query_param(expr, low, single_table_name, table_with_joins, db_conn).await?;
+      let high = get_sql_query_param(expr, high, single_table_name, table_with_joins, db_conn).await?;
       if let Some((value, is_nullable, placeholder)) = low {
         ts_query.insert_param(&value, &is_nullable, &placeholder)?;
       }
