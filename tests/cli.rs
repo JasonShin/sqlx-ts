@@ -276,6 +276,51 @@ mod cli_test {
     Ok(())
   }
 
+
+  #[test]
+  fn postgres_db_url_from_config_test() -> Result<(), Box<dyn std::error::Error>> {
+    // SETUP
+    let demo_dir = tempdir()?;
+    let demo_path = demo_dir.path();
+    let sql_file_path = demo_path.join("test-query.sql");
+    let sample_query_path = demo_path.join("test-query.queries.ts");
+
+    let config_dir = tempdir()?;
+    let config_file_path = config_dir.path().join(".sqlxrc.json");
+
+    // Create a demo SQL file
+    let mut sql_file = fs::File::create(&sql_file_path)?;
+    writeln!(sql_file, "INSERT INTO items (name) VALUES ($1)")?;
+
+    // Create config file with wrong DB settings (should be overridden by --db-url)
+    let mut config_file = fs::File::create(&config_file_path)?;
+    let config_content = r#"
+{
+    "generate_types": {
+        "enabled": false
+    },
+    "connections": {
+        "default": {
+            "DB_TYPE": "postgres",
+            "DB_URL": "postgres://postgres:postgres@localhost:54321/postgres"
+        }
+    }
+}"#;
+    writeln!(config_file, "{config_content}")?;
+
+    // EXECUTE
+    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    cmd
+      .arg(demo_path.to_str().unwrap())
+      .arg("--ext=ts")
+      .arg(format!("--config={}", config_file_path.to_str().unwrap()));
+
+    cmd.assert().success();
+
+    // Cleanup happens automatically when demo_dir and config_dir go out of scope
+    Ok(())
+  }
+
   #[test]
   fn mysql_db_url_test() -> Result<(), Box<dyn std::error::Error>> {
     // SETUP
@@ -319,6 +364,50 @@ mod cli_test {
       .arg(format!("--config={}", config_file_path.to_str().unwrap()))
       .arg("--db-type=mysql")
       .arg("--db-url=mysql://root@localhost:33306/sqlx-ts");
+
+    cmd.assert().success();
+
+    // Cleanup happens automatically when demo_dir and config_dir go out of scope
+    Ok(())
+  }
+
+  #[test]
+  fn mysql_db_url_from_config_test() -> Result<(), Box<dyn std::error::Error>> {
+    // SETUP
+    let demo_dir = tempdir()?;
+    let demo_path = demo_dir.path();
+    let sql_file_path = demo_path.join("test-query.sql");
+    let sample_query_path = demo_path.join("test-query.queries.ts");
+
+    let config_dir = tempdir()?;
+    let config_file_path = config_dir.path().join(".sqlxrc.json");
+
+    // Create a demo SQL file (MySQL uses ? placeholders)
+    let mut sql_file = fs::File::create(&sql_file_path)?;
+    writeln!(sql_file, "INSERT INTO items (name) VALUES (?)")?;
+
+    // Create config file with wrong DB settings (should be overridden by --db-url)
+    let mut config_file = fs::File::create(&config_file_path)?;
+    let config_content = r#"
+{
+    "generate_types": {
+        "enabled": false
+    },
+    "connections": {
+        "default": {
+            "DB_TYPE": "postgres",
+            "DB_URL": "mysql://root@localhost:33306/sqlx-ts"
+        }
+    }
+}"#;
+    writeln!(config_file, "{config_content}")?;
+
+    // EXECUTE
+    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    cmd
+      .arg(demo_path.to_str().unwrap())
+      .arg("--ext=ts")
+      .arg(format!("--config={}", config_file_path.to_str().unwrap()));
 
     cmd.assert().success();
 
