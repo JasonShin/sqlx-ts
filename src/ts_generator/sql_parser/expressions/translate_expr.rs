@@ -133,10 +133,7 @@ pub async fn get_sql_query_param(
     table_name = single_table_name.map(|x| x.to_string());
   } else {
     return Err(TsGeneratorError::TableNameInferenceFailedInWhere {
-      query: format!(
-        "Failed to infer table name while processing WHERE clause. Expression: {}. Ensure your query has a FROM clause or table reference.",
-        left
-      ),
+      query: left.to_string(),
     });
   }
 
