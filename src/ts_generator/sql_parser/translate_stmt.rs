@@ -58,11 +58,7 @@ pub async fn translate_stmt(
         if let Some(using_tables) = &delete.using {
           all_tables.extend(using_tables.clone());
         }
-        let table_with_joins = if all_tables.is_empty() {
-          None
-        } else {
-          Some(all_tables)
-        };
+        let table_with_joins = if all_tables.is_empty() { None } else { Some(all_tables) };
 
         translate_delete(ts_query, &selection, table_name_str, &table_with_joins, db_conn).await?;
 
