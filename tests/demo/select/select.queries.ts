@@ -240,7 +240,7 @@ export interface ISelectSql20Query {
 export type SelectSql21Params = [];
 
 export interface ISelectSql21Result {
-	desc: string;
+	description: string;
 }
 
 export interface ISelectSql21Query {
@@ -306,7 +306,7 @@ export interface ISelectSql26Query {
 export type SelectSql27Params = [];
 
 export interface ISelectSql27Result {
-	rank: string;
+	guildRank: string;
 }
 
 export interface ISelectSql27Query {
