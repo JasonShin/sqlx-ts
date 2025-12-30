@@ -97,8 +97,7 @@ const query3 = sql`SELECT * FROM items WHERE id = $1;`;
   /// Pattern: 5 successes -> 1 failure -> 5 successes
   /// Expected: exit code 1
   #[test]
-  fn should_fail_with_many_successes_and_one_failure_in_middle(
-  ) -> Result<(), Box<dyn std::error::Error>> {
+  fn should_fail_with_many_successes_and_one_failure_in_middle() -> Result<(), Box<dyn std::error::Error>> {
     // SETUP
     let dir = tempdir()?;
     let parent_path = dir.path();
@@ -153,8 +152,7 @@ const query10 = sql`SELECT id, name FROM characters LIMIT 10;`;
   /// Test with multiple files: one success file and one failure file
   /// Expected: exit code 1
   #[test]
-  fn should_fail_with_multiple_files_one_success_one_failure(
-  ) -> Result<(), Box<dyn std::error::Error>> {
+  fn should_fail_with_multiple_files_one_success_one_failure() -> Result<(), Box<dyn std::error::Error>> {
     // SETUP
     let dir = tempdir()?;
     let parent_path = dir.path();
@@ -213,8 +211,7 @@ const failQuery2 = sql`SELECT * FROM another_missing_table;`;
   /// Test with multiple files: all files contain successful queries
   /// Expected: exit code 0
   #[test]
-  fn should_succeed_with_multiple_files_all_successful() -> Result<(), Box<dyn std::error::Error>>
-  {
+  fn should_succeed_with_multiple_files_all_successful() -> Result<(), Box<dyn std::error::Error>> {
     // SETUP
     let dir = tempdir()?;
     let parent_path = dir.path();
@@ -274,4 +271,3 @@ const query6 = sql`SELECT rarity FROM items WHERE id = $1;`;
     Ok(())
   }
 }
-
