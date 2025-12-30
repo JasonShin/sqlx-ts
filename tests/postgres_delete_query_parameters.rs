@@ -56,12 +56,40 @@ r#"
 export type SomeDeleteQueryParams = [number, number];
 
 export interface ISomeDeleteQueryResult {
-    
+
 }
 
 export interface ISomeDeleteQueryQuery {
     params: SomeDeleteQueryParams;
     result: ISomeDeleteQueryResult;
+}
+"#);
+
+  #[rustfmt::skip]
+run_test!(should_handle_delete_using_with_aliases, TestConfig::new("postgres", true, None, None),
+
+//// TS query ////
+r#"
+const deleteInventory = sql`
+DELETE FROM inventory inv
+USING characters c
+WHERE inv.character_id = c.id
+  AND c.id = $1
+  AND inv.id = $2;
+`
+"#,
+
+//// Generated TS interfaces ////
+r#"
+export type DeleteInventoryParams = [number, number];
+
+export interface IDeleteInventoryResult {
+
+}
+
+export interface IDeleteInventoryQuery {
+    params: DeleteInventoryParams;
+    result: IDeleteInventoryResult;
 }
 "#);
 }

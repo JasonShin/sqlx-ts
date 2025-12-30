@@ -52,7 +52,19 @@ pub async fn translate_stmt(
         let table_name = get_default_table(from);
         let table_name_str = table_name.as_str();
         let selection = delete.selection.to_owned().unwrap();
-        translate_delete(ts_query, &selection, table_name_str, db_conn).await?;
+
+        // Build a combined Vec<TableWithJoins> that includes both FROM and USING tables
+        let mut all_tables = from.to_vec();
+        if let Some(using_tables) = &delete.using {
+          all_tables.extend(using_tables.clone());
+        }
+        let table_with_joins = if all_tables.is_empty() {
+          None
+        } else {
+          Some(all_tables)
+        };
+
+        translate_delete(ts_query, &selection, table_name_str, &table_with_joins, db_conn).await?;
 
         // Handle RETURNING clause if present
         if delete.returning.is_some() {
