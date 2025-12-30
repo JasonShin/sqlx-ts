@@ -92,4 +92,116 @@ export interface IDeleteInventoryQuery {
     result: IDeleteInventoryResult;
 }
 "#);
+
+  #[rustfmt::skip]
+run_test!(should_handle_delete_using_with_multiple_tables, TestConfig::new("postgres", true, None, None),
+
+//// TS query ////
+r#"
+const deleteItems = sql`
+DELETE FROM items i
+USING inventory inv, characters c
+WHERE i.inventory_id = inv.id
+  AND inv.character_id = c.id
+  AND c.id = $1
+  AND i.rarity = $2;
+`
+"#,
+
+//// Generated TS interfaces ////
+r#"
+export type DeleteItemsParams = [number, string | null];
+
+export interface IDeleteItemsResult {
+
+}
+
+export interface IDeleteItemsQuery {
+    params: DeleteItemsParams;
+    result: IDeleteItemsResult;
+}
+"#);
+
+  #[rustfmt::skip]
+run_test!(should_handle_delete_using_with_comparison, TestConfig::new("postgres", true, None, None),
+
+//// TS query ////
+r#"
+const deleteOldInventory = sql`
+DELETE FROM inventory inv
+USING characters c
+WHERE inv.character_id = c.id
+  AND c.id = $1
+  AND inv.quantity > $2;
+`
+"#,
+
+//// Generated TS interfaces ////
+r#"
+export type DeleteOldInventoryParams = [number, number | null];
+
+export interface IDeleteOldInventoryResult {
+
+}
+
+export interface IDeleteOldInventoryQuery {
+    params: DeleteOldInventoryParams;
+    result: IDeleteOldInventoryResult;
+}
+"#);
+
+  #[rustfmt::skip]
+run_test!(should_handle_delete_using_with_in_clause, TestConfig::new("postgres", true, None, None),
+
+//// TS query ////
+r#"
+const deleteByRarity = sql`
+DELETE FROM inventory inv
+USING items i
+WHERE i.inventory_id = inv.id
+  AND i.rarity = $1;
+`
+"#,
+
+//// Generated TS interfaces ////
+r#"
+export type DeleteByRarityParams = [string | null];
+
+export interface IDeleteByRarityResult {
+
+}
+
+export interface IDeleteByRarityQuery {
+    params: DeleteByRarityParams;
+    result: IDeleteByRarityResult;
+}
+"#);
+
+  #[rustfmt::skip]
+run_test!(should_handle_delete_using_with_or_conditions, TestConfig::new("postgres", true, None, None),
+
+//// TS query ////
+r#"
+const deleteConditional = sql`
+DELETE FROM inventory inv
+USING characters c
+WHERE inv.character_id = c.id
+  AND (c.id = $1 OR c.name = $2)
+  AND inv.quantity = 0;
+`
+"#,
+
+//// Generated TS interfaces ////
+r#"
+export type DeleteConditionalParams = [number, string];
+
+export interface IDeleteConditionalResult {
+
+}
+
+export interface IDeleteConditionalQuery {
+    params: DeleteConditionalParams;
+    result: IDeleteConditionalResult;
+}
+"#);
 }
