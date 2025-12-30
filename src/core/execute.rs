@@ -26,7 +26,8 @@ pub async fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) ->
       let (explain_failed, ts_query) = &connection.prepare(sql, should_generate_types, handler).await?;
 
       // If any prepare statement fails, we should set the failed flag as true
-      failed = *explain_failed;
+      // Use OR to accumulate failures - once failed, it stays failed
+      failed = failed || *explain_failed;
 
       if *should_generate_types {
         let ts_query = &ts_query.clone().expect("Failed to generate types from query");
