@@ -138,7 +138,7 @@ pub fn translate_data_type(data_type: &DataType) -> TsFieldType {
     DataType::Datetime64(_, _) => TsFieldType::Date,
     DataType::Timestamp(_, _) => TsFieldType::String,
     DataType::TimestampNtz => TsFieldType::String,
-    DataType::Interval { .. } => TsFieldType::Any,
+    DataType::Interval { .. } => TsFieldType::Unknown,
 
     // JSON types
     DataType::JSON => TsFieldType::Object,
@@ -151,9 +151,9 @@ pub fn translate_data_type(data_type: &DataType) -> TsFieldType {
     DataType::TsQuery => TsFieldType::String,
 
     // Complex types
-    DataType::Custom(_, _) => TsFieldType::Any,
+    DataType::Custom(_, _) => TsFieldType::Unknown,
     DataType::Array(array_element_type_def) => match array_element_type_def {
-      sqlparser::ast::ArrayElemTypeDef::None => TsFieldType::Array(Box::new(TsFieldType::Any)),
+      sqlparser::ast::ArrayElemTypeDef::None => TsFieldType::Array(Box::new(TsFieldType::Unknown)),
       sqlparser::ast::ArrayElemTypeDef::AngleBracket(data_type) => {
         TsFieldType::Array(Box::new(translate_data_type(data_type)))
       }
@@ -177,8 +177,8 @@ pub fn translate_data_type(data_type: &DataType) -> TsFieldType {
     DataType::LowCardinality(inner_type) => translate_data_type(inner_type),
 
     // Special types
-    DataType::Unspecified => TsFieldType::Any,
-    DataType::Trigger => TsFieldType::Any,
+    DataType::Unspecified => TsFieldType::Unknown,
+    DataType::Trigger => TsFieldType::Unknown,
     DataType::AnyType => TsFieldType::Any,
   }
 }

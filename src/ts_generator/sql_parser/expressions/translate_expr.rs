@@ -445,13 +445,13 @@ pub async fn translate_expr(
       ts_query.insert_param(&inferred_type, &false, &Some(placeholder.to_string()))
     }
     Expr::JsonAccess { value: _, path: _ } => {
-      ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)?;
-      ts_query.insert_param(&TsFieldType::Any, &false, &None)
+      ts_query.insert_result(alias, &[TsFieldType::Unknown], is_selection, false, expr_for_logging)?;
+      ts_query.insert_param(&TsFieldType::Unknown, &false, &None)
     }
     Expr::IsNotDistinctFrom(_, placeholder) | Expr::IsDistinctFrom(_, placeholder) => {
       // IsDistinctFrom and IsNotDistinctFrom are the same and can have a placeholder
       ts_query.insert_param(&TsFieldType::String, &false, &Some(placeholder.to_string()))?;
-      ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
+      ts_query.insert_result(alias, &[TsFieldType::Unknown], is_selection, false, expr_for_logging)
     }
     Expr::SimilarTo {
       negated: _,
@@ -537,10 +537,10 @@ pub async fn translate_expr(
       ts_query.insert_result(alias, &[TsFieldType::String], is_selection, false, expr_for_logging)
     }
     Expr::Collate { expr: _, collation: _ } => {
-      ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
+      ts_query.insert_result(alias, &[TsFieldType::Unknown], is_selection, false, expr_for_logging)
     }
-    Expr::TypedString(_) => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging),
-    Expr::Map(_) => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging),
+    Expr::TypedString(_) => ts_query.insert_result(alias, &[TsFieldType::Unknown], is_selection, false, expr_for_logging),
+    Expr::Map(_) => ts_query.insert_result(alias, &[TsFieldType::Unknown], is_selection, false, expr_for_logging),
     // Note: AggregateExpressionWithFilter was removed in sqlparser 0.59.0
     // Aggregate functions with filters are now part of the Function variant
     Expr::Case {
@@ -549,7 +549,7 @@ pub async fn translate_expr(
       else_result: _,
       case_token: _,
       end_token: _,
-    } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging),
+    } => ts_query.insert_result(alias, &[TsFieldType::Unknown], is_selection, false, expr_for_logging),
     Expr::Exists { subquery, negated: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, false, expr_for_logging)?;
       translate_query(ts_query, &None, subquery, db_conn, alias, false).await
@@ -557,14 +557,14 @@ pub async fn translate_expr(
     // Note: ListAgg and ArrayAgg were removed in sqlparser 0.59.0
     // They are now represented as Function variants
     Expr::GroupingSets(_) | Expr::Cube(_) | Expr::Rollup(_) | Expr::Tuple(_) | Expr::Array(_) => {
-      ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging)
+      ts_query.insert_result(alias, &[TsFieldType::Unknown], is_selection, false, expr_for_logging)
     }
     // Note: ArrayIndex was replaced with CompoundFieldAccess in sqlparser 0.59.0
     // CompoundFieldAccess handles array indexing, map access, and composite field access
     Expr::CompoundFieldAccess {
       root: _,
       access_chain: _,
-    } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging),
+    } => ts_query.insert_result(alias, &[TsFieldType::Unknown], is_selection, false, expr_for_logging),
     Expr::Interval(_) => ts_query.insert_result(alias, &[TsFieldType::Number], is_selection, false, expr_for_logging),
     Expr::MatchAgainst {
       columns: _,
@@ -669,7 +669,7 @@ pub async fn translate_expr(
         }
 
         // Fallback to Any if we couldn't infer the type
-        return ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_for_logging);
+        return ts_query.insert_result(Some(alias), &[TsFieldType::Unknown], is_selection, false, expr_for_logging);
       }
 
       // Handle other function types
@@ -698,7 +698,7 @@ pub async fn translate_expr(
           expr_for_logging,
         )?;
       } else {
-        ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_for_logging)?;
+        ts_query.insert_result(Some(alias), &[TsFieldType::Unknown], is_selection, false, expr_for_logging)?;
       }
 
       Ok(())
@@ -731,8 +731,8 @@ pub async fn translate_expr(
       expr: _,
       array_expr: _,
       negated: _,
-    } => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging),
-    _ => ts_query.insert_result(alias, &[TsFieldType::Any], is_selection, false, expr_for_logging),
+    } => ts_query.insert_result(alias, &[TsFieldType::Unknown], is_selection, false, expr_for_logging),
+    _ => ts_query.insert_result(alias, &[TsFieldType::Unknown], is_selection, false, expr_for_logging),
   }
 }
 
