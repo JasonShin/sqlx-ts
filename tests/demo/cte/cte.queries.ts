@@ -15,7 +15,7 @@ export type RankWithCteParams = [];
 export interface IRankWithCteResult {
 	id: number;
 	name: string;
-	rk: any;
+	rk: number;
 }
 
 export interface IRankWithCteQuery {
