@@ -1,10 +1,49 @@
 // LIST OF FUNCTIONS FOUND https://www.w3schools.com/mysql/mysql_ref_functions.asp
 pub static NUMERIC_FUNCTIONS: &[&str] = &[
-  "ABS", "ACOS", "ASIN", "ATAN", "ATAN2", "AVG", "CEIL", "CEILING", "COS", "COT", "COUNT", "DEGREES", "DIV", "EXP",
-  "FLOOR", "GREATEST", "LEAST", "LN", "LOG", "LOG10", "LOG2", "MAX", "MIN", "MOD", "PI", "POW", "POWER", "RADIANS",
-  "RAND", "ROUND", "SIGN", "SIN", "SQRT", "SUM", "TAN", "TRUNCATE", "TRUNC",
+  "ABS",
+  "ACOS",
+  "ASIN",
+  "ATAN",
+  "ATAN2",
+  "AVG",
+  "CEIL",
+  "CEILING",
+  "COS",
+  "COT",
+  "COUNT",
+  "DEGREES",
+  "DIV",
+  "EXP",
+  "FLOOR",
+  "GREATEST",
+  "LEAST",
+  "LN",
+  "LOG",
+  "LOG10",
+  "LOG2",
+  "MAX",
+  "MIN",
+  "MOD",
+  "PI",
+  "POW",
+  "POWER",
+  "RADIANS",
+  "RAND",
+  "ROUND",
+  "SIGN",
+  "SIN",
+  "SQRT",
+  "SUM",
+  "TAN",
+  "TRUNCATE",
+  "TRUNC",
   // Window / ranking functions that always return a numeric value
-  "RANK", "DENSE_RANK", "ROW_NUMBER", "NTILE", "PERCENT_RANK", "CUME_DIST",
+  "RANK",
+  "DENSE_RANK",
+  "ROW_NUMBER",
+  "NTILE",
+  "PERCENT_RANK",
+  "CUME_DIST",
 ];
 
 pub static STRING_FUNCTIONS: &[&str] = &[
@@ -116,9 +155,16 @@ pub fn is_date_function(func_name: &str) -> bool {
 
 // Type-polymorphic functions that return the type of their first argument
 pub static TYPE_POLYMORPHIC_FUNCTIONS: &[&str] = &[
-  "IFNULL", "COALESCE", "NULLIF", "NVL",
+  "IFNULL",
+  "COALESCE",
+  "NULLIF",
+  "NVL",
   // Window value functions — return the same type as their first argument
-  "LAG", "LEAD", "FIRST_VALUE", "LAST_VALUE", "NTH_VALUE",
+  "LAG",
+  "LEAD",
+  "FIRST_VALUE",
+  "LAST_VALUE",
+  "NTH_VALUE",
 ];
 
 pub fn is_type_polymorphic_function(func_name: &str) -> bool {
