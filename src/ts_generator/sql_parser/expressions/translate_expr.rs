@@ -322,7 +322,15 @@ pub async fn translate_expr(
     // OPERATORS START //
     /////////////////////
     Expr::BinaryOp { left, op: _, right } => {
-      let param = get_sql_query_param(left, right, single_table_name, table_with_joins, db_conn, &ts_query.table_valued_function_columns).await?;
+      let param = get_sql_query_param(
+        left,
+        right,
+        single_table_name,
+        table_with_joins,
+        db_conn,
+        &ts_query.table_valued_function_columns,
+      )
+      .await?;
       if let Some((value, is_nullable, index)) = param {
         let _ = ts_query.insert_param(&value, &is_nullable, &index);
         Ok(())
@@ -394,8 +402,24 @@ pub async fn translate_expr(
       low,
       high,
     } => {
-      let low = get_sql_query_param(expr, low, single_table_name, table_with_joins, db_conn, &ts_query.table_valued_function_columns).await?;
-      let high = get_sql_query_param(expr, high, single_table_name, table_with_joins, db_conn, &ts_query.table_valued_function_columns).await?;
+      let low = get_sql_query_param(
+        expr,
+        low,
+        single_table_name,
+        table_with_joins,
+        db_conn,
+        &ts_query.table_valued_function_columns,
+      )
+      .await?;
+      let high = get_sql_query_param(
+        expr,
+        high,
+        single_table_name,
+        table_with_joins,
+        db_conn,
+        &ts_query.table_valued_function_columns,
+      )
+      .await?;
       if let Some((value, is_nullable, placeholder)) = low {
         ts_query.insert_param(&value, &is_nullable, &placeholder)?;
       }

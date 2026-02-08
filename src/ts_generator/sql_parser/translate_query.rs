@@ -229,7 +229,10 @@ pub async fn translate_query(
         .into_iter()
         .map(|(col_name, types)| {
           // Take the first non-null type; fall back to Any if only Null is present
-          let ts_type = types.into_iter().find(|t| *t != TsFieldType::Null).unwrap_or(TsFieldType::Any);
+          let ts_type = types
+            .into_iter()
+            .find(|t| *t != TsFieldType::Null)
+            .unwrap_or(TsFieldType::Any);
           (col_name, ts_type)
         })
         .collect();
