@@ -4,7 +4,7 @@ export interface IBasicRowNumberResult {
 	id: number;
 	name: string;
 	rarity: string | null;
-	rowNum: any;
+	rowNum: number;
 }
 
 export interface IBasicRowNumberQuery {
@@ -18,7 +18,7 @@ export interface IRowNumberWithPartitionResult {
 	id: number;
 	name: string;
 	rarity: string | null;
-	rowNum: any;
+	rowNum: number;
 }
 
 export interface IRowNumberWithPartitionQuery {
@@ -32,7 +32,7 @@ export interface IRowNumberWithWhereResult {
 	id: number;
 	name: string;
 	rarity: string | null;
-	rowNum: any;
+	rowNum: number;
 }
 
 export interface IRowNumberWithWhereQuery {
@@ -46,11 +46,10 @@ export interface IRowNumberWithParamsResult {
 	id: number;
 	name: string;
 	rarity: string | null;
-	rowNum: any;
+	rowNum: number;
 }
 
 export interface IRowNumberWithParamsQuery {
 	params: RowNumberWithParamsParams;
 	result: IRowNumberWithParamsResult;
 }
-

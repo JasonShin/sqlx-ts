@@ -3,7 +3,7 @@ export type BasicLagParams = [];
 export interface IBasicLagResult {
 	id: number;
 	name: string;
-	previousName: any;
+	previousName: string;
 }
 
 export interface IBasicLagQuery {
@@ -16,7 +16,7 @@ export type BasicLeadParams = [];
 export interface IBasicLeadResult {
 	id: number;
 	name: string;
-	nextName: any;
+	nextName: string;
 }
 
 export interface IBasicLeadQuery {
@@ -29,7 +29,7 @@ export type LagWithDefaultParams = [];
 export interface ILagWithDefaultResult {
 	id: number;
 	name: string;
-	previousName: any;
+	previousName: string;
 }
 
 export interface ILagWithDefaultQuery {
@@ -42,8 +42,8 @@ export type LagAndLeadParams = [];
 export interface ILagAndLeadResult {
 	id: number;
 	name: string;
-	nextName: any;
-	previousName: any;
+	nextName: string;
+	previousName: string;
 }
 
 export interface ILagAndLeadQuery {
@@ -56,7 +56,7 @@ export type LagWithPartitionParams = [];
 export interface ILagWithPartitionResult {
 	id: number;
 	name: string;
-	previousInRarity: any;
+	previousInRarity: string;
 	rarity: string | null;
 }
 
@@ -68,9 +68,9 @@ export interface ILagWithPartitionQuery {
 export type FirstLastValueParams = [];
 
 export interface IFirstLastValueResult {
-	firstInRarity: any;
+	firstInRarity: string;
 	id: number;
-	lastInRarity: any;
+	lastInRarity: string;
 	name: string;
 	rarity: string | null;
 }
