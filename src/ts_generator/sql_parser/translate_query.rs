@@ -1,3 +1,4 @@
+use async_recursion::async_recursion;
 use sqlparser::ast::{FunctionArg, FunctionArgExpr, Query, Select, SelectItem, SetExpr, TableFactor, TableWithJoins};
 use std::collections::HashMap;
 
@@ -195,6 +196,7 @@ pub async fn translate_select(
 }
 
 /// Translates a query and workout ts_query's results and params
+#[async_recursion]
 pub async fn translate_query(
   ts_query: &mut TsQuery,
   // this parameter is used to stack table_with_joins while recursing through subqueries
@@ -205,6 +207,37 @@ pub async fn translate_query(
   alias: Option<&str>,
   is_selection: bool,
 ) -> Result<(), TsGeneratorError> {
+  // Process CTEs (WITH clause) before the main query body.
+  // Each CTE is processed to extract its output columns, which are then registered
+  // as virtual table columns so the main query can reference them.
+  if let Some(with) = &query.with {
+    for cte in &with.cte_tables {
+      let cte_name = DisplayIndent(&cte.alias.name).to_string();
+      let mut cte_ts_query = TsQuery::new(cte_name.clone());
+      translate_query(&mut cte_ts_query, &None, &cte.query, db_conn, None, true).await?;
+
+      // Merge parameters from the CTE body into the outer query's params.
+      // Parameters inside CTE bodies ($1, $2, ?) belong to the overall query's parameter list.
+      for (idx, types) in &cte_ts_query.params {
+        ts_query.params.insert(*idx, types.clone());
+      }
+
+      // Extract the CTE's output columns and register them as virtual table columns
+      // so the outer query can look them up just like table-valued function columns
+      let cte_columns: HashMap<String, TsFieldType> = cte_ts_query
+        .result
+        .into_iter()
+        .map(|(col_name, types)| {
+          // Take the first non-null type; fall back to Any if only Null is present
+          let ts_type = types.into_iter().find(|t| *t != TsFieldType::Null).unwrap_or(TsFieldType::Any);
+          (col_name, ts_type)
+        })
+        .collect();
+
+      ts_query.table_valued_function_columns.insert(cte_name, cte_columns);
+    }
+  }
+
   let body = *query.body.clone();
   match body {
     SetExpr::Select(select) => {

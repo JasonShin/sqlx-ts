@@ -124,6 +124,7 @@ pub async fn get_sql_query_param(
   single_table_name: &Option<&str>,
   table_with_joins: &Option<Vec<TableWithJoins>>,
   db_conn: &DBConn,
+  cte_columns: &std::collections::HashMap<String, std::collections::HashMap<String, TsFieldType>>,
 ) -> Result<Option<(TsFieldType, bool, Option<String>)>, TsGeneratorError> {
   let table_name: Option<String>;
 
@@ -145,6 +146,15 @@ pub async fn get_sql_query_param(
 
   match (column_name, expr_placeholder, table_name) {
     (Some(column_name), Some(expr_placeholder), Some(table_name)) => {
+      // First check if the table is a CTE or table-valued function
+      if let Some(cte_table_columns) = cte_columns.get(table_name.as_str()) {
+        if let Some(ts_type) = cte_table_columns.get(column_name.as_str()) {
+          return Ok(Some((ts_type.clone(), false, Some(expr_placeholder))));
+        }
+        // Column not found in CTE columns — return None to allow fallback handling
+        return Ok(None);
+      }
+
       let table_names = vec![table_name.as_str()];
       let columns = DB_SCHEMA
         .lock()
@@ -312,7 +322,7 @@ pub async fn translate_expr(
     // OPERATORS START //
     /////////////////////
     Expr::BinaryOp { left, op: _, right } => {
-      let param = get_sql_query_param(left, right, single_table_name, table_with_joins, db_conn).await?;
+      let param = get_sql_query_param(left, right, single_table_name, table_with_joins, db_conn, &ts_query.table_valued_function_columns).await?;
       if let Some((value, is_nullable, index)) = param {
         let _ = ts_query.insert_param(&value, &is_nullable, &index);
         Ok(())
@@ -354,6 +364,7 @@ pub async fn translate_expr(
           single_table_name,
           table_with_joins,
           db_conn,
+          &ts_query.table_valued_function_columns,
         )
         .await?;
 
@@ -383,8 +394,8 @@ pub async fn translate_expr(
       low,
       high,
     } => {
-      let low = get_sql_query_param(expr, low, single_table_name, table_with_joins, db_conn).await?;
-      let high = get_sql_query_param(expr, high, single_table_name, table_with_joins, db_conn).await?;
+      let low = get_sql_query_param(expr, low, single_table_name, table_with_joins, db_conn, &ts_query.table_valued_function_columns).await?;
+      let high = get_sql_query_param(expr, high, single_table_name, table_with_joins, db_conn, &ts_query.table_valued_function_columns).await?;
       if let Some((value, is_nullable, placeholder)) = low {
         ts_query.insert_param(&value, &is_nullable, &placeholder)?;
       }
