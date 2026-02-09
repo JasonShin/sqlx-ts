@@ -1,7 +1,7 @@
 export type ArrayAggBasicParams = [];
 
 export interface IArrayAggBasicResult {
-	names: any;
+	names: unknown;
 	rarity: string | null;
 }
 
@@ -13,7 +13,7 @@ export interface IArrayAggBasicQuery {
 export type ArrayAggWithOrderByParams = [];
 
 export interface IArrayAggWithOrderByResult {
-	namesOrdered: any;
+	namesOrdered: unknown;
 	rarity: string | null;
 }
 
@@ -22,17 +22,17 @@ export interface IArrayAggWithOrderByQuery {
 	result: IArrayAggWithOrderByResult;
 }
 
-export type ArrayLiteralAnyParams = [];
+export type ArrayLiteralUnknownParams = [];
 
-export interface IArrayLiteralAnyResult {
+export interface IArrayLiteralUnknownResult {
 	id: number;
 	name: string;
 	rarity: string | null;
 }
 
-export interface IArrayLiteralAnyQuery {
-	params: ArrayLiteralAnyParams;
-	result: IArrayLiteralAnyResult;
+export interface IArrayLiteralUnknownQuery {
+	params: ArrayLiteralUnknownParams;
+	result: IArrayLiteralUnknownResult;
 }
 
 export type ArrayWithParamsParams = [Array<string>];

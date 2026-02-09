@@ -45,8 +45,8 @@ export type StddevAndVarianceParams = [];
 
 export interface IStddevAndVarianceResult {
 	rarity: string | null;
-	stddevId: any;
-	varianceId: any;
+	stddevId: unknown;
+	varianceId: unknown;
 }
 
 export interface IStddevAndVarianceQuery {

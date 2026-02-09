@@ -20,4 +20,4 @@ const nestedAsConst = {
 // as const with type assertion
 const asConstWithTypeAssertion = {
   query: sql`SELECT id, name FROM items`
-} as const satisfies Record<string, any>
+} as const satisfies Record<string, unknown>
