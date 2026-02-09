@@ -2,7 +2,7 @@ export type JsonbBuildObjectBasicParams = [];
 
 export interface IJsonbBuildObjectBasicResult {
 	id: number;
-	itemJson: any;
+	itemJson: unknown;
 }
 
 export interface IJsonbBuildObjectBasicQuery {
@@ -13,7 +13,7 @@ export interface IJsonbBuildObjectBasicQuery {
 export type JsonbAggregationParams = [];
 
 export interface IJsonbAggregationResult {
-	items: any;
+	items: unknown;
 	rarity: string | null;
 }
 

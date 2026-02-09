@@ -30,7 +30,7 @@ module TestModule {
     const moduleSql = sql`SELECT id FROM items`
 }
 
-let name: any = 'test'
-let companyName = <string>name
+let name: unknown = 'test'
+let compunknownName = <string>name
 let partnerName = name as string
 let someName = 'test' as const

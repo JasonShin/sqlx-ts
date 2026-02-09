@@ -69,11 +69,11 @@ export interface IAllStringsResult {
 	extractMonth1: Date;
 	extractSecond1: Date;
 	extractYear1: Date;
-	jsonArray1: any;
-	jsonBuildObject1: any;
+	jsonArray1: unknown;
+	jsonBuildObject1: unknown;
 	jsonExtractPathText1: string;
-	jsonbArray1: any;
-	jsonbBuildObject1: any;
+	jsonbArray1: unknown;
+	jsonbBuildObject1: unknown;
 	jsonbExtractPathText1: string;
 	left1: string;
 	length1: string;
@@ -84,7 +84,7 @@ export interface IAllStringsResult {
 	now1: string;
 	octetLength1: string;
 	position1: number;
-	random1: any;
+	random1: unknown;
 	repeat1: string;
 	replace1: string;
 	reverse1: string;
@@ -96,8 +96,8 @@ export interface IAllStringsResult {
 	substring1: string;
 	toChar1: string;
 	toDate1: string;
-	toJson1: any;
-	toJsonb1: any;
+	toJson1: unknown;
+	toJsonb1: unknown;
 	toTimestamp1: string;
 	trim1: string;
 	upper1: string;
