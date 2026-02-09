@@ -21,11 +21,10 @@ impl fmt::Display for FileExtension {
 #[clap(author, version, about)]
 pub struct Cli {
   /// Path to the Typescript or Javascript project
-  #[clap(parse(from_os_str))]
   pub path: std::path::PathBuf,
 
   /// file extensions
-  #[clap(value_enum, long, multiple_values = true)]
+  #[clap(value_enum, long)]
   pub ext: Vec<FileExtension>,
 
   /// Type of primary database to connect
@@ -52,16 +51,20 @@ pub struct Cli {
   #[clap(long)]
   pub db_name: Option<String>,
 
+  /// Custom database connection URL (overrides individual connection parameters if provided)
+  #[clap(long)]
+  pub db_url: Option<String>,
+
   /// PostgreSQL schema search path (default is "$user,public") https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH
   #[clap(long)]
   pub pg_search_path: Option<String>,
 
   /// Folder paths to ignore
-  #[clap(long, multiple_values = true)]
+  #[clap(long)]
   pub ignore: Vec<String>,
 
   /// Path to the file based configuration
-  #[clap(long, parse(from_os_str))]
+  #[clap(long)]
   pub config: Option<std::path::PathBuf>,
 
   /// generate types of raw SQLs using default configuration
@@ -69,7 +72,7 @@ pub struct Cli {
   pub generate_types: bool,
 
   /// generates types in a target file path (example: src/app/queries.ts)
-  #[clap(long, parse(from_os_str))]
+  #[clap(long)]
   pub generate_path: Option<std::path::PathBuf>,
 
   /// log level to be used for the CLI debug > info > warning > error

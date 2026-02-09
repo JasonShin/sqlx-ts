@@ -20,7 +20,35 @@ based config and specify connection details for those databases. [Please check h
 
 ### 2. CLI options
 
-Run the following command for more details
+You can provide database connection details via CLI options. This includes individual connection parameters or a complete database URL.
+
+#### Using individual connection parameters
+
+```bash
+$ sqlx-ts <path> \
+  --db-type postgres \
+  --db-host 127.0.0.1 \
+  --db-port 5432 \
+  --db-user postgres \
+  --db-pass postgres \
+  --db-name mydb
+```
+
+#### Using database URL
+
+Alternatively, you can use `--db-url` to specify the complete connection string:
+
+```bash
+# PostgreSQL
+$ sqlx-ts <path> --db-type postgres --db-url postgres://user:pass@localhost:5432/mydb
+
+# MySQL
+$ sqlx-ts <path> --db-type mysql --db-url mysql://user:pass@localhost:3306/mydb
+```
+
+**Note:** When `--db-url` is provided, it takes precedence over individual connection parameters (`--db-host`, `--db-port`, `--db-user`, `--db-pass`, `--db-name`).
+
+Run the following command for more details:
 
 ```bash
 $ sqlx-ts --help

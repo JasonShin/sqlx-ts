@@ -2,18 +2,19 @@ use crate::core::connection::DBConn;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::expressions::translate_expr::translate_expr;
 use crate::ts_generator::types::ts_query::TsQuery;
-use sqlparser::ast::Expr;
+use sqlparser::ast::{Expr, TableWithJoins};
 
 pub async fn translate_delete(
   ts_query: &mut TsQuery,
   where_conditions: &Expr, // WHERE conditions of the delete statement
   table_name: &str,
+  table_with_joins: &Option<Vec<TableWithJoins>>, // Includes FROM and USING tables
   db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
   translate_expr(
     where_conditions,
     &Some(table_name),
-    &None,
+    table_with_joins,
     None,
     ts_query,
     db_conn,

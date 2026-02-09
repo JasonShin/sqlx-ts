@@ -1,8 +1,8 @@
-use clap::{ArgEnum, ValueEnum};
+use clap::ValueEnum;
 use convert_case::{Case, Casing};
 use serde::{Deserialize, Serialize};
 
-#[derive(ArgEnum, Debug, Clone)]
+#[derive(ValueEnum, Debug, Clone)]
 pub enum FileExtension {
   Ts,
   Js,

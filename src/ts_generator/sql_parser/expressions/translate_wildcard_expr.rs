@@ -64,14 +64,25 @@ pub async fn translate_wildcard_expr(
   ts_query: &mut TsQuery,
   db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
-  let table_with_joins = get_all_table_names_from_select(select)?;
+  let table_names = get_all_table_names_from_select(select)?;
 
-  if table_with_joins.len() > 1 {
+  // Check if the table is a CTE or table-valued function registered in table_valued_function_columns.
+  // CTEs are processed before the main query body and their columns are stored there.
+  for table_name in &table_names {
+    if let Some(tvf_columns) = ts_query.table_valued_function_columns.get(table_name).cloned() {
+      for (col_name, ts_type) in tvf_columns {
+        ts_query.result.insert(col_name, vec![ts_type]);
+      }
+      return Ok(());
+    }
+  }
+
+  if table_names.len() > 1 {
     warning!("Impossible to calculate appropriate field names of a wildcard query with multiple tables. Please use explicit field names instead. Query: {}", select.to_string());
   }
 
-  let table_with_joins = table_with_joins.iter().map(|s| s.as_ref()).collect();
-  let all_fields = DB_SCHEMA.lock().await.fetch_table(&table_with_joins, db_conn).await;
+  let table_refs = table_names.iter().map(|s| s.as_ref()).collect();
+  let all_fields = DB_SCHEMA.lock().await.fetch_table(&table_refs, db_conn).await;
 
   if let Some(all_fields) = all_fields {
     for key in all_fields.keys() {

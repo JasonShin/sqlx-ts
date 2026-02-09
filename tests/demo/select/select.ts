@@ -113,7 +113,7 @@ SELECT IFNULL(gold, 0.0) AS gold_amount FROM characters;
 // SELECT IFNULL with TEXT type
 const selectSql21 = sql`
 -- @db: db_mysql
-SELECT IFNULL(description, 'No description') AS desc FROM factions;
+SELECT IFNULL(description, 'No description') AS description FROM factions;
 `
 
 // SELECT COALESCE with multiple arguments
@@ -149,7 +149,7 @@ SELECT NULLIF(quantity, 0) AS inv_quantity FROM inventory;
 // SELECT NVL with VARCHAR (Oracle-style, but should work)
 const selectSql27 = sql`
 -- @db: db_mysql
-SELECT NVL(guild_rank, 'Member') AS rank FROM guild_members;
+SELECT IFNULL(guild_rank, 'Member') AS guild_rank FROM guild_members;
 `
 
 // SELECT IFNULL with compound identifier

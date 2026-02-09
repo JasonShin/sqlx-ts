@@ -3,7 +3,7 @@ export type BasicRankParams = [];
 export interface IBasicRankResult {
 	id: number;
 	name: string;
-	rank: any;
+	rank: number;
 	rarity: string | null;
 }
 
@@ -15,7 +15,7 @@ export interface IBasicRankQuery {
 export type DenseRankParams = [];
 
 export interface IDenseRankResult {
-	denseRank: any;
+	denseRank: number;
 	id: number;
 	name: string;
 	rarity: string | null;
@@ -31,7 +31,7 @@ export type RankWithPartitionParams = [];
 export interface IRankWithPartitionResult {
 	id: number;
 	name: string;
-	rank: any;
+	rank: number;
 	rarity: string | null;
 }
 
@@ -43,12 +43,12 @@ export interface IRankWithPartitionQuery {
 export type MultipleRankingParams = [];
 
 export interface IMultipleRankingResult {
-	denseRank: any;
+	denseRank: number;
 	id: number;
 	name: string;
-	rank: any;
+	rank: number;
 	rarity: string | null;
-	rowNum: any;
+	rowNum: number;
 }
 
 export interface IMultipleRankingQuery {
@@ -61,7 +61,7 @@ export type NtileQuartilesParams = [];
 export interface INtileQuartilesResult {
 	id: number;
 	name: string;
-	quartile: any;
+	quartile: number;
 }
 
 export interface INtileQuartilesQuery {

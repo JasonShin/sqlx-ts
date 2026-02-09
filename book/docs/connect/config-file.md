@@ -46,6 +46,26 @@ Example `.sqlxrc.json`
 }
 ```
 
+Alternatively, you can use `DB_URL` to specify the connection string directly:
+
+```json
+{
+  "generate_types": {
+    "enabled": true
+  },
+  "connections": {
+    "default": {
+      "DB_TYPE": "postgres",
+      "DB_URL": "postgres://postgres:postgres@127.0.0.1:5432/mydb"
+    },
+    "mysql_db": {
+      "DB_TYPE": "mysql",
+      "DB_URL": "mysql://root:password@127.0.0.1:3306/mydatabase"
+    }
+  }
+}
+```
+
 ## Configuration options
 
 ### connections (required)
@@ -71,6 +91,7 @@ const postgresSQL = sql`
 ```
 
 Supported fields of each connection include
+- `DB_URL`: Database connection URL (e.g. `postgres://user:pass@host:port/dbname` or `mysql://user:pass@host:port/dbname`). If provided, this overrides individual connection parameters (`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`)
 - `DB_TYPE`: type of database connection (mysql | postgres)
 - `DB_USER`: database user name
 - `DB_PASS`: database password

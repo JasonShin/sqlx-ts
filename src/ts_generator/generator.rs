@@ -77,8 +77,8 @@ pub fn write_single_ts_file(sqls_to_write: String) -> Result<()> {
   ))?;
 
   let parent_output_path: Option<&Path> = output.parent();
-  if parent_output_path.is_some() {
-    fs::create_dir_all(parent_output_path.unwrap())?;
+  if let Some(parent_output_path) = parent_output_path {
+    fs::create_dir_all(parent_output_path)?;
   }
 
   let mut file_to_write = OpenOptions::new()
