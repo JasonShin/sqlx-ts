@@ -112,7 +112,7 @@ impl TsFieldType {
   ) -> Self {
     match mysql_field_type.as_str() {
       "bigint" | "decimal" | "double" | "float" | "int" | "mediumint" | "smallint" | "year" => Self::Number,
-      "binary" | "bit" | "blob" | "char" | "text" | "varbinary" | "varchar" => Self::String,
+      "binary" | "bit" | "blob" | "char" | "text" | "varbinary" | "varchar" | "set" => Self::String,
       "tinyint" => Self::Boolean,
       "date" | "datetime" | "timestamp" => Self::Date,
       "enum" => {
