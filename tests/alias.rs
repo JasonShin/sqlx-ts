@@ -1,10 +1,8 @@
 #[cfg(test)]
 mod alias {
-  use assert_cmd::prelude::*;
-
+  use assert_cmd::cargo::cargo_bin_cmd;
   use std::fs;
   use std::io::Write;
-  use std::process::Command;
   use tempfile::tempdir;
 
   #[test]
@@ -24,7 +22,7 @@ JOIN inventory ON items.inventory_id = inventory.id
     writeln!(temp_file, "{ts_content}")?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(parent_path.to_str().unwrap())
       .arg("--ext=ts")
@@ -60,7 +58,7 @@ JOIN inventory ON items.inventory_id = inventory.id
     writeln!(temp_file, "{ts_content}").unwrap();
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(parent_path.to_str().unwrap())
       .arg("--ext=ts")
@@ -95,7 +93,7 @@ JOIN inventory ON items.inventory_id = inventory.id
     writeln!(temp_file, "{ts_content}")?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(parent_path.to_str().unwrap())
       .arg("--ext=ts")

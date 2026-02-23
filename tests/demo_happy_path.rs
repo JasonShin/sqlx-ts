@@ -1,11 +1,10 @@
 #[cfg(test)]
 mod demo_happy_path_tests {
-  use assert_cmd::prelude::*;
+  use assert_cmd::cargo::cargo_bin_cmd;
   use pretty_assertions::assert_eq;
   use std::env::current_dir;
   use std::fs;
   use std::io::Write;
-  use std::process::Command;
   use walkdir::WalkDir;
 
   #[test]
@@ -15,7 +14,7 @@ mod demo_happy_path_tests {
     let demo_path = root_path.join("tests/demo");
 
     // EXECUTE - Generate types for .ts files
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=ts")
@@ -32,7 +31,7 @@ mod demo_happy_path_tests {
     let file_extensions_path = demo_path.join("file_extensions");
     if file_extensions_path.exists() {
       for ext in &["js", "mts", "cts", "mjs", "cjs"] {
-        let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+        let mut cmd = cargo_bin_cmd!("sqlx-ts");
         cmd
           .arg(file_extensions_path.to_str().unwrap())
           .arg(format!("--ext={}", ext))
@@ -48,7 +47,7 @@ mod demo_happy_path_tests {
     // Also generate types for SQL files
     let sql_files_path = demo_path.join("sql_files");
     if sql_files_path.exists() {
-      let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+      let mut cmd = cargo_bin_cmd!("sqlx-ts");
       cmd
         .arg(sql_files_path.to_str().unwrap())
         .arg("--ext=sql")
@@ -98,7 +97,7 @@ mod demo_happy_path_tests {
     let demo_path = root_path.join("tests/demo/file_extensions");
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=js")
@@ -122,7 +121,7 @@ mod demo_happy_path_tests {
     let demo_path = root_path.join("tests/demo/file_extensions");
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=mts")
@@ -146,7 +145,7 @@ mod demo_happy_path_tests {
     let demo_path = root_path.join("tests/demo/file_extensions");
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=cts")
@@ -170,7 +169,7 @@ mod demo_happy_path_tests {
     let demo_path = root_path.join("tests/demo/file_extensions");
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=mjs")
@@ -194,7 +193,7 @@ mod demo_happy_path_tests {
     let demo_path = root_path.join("tests/demo/file_extensions");
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=cjs")
@@ -218,7 +217,7 @@ mod demo_happy_path_tests {
     let demo_path = root_path.join("tests/demo/sql_files");
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=sql")
@@ -242,7 +241,7 @@ mod demo_happy_path_tests {
     let demo_path = root_path.join("tests/demo/file_extensions");
 
     // EXECUTE - Test scanning multiple extensions at once
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=js")

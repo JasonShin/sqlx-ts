@@ -1,4 +1,4 @@
-use assert_cmd::Command;
+use assert_cmd::cargo::cargo_bin_cmd;
 use std::fs;
 use tempfile::tempdir;
 
@@ -21,7 +21,7 @@ SELECT id, name, level, experience FROM characters WHERE level > 1;
     fs::write(&sql_file, sql_content)?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts")?;
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(dir_path.to_str().unwrap())
       .arg("--ext=sql")
@@ -63,7 +63,7 @@ INSERT INTO characters (name, race_id, class_id, level) VALUES ($1, $2, $3, $4) 
     fs::write(&sql_file, sql_content)?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts")?;
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(dir_path.to_str().unwrap())
       .arg("--ext=sql")
@@ -106,7 +106,7 @@ WHERE f.name = $1;
     fs::write(&sql_file, sql_content)?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts")?;
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(dir_path.to_str().unwrap())
       .arg("--ext=sql")
@@ -179,7 +179,7 @@ ORDER BY c.level DESC;
     fs::write(&sql_file, sql_content)?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts")?;
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(dir_path.to_str().unwrap())
       .arg("--ext=sql")
@@ -221,7 +221,7 @@ INSERT INTO characters (name, race_id, class_id, level) VALUES (?, ?, ?, ?);
     fs::write(&sql_file, sql_content)?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts")?;
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(dir_path.to_str().unwrap())
       .arg("--ext=sql")
@@ -281,7 +281,7 @@ WHERE level > 1
     fs::write(&sql_file, sql_content)?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts")?;
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(dir_path.to_str().unwrap())
       .arg("--ext=sql")
@@ -318,7 +318,7 @@ WHERE level > 1
     fs::write(&inventory_sql, "SELECT * FROM inventory WHERE character_id = $1;")?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts")?;
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(dir_path.to_str().unwrap())
       .arg("--ext=sql")
@@ -354,7 +354,7 @@ SELECT id, name, FROM characters WHERE; -- Missing table and incomplete WHERE cl
     fs::write(&sql_file, sql_content)?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts")?;
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(dir_path.to_str().unwrap())
       .arg("--ext=sql")
@@ -421,7 +421,7 @@ SELECT * FROM characters WHERE level > $1;
     fs::write(&config_file, config_content)?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts")?;
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(dir_path.to_str().unwrap())
       .arg("--ext=sql")
@@ -456,7 +456,7 @@ SELECT id, name, level, experience FROM characters WHERE id = $1;
     fs::write(&sql_file, sql_content)?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts")?;
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(dir_path.to_str().unwrap())
       .arg("--ext=sql")
@@ -493,7 +493,7 @@ SELECT id, name, level, experience FROM characters WHERE id = $1;
     fs::write(&sql_file, "")?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts")?;
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(dir_path.to_str().unwrap())
       .arg("--ext=sql")
@@ -545,7 +545,7 @@ WHERE i.rarity = $1;
     fs::write(&sql_file, sql_content)?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts")?;
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(dir_path.to_str().unwrap())
       .arg("--ext=sql")

@@ -1,10 +1,8 @@
 #[cfg(test)]
 mod postgres_batch_insert {
-  use assert_cmd::prelude::*;
   use std::env;
   use std::fs;
   use std::io::Write;
-  use std::process::Command;
   use tempfile::tempdir;
   use test_utils::test_utils::TSString;
   use test_utils::{run_test, sandbox::TestConfig};

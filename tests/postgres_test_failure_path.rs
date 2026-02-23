@@ -1,10 +1,9 @@
 #[cfg(test)]
 mod js_postgres_failure_path_tests {
-  use assert_cmd::prelude::*;
+  use assert_cmd::cargo::cargo_bin_cmd;
 
   use std::fs;
   use std::io::Write;
-  use std::process::Command;
   use tempfile::tempdir;
 
   macro_rules! failure_with_all_cli_args {
@@ -107,7 +106,7 @@ i++;
         writeln!(temp_file, "{}", index_content)?;
 
         // EXECUTE
-        let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+        let mut cmd = cargo_bin_cmd!("sqlx-ts");
 
         cmd.arg(parent_path.to_str().unwrap())
         .arg(format!("--ext={ts_type}"))
@@ -205,7 +204,7 @@ VALUES ('steak', 'normal', 'asd', 1);
     writeln!(temp_file, "{}", index_content)?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
 
     cmd.arg(parent_path.to_str().unwrap())
         .arg(format!("--ext={ts_type}"))
