@@ -70,7 +70,7 @@ pub async fn translate_insert(
 
             if value.to_string() == "?" {
               // If the placeholder is `'?'`, we can process it using insert_value_params and generate nested params type
-              ts_query.insert_value_params(&field.field_type, &(row, column), &placeholder);
+              ts_query.insert_value_params(&field.field_type, &(row, column), field.is_nullable, &placeholder);
             } else {
               ts_query.insert_param(&field.field_type, &field.is_nullable, &placeholder)?;
             }
