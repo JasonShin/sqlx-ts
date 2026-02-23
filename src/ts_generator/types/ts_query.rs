@@ -208,9 +208,9 @@ pub struct TsQuery {
   pub annotated_params: BTreeMap<usize, TsFieldType>,
 
   // We use BTreeMap here as it's a collection that's already sorted
-  pub insert_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
+  pub insert_params: BTreeMap<usize, BTreeMap<usize, Vec<TsFieldType>>>,
   // Holds any annotated @param and perform replacement when generated TS types
-  pub annotated_insert_params: BTreeMap<usize, BTreeMap<usize, TsFieldType>>,
+  pub annotated_insert_params: BTreeMap<usize, BTreeMap<usize, Vec<TsFieldType>>>,
 
   pub result: HashMap<String, Vec<TsFieldType>>,
   // Holds any annotated @result and perform replacement when generating TS types
@@ -319,7 +319,13 @@ impl TsQuery {
   ///
   /// e.g.
   /// [ [number, string], [number, string] ]
-  pub fn insert_value_params(&mut self, value: &TsFieldType, point: &(usize, usize), _placeholder: &Option<String>) {
+  pub fn insert_value_params(
+    &mut self,
+    value: &TsFieldType,
+    point: &(usize, usize),
+    is_nullable: bool,
+    _placeholder: &Option<String>,
+  ) {
     let (row, column) = point;
     let annotated_insert_param = self.annotated_insert_params.get(row);
 
@@ -334,7 +340,11 @@ impl TsQuery {
         row_params = self.insert_params.get_mut(row);
       }
 
-      row_params.unwrap().insert(*column, value.to_owned());
+      let mut types = vec![value.to_owned()];
+      if is_nullable {
+        types.push(TsFieldType::Null);
+      }
+      row_params.unwrap().insert(*column, types);
     }
   }
 
@@ -397,7 +407,10 @@ impl TsQuery {
           // Process each row and produce Number, String, Boolean
           row
             .values()
-            .map(|col| col.to_string())
+            .map(|col| {
+              let type_strings = col.iter().map(|t| t.to_string()).collect::<Vec<_>>();
+              type_strings.join(" | ").to_string()
+            })
             .collect::<Vec<String>>()
             .join(", ")
         })

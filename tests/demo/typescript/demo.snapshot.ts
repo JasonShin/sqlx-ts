@@ -73,7 +73,7 @@ export interface IGetItemsWithRowsQuery {
 	result: IGetItemsWithRowsResult;
 }
 
-export type TestInsertParams = [[number, string, string]];
+export type TestInsertParams = [[number, string, string | null]];
 
 export interface ITestInsertResult {
 	

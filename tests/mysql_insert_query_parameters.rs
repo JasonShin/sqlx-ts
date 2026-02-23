@@ -54,7 +54,7 @@ VALUES
 
 //// Generated TS interfaces ////
 r#"
-export type SomeInputQueryParams = [[number, string], [string, string]];
+export type SomeInputQueryParams = [[number, string], [string | null, string | null]];
 
 export interface ISomeInputQueryResult {
     
