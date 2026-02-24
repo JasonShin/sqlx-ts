@@ -232,7 +232,6 @@ mod cli_test {
     let demo_dir = tempdir()?;
     let demo_path = demo_dir.path();
     let sql_file_path = demo_path.join("test-query.sql");
-    let sample_query_path = demo_path.join("test-query.queries.ts");
 
     let config_dir = tempdir()?;
     let config_file_path = config_dir.path().join(".sqlxrc.json");
@@ -282,7 +281,6 @@ mod cli_test {
     let demo_dir = tempdir()?;
     let demo_path = demo_dir.path();
     let sql_file_path = demo_path.join("test-query.sql");
-    let sample_query_path = demo_path.join("test-query.queries.ts");
 
     let config_dir = tempdir()?;
     let config_file_path = config_dir.path().join(".sqlxrc.json");
@@ -326,7 +324,6 @@ mod cli_test {
     let demo_dir = tempdir()?;
     let demo_path = demo_dir.path();
     let sql_file_path = demo_path.join("test-query.sql");
-    let sample_query_path = demo_path.join("test-query.queries.ts");
 
     let config_dir = tempdir()?;
     let config_file_path = config_dir.path().join(".sqlxrc.json");
@@ -376,7 +373,6 @@ mod cli_test {
     let demo_dir = tempdir()?;
     let demo_path = demo_dir.path();
     let sql_file_path = demo_path.join("test-query.sql");
-    let sample_query_path = demo_path.join("test-query.queries.ts");
 
     let config_dir = tempdir()?;
     let config_file_path = config_dir.path().join(".sqlxrc.json");
