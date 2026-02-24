@@ -21,9 +21,6 @@ jobs:
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
         bun-version: [ '1.0.0', 'latest' ]
-    defaults:
-      run:
-        working-directory: ./node
 
     steps:
       - uses: actions/checkout@v3
@@ -55,9 +52,11 @@ jobs:
         run: bun install
 
       - name: Test CLI wrapper with Bun (--version)
+        working-directory: ./node
         run: bun run cli.js --version
 
       - name: Test CLI wrapper with Bun (--help)
+        working-directory: ./node
         run: bun run cli.js --help
 
       - name: Add happy.ts test file
@@ -78,6 +77,7 @@ jobs:
         run: bun run cli.js --config=../.sqlxrc.sample.json ../tests/staging
 
       - name: Verify CLI wrapper is JavaScript (not binary)
+        working-directory: ./node
         shell: bash
         run: |
           if file cli.js | grep -q "script\|text\|ASCII"; then
@@ -98,9 +98,6 @@ jobs:
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
         deno-version: [ 'v1.x', 'v2.x' ]
-    defaults:
-      run:
-        working-directory: ./node
 
     steps:
       - uses: actions/checkout@v3
@@ -160,15 +157,19 @@ jobs:
         run: deno run --allow-read --allow-run cli.js --config=../.sqlxrc.sample.json ../tests/staging
 
       - name: Install dependencies and download binary
+        working-directory: ./node
         run: npm install
 
       - name: Test CLI wrapper with Deno (--version)
+        working-directory: ./node
         run: deno run --allow-read --allow-run cli.js --version
 
       - name: Test CLI wrapper with Deno (--help)
+        working-directory: ./node
         run: deno run --allow-read --allow-run cli.js --help
 
       - name: Verify CLI wrapper is JavaScript (not binary)
+        working-directory: ./node
         shell: bash
         run: |
           if file cli.js | grep -q "script\|text\|ASCII"; then
