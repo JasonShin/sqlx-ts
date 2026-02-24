@@ -49,6 +49,7 @@ jobs:
         run: docker ps -a
 
       - name: Install dependencies (npm install via postinstall)
+        working-directory: ./node
         run: bun install
 
       - name: Test CLI wrapper with Bun (--version)
@@ -131,12 +132,15 @@ jobs:
         run: docker ps -a
 
       - name: Install dependencies (npm install via postinstall)
+        working-directory: ./node
         run: bun install
 
       - name: Test CLI wrapper with Bun (--version)
+        working-directory: ./node
         run: bun run cli.js --version
 
       - name: Test CLI wrapper with Bun (--help)
+        working-directory: ./node
         run: bun run cli.js --help
 
       - name: Add happy.ts test file
