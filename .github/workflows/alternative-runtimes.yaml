@@ -36,6 +36,21 @@ jobs:
       - name: Verify Bun installation
         run: bun --version
 
+      - name: Build docker-compose services for integration tests
+        run: docker compose -f docker-compose.yml up -d
+        env:
+          MYSQL_VERSION: 8
+          PG_VERSION: 16
+          MYSQL_MIGRATION_FILE: 'mysql_migration.sql'
+
+      - name: Wait for databases to be ready
+        uses: GuillaumeFalourd/wait-sleep-action@v1
+        with:
+          time: '10'
+
+      - name: Check docker-compose services
+        run: docker ps -a
+
       - name: Install dependencies (npm install via postinstall)
         run: bun install
 
@@ -44,6 +59,23 @@ jobs:
 
       - name: Test CLI wrapper with Bun (--help)
         run: bun run cli.js --help
+
+      - name: Add happy.ts test file
+        shell: bash
+        run: |
+          cat << 'EOF' > tests/staging/happy.ts
+          import { sql } from 'sqlx-ts'
+
+          const selectSql4 = sql`
+          SELECT items.*
+          FROM items;
+          `
+          EOF
+
+      - name: Run happy test
+        working-directory: ./node
+        shell: bash
+        run: bun run cli.js --config=../.sqlxrc.sample.json ../tests/staging
 
       - name: Verify CLI wrapper is JavaScript (not binary)
         shell: bash
@@ -85,6 +117,47 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
+
+      - name: Build docker-compose services for integration tests
+        run: docker compose -f docker-compose.yml up -d
+        env:
+          MYSQL_VERSION: 8
+          PG_VERSION: 16
+          MYSQL_MIGRATION_FILE: 'mysql_migration.sql'
+
+      - name: Wait for databases to be ready
+        uses: GuillaumeFalourd/wait-sleep-action@v1
+        with:
+          time: '10'
+
+      - name: Check docker-compose services
+        run: docker ps -a
+
+      - name: Install dependencies (npm install via postinstall)
+        run: bun install
+
+      - name: Test CLI wrapper with Bun (--version)
+        run: bun run cli.js --version
+
+      - name: Test CLI wrapper with Bun (--help)
+        run: bun run cli.js --help
+
+      - name: Add happy.ts test file
+        shell: bash
+        run: |
+          cat << 'EOF' > tests/staging/happy.ts
+          import { sql } from 'sqlx-ts'
+
+          const selectSql4 = sql`
+          SELECT items.*
+          FROM items;
+          `
+          EOF
+
+      - name: Run happy test
+        working-directory: ./node
+        shell: bash
+        run: deno run --allow-read --allow-run cli.js --config=../.sqlxrc.sample.json ../tests/staging
 
       - name: Install dependencies and download binary
         run: npm install
