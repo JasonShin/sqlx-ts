@@ -1,0 +1,107 @@
+name: Alternative Runtimes (Bun & Deno)
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  bun-test:
+    name: Bun ${{ matrix.bun-version }} on ${{ matrix.os }}
+    # Skip this job for version bump commits (binary won't exist yet)
+    if: "!contains(github.event.head_commit.message, 'Release')"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        bun-version: [ '1.0.0', 'latest' ]
+    defaults:
+      run:
+        working-directory: ./node
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Bun ${{ matrix.bun-version }}
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ matrix.bun-version }}
+
+      - name: Verify Bun installation
+        run: bun --version
+
+      - name: Install dependencies (npm install via postinstall)
+        run: bun install
+
+      - name: Test CLI wrapper with Bun (--version)
+        run: bun run cli.js --version
+
+      - name: Test CLI wrapper with Bun (--help)
+        run: bun run cli.js --help
+
+      - name: Verify CLI wrapper is JavaScript (not binary)
+        shell: bash
+        run: |
+          if file cli.js | grep -q "script\|text\|ASCII"; then
+            echo "✅ cli.js is a JavaScript file"
+          else
+            echo "❌ cli.js is not a text file!"
+            file cli.js
+            exit 1
+          fi
+
+  deno-test:
+    name: Deno ${{ matrix.deno-version }} on ${{ matrix.os }}
+    # Skip this job for version bump commits (binary won't exist yet)
+    if: "!contains(github.event.head_commit.message, 'Release')"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        deno-version: [ 'v1.x', 'v2.x' ]
+    defaults:
+      run:
+        working-directory: ./node
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Deno ${{ matrix.deno-version }}
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ matrix.deno-version }}
+
+      - name: Verify Deno installation
+        run: deno --version
+
+      - name: Setup Node.js (for npm install to download binary)
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies and download binary
+        run: npm install
+
+      - name: Test CLI wrapper with Deno (--version)
+        run: deno run --allow-read --allow-run cli.js --version
+
+      - name: Test CLI wrapper with Deno (--help)
+        run: deno run --allow-read --allow-run cli.js --help
+
+      - name: Verify CLI wrapper is JavaScript (not binary)
+        shell: bash
+        run: |
+          if file cli.js | grep -q "script\|text\|ASCII"; then
+            echo "✅ cli.js is a JavaScript file"
+          else
+            echo "❌ cli.js is not a text file!"
+            file cli.js
+            exit 1
+          fi

@@ -36,20 +36,18 @@ jobs:
       - name: Install dependencies (npm install)
         run: npm install
 
-      - name: Verify sqlx-ts binary from npm install
+      - name: Verify sqlx-ts CLI wrapper from npm install
         run: |
-          chmod +x ./sqlx-ts || true
-          ./sqlx-ts --version
-          ./sqlx-ts --help
+          node cli.js --version
+          node cli.js --help
 
       - name: Install using local install.sh
         run: node postinstall.js
 
-      - name: Verify sqlx-ts binary from local install
+      - name: Verify sqlx-ts CLI wrapper from local install
         run: |
-          chmod +x ./sqlx-ts || true
-          ./sqlx-ts --version
-          ./sqlx-ts --help
+          node cli.js --version
+          node cli.js --help
 
   linux-distro-static-binary-test:
     name: linux distro ${{ matrix.distro }}

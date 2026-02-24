@@ -3,12 +3,19 @@
   "version": "0.40.0",
   "description": "sqlx-ts ensures your raw SQLs are compile-time checked",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "maintainers": [
     "visualbbasic@gmail.com"
   ],
   "author": "Jason Shin <visualbbasic@gmail.com>",
   "license": "MIT",
-  "bin": "./sqlx-ts",
+  "bin": "./cli.js",
   "scripts": {
     "postinstall": "node postinstall.js",
     "compile": "npx tsc -p tsconfig.json",
