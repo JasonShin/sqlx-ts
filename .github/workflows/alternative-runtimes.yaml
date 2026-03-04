@@ -79,17 +79,9 @@ jobs:
       - name: Verify Deno installation
         run: deno --version
 
-      - name: Install dependencies (npm install via postinstall)
+      - name: Install dependencies (deno install via postinstall)
         working-directory: ./node
-        run: bun install
-
-      - name: Test CLI wrapper with Bun (--version)
-        working-directory: ./node
-        run: bun run cli.js --version
-
-      - name: Test CLI wrapper with Bun (--help)
-        working-directory: ./node
-        run: bun run cli.js --help
+        run: deno install
 
       - name: Test CLI wrapper with Deno (--version)
         working-directory: ./node
