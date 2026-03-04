@@ -104,6 +104,7 @@ $(
 
     #[test]
     fn $name() -> Result<(), Box<dyn std::error::Error>> {
+      use assert_cmd::cargo::cargo_bin_cmd;
       let ts_content = $ts_content;
       let test_config: TestConfig = $test_config;
       println!("checking test config {:?}", test_config);
@@ -127,7 +128,7 @@ $(
       let file_result = fs::read_to_string(&file_path)?;
       
       // EXECUTE
-      let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+      let mut cmd = cargo_bin_cmd!("sqlx-ts");
 
       cmd.arg(parent_path.to_str().unwrap())
           .arg(format!("--ext={file_extension}"))

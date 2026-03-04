@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod cli_test {
-  use assert_cmd::Command;
+  use assert_cmd::cargo::cargo_bin_cmd;
   use std::env::current_dir;
   use std::fs;
   use std::io::Write;
@@ -23,7 +23,7 @@ mod cli_test {
     writeln!(temp_file, "{config_content}")?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=ts")
@@ -61,7 +61,7 @@ mod cli_test {
     writeln!(temp_file, "{config_content}")?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=ts")
@@ -114,7 +114,7 @@ mod cli_test {
     writeln!(temp_file, "{config_content}")?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=ts")
@@ -160,7 +160,7 @@ mod cli_test {
     writeln!(temp_file, "{config_content}")?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=ts")
@@ -209,7 +209,7 @@ mod cli_test {
     writeln!(temp_file, "{config_content}")?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=ts")
@@ -232,7 +232,6 @@ mod cli_test {
     let demo_dir = tempdir()?;
     let demo_path = demo_dir.path();
     let sql_file_path = demo_path.join("test-query.sql");
-    let sample_query_path = demo_path.join("test-query.queries.ts");
 
     let config_dir = tempdir()?;
     let config_file_path = config_dir.path().join(".sqlxrc.json");
@@ -262,7 +261,7 @@ mod cli_test {
     writeln!(config_file, "{config_content}")?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=ts")
@@ -282,7 +281,6 @@ mod cli_test {
     let demo_dir = tempdir()?;
     let demo_path = demo_dir.path();
     let sql_file_path = demo_path.join("test-query.sql");
-    let sample_query_path = demo_path.join("test-query.queries.ts");
 
     let config_dir = tempdir()?;
     let config_file_path = config_dir.path().join(".sqlxrc.json");
@@ -308,7 +306,7 @@ mod cli_test {
     writeln!(config_file, "{config_content}")?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=ts")
@@ -326,7 +324,6 @@ mod cli_test {
     let demo_dir = tempdir()?;
     let demo_path = demo_dir.path();
     let sql_file_path = demo_path.join("test-query.sql");
-    let sample_query_path = demo_path.join("test-query.queries.ts");
 
     let config_dir = tempdir()?;
     let config_file_path = config_dir.path().join(".sqlxrc.json");
@@ -356,7 +353,7 @@ mod cli_test {
     writeln!(config_file, "{config_content}")?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=ts")
@@ -376,7 +373,6 @@ mod cli_test {
     let demo_dir = tempdir()?;
     let demo_path = demo_dir.path();
     let sql_file_path = demo_path.join("test-query.sql");
-    let sample_query_path = demo_path.join("test-query.queries.ts");
 
     let config_dir = tempdir()?;
     let config_file_path = config_dir.path().join(".sqlxrc.json");
@@ -402,7 +398,7 @@ mod cli_test {
     writeln!(config_file, "{config_content}")?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=ts")
@@ -449,7 +445,7 @@ mod cli_test {
     writeln!(config_file, "{config_content}")?;
 
     // EXECUTE - Pass in wrong db-url that should fail
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=ts")
@@ -498,7 +494,7 @@ mod cli_test {
     writeln!(config_file, "{config_content}")?;
 
     // EXECUTE - Pass in wrong db-url that should fail
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=ts")

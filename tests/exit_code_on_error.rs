@@ -1,9 +1,8 @@
 #[cfg(test)]
 mod exit_code_tests {
-  use assert_cmd::prelude::*;
+  use assert_cmd::cargo::cargo_bin_cmd;
   use std::fs;
   use std::io::Write;
-  use std::process::Command;
   use tempfile::tempdir;
 
   /// This test verifies that even when there are multiple SQL queries with mixed
@@ -31,7 +30,7 @@ const anotherValidQuery = sql`SELECT * FROM inventory WHERE character_id = $1;`;
     writeln!(temp_file, "{}", index_content)?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
 
     cmd
       .arg(parent_path.to_str().unwrap())
@@ -72,7 +71,7 @@ const query3 = sql`SELECT * FROM items WHERE id = $1;`;
     writeln!(temp_file, "{}", index_content)?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
 
     cmd
       .arg(parent_path.to_str().unwrap())
@@ -125,7 +124,7 @@ const query10 = sql`SELECT id, name FROM characters LIMIT 10;`;
     writeln!(temp_file, "{}", index_content)?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
 
     cmd
       .arg(parent_path.to_str().unwrap())
@@ -181,7 +180,7 @@ const failQuery2 = sql`SELECT * FROM another_missing_table;`;
     writeln!(file2, "{}", file2_content)?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
 
     cmd
       .arg(parent_path.to_str().unwrap())
@@ -250,7 +249,7 @@ const query6 = sql`SELECT rarity FROM items WHERE id = $1;`;
     writeln!(file3, "{}", file3_content)?;
 
     // EXECUTE
-    let mut cmd = Command::cargo_bin("sqlx-ts").unwrap();
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
 
     cmd
       .arg(parent_path.to_str().unwrap())

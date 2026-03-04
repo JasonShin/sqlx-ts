@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod dotenv_test {
-  use assert_cmd::Command;
+  use assert_cmd::cargo::cargo_bin_cmd;
   use std::fs::{self};
 
   use tempfile::tempdir;
@@ -24,7 +24,7 @@ DB_NAME=postgres
     fs::create_dir_all(&sample_dir)?;
     fs::copy("tests/sample/sample.ts", sample_dir.join("sample.ts"))?;
 
-    let mut cmd = Command::cargo_bin("sqlx-ts")?;
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .current_dir(temp_dir.path())
       .arg("--ext=ts")
@@ -58,7 +58,7 @@ DB_NAME=postgres
     fs::create_dir_all(&sample_dir)?;
     fs::copy("tests/sample/sample.ts", sample_dir.join("sample.ts"))?;
 
-    let mut cmd = Command::cargo_bin("sqlx-ts")?;
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .current_dir(temp_dir.path())
       .arg("--ext=ts")
@@ -80,7 +80,7 @@ DB_NAME=postgres
     fs::create_dir_all(&sample_dir)?;
     fs::copy("tests/sample/sample.ts", sample_dir.join("sample.ts"))?;
 
-    let mut cmd = Command::cargo_bin("sqlx-ts")?;
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .current_dir(temp_dir.path())
       .arg("--ext=ts")

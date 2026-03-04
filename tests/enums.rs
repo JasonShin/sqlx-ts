@@ -1,11 +1,9 @@
 #[cfg(test)]
 mod enums {
-  use assert_cmd::prelude::*;
   use pretty_assertions::assert_eq;
   use std::env;
   use std::fs;
   use std::io::Write;
-  use std::process::Command;
   use tempfile::tempdir;
 
   use test_utils::test_utils::TSString;
