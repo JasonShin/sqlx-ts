@@ -70,10 +70,10 @@ export interface IAllStringsResult {
 	extractSecond1: Date;
 	extractYear1: Date;
 	jsonArray1: any;
-	jsonBuildObject1: any;
+	jsonBuildObject1: { key: string };
 	jsonExtractPathText1: string;
 	jsonbArray1: any;
-	jsonbBuildObject1: any;
+	jsonbBuildObject1: { key: string };
 	jsonbExtractPathText1: string;
 	left1: string;
 	length1: string;

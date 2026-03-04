@@ -16,6 +16,8 @@ pub enum TsFieldType {
   Number,
   Boolean,
   Object,
+  // Structured object with named fields: Vec<(field_name, field_type, is_nullable)>
+  StructuredObject(Vec<(String, TsFieldType, bool)>),
   Date,
   Null,
   Enum(Vec<String>),
@@ -34,6 +36,20 @@ impl fmt::Display for TsFieldType {
       TsFieldType::Number => write!(f, "number"),
       TsFieldType::String => write!(f, "string"),
       TsFieldType::Object => write!(f, "object"),
+      TsFieldType::StructuredObject(fields) => {
+        let field_strings: Vec<String> = fields
+          .iter()
+          .map(|(field_name, field_type, is_nullable)| {
+            let type_str = if *is_nullable {
+              format!("{} | null", field_type)
+            } else {
+              field_type.to_string()
+            };
+            format!("{}: {}", field_name, type_str)
+          })
+          .collect();
+        write!(f, "{{ {} }}", field_strings.join("; "))
+      }
       TsFieldType::Date => write!(f, "Date"),
       TsFieldType::Any => write!(f, "any"),
       TsFieldType::Null => write!(f, "null"),

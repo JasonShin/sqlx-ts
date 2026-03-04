@@ -170,3 +170,27 @@ pub static TYPE_POLYMORPHIC_FUNCTIONS: &[&str] = &[
 pub fn is_type_polymorphic_function(func_name: &str) -> bool {
   TYPE_POLYMORPHIC_FUNCTIONS.contains(&func_name.to_uppercase().as_str())
 }
+
+// JSON/JSONB functions that build objects/arrays
+pub static JSON_BUILD_FUNCTIONS: &[&str] = &[
+  "JSONB_BUILD_OBJECT",
+  "JSON_BUILD_OBJECT",
+  "JSONB_BUILD_ARRAY",
+  "JSON_BUILD_ARRAY",
+];
+
+// JSON/JSONB aggregation functions
+pub static JSON_AGG_FUNCTIONS: &[&str] = &[
+  "JSONB_AGG",
+  "JSON_AGG",
+  "JSON_OBJECT_AGG",
+  "JSONB_OBJECT_AGG",
+];
+
+pub fn is_json_build_function(func_name: &str) -> bool {
+  JSON_BUILD_FUNCTIONS.contains(&func_name.to_uppercase().as_str())
+}
+
+pub fn is_json_agg_function(func_name: &str) -> bool {
+  JSON_AGG_FUNCTIONS.contains(&func_name.to_uppercase().as_str())
+}
