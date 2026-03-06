@@ -14,6 +14,7 @@ use crate::ts_generator::sql_parser::expressions::{
 };
 use crate::ts_generator::sql_parser::quoted_strings::DisplayIndent;
 use crate::ts_generator::sql_parser::translate_query::translate_query;
+use crate::ts_generator::sql_parser::expressions::function_handlers::FunctionHandlersContext;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
 use async_recursion::async_recursion;
 use color_eyre::Result;
@@ -633,17 +634,17 @@ pub async fn translate_expr(
       // Handle type-polymorphic functions (IFNULL, COALESCE, etc.)
       // These functions return the type of their first argument
       if is_type_polymorphic_function(function_name_str) {
-        return handle_polymorphic_functions(
+        let mut ctx = FunctionHandlersContext {
           ts_query,
           single_table_name,
           table_with_joins,
+          db_conn,
           alias,
           is_selection,
-          expr_for_logging,
-          func_obj,
-          db_conn,
-        )
-        .await;
+          expr_for_logging: Some(expr_for_logging),
+        };
+
+        return handle_polymorphic_functions(func_obj, &mut ctx).await;
       }
 
       // Handle JSON build functions (jsonb_build_object, json_build_object, etc.)
@@ -658,18 +659,17 @@ pub async fn translate_expr(
           }
         };
 
-        return handle_json_build_function(
-          function_name_str,
-          args,
+        let mut ctx = FunctionHandlersContext {
+          ts_query,
           single_table_name,
           table_with_joins,
           db_conn,
           alias,
-          ts_query,
           is_selection,
-          Some(expr_for_logging),
-        )
-        .await;
+          expr_for_logging: Some(expr_for_logging),
+        };
+
+        return handle_json_build_function(function_name_str, args, &mut ctx).await;
       }
 
       // Handle JSON aggregation functions (jsonb_agg, json_agg, etc.)
@@ -684,17 +684,17 @@ pub async fn translate_expr(
           }
         };
 
-        return handle_json_agg_function(
-          args,
+        let mut ctx = FunctionHandlersContext {
+          ts_query,
           single_table_name,
           table_with_joins,
           db_conn,
           alias,
-          ts_query,
           is_selection,
-          Some(expr_for_logging),
-        )
-        .await;
+          expr_for_logging: Some(expr_for_logging),
+        };
+
+        return handle_json_agg_function(args, &mut ctx).await;
       }
 
       // Handle other function types

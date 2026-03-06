@@ -4,7 +4,8 @@ use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::expressions::translate_data_type::translate_value;
 use crate::ts_generator::sql_parser::expressions::translate_table_with_joins::translate_table_from_expr;
 use crate::ts_generator::sql_parser::quoted_strings::DisplayIndent;
-use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
+use crate::ts_generator::types::ts_query::{TsFieldType};
+use crate::ts_generator::sql_parser::expressions::function_handlers::FunctionHandlersContext;
 use sqlparser::ast::{Expr, FunctionArg, FunctionArgExpr, TableWithJoins, Value};
 
 /// Extract key name from a function argument (should be a string literal)
@@ -96,7 +97,7 @@ pub async fn process_json_build_object_args(
   table_with_joins: &Option<Vec<TableWithJoins>>,
   db_conn: &DBConn,
 ) -> Option<Vec<(String, TsFieldType, bool)>> {
-  if args.len() % 2 != 0 {
+  if !args.len().is_multiple_of(2) {
     // Invalid number of arguments
     return None;
   }
@@ -128,78 +129,76 @@ pub async fn process_json_build_object_args(
 pub async fn handle_json_build_function(
   function_name: &str,
   args: &[FunctionArg],
-  single_table_name: &Option<&str>,
-  table_with_joins: &Option<Vec<TableWithJoins>>,
-  db_conn: &DBConn,
-  alias: &str,
-  ts_query: &mut TsQuery,
-  is_selection: bool,
-  expr_for_logging: Option<&str>,
+  ctx: &mut FunctionHandlersContext<'_>,
 ) -> Result<(), TsGeneratorError> {
-  let expr_log = expr_for_logging.unwrap_or("");
+  let expr_log = ctx.expr_for_logging.unwrap_or("");
 
   // Handle jsonb_build_object / json_build_object
   if function_name.to_uppercase() == "JSONB_BUILD_OBJECT" || function_name.to_uppercase() == "JSON_BUILD_OBJECT" {
     if let Some(object_fields) =
-      process_json_build_object_args(args, single_table_name, table_with_joins, db_conn).await
+      process_json_build_object_args(args, ctx.single_table_name, ctx.table_with_joins, ctx.db_conn).await
     {
       let object_type = TsFieldType::StructuredObject(object_fields);
-      return ts_query.insert_result(Some(alias), &[object_type], is_selection, false, expr_log);
+      return ctx
+        .ts_query
+        .insert_result(Some(ctx.alias), &[object_type], ctx.is_selection, false, expr_log);
     }
   }
 
   // For other build functions or on failure, return Any
-  ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_log)
+  ctx
+    .ts_query
+    .insert_result(Some(ctx.alias), &[TsFieldType::Any], ctx.is_selection, false, expr_log)
 }
 
 /// Handle JSON aggregation functions (jsonb_agg, json_agg, etc.)
 pub async fn handle_json_agg_function(
   args: &[FunctionArg],
-  single_table_name: &Option<&str>,
-  table_with_joins: &Option<Vec<TableWithJoins>>,
-  db_conn: &DBConn,
-  alias: &str,
-  ts_query: &mut TsQuery,
-  is_selection: bool,
-  expr_for_logging: Option<&str>,
+  ctx: &mut FunctionHandlersContext<'_>,
 ) -> Result<(), TsGeneratorError> {
   use super::super::functions::is_json_build_function;
   use sqlparser::ast::FunctionArguments;
 
-  let expr_log = expr_for_logging.unwrap_or("");
+  let expr_log = ctx.expr_for_logging.unwrap_or("");
 
   // jsonb_agg typically takes a single expression
   if args.len() != 1 {
-    return ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_log);
+    return ctx
+      .ts_query
+      .insert_result(Some(ctx.alias), &[TsFieldType::Any], ctx.is_selection, false, expr_log);
   }
 
   let arg_expr = extract_expr_from_arg(&args[0]);
 
-  if let Some(arg_expr) = arg_expr {
-    // Check if the argument is a jsonb_build_object function
-    if let Expr::Function(inner_func) = arg_expr {
-      let inner_func_name = inner_func.name.to_string();
-      if is_json_build_function(inner_func_name.as_str()) {
-        // Extract arguments from the inner function
-        let inner_args = match &inner_func.args {
-          FunctionArguments::List(arg_list) => &arg_list.args,
-          _ => {
-            return ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_log);
-          }
-        };
-
-        // Process the inner jsonb_build_object
-        if let Some(object_fields) =
-          process_json_build_object_args(inner_args, single_table_name, table_with_joins, db_conn).await
-        {
-          let object_type = TsFieldType::StructuredObject(object_fields);
-          let array_type = TsFieldType::Array(Box::new(object_type));
-          return ts_query.insert_result(Some(alias), &[array_type], is_selection, false, expr_log);
+  // Check if the argument is a jsonb_build_object function
+  if let Some(Expr::Function(inner_func)) = arg_expr {
+    let inner_func_name = inner_func.name.to_string();
+    if is_json_build_function(inner_func_name.as_str()) {
+      // Extract arguments from the inner function
+      let inner_args = match &inner_func.args {
+        FunctionArguments::List(arg_list) => &arg_list.args,
+        _ => {
+          return ctx
+            .ts_query
+            .insert_result(Some(ctx.alias), &[TsFieldType::Any], ctx.is_selection, false, expr_log);
         }
+      };
+
+      // Process the inner jsonb_build_object
+      if let Some(object_fields) =
+        process_json_build_object_args(inner_args, ctx.single_table_name, ctx.table_with_joins, ctx.db_conn).await
+      {
+        let object_type = TsFieldType::StructuredObject(object_fields);
+        let array_type = TsFieldType::Array(Box::new(object_type));
+        return ctx
+          .ts_query
+          .insert_result(Some(ctx.alias), &[array_type], ctx.is_selection, false, expr_log);
       }
     }
   }
 
   // If we can't infer the type, return Any
-  ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_log)
+  ctx
+    .ts_query
+    .insert_result(Some(ctx.alias), &[TsFieldType::Any], ctx.is_selection, false, expr_log)
 }
