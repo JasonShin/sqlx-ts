@@ -3,7 +3,6 @@ import { sql } from 'sqlx-ts'
 // JSON_OBJECT basic - build object from columns
 const jsonObjectBasic = sql`
 -- @db: db_mysql
--- @db: db_mysql
 -- @name: json object basic
 SELECT
   items.id AS id,
@@ -13,7 +12,6 @@ FROM items
 
 // JSON_ARRAYAGG for aggregation - aggregate rows into JSON array
 const jsonArrayAggregation = sql`
--- @db: db_mysql
 -- @db: db_mysql
 -- @name: json array aggregation
 SELECT
@@ -25,7 +23,6 @@ GROUP BY items.rarity
 
 // JSON operators in SELECT - extract values
 const jsonOperatorsSelect = sql`
--- @db: db_mysql
 -- @db: db_mysql
 -- @name: json operators select
 SELECT
