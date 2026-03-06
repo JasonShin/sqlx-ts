@@ -1,3 +1,5 @@
+use super::function_handlers::json_functions::{handle_json_agg_function, handle_json_build_function};
+use super::function_handlers::polymorphic_functions::handle_polymorphic_functions;
 use super::functions::{is_date_function, is_json_agg_function, is_json_build_function, is_numeric_function, is_type_polymorphic_function};
 use crate::common::lazy::DB_SCHEMA;
 use crate::common::logger::{error, warning};
@@ -629,87 +631,22 @@ pub async fn translate_expr(
       // Handle type-polymorphic functions (IFNULL, COALESCE, etc.)
       // These functions return the type of their first argument
       if is_type_polymorphic_function(function_name_str) {
-        use sqlparser::ast::{FunctionArg, FunctionArgExpr, FunctionArguments};
-
-        // In sqlparser 0.59.0, args is a FunctionArguments enum
-        // Extract the first argument from the appropriate variant
-        let first_arg = match &func_obj.args {
-          FunctionArguments::List(arg_list) => arg_list.args.first(),
-          FunctionArguments::None => None,
-          FunctionArguments::Subquery(_) => None, // Can't infer type from subquery easily
-        };
-
-        if let Some(first_arg) = first_arg {
-          let first_expr = match first_arg {
-            FunctionArg::Unnamed(FunctionArgExpr::Expr(expr)) => Some(expr),
-            FunctionArg::Named {
-              arg: FunctionArgExpr::Expr(expr),
-              ..
-            } => Some(expr),
-            _ => None,
-          };
-
-          if let Some(arg_expr) = first_expr {
-            // Try to infer type from the first argument
-            match arg_expr {
-              Expr::Identifier(ident) => {
-                let column_name = DisplayIndent(ident).to_string();
-                if let Some(table_name) = single_table_name {
-                  let table_details = &DB_SCHEMA.lock().await.fetch_table(&vec![table_name], db_conn).await;
-
-                  if let Some(table_details) = table_details {
-                    if let Some(field) = table_details.get(&column_name) {
-                      return ts_query.insert_result(
-                        Some(alias),
-                        &[field.field_type.to_owned()],
-                        is_selection,
-                        false, // IFNULL/COALESCE removes nullability
-                        expr_for_logging,
-                      );
-                    }
-                  }
-                }
-              }
-              Expr::CompoundIdentifier(idents) if idents.len() == 2 => {
-                let column_name = DisplayIndent(&idents[1]).to_string();
-                if let Ok(table_name) = translate_table_from_expr(table_with_joins, arg_expr) {
-                  let table_details = &DB_SCHEMA
-                    .lock()
-                    .await
-                    .fetch_table(&vec![table_name.as_str()], db_conn)
-                    .await;
-
-                  if let Some(table_details) = table_details {
-                    if let Some(field) = table_details.get(&column_name) {
-                      return ts_query.insert_result(
-                        Some(alias),
-                        &[field.field_type.to_owned()],
-                        is_selection,
-                        false, // IFNULL/COALESCE removes nullability
-                        expr_for_logging,
-                      );
-                    }
-                  }
-                }
-              }
-              Expr::Value(val) => {
-                // If first arg is a literal value, infer from that
-                if let Some(ts_field_type) = translate_value(&val.value) {
-                  return ts_query.insert_result(Some(alias), &[ts_field_type], is_selection, false, expr_for_logging);
-                }
-              }
-              _ => {}
-            }
-          }
-        }
-
-        // Fallback to Any if we couldn't infer the type
-        return ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_for_logging);
+        return handle_polymorphic_functions(
+          ts_query,
+          single_table_name,
+          table_with_joins,
+          alias,
+          is_selection,
+          expr_for_logging,
+          func_obj,
+          db_conn,
+        )
+        .await;
       }
 
       // Handle JSON build functions (jsonb_build_object, json_build_object, etc.)
       if is_json_build_function(function_name_str) {
-        use sqlparser::ast::{FunctionArg, FunctionArgExpr, FunctionArguments};
+        use sqlparser::ast::FunctionArguments;
 
         let args = match &func_obj.args {
           FunctionArguments::List(arg_list) => &arg_list.args,
@@ -719,126 +656,23 @@ pub async fn translate_expr(
           }
         };
 
-        // jsonb_build_object takes key-value pairs
-        // e.g., jsonb_build_object('id', id, 'name', name)
-        if function_name_str.to_uppercase() == "JSONB_BUILD_OBJECT" || function_name_str.to_uppercase() == "JSON_BUILD_OBJECT" {
-          if args.len() % 2 != 0 {
-            // Invalid number of arguments
-            return ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_for_logging);
-          }
-
-          let mut object_fields = vec![];
-
-          // Process key-value pairs
-          for i in (0..args.len()).step_by(2) {
-            let key_arg = &args[i];
-            let value_arg = &args[i + 1];
-
-            // Extract key name (should be a string literal)
-            let key_name = match key_arg {
-              FunctionArg::Unnamed(FunctionArgExpr::Expr(Expr::Value(val))) => {
-                match &val.value {
-                  Value::SingleQuotedString(s) | Value::DoubleQuotedString(s) => Some(s.clone()),
-                  _ => None,
-                }
-              }
-              _ => None,
-            };
-
-            if key_name.is_none() {
-              // If we can't extract the key, return Any
-              return ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_for_logging);
-            }
-
-            let key_name = key_name.unwrap();
-
-            // Extract value type from the expression
-            let value_expr = match value_arg {
-              FunctionArg::Unnamed(FunctionArgExpr::Expr(expr)) => Some(expr),
-              FunctionArg::Named {
-                arg: FunctionArgExpr::Expr(expr),
-                ..
-              } => Some(expr),
-              _ => None,
-            };
-
-            if let Some(value_expr) = value_expr {
-              let value_type = match value_expr {
-                Expr::Identifier(ident) => {
-                  let column_name = DisplayIndent(ident).to_string();
-                  if let Some(table_name) = single_table_name {
-                    let table_details = &DB_SCHEMA.lock().await.fetch_table(&vec![table_name], db_conn).await;
-
-                    if let Some(table_details) = table_details {
-                      if let Some(field) = table_details.get(&column_name) {
-                        Some((field.field_type.to_owned(), field.is_nullable))
-                      } else {
-                        Some((TsFieldType::Any, false))
-                      }
-                    } else {
-                      Some((TsFieldType::Any, false))
-                    }
-                  } else {
-                    Some((TsFieldType::Any, false))
-                  }
-                }
-                Expr::CompoundIdentifier(idents) if idents.len() == 2 => {
-                  let column_name = DisplayIndent(&idents[1]).to_string();
-                  if let Ok(table_name) = translate_table_from_expr(table_with_joins, value_expr) {
-                    let table_details = &DB_SCHEMA
-                      .lock()
-                      .await
-                      .fetch_table(&vec![table_name.as_str()], db_conn)
-                      .await;
-
-                    if let Some(table_details) = table_details {
-                      if let Some(field) = table_details.get(&column_name) {
-                        Some((field.field_type.to_owned(), field.is_nullable))
-                      } else {
-                        Some((TsFieldType::Any, false))
-                      }
-                    } else {
-                      Some((TsFieldType::Any, false))
-                    }
-                  } else {
-                    Some((TsFieldType::Any, false))
-                  }
-                }
-                Expr::Value(val) => {
-                  if let Some(ts_field_type) = translate_value(&val.value) {
-                    Some((ts_field_type, false))
-                  } else {
-                    Some((TsFieldType::Any, false))
-                  }
-                }
-                _ => Some((TsFieldType::Any, false)),
-              };
-
-              if let Some((value_type, is_nullable)) = value_type {
-                object_fields.push((key_name, value_type, is_nullable));
-              } else {
-                // If we can't infer the type, return Any
-                return ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_for_logging);
-              }
-            } else {
-              // If we can't extract the value expression, return Any
-              return ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_for_logging);
-            }
-          }
-
-          // Build the StructuredObject type with the inferred fields
-          let object_type = TsFieldType::StructuredObject(object_fields);
-          return ts_query.insert_result(Some(alias), &[object_type], is_selection, false, expr_for_logging);
-        }
-
-        // For build_array functions, we'd need different logic
-        // For now, return Any
-        return ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_for_logging);
+        return handle_json_build_function(
+          function_name_str,
+          args,
+          single_table_name,
+          table_with_joins,
+          db_conn,
+          alias,
+          ts_query,
+          is_selection,
+          Some(expr_for_logging),
+        )
+        .await;
       }
 
       // Handle JSON aggregation functions (jsonb_agg, json_agg, etc.)
       if is_json_agg_function(function_name_str) {
-        use sqlparser::ast::{FunctionArg, FunctionArgExpr, FunctionArguments};
+        use sqlparser::ast::FunctionArguments;
 
         let args = match &func_obj.args {
           FunctionArguments::List(arg_list) => &arg_list.args,
@@ -848,148 +682,17 @@ pub async fn translate_expr(
           }
         };
 
-        // jsonb_agg typically takes a single expression
-        // e.g., jsonb_agg(jsonb_build_object('id', id, 'name', name))
-        if args.len() == 1 {
-          let first_arg = &args[0];
-          let arg_expr = match first_arg {
-            FunctionArg::Unnamed(FunctionArgExpr::Expr(expr)) => Some(expr),
-            FunctionArg::Named {
-              arg: FunctionArgExpr::Expr(expr),
-              ..
-            } => Some(expr),
-            _ => None,
-          };
-
-          if let Some(arg_expr) = arg_expr {
-            // Check if the argument is a jsonb_build_object function
-            if let Expr::Function(inner_func) = arg_expr {
-              let inner_func_name = inner_func.name.to_string();
-              if is_json_build_function(inner_func_name.as_str()) {
-                // Recursively infer the type of jsonb_build_object
-                let inner_args = match &inner_func.args {
-                  FunctionArguments::List(arg_list) => &arg_list.args,
-                  _ => {
-                    return ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_for_logging);
-                  }
-                };
-
-                if inner_args.len() % 2 != 0 {
-                  // Invalid number of arguments
-                  return ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_for_logging);
-                }
-
-                let mut object_fields = vec![];
-
-                // Process key-value pairs
-                for i in (0..inner_args.len()).step_by(2) {
-                  let key_arg = &inner_args[i];
-                  let value_arg = &inner_args[i + 1];
-
-                  // Extract key name
-                  let key_name = match key_arg {
-                    FunctionArg::Unnamed(FunctionArgExpr::Expr(Expr::Value(val))) => {
-                      match &val.value {
-                        Value::SingleQuotedString(s) | Value::DoubleQuotedString(s) => Some(s.clone()),
-                        _ => None,
-                      }
-                    }
-                    _ => None,
-                  };
-
-                  if key_name.is_none() {
-                    return ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_for_logging);
-                  }
-
-                  let key_name = key_name.unwrap();
-
-                  // Extract value type
-                  let value_expr = match value_arg {
-                    FunctionArg::Unnamed(FunctionArgExpr::Expr(expr)) => Some(expr),
-                    FunctionArg::Named {
-                      arg: FunctionArgExpr::Expr(expr),
-                      ..
-                    } => Some(expr),
-                    _ => None,
-                  };
-
-                  if let Some(value_expr) = value_expr {
-                    let value_type = match value_expr {
-                      Expr::Identifier(ident) => {
-                        let column_name = DisplayIndent(ident).to_string();
-                        if let Some(table_name) = single_table_name {
-                          let table_details = &DB_SCHEMA.lock().await.fetch_table(&vec![table_name], db_conn).await;
-
-                          if let Some(table_details) = table_details {
-                            if let Some(field) = table_details.get(&column_name) {
-                              Some((field.field_type.to_owned(), field.is_nullable))
-                            } else {
-                              Some((TsFieldType::Any, false))
-                            }
-                          } else {
-                            Some((TsFieldType::Any, false))
-                          }
-                        } else {
-                          Some((TsFieldType::Any, false))
-                        }
-                      }
-                      Expr::CompoundIdentifier(idents) if idents.len() == 2 => {
-                        let column_name = DisplayIndent(&idents[1]).to_string();
-                        if let Ok(table_name) = translate_table_from_expr(table_with_joins, value_expr) {
-                          let table_details = &DB_SCHEMA
-                            .lock()
-                            .await
-                            .fetch_table(&vec![table_name.as_str()], db_conn)
-                            .await;
-
-                          if let Some(table_details) = table_details {
-                            if let Some(field) = table_details.get(&column_name) {
-                              Some((field.field_type.to_owned(), field.is_nullable))
-                            } else {
-                              Some((TsFieldType::Any, false))
-                            }
-                          } else {
-                            Some((TsFieldType::Any, false))
-                          }
-                        } else {
-                          Some((TsFieldType::Any, false))
-                        }
-                      }
-                      Expr::Value(val) => {
-                        if let Some(ts_field_type) = translate_value(&val.value) {
-                          Some((ts_field_type, false))
-                        } else {
-                          Some((TsFieldType::Any, false))
-                        }
-                      }
-                      _ => Some((TsFieldType::Any, false)),
-                    };
-
-                    if let Some((value_type, is_nullable)) = value_type {
-                      object_fields.push((key_name, value_type, is_nullable));
-                    } else {
-                      return ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_for_logging);
-                    }
-                  } else {
-                    return ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_for_logging);
-                  }
-                }
-
-                // Build the Array of StructuredObject type
-                let object_type = TsFieldType::StructuredObject(object_fields);
-                let array_type = TsFieldType::Array(Box::new(object_type));
-                return ts_query.insert_result(Some(alias), &[array_type], is_selection, false, expr_for_logging);
-              }
-            }
-
-            // If not jsonb_build_object, try to infer the type of the expression
-            // For now, return Any
-            return ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_for_logging);
-          }
-        }
-
-        // If we can't infer the type, return Any
-        return ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_for_logging);
+        return handle_json_agg_function(
+          args,
+          single_table_name,
+          table_with_joins,
+          db_conn,
+          alias,
+          ts_query,
+          is_selection,
+          Some(expr_for_logging),
+        )
+        .await;
       }
 
       // Handle other function types

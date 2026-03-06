@@ -4,6 +4,8 @@ pub mod translate_expr;
 pub mod translate_table_with_joins;
 pub mod translate_wildcard_expr;
 
+pub mod function_handlers;
+
 #[cfg(test)]
 #[path = "./functions.test.rs"]
 mod functions_test;
