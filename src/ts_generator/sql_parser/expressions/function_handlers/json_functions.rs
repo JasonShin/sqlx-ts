@@ -115,7 +115,8 @@ pub async fn process_json_build_object_args(
     let value_expr = extract_expr_from_arg(value_arg)?;
 
     // Infer value type
-    let (value_type, is_nullable) = infer_type_from_expr(value_expr, single_table_name, table_with_joins, db_conn).await?;
+    let (value_type, is_nullable) =
+      infer_type_from_expr(value_expr, single_table_name, table_with_joins, db_conn).await?;
 
     object_fields.push((key_name, value_type, is_nullable));
   }
@@ -139,7 +140,8 @@ pub async fn handle_json_build_function(
 
   // Handle jsonb_build_object / json_build_object
   if function_name.to_uppercase() == "JSONB_BUILD_OBJECT" || function_name.to_uppercase() == "JSON_BUILD_OBJECT" {
-    if let Some(object_fields) = process_json_build_object_args(args, single_table_name, table_with_joins, db_conn).await
+    if let Some(object_fields) =
+      process_json_build_object_args(args, single_table_name, table_with_joins, db_conn).await
     {
       let object_type = TsFieldType::StructuredObject(object_fields);
       return ts_query.insert_result(Some(alias), &[object_type], is_selection, false, expr_log);

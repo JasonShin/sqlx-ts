@@ -180,12 +180,7 @@ pub static JSON_BUILD_FUNCTIONS: &[&str] = &[
 ];
 
 // JSON/JSONB aggregation functions
-pub static JSON_AGG_FUNCTIONS: &[&str] = &[
-  "JSONB_AGG",
-  "JSON_AGG",
-  "JSON_OBJECT_AGG",
-  "JSONB_OBJECT_AGG",
-];
+pub static JSON_AGG_FUNCTIONS: &[&str] = &["JSONB_AGG", "JSON_AGG", "JSON_OBJECT_AGG", "JSONB_OBJECT_AGG"];
 
 pub fn is_json_build_function(func_name: &str) -> bool {
   JSON_BUILD_FUNCTIONS.contains(&func_name.to_uppercase().as_str())

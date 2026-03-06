@@ -1,10 +1,10 @@
-use sqlparser::ast::{Expr, Function, FunctionArg, FunctionArgExpr, FunctionArguments, TableWithJoins};
 use crate::common::lazy::DB_SCHEMA;
 use crate::ts_generator::errors::TsGeneratorError;
 use crate::ts_generator::sql_parser::expressions::translate_data_type::translate_value;
 use crate::ts_generator::sql_parser::expressions::translate_table_with_joins::translate_table_from_expr;
 use crate::ts_generator::sql_parser::quoted_strings::DisplayIndent;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
+use sqlparser::ast::{Expr, Function, FunctionArg, FunctionArgExpr, FunctionArguments, TableWithJoins};
 
 pub async fn handle_polymorphic_functions(
   ts_query: &mut TsQuery,

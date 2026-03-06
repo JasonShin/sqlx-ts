@@ -1,6 +1,8 @@
 use super::function_handlers::json_functions::{handle_json_agg_function, handle_json_build_function};
 use super::function_handlers::polymorphic_functions::handle_polymorphic_functions;
-use super::functions::{is_date_function, is_json_agg_function, is_json_build_function, is_numeric_function, is_type_polymorphic_function};
+use super::functions::{
+  is_date_function, is_json_agg_function, is_json_build_function, is_numeric_function, is_type_polymorphic_function,
+};
 use crate::common::lazy::DB_SCHEMA;
 use crate::common::logger::{error, warning};
 use crate::core::connection::DBConn;
