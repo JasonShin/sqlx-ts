@@ -1,10 +1,10 @@
 use crate::common::lazy::DB_SCHEMA;
 use crate::ts_generator::errors::TsGeneratorError;
+use crate::ts_generator::sql_parser::expressions::function_handlers::FunctionHandlersContext;
 use crate::ts_generator::sql_parser::expressions::translate_data_type::translate_value;
 use crate::ts_generator::sql_parser::expressions::translate_table_with_joins::translate_table_from_expr;
 use crate::ts_generator::sql_parser::quoted_strings::DisplayIndent;
 use crate::ts_generator::types::ts_query::TsFieldType;
-use crate::ts_generator::sql_parser::expressions::function_handlers::FunctionHandlersContext;
 use sqlparser::ast::{Expr, Function, FunctionArg, FunctionArgExpr, FunctionArguments};
 
 pub async fn handle_polymorphic_functions(
@@ -36,7 +36,11 @@ pub async fn handle_polymorphic_functions(
         Expr::Identifier(ident) => {
           let column_name = DisplayIndent(ident).to_string();
           if let Some(table_name) = ctx.single_table_name {
-            let table_details = &DB_SCHEMA.lock().await.fetch_table(&vec![table_name], ctx.db_conn).await;
+            let table_details = &DB_SCHEMA
+              .lock()
+              .await
+              .fetch_table(&vec![table_name], ctx.db_conn)
+              .await;
 
             if let Some(table_details) = table_details {
               if let Some(field) = table_details.get(&column_name) {
@@ -76,7 +80,9 @@ pub async fn handle_polymorphic_functions(
         Expr::Value(val) => {
           // If first arg is a literal value, infer from that
           if let Some(ts_field_type) = translate_value(&val.value) {
-            return ctx.ts_query.insert_result(Some(ctx.alias), &[ts_field_type], ctx.is_selection, false, expr_log);
+            return ctx
+              .ts_query
+              .insert_result(Some(ctx.alias), &[ts_field_type], ctx.is_selection, false, expr_log);
           }
         }
         _ => {}
@@ -85,5 +91,7 @@ pub async fn handle_polymorphic_functions(
   }
 
   // Fallback to Any if we couldn't infer the type
-  ctx.ts_query.insert_result(Some(ctx.alias), &[TsFieldType::Any], ctx.is_selection, false, expr_log)
+  ctx
+    .ts_query
+    .insert_result(Some(ctx.alias), &[TsFieldType::Any], ctx.is_selection, false, expr_log)
 }

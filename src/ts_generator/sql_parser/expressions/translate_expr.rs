@@ -7,6 +7,7 @@ use crate::common::lazy::DB_SCHEMA;
 use crate::common::logger::{error, warning};
 use crate::core::connection::DBConn;
 use crate::ts_generator::errors::TsGeneratorError;
+use crate::ts_generator::sql_parser::expressions::function_handlers::FunctionHandlersContext;
 use crate::ts_generator::sql_parser::expressions::translate_data_type::translate_value;
 use crate::ts_generator::sql_parser::expressions::translate_table_with_joins::translate_table_from_expr;
 use crate::ts_generator::sql_parser::expressions::{
@@ -14,7 +15,6 @@ use crate::ts_generator::sql_parser::expressions::{
 };
 use crate::ts_generator::sql_parser::quoted_strings::DisplayIndent;
 use crate::ts_generator::sql_parser::translate_query::translate_query;
-use crate::ts_generator::sql_parser::expressions::function_handlers::FunctionHandlersContext;
 use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
 use async_recursion::async_recursion;
 use color_eyre::Result;

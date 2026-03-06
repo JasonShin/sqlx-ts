@@ -1,6 +1,6 @@
-use sqlparser::ast::TableWithJoins;
 use crate::core::connection::DBConn;
 use crate::ts_generator::types::ts_query::TsQuery;
+use sqlparser::ast::TableWithJoins;
 
 pub mod json_functions;
 pub mod polymorphic_functions;
