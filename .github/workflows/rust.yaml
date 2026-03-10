@@ -66,6 +66,9 @@ jobs:
 
       - name: Run tests
         run: cargo test -- --test-threads=1
+        env:
+          MYSQL_VERSION: ${{ matrix.db.mysql }}
+          PG_VERSION: ${{ matrix.db.postgres }}
 
   lint:
     runs-on: ubuntu-latest

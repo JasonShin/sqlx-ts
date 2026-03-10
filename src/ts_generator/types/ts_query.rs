@@ -10,12 +10,108 @@ use crate::ts_generator::errors::TsGeneratorError;
 
 type Array2DContent = Vec<Vec<TsFieldType>>;
 
+/// Check if a string is a valid TypeScript identifier
+fn is_valid_ts_identifier(name: &str) -> bool {
+  // TypeScript identifier regex: must start with letter/underscore/dollar, followed by letters/digits/underscore/dollar
+  let identifier_regex = Regex::new(r"^[a-zA-Z_$][a-zA-Z0-9_$]*$").unwrap();
+
+  if !identifier_regex.is_match(name) {
+    return false;
+  }
+
+  // Check against TypeScript reserved keywords
+  let reserved_keywords = [
+    "break",
+    "case",
+    "catch",
+    "class",
+    "const",
+    "continue",
+    "debugger",
+    "default",
+    "delete",
+    "do",
+    "else",
+    "enum",
+    "export",
+    "extends",
+    "false",
+    "finally",
+    "for",
+    "function",
+    "if",
+    "import",
+    "in",
+    "instanceof",
+    "new",
+    "null",
+    "return",
+    "super",
+    "switch",
+    "this",
+    "throw",
+    "true",
+    "try",
+    "typeof",
+    "var",
+    "void",
+    "while",
+    "with",
+    "as",
+    "implements",
+    "interface",
+    "let",
+    "package",
+    "private",
+    "protected",
+    "public",
+    "static",
+    "yield",
+    "any",
+    "boolean",
+    "constructor",
+    "declare",
+    "get",
+    "module",
+    "require",
+    "number",
+    "set",
+    "string",
+    "symbol",
+    "type",
+    "from",
+    "of",
+    "namespace",
+    "async",
+    "await",
+    "abstract",
+    "readonly",
+    "never",
+    "unknown",
+    "bigint",
+  ];
+
+  !reserved_keywords.contains(&name)
+}
+
+/// Format a field name for TypeScript object literal, quoting if necessary
+fn format_ts_field_name(name: &str) -> String {
+  if is_valid_ts_identifier(name) {
+    name.to_string()
+  } else {
+    // Quote the field name and escape quotes inside
+    format!("\"{}\"", name.replace('\"', "\\\""))
+  }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum TsFieldType {
   String,
   Number,
   Boolean,
   Object,
+  // Structured object with named fields: Vec<(field_name, field_type, is_nullable)>
+  StructuredObject(Vec<(String, TsFieldType, bool)>),
   Date,
   Null,
   Enum(Vec<String>),
@@ -34,6 +130,21 @@ impl fmt::Display for TsFieldType {
       TsFieldType::Number => write!(f, "number"),
       TsFieldType::String => write!(f, "string"),
       TsFieldType::Object => write!(f, "object"),
+      TsFieldType::StructuredObject(fields) => {
+        let field_strings: Vec<String> = fields
+          .iter()
+          .map(|(field_name, field_type, is_nullable)| {
+            let type_str = if *is_nullable {
+              format!("{} | null", field_type)
+            } else {
+              field_type.to_string()
+            };
+            let formatted_name = format_ts_field_name(field_name);
+            format!("{}: {}", formatted_name, type_str)
+          })
+          .collect();
+        write!(f, "{{ {} }}", field_strings.join("; "))
+      }
       TsFieldType::Date => write!(f, "Date"),
       TsFieldType::Any => write!(f, "any"),
       TsFieldType::Null => write!(f, "null"),
@@ -115,6 +226,7 @@ impl TsFieldType {
       "binary" | "bit" | "blob" | "char" | "text" | "varbinary" | "varchar" => Self::String,
       "tinyint" => Self::Boolean,
       "date" | "datetime" | "timestamp" => Self::Date,
+      "json" => Self::Object,
       "enum" => {
         if let Some(enum_values) = enum_values {
           return Self::Enum(enum_values);

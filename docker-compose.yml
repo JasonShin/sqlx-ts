@@ -3,6 +3,7 @@ version: '3.1'
 services:
 
   postgres:
+    platform: linux/amd64
     image: postgres:${PG_VERSION:-13}
     restart: always
     environment:
@@ -13,6 +14,7 @@ services:
       - 54321:5432
 
   mysql:
+    platform: linux/amd64
     image: mysql:${MYSQL_VERSION:-8}
     restart: always
     volumes:

@@ -158,3 +158,54 @@ CREATE TABLE random (
 
     json1 TEXT
 );
+
+-- JSON Test Data Table
+-- This table contains various JSON structures for testing JSON operators and functions
+CREATE TABLE json_test_data (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    data TEXT NOT NULL,
+    metadata TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO json_test_data (name, data, metadata) VALUES
+-- Simple object
+('user_profile',
+ '{"userId": 1, "username": "john_doe", "email": "john@example.com", "age": 30, "active": true}',
+ '{"source": "api", "version": "1.0"}'),
+
+-- Nested object with address
+('user_with_address',
+ '{"userId": 2, "username": "jane_smith", "email": "jane@example.com", "address": {"street": "123 Main St", "city": "Springfield", "state": "IL", "zipCode": "62701", "country": "USA"}}',
+ '{"source": "import", "version": "1.0"}'),
+
+-- Array of items
+('shopping_cart',
+ '{"cartId": 101, "items": [{"productId": 1, "name": "Laptop", "quantity": 1, "price": 999.99}, {"productId": 2, "name": "Mouse", "quantity": 2, "price": 25.50}], "totalPrice": 1050.99}',
+ '{"source": "web", "version": "2.0"}'),
+
+-- Array of strings
+('tags',
+ '{"postId": 42, "title": "MySQL JSON Functions", "tags": ["database", "mysql", "json", "tutorial"], "published": true}',
+ '{"source": "cms", "version": "1.0"}'),
+
+-- Nested arrays and objects
+('game_stats',
+ '{"playerId": 123, "stats": {"level": 50, "experience": 125000, "inventory": [{"slot": 1, "item": "Sword of Fire", "rarity": "legendary"}, {"slot": 2, "item": "Shield of Light", "rarity": "epic"}], "achievements": ["First Kill", "Level 50", "Legendary Item"]}}',
+ '{"source": "game_server", "version": "3.0"}'),
+
+-- Deep nesting
+('nested_config',
+ '{"app": {"name": "MyApp", "version": "1.0.0", "settings": {"database": {"host": "localhost", "port": 3306, "credentials": {"username": "admin", "encrypted": true}}, "features": {"darkMode": true, "notifications": {"email": true, "push": false}}}}}',
+ '{"source": "config", "version": "1.0"}'),
+
+-- Array of objects with nulls
+('product_reviews',
+ '{"productId": 456, "reviews": [{"reviewId": 1, "rating": 5, "comment": "Excellent product!", "reviewer": "Alice"}, {"reviewId": 2, "rating": 4, "comment": null, "reviewer": "Bob"}, {"reviewId": 3, "rating": 3, "comment": "Average", "reviewer": null}]}',
+ '{"source": "reviews", "version": "1.0"}'),
+
+-- Mixed types
+('analytics',
+ '{"date": "2024-01-15", "metrics": {"visitors": 1500, "pageViews": 4500, "bounceRate": 0.35, "sources": {"organic": 850, "direct": 400, "referral": 250}}}',
+ '{"source": "analytics", "version": "1.0"}');

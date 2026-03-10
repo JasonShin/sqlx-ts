@@ -2,17 +2,14 @@
 mod demo_happy_path_tests {
   use assert_cmd::cargo::cargo_bin_cmd;
   use pretty_assertions::assert_eq;
+  use std::env;
   use std::env::current_dir;
   use std::fs;
   use std::io::Write;
+  use std::path::Path;
   use walkdir::WalkDir;
 
-  #[test]
-  fn all_demo_should_pass() -> Result<(), Box<dyn std::error::Error>> {
-    // SETUP
-    let root_path = current_dir().unwrap();
-    let demo_path = root_path.join("tests/demo");
-
+  fn run_demo_test(demo_path: &Path) -> Result<(), Box<dyn std::error::Error>> {
     // EXECUTE - Generate types for .ts files
     let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
@@ -88,6 +85,33 @@ mod demo_happy_path_tests {
     }
 
     Ok(())
+  }
+
+  #[test]
+  fn all_demo_should_pass() -> Result<(), Box<dyn std::error::Error>> {
+    let root_path = current_dir().unwrap();
+    let demo_path = root_path.join("tests/demo");
+    run_demo_test(&demo_path)
+  }
+
+  #[test]
+  fn all_demo_json_postgres() -> Result<(), Box<dyn std::error::Error>> {
+    // PostgreSQL JSON tests - compatible with all PostgreSQL versions that support JSON
+    let root_path = current_dir().unwrap();
+    let demo_path = root_path.join("tests/demo_json/postgres");
+    run_demo_test(&demo_path)
+  }
+
+  #[test]
+  fn all_demo_json_mysql() -> Result<(), Box<dyn std::error::Error>> {
+    // MySQL 5.7+ and PostgreSQL JSON tests
+    if env::var("MYSQL_VERSION").ok() == Some("5.6".to_string()) {
+      return Ok(()); // Skip test for MySQL 5.6 which doesn't support JSON functions
+    }
+
+    let root_path = current_dir().unwrap();
+    let demo_path = root_path.join("tests/demo_json/mysql");
+    run_demo_test(&demo_path)
   }
 
   #[test]
