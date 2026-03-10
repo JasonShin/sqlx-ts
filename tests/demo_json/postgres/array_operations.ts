@@ -20,9 +20,9 @@ FROM items
 GROUP BY rarity
 `
 
-// Array literal and ANY
-const arrayLiteralAny = sql`
--- @name: array literal any
+// Array literal and unknown
+const arrayLiteralunknown = sql`
+-- @name: array literal unknown
 SELECT id, name, rarity
 FROM items
 WHERE rarity = ANY(ARRAY['common', 'rare'])

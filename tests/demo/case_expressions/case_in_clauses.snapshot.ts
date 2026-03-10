@@ -28,7 +28,7 @@ export type CaseInGroupByHavingParams = [];
 
 export interface ICaseInGroupByHavingResult {
 	count: number;
-	rarityGroup: any;
+	rarityGroup: unknown;
 }
 
 export interface ICaseInGroupByHavingQuery {

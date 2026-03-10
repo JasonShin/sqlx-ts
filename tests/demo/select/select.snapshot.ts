@@ -118,7 +118,7 @@ export interface ISelectSql10Query {
 export type SelectSql11Params = [string, string];
 
 export interface ISelectSql11Result {
-	hmm: any;
+	hmm: unknown;
 	id: number;
 	quantity: number | null;
 }

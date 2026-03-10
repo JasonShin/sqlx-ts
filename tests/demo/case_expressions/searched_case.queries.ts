@@ -2,7 +2,7 @@ export type SearchedCaseBasicParams = [];
 
 export interface ISearchedCaseBasicResult {
 	id: number;
-	idCategory: any;
+	idCategory: unknown;
 	name: string;
 }
 
@@ -15,7 +15,7 @@ export type SearchedCaseMultipleConditionsParams = [];
 
 export interface ISearchedCaseMultipleConditionsResult {
 	id: number;
-	itemClass: any;
+	itemClass: unknown;
 	name: string;
 	rarity: string | null;
 }
@@ -30,7 +30,7 @@ export type SearchedCaseWithParamsParams = [];
 export interface ISearchedCaseWithParamsResult {
 	id: number;
 	name: string;
-	thresholdStatus: any;
+	thresholdStatus: unknown;
 }
 
 export interface ISearchedCaseWithParamsQuery {

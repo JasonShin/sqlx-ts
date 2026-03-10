@@ -3,7 +3,7 @@ export type SimpleCaseBasicParams = [];
 export interface ISimpleCaseBasicResult {
 	id: number;
 	name: string;
-	rarityCode: any;
+	rarityCode: unknown;
 }
 
 export interface ISimpleCaseBasicQuery {
@@ -16,7 +16,7 @@ export type SimpleCaseWithNullParams = [];
 export interface ISimpleCaseWithNullResult {
 	id: number;
 	name: string;
-	rarityLevel: any;
+	rarityLevel: unknown;
 }
 
 export interface ISimpleCaseWithNullQuery {
@@ -28,9 +28,9 @@ export type MultipleCaseExpressionsParams = [];
 
 export interface IMultipleCaseExpressionsResult {
 	id: number;
-	idRange: any;
+	idRange: unknown;
 	name: string;
-	rarityTier: any;
+	rarityTier: unknown;
 }
 
 export interface IMultipleCaseExpressionsQuery {

@@ -59,7 +59,7 @@ export interface IAgeFunctionQuery {
 export type DateArithmeticParams = [];
 
 export interface IDateArithmeticResult {
-	createdAt: any | null;
+	createdAt: unknown | null;
 	id: number;
 	name: string;
 	oneMonthAgo: number;
