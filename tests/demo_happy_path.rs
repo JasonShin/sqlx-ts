@@ -96,21 +96,22 @@ mod demo_happy_path_tests {
 
 
   #[test]
-  fn all_demo_json_general() -> Result<(), Box<dyn std::error::Error>> {
+  fn all_demo_json_postgres() -> Result<(), Box<dyn std::error::Error>> {
+    // PostgreSQL JSON tests - compatible with all PostgreSQL versions that support JSON
     let root_path = current_dir().unwrap();
-    let demo_path = root_path.join("tests/demo_json/general");
+    let demo_path = root_path.join("tests/demo_json/postgres");
     run_demo_test(&demo_path)
   }
 
-
   #[test]
-  fn all_demo_json_modern() -> Result<(), Box<dyn std::error::Error>> {
+  fn all_demo_json_mysql() -> Result<(), Box<dyn std::error::Error>> {
+    // MySQL 5.7+ and PostgreSQL JSON tests
     if env::var("MYSQL_VERSION").ok() == Some("5.6".to_string()) {
       return Ok(()); // Skip test for MySQL 5.6 which doesn't support JSON functions
     }
 
     let root_path = current_dir().unwrap();
-    let demo_path = root_path.join("tests/demo_json/modern");
+    let demo_path = root_path.join("tests/demo_json/mysql");
     run_demo_test(&demo_path)
   }
 
