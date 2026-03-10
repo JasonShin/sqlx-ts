@@ -94,7 +94,6 @@ mod demo_happy_path_tests {
     run_demo_test(&demo_path)
   }
 
-
   #[test]
   fn all_demo_json_postgres() -> Result<(), Box<dyn std::error::Error>> {
     // PostgreSQL JSON tests - compatible with all PostgreSQL versions that support JSON
@@ -114,7 +113,6 @@ mod demo_happy_path_tests {
     let demo_path = root_path.join("tests/demo_json/mysql");
     run_demo_test(&demo_path)
   }
-
 
   #[test]
   fn test_js_files() -> Result<(), Box<dyn std::error::Error>> {
