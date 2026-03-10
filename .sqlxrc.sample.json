@@ -19,7 +19,7 @@
       "DB_HOST": "127.0.0.1",
       "DB_PORT": 33306,
       "DB_USER": "root",
-      "DB_NAME": "sqlx-ts"
+      "DB_NAME": "sqlx"
     }
   }
 }
