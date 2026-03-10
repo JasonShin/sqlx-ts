@@ -71,7 +71,8 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Build docker-compose services
+      - name: Build docker-compose services for integration tests (Linux only)
+        if: runner.os == 'Linux'
         uses: Wandalen/wretry.action@v3.5.0
         with:
           attempt_limit: 5
