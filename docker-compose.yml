@@ -23,4 +23,4 @@ services:
       - 33306:3306
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-      MYSQL_DATABASE: sqlx
+      MYSQL_DATABASE: sqlx-ts

@@ -40,7 +40,7 @@ impl TestConfig {
                 db_port: 33306,
                 db_user: "root".to_string(),
                 db_pass: None,
-                db_name: "sqlx".to_string(),
+                db_name: "sqlx-ts".to_string(),
                 generate_path,
                 generate_types,
                 config_file_name,
