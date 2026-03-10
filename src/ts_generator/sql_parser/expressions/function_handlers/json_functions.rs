@@ -97,7 +97,7 @@ pub async fn process_json_build_object_args(
   table_with_joins: &Option<Vec<TableWithJoins>>,
   db_conn: &DBConn,
 ) -> Option<Vec<(String, TsFieldType, bool)>> {
-  if args.len() % 2 != 0 {
+  if !args.len().is_multiple_of(2) {
     // Invalid number of arguments
     return None;
   }
