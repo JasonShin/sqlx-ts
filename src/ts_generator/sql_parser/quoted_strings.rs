@@ -30,7 +30,7 @@ impl fmt::Display for DisplayObjectName<'_> {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
     // In sqlparser 0.59.0, ObjectName contains Vec<ObjectNamePart> instead of Vec<Ident>
     // For qualified table names (e.g., database.schema.table), we want the last identifier (table name)
-    let last_part = self.0.0.last().expect(
+    let last_part = self.0 .0.last().expect(
       "ObjectName must contain at least one part (sqlparser invariant).\
        If you're seeing this, it's a bug in sqlparser or the SQL parsing logic.",
     );
