@@ -2,10 +2,21 @@
 mod demo_happy_path_tests {
   use assert_cmd::cargo::cargo_bin_cmd;
   use pretty_assertions::assert_eq;
+  use std::env;
   use std::env::current_dir;
   use std::fs;
   use std::io::Write;
   use walkdir::WalkDir;
+
+  fn mysql_supports_json() -> bool {
+    // MySQL 5.7.8+ supports JSON functions
+    // Default to true if MYSQL_VERSION not set
+    env::var("MYSQL_VERSION")
+      .ok()
+      .and_then(|v| v.split('.').next().and_then(|major| major.parse::<u32>().ok()))
+      .map(|major| major >= 6 || major == 5) // Assume 5.7+ if version is 5
+      .unwrap_or(true)
+  }
 
   #[test]
   fn all_demo_should_pass() -> Result<(), Box<dyn std::error::Error>> {
@@ -89,6 +100,181 @@ mod demo_happy_path_tests {
 
     Ok(())
   }
+
+
+  #[test]
+  fn all_demo_json_general() -> Result<(), Box<dyn std::error::Error>> {
+    // SETUP
+    let root_path = current_dir().unwrap();
+    let demo_path = root_path.join("tests/demo_json/general");
+
+    // EXECUTE - Generate types for .ts files
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
+    cmd
+      .arg(demo_path.to_str().unwrap())
+      .arg("--ext=ts")
+      .arg("--config=.sqlxrc.sample.json")
+      .arg("-g");
+
+    // ASSERT
+    cmd
+      .assert()
+      .success()
+      .stdout(predicates::str::contains("No SQL errors detected!"));
+
+    // Also generate types for other extensions in file_extensions directory
+    let file_extensions_path = demo_path.join("file_extensions");
+    if file_extensions_path.exists() {
+      for ext in &["js", "mts", "cts", "mjs", "cjs"] {
+        let mut cmd = cargo_bin_cmd!("sqlx-ts");
+        cmd
+          .arg(file_extensions_path.to_str().unwrap())
+          .arg(format!("--ext={}", ext))
+          .arg("--config=.sqlxrc.sample.json")
+          .arg("-g");
+        cmd
+          .assert()
+          .success()
+          .stdout(predicates::str::contains("No SQL errors detected!"));
+      }
+    }
+
+    // Also generate types for SQL files
+    let sql_files_path = demo_path.join("sql_files");
+    if sql_files_path.exists() {
+      let mut cmd = cargo_bin_cmd!("sqlx-ts");
+      cmd
+        .arg(sql_files_path.to_str().unwrap())
+        .arg("--ext=sql")
+        .arg("--config=.sqlxrc.sample.json")
+        .arg("-g");
+      cmd
+        .assert()
+        .success()
+        .stdout(predicates::str::contains("No SQL errors detected!"));
+    }
+
+    // Verify all generated types match snapshots
+    for entry in WalkDir::new(demo_path) {
+      if entry.is_ok() {
+        let entry = entry.unwrap();
+        let path = entry.path();
+        let parent = entry.path().parent().unwrap();
+        let file_name = path.file_name().unwrap().to_str().unwrap().to_string();
+
+        if path.is_file() && file_name.ends_with(".queries.ts") {
+          let base_file_name = file_name.split('.').collect::<Vec<&str>>();
+          let base_file_name = base_file_name.first().unwrap();
+          let snapshot_path = parent.join(format!("{base_file_name}.snapshot.ts"));
+
+          let generated_types = fs::read_to_string(path)?;
+
+          if !snapshot_path.exists() {
+            let mut snapshot_file = fs::File::create(&snapshot_path)?;
+            writeln!(snapshot_file, "{generated_types}")?;
+          }
+
+          assert_eq!(
+            generated_types.trim().to_string().trim(),
+            fs::read_to_string(&snapshot_path)?.to_string().trim(),
+          )
+        }
+      }
+    }
+
+    Ok(())
+  }
+
+
+  #[test]
+  fn all_demo_json_modern() -> Result<(), Box<dyn std::error::Error>> {
+    // SETUP
+    let mysql_version = env::var("MYSQL_VERSION").ok();
+
+    if mysql_version == Some("5.6".to_string()) {
+      return Ok(()); // Skip test for MySQL 5.6 which doesn't support JSON functions
+    }
+
+    let root_path = current_dir().unwrap();
+    let demo_path = root_path.join("tests/demo_json/modern");
+
+    // EXECUTE - Generate types for .ts files
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
+    cmd
+      .arg(demo_path.to_str().unwrap())
+      .arg("--ext=ts")
+      .arg("--config=.sqlxrc.sample.json")
+      .arg("-g");
+
+    // ASSERT
+    cmd
+      .assert()
+      .success()
+      .stdout(predicates::str::contains("No SQL errors detected!"));
+
+    // Also generate types for other extensions in file_extensions directory
+    let file_extensions_path = demo_path.join("file_extensions");
+    if file_extensions_path.exists() {
+      for ext in &["js", "mts", "cts", "mjs", "cjs"] {
+        let mut cmd = cargo_bin_cmd!("sqlx-ts");
+        cmd
+          .arg(file_extensions_path.to_str().unwrap())
+          .arg(format!("--ext={}", ext))
+          .arg("--config=.sqlxrc.sample.json")
+          .arg("-g");
+        cmd
+          .assert()
+          .success()
+          .stdout(predicates::str::contains("No SQL errors detected!"));
+      }
+    }
+
+    // Also generate types for SQL files
+    let sql_files_path = demo_path.join("sql_files");
+    if sql_files_path.exists() {
+      let mut cmd = cargo_bin_cmd!("sqlx-ts");
+      cmd
+        .arg(sql_files_path.to_str().unwrap())
+        .arg("--ext=sql")
+        .arg("--config=.sqlxrc.sample.json")
+        .arg("-g");
+      cmd
+        .assert()
+        .success()
+        .stdout(predicates::str::contains("No SQL errors detected!"));
+    }
+
+    // Verify all generated types match snapshots
+    for entry in WalkDir::new(demo_path) {
+      if entry.is_ok() {
+        let entry = entry.unwrap();
+        let path = entry.path();
+        let parent = entry.path().parent().unwrap();
+        let file_name = path.file_name().unwrap().to_str().unwrap().to_string();
+
+        if path.is_file() && file_name.ends_with(".queries.ts") {
+          let base_file_name = file_name.split('.').collect::<Vec<&str>>();
+          let base_file_name = base_file_name.first().unwrap();
+          let snapshot_path = parent.join(format!("{base_file_name}.snapshot.ts"));
+
+          let generated_types = fs::read_to_string(path)?;
+
+          if !snapshot_path.exists() {
+            let mut snapshot_file = fs::File::create(&snapshot_path)?;
+            writeln!(snapshot_file, "{generated_types}")?;
+          }
+
+          assert_eq!(
+            generated_types.trim().to_string().trim(),
+            fs::read_to_string(&snapshot_path)?.to_string().trim(),
+          )
+        }
+      }
+    }
+
+    Ok(())
+  }
+
 
   #[test]
   fn test_js_files() -> Result<(), Box<dyn std::error::Error>> {

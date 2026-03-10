@@ -159,7 +159,6 @@ CREATE TABLE random (
     json1 TEXT
 );
 
-
 -- JSON Test Data Table
 -- This table contains various JSON structures for testing JSON operators and functions
 CREATE TABLE json_test_data (

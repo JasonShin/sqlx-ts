@@ -15,7 +15,7 @@ services:
 
   mysql:
     platform: linux/amd64
-    image: mysql:5.7
+    image: mysql:${MYSQL_VERSION:-8}
     restart: always
     volumes:
       - ./playpen/db/${MYSQL_MIGRATION_FILE:-mysql_migration.sql}:/docker-entrypoint-initdb.d/mysql_migration.sql
