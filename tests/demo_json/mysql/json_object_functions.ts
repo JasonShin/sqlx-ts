@@ -182,7 +182,6 @@ WHERE json_test_data.name = 'user_profile'
 // Test JSON_DEPTH - get depth of JSON
 const jsonDepth = sql`
 -- @db: db_mysql
--- @db: db_mysql
 -- @name: json depth
 SELECT
   json_test_data.id AS id,
@@ -194,7 +193,6 @@ WHERE json_test_data.name IN ('user_profile', 'nested_config')
 
 // Test JSON_VALID - validate JSON
 const jsonValid = sql`
--- @db: db_mysql
 -- @db: db_mysql
 -- @name: json valid
 SELECT

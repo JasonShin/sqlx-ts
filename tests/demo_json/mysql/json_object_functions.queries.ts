@@ -76,7 +76,7 @@ export type JsonObjectBuildParams = [];
 export interface IJsonObjectBuildResult {
 	id: number;
 	name: string;
-	userSummary: any;
+	userSummary: { id: number; name: string; username: any; email: any };
 }
 
 export interface IJsonObjectBuildQuery {

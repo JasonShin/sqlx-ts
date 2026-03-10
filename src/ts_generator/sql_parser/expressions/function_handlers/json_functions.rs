@@ -97,7 +97,7 @@ pub async fn process_json_build_object_args(
   table_with_joins: &Option<Vec<TableWithJoins>>,
   db_conn: &DBConn,
 ) -> Option<Vec<(String, TsFieldType, bool)>> {
-  if !args.len().is_multiple_of(2) {
+  if args.len() % 2 != 0 {
     // Invalid number of arguments
     return None;
   }
@@ -133,8 +133,9 @@ pub async fn handle_json_build_function(
 ) -> Result<(), TsGeneratorError> {
   let expr_log = ctx.expr_for_logging.unwrap_or("");
 
-  // Handle jsonb_build_object / json_build_object
-  if function_name.to_uppercase() == "JSONB_BUILD_OBJECT" || function_name.to_uppercase() == "JSON_BUILD_OBJECT" {
+  // Handle jsonb_build_object / json_build_object / json_object (MySQL)
+  let func_upper = function_name.to_uppercase();
+  if func_upper == "JSONB_BUILD_OBJECT" || func_upper == "JSON_BUILD_OBJECT" || func_upper == "JSON_OBJECT" {
     if let Some(object_fields) =
       process_json_build_object_args(args, ctx.single_table_name, ctx.table_with_joins, ctx.db_conn).await
     {
