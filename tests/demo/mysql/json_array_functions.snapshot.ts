@@ -128,3 +128,4 @@ export interface IJsonArrayInsertQuery {
 	params: JsonArrayInsertParams;
 	result: IJsonArrayInsertResult;
 }
+

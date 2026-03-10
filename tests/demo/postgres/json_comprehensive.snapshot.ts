@@ -19,7 +19,7 @@ export interface IJsonNestedAccessResult {
 	city: string;
 	id: number;
 	name: string;
-	zip_code: string;
+	zipCode: string;
 }
 
 export interface IJsonNestedAccessQuery {
@@ -30,8 +30,8 @@ export interface IJsonNestedAccessQuery {
 export type JsonArrayIndexParams = [];
 
 export interface IJsonArrayIndexResult {
-	first_item_name: string;
-	first_item_price: number;
+	firstItemName: string;
+	firstItemPrice: number;
 	id: number;
 	name: string;
 }
@@ -46,7 +46,7 @@ export type JsonArrayLengthParams = [];
 export interface IJsonArrayLengthResult {
 	id: number;
 	name: string;
-	tags_count: any;
+	tagsCount: any;
 }
 
 export interface IJsonArrayLengthQuery {
@@ -57,10 +57,10 @@ export interface IJsonArrayLengthQuery {
 export type JsonTypeofParams = [];
 
 export interface IJsonTypeofResult {
-	age_type: any;
+	ageType: any;
 	id: number;
-	tags_type: any;
-	username_type: any;
+	tagsType: any;
+	usernameType: any;
 }
 
 export interface IJsonTypeofQuery {
@@ -71,8 +71,8 @@ export interface IJsonTypeofQuery {
 export type JsonKeyExistsParams = [];
 
 export interface IJsonKeyExistsResult {
-	has_address: string;
-	has_username: string;
+	hasAddress: string;
+	hasUsername: string;
 	id: number;
 	name: string;
 }
@@ -86,7 +86,7 @@ export type JsonContainsParams = [];
 
 export interface IJsonContainsResult {
 	id: number;
-	is_active: string;
+	isActive: string;
 	name: string;
 }
 
@@ -100,7 +100,7 @@ export type JsonBuildObjectTypedParams = [];
 export interface IJsonBuildObjectTypedResult {
 	id: number;
 	name: string;
-	user_summary: { id: number; name: string; username: any; email: any };
+	userSummary: { id: number; name: string; username: any; email: any };
 }
 
 export interface IJsonBuildObjectTypedQuery {
@@ -124,9 +124,9 @@ export interface IJsonFilterQuery {
 export type JsonDeepPathParams = [];
 
 export interface IJsonDeepPathResult {
-	app_name: string;
-	db_host: string;
-	db_port: number;
+	appName: string;
+	dbHost: string;
+	dbPort: number;
 	id: number;
 }
 
@@ -134,3 +134,4 @@ export interface IJsonDeepPathQuery {
 	params: JsonDeepPathParams;
 	result: IJsonDeepPathResult;
 }
+

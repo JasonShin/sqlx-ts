@@ -34,3 +34,4 @@ export interface IJsonOperatorsSelectQuery {
 	params: JsonOperatorsSelectParams;
 	result: IJsonOperatorsSelectResult;
 }
+

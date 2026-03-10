@@ -1,11 +1,11 @@
 export type JsonFieldAccessParams = [];
 
 export interface IJsonFieldAccessResult {
-	active_json: string;
-	age_json: string;
+	activeJson: string;
+	ageJson: string;
 	id: number;
 	name: string;
-	username_json: string;
+	usernameJson: string;
 }
 
 export interface IJsonFieldAccessQuery {
@@ -32,14 +32,14 @@ export interface IJsonFieldAccessTextQuery {
 export type JsonNestedAccessParams = [];
 
 export interface IJsonNestedAccessResult {
-	address_json: string;
+	addressJson: string;
 	city: string;
-	city_json: string;
+	cityJson: string;
 	id: number;
 	name: string;
 	street: string;
-	street_json: string;
-	zip_code: string;
+	streetJson: string;
+	zipCode: string;
 }
 
 export interface IJsonNestedAccessQuery {
@@ -50,13 +50,13 @@ export interface IJsonNestedAccessQuery {
 export type JsonArrayAccessParams = [];
 
 export interface IJsonArrayAccessResult {
-	first_item_json: number;
-	first_item_name: string;
-	first_item_price: string;
+	firstItemJson: number;
+	firstItemName: string;
+	firstItemPrice: string;
 	id: number;
-	items_json: string;
+	itemsJson: string;
 	name: string;
-	second_item_json: number;
+	secondItemJson: number;
 }
 
 export interface IJsonArrayAccessQuery {
@@ -67,12 +67,12 @@ export interface IJsonArrayAccessQuery {
 export type JsonPathAccessParams = [];
 
 export interface IJsonPathAccessResult {
-	first_item_json: string;
-	first_item_name: string;
-	first_item_rarity: string;
+	firstItemJson: string;
+	firstItemName: string;
+	firstItemRarity: string;
 	id: number;
 	level: string;
-	level_json: string;
+	levelJson: string;
 	name: string;
 }
 
@@ -84,11 +84,11 @@ export interface IJsonPathAccessQuery {
 export type JsonDeepPathAccessParams = [];
 
 export interface IJsonDeepPathAccessResult {
-	dark_mode: string;
-	db_host: string;
-	db_host_json: string;
-	db_port: string;
-	email_notifications: string;
+	darkMode: string;
+	dbHost: string;
+	dbHostJson: string;
+	dbPort: string;
+	emailNotifications: string;
 	id: number;
 	name: string;
 }
@@ -115,15 +115,16 @@ export interface IJsonFilterByFieldQuery {
 export type JsonNullHandlingParams = [];
 
 export interface IJsonNullHandlingResult {
-	first_comment: string;
-	first_reviewer: string;
+	firstComment: string;
+	firstReviewer: string;
 	id: number;
-	second_comment: string;
-	third_comment: string;
-	third_reviewer: string;
+	secondComment: string;
+	thirdComment: string;
+	thirdReviewer: string;
 }
 
 export interface IJsonNullHandlingQuery {
 	params: JsonNullHandlingParams;
 	result: IJsonNullHandlingResult;
 }
+

@@ -89,7 +89,7 @@ export type JsonSetParams = [];
 export interface IJsonSetResult {
 	id: number;
 	name: string;
-	originalData: any;
+	originalData: object;
 	updatedAge: any;
 	updatedCity: any;
 }
@@ -104,7 +104,7 @@ export type JsonInsertParams = [];
 export interface IJsonInsertResult {
 	id: number;
 	name: string;
-	originalData: any;
+	originalData: object;
 	withPhone: any;
 }
 
@@ -118,7 +118,7 @@ export type JsonReplaceParams = [];
 export interface IJsonReplaceResult {
 	id: number;
 	name: string;
-	originalData: any;
+	originalData: object;
 	withNewUsername: any;
 }
 
@@ -132,7 +132,7 @@ export type JsonRemoveParams = [];
 export interface IJsonRemoveResult {
 	id: number;
 	name: string;
-	originalData: any;
+	originalData: object;
 	withoutAge: any;
 }
 
@@ -147,7 +147,7 @@ export interface IJsonMergePatchResult {
 	id: number;
 	mergedData: any;
 	name: string;
-	originalData: any;
+	originalData: object;
 }
 
 export interface IJsonMergePatchQuery {
@@ -161,7 +161,7 @@ export interface IJsonMergePreserveResult {
 	id: number;
 	mergedData: any;
 	name: string;
-	originalData: any;
+	originalData: object;
 }
 
 export interface IJsonMergePreserveQuery {
@@ -208,3 +208,4 @@ export interface IJsonValidQuery {
 	params: JsonValidParams;
 	result: IJsonValidResult;
 }
+

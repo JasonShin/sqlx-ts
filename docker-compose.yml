@@ -3,6 +3,7 @@ version: '3.1'
 services:
 
   postgres:
+    platform: linux/amd64
     image: postgres:${PG_VERSION:-13}
     restart: always
     environment:
@@ -13,7 +14,8 @@ services:
       - 54321:5432
 
   mysql:
-    image: mysql:${MYSQL_VERSION:-8}
+    platform: linux/amd64
+    image: mysql:5.7
     restart: always
     volumes:
       - ./playpen/db/${MYSQL_MIGRATION_FILE:-mysql_migration.sql}:/docker-entrypoint-initdb.d/mysql_migration.sql

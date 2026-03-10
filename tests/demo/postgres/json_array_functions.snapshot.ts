@@ -24,3 +24,4 @@ export interface IJsonbArrayContainsQuery {
 	params: JsonbArrayContainsParams;
 	result: IJsonbArrayContainsResult;
 }
+
