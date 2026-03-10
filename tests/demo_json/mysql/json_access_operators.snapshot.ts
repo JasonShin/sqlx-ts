@@ -33,12 +33,9 @@ export type JsonNestedAccessParams = [];
 
 export interface IJsonNestedAccessResult {
 	addressJson: string;
-	city: any;
 	cityJson: string;
 	id: number;
 	name: string;
-	street: any;
-	zipCode: any;
 }
 
 export interface IJsonNestedAccessQuery {
@@ -50,7 +47,6 @@ export type JsonArrayAccessParams = [];
 
 export interface IJsonArrayAccessResult {
 	firstItemJson: string;
-	firstItemName: any;
 	firstItemPrice: number;
 	id: number;
 	itemsJson: string;
@@ -126,4 +122,3 @@ export interface IJsonNullHandlingQuery {
 	params: JsonNullHandlingParams;
 	result: IJsonNullHandlingResult;
 }
-

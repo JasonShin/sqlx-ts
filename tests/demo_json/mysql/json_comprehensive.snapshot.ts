@@ -173,4 +173,3 @@ export interface IJsonSearchQuery {
 	params: JsonSearchParams;
 	result: IJsonSearchResult;
 }
-

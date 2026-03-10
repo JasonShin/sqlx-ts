@@ -131,6 +131,7 @@ impl TsFieldType {
       "binary" | "bit" | "blob" | "char" | "text" | "varbinary" | "varchar" => Self::String,
       "tinyint" => Self::Boolean,
       "date" | "datetime" | "timestamp" => Self::Date,
+      "json" => Self::Object,
       "enum" => {
         if let Some(enum_values) = enum_values {
           return Self::Enum(enum_values);

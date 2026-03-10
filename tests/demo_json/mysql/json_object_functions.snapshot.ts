@@ -208,4 +208,3 @@ export interface IJsonValidQuery {
 	params: JsonValidParams;
 	result: IJsonValidResult;
 }
-
