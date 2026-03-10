@@ -8,16 +8,6 @@ mod demo_happy_path_tests {
   use std::io::Write;
   use walkdir::WalkDir;
 
-  fn mysql_supports_json() -> bool {
-    // MySQL 5.7.8+ supports JSON functions
-    // Default to true if MYSQL_VERSION not set
-    env::var("MYSQL_VERSION")
-      .ok()
-      .and_then(|v| v.split('.').next().and_then(|major| major.parse::<u32>().ok()))
-      .map(|major| major >= 6 || major == 5) // Assume 5.7+ if version is 5
-      .unwrap_or(true)
-  }
-
   #[test]
   fn all_demo_should_pass() -> Result<(), Box<dyn std::error::Error>> {
     // SETUP
@@ -105,6 +95,12 @@ mod demo_happy_path_tests {
   #[test]
   fn all_demo_json_general() -> Result<(), Box<dyn std::error::Error>> {
     // SETUP
+    let mysql_version = env::var("MYSQL_VERSION").ok();
+
+    if mysql_version == Some("5.6".to_string()) {
+      return Ok(()); // Skip test for MySQL 5.6 which doesn't support JSON functions
+    }
+
     let root_path = current_dir().unwrap();
     let demo_path = root_path.join("tests/demo_json/general");
 
