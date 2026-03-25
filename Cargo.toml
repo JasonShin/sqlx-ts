@@ -19,7 +19,7 @@ swc_common = { version = "19.0.0", features = ["tty-emitter"] }
 swc_ecma_ast = "21.0.0"
 swc_ecma_parser = "35.0.0"
 walkdir = "2.5.0"
-clap = { version = "4.5.60", features = ["derive"] }
+clap = { version = "4.6.0", features = ["derive"] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0.149" }
 sqlparser = { version = "0.59.0" }
@@ -34,8 +34,8 @@ bb8 = "0.9.1"
 log = "0.4.29"
 
 [dev-dependencies]
-assert_cmd = "2.1.1"
+assert_cmd = "2.2.0"
 predicates = "3.1.4"
-tempfile = "3.26.0"
+tempfile = "3.27.0"
 test_utils = { path="test-utils" }
 pretty_assertions = "1.4.1"
