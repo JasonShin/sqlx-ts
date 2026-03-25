@@ -2,10 +2,10 @@ export type JsonExtractParams = [];
 
 export interface IJsonExtractResult {
 	age: number;
-	email: any;
+	email: unknown;
 	id: number;
 	name: string;
-	username: any;
+	username: unknown;
 }
 
 export interface IJsonExtractQuery {
@@ -30,10 +30,10 @@ export interface IJsonExtractShorthandQuery {
 export type JsonNestedPathParams = [];
 
 export interface IJsonNestedPathResult {
-	city: any;
+	city: unknown;
 	id: number;
 	name: string;
-	zipCode: any;
+	zipCode: unknown;
 }
 
 export interface IJsonNestedPathQuery {
@@ -44,7 +44,7 @@ export interface IJsonNestedPathQuery {
 export type JsonArrayIndexParams = [];
 
 export interface IJsonArrayIndexResult {
-	firstItemName: any;
+	firstItemName: unknown;
 	firstItemPrice: number;
 	id: number;
 	name: string;
@@ -60,7 +60,7 @@ export type JsonArrayLengthParams = [];
 export interface IJsonArrayLengthResult {
 	id: number;
 	name: string;
-	tagsCount: any;
+	tagsCount: unknown;
 }
 
 export interface IJsonArrayLengthQuery {
@@ -71,10 +71,10 @@ export interface IJsonArrayLengthQuery {
 export type JsonTypeParams = [];
 
 export interface IJsonTypeResult {
-	ageType: any;
+	ageType: unknown;
 	id: number;
-	tagsType: any;
-	usernameType: any;
+	tagsType: unknown;
+	usernameType: unknown;
 }
 
 export interface IJsonTypeQuery {
@@ -86,7 +86,7 @@ export type JsonContainsParams = [];
 
 export interface IJsonContainsResult {
 	id: number;
-	isActive: any;
+	isActive: unknown;
 	name: string;
 }
 
@@ -98,7 +98,7 @@ export interface IJsonContainsQuery {
 export type JsonKeysParams = [];
 
 export interface IJsonKeysResult {
-	allKeys: any;
+	allKeys: unknown;
 	id: number;
 	name: string;
 }
@@ -126,7 +126,7 @@ export type JsonFilterParams = [];
 export interface IJsonFilterResult {
 	id: number;
 	name: string;
-	username: any;
+	username: unknown;
 }
 
 export interface IJsonFilterQuery {
@@ -137,8 +137,8 @@ export interface IJsonFilterQuery {
 export type JsonDeepPathParams = [];
 
 export interface IJsonDeepPathResult {
-	appName: any;
-	dbHost: any;
+	appName: unknown;
+	dbHost: unknown;
 	dbPort: number;
 	id: number;
 }
@@ -152,7 +152,7 @@ export type JsonValidParams = [];
 
 export interface IJsonValidResult {
 	id: number;
-	isValidJson: any;
+	isValidJson: unknown;
 	name: string;
 }
 
@@ -166,7 +166,7 @@ export type JsonSearchParams = [];
 export interface IJsonSearchResult {
 	id: number;
 	name: string;
-	usernamePath: any;
+	usernamePath: unknown;
 }
 
 export interface IJsonSearchQuery {

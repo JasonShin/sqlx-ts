@@ -3,7 +3,7 @@ export type JsonObjectKeysParams = [];
 export interface IJsonObjectKeysResult {
 	id: number;
 	name: string;
-	objectKeys: any;
+	objectKeys: unknown;
 }
 
 export interface IJsonObjectKeysQuery {
@@ -14,7 +14,7 @@ export interface IJsonObjectKeysQuery {
 export type JsonObjectKeysPathParams = [];
 
 export interface IJsonObjectKeysPathResult {
-	addressKeys: any;
+	addressKeys: unknown;
 	id: number;
 	name: string;
 }
@@ -27,13 +27,13 @@ export interface IJsonObjectKeysPathQuery {
 export type JsonTypeofParams = [];
 
 export interface IJsonTypeofResult {
-	activeType: any;
-	ageType: any;
+	activeType: unknown;
+	ageType: unknown;
 	id: number;
-	itemsType: any;
+	itemsType: unknown;
 	name: string;
-	tagsType: any;
-	usernameType: any;
+	tagsType: unknown;
+	usernameType: unknown;
 }
 
 export interface IJsonTypeofQuery {
@@ -44,9 +44,9 @@ export interface IJsonTypeofQuery {
 export type JsonContainsParams = [];
 
 export interface IJsonContainsResult {
-	hasSpecificUsername: any;
+	hasSpecificUsername: unknown;
 	id: number;
-	isActive: any;
+	isActive: unknown;
 	name: string;
 }
 
@@ -58,10 +58,10 @@ export interface IJsonContainsQuery {
 export type JsonContainsPathParams = [];
 
 export interface IJsonContainsPathResult {
-	hasAddress: any;
-	hasBoth: any;
-	hasNonexistent: any;
-	hasUsername: any;
+	hasAddress: unknown;
+	hasBoth: unknown;
+	hasNonexistent: unknown;
+	hasUsername: unknown;
 	id: number;
 	name: string;
 }
@@ -90,8 +90,8 @@ export interface IJsonSetResult {
 	id: number;
 	name: string;
 	originalData: object;
-	updatedAge: any;
-	updatedCity: any;
+	updatedAge: unknown;
+	updatedCity: unknown;
 }
 
 export interface IJsonSetQuery {
@@ -105,7 +105,7 @@ export interface IJsonInsertResult {
 	id: number;
 	name: string;
 	originalData: object;
-	withPhone: any;
+	withPhone: unknown;
 }
 
 export interface IJsonInsertQuery {
@@ -119,7 +119,7 @@ export interface IJsonReplaceResult {
 	id: number;
 	name: string;
 	originalData: object;
-	withNewUsername: any;
+	withNewUsername: unknown;
 }
 
 export interface IJsonReplaceQuery {
@@ -133,7 +133,7 @@ export interface IJsonRemoveResult {
 	id: number;
 	name: string;
 	originalData: object;
-	withoutAge: any;
+	withoutAge: unknown;
 }
 
 export interface IJsonRemoveQuery {
@@ -145,7 +145,7 @@ export type JsonMergePatchParams = [];
 
 export interface IJsonMergePatchResult {
 	id: number;
-	mergedData: any;
+	mergedData: unknown;
 	name: string;
 	originalData: object;
 }
@@ -159,7 +159,7 @@ export type JsonMergePreserveParams = [];
 
 export interface IJsonMergePreserveResult {
 	id: number;
-	mergedData: any;
+	mergedData: unknown;
 	name: string;
 	originalData: object;
 }
@@ -172,10 +172,10 @@ export interface IJsonMergePreserveQuery {
 export type JsonSearchParams = [];
 
 export interface IJsonSearchResult {
-	emailPath: any;
+	emailPath: unknown;
 	id: number;
 	name: string;
-	usernamePath: any;
+	usernamePath: unknown;
 }
 
 export interface IJsonSearchQuery {
@@ -186,7 +186,7 @@ export interface IJsonSearchQuery {
 export type JsonDepthParams = [];
 
 export interface IJsonDepthResult {
-	dataDepth: any;
+	dataDepth: unknown;
 	id: number;
 	name: string;
 }
@@ -200,7 +200,7 @@ export type JsonValidParams = [];
 
 export interface IJsonValidResult {
 	id: number;
-	isValidJson: any;
+	isValidJson: unknown;
 	name: string;
 }
 

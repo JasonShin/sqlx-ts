@@ -3,7 +3,7 @@ export type JsonbObjectKeysParams = [];
 export interface IJsonbObjectKeysResult {
 	jsonTestDataId: number;
 	jsonTestDataName: string;
-	objectKey: any;
+	objectKey: unknown;
 }
 
 export interface IJsonbObjectKeysQuery {
@@ -14,13 +14,13 @@ export interface IJsonbObjectKeysQuery {
 export type JsonbTypeofParams = [];
 
 export interface IJsonbTypeofResult {
-	activeType: any;
-	ageType: any;
-	itemsType: any;
+	activeType: unknown;
+	ageType: unknown;
+	itemsType: unknown;
 	jsonTestDataId: number;
 	jsonTestDataName: string;
-	tagsType: any;
-	usernameType: any;
+	tagsType: unknown;
+	usernameType: unknown;
 }
 
 export interface IJsonbTypeofQuery {
@@ -34,7 +34,7 @@ export interface IJsonbStripNullsResult {
 	jsonTestDataId: number;
 	jsonTestDataName: string;
 	reviewWithNulls: number;
-	reviewWithoutNulls: any;
+	reviewWithoutNulls: unknown;
 }
 
 export interface IJsonbStripNullsQuery {
@@ -60,7 +60,7 @@ export interface IJsonbKeyExistsQuery {
 export type JsonbAnyKeyExistsParams = [];
 
 export interface IJsonbAnyKeyExistsResult {
-	hasAnyContact: any;
+	hasAnyContact: unknown;
 	jsonTestDataId: number;
 	jsonTestDataName: string;
 }
@@ -73,8 +73,8 @@ export interface IJsonbAnyKeyExistsQuery {
 export type JsonbAllKeysExistParams = [];
 
 export interface IJsonbAllKeysExistResult {
-	hasAllRequired: any;
-	hasAllWithPhone: any;
+	hasAllRequired: unknown;
+	hasAllWithPhone: unknown;
 	jsonTestDataId: number;
 	jsonTestDataName: string;
 }
@@ -118,8 +118,8 @@ export interface IJsonbSetResult {
 	jsonTestDataId: number;
 	jsonTestDataName: string;
 	originalData: object;
-	updatedAge: any;
-	updatedCity: any;
+	updatedAge: unknown;
+	updatedCity: unknown;
 }
 
 export interface IJsonbSetQuery {
@@ -133,7 +133,7 @@ export interface IJsonbInsertResult {
 	jsonTestDataId: number;
 	jsonTestDataName: string;
 	originalData: object;
-	withPhone: any;
+	withPhone: unknown;
 }
 
 export interface IJsonbInsertQuery {

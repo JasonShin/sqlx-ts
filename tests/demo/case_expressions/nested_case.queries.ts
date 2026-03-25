@@ -1,7 +1,7 @@
 export type NestedCaseBasicParams = [];
 
 export interface INestedCaseBasicResult {
-	detailedRarity: any;
+	detailedRarity: unknown;
 	id: number;
 	name: string;
 	rarity: string | null;
@@ -17,7 +17,7 @@ export type NestedCaseMultipleLevelsParams = [];
 export interface INestedCaseMultipleLevelsResult {
 	id: number;
 	name: string;
-	tier: any;
+	tier: unknown;
 }
 
 export interface INestedCaseMultipleLevelsQuery {

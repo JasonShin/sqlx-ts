@@ -46,7 +46,7 @@ export type JsonArrayLengthParams = [];
 export interface IJsonArrayLengthResult {
 	id: number;
 	name: string;
-	tagsCount: any;
+	tagsCount: unknown;
 }
 
 export interface IJsonArrayLengthQuery {
@@ -57,10 +57,10 @@ export interface IJsonArrayLengthQuery {
 export type JsonTypeofParams = [];
 
 export interface IJsonTypeofResult {
-	ageType: any;
+	ageType: unknown;
 	id: number;
-	tagsType: any;
-	usernameType: any;
+	tagsType: unknown;
+	usernameType: unknown;
 }
 
 export interface IJsonTypeofQuery {

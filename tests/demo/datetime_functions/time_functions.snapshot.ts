@@ -16,8 +16,8 @@ export type TimeComparisonParams = [];
 
 export interface ITimeComparisonResult {
 	id: number;
-	loginTime: any | null;
-	logoutTime: any | null;
+	loginTime: unknown | null;
+	logoutTime: unknown | null;
 	name: string;
 }
 
@@ -29,7 +29,7 @@ export interface ITimeComparisonQuery {
 export type IntervalOperationsParams = [];
 
 export interface IIntervalOperationsResult {
-	createdAt: any | null;
+	createdAt: unknown | null;
 	id: number;
 	name: string;
 	oneHourLater: number;
@@ -46,7 +46,7 @@ export type DateDifferenceParams = [];
 export interface IDateDifferenceResult {
 	id: number;
 	name: string;
-	sessionDuration: any | null;
+	sessionDuration: unknown | null;
 }
 
 export interface IDateDifferenceQuery {
