@@ -1,10 +1,10 @@
 export type JsonbArrayLengthParams = [];
 
 export interface IJsonbArrayLengthResult {
-	itemsCount: any;
+	itemsCount: unknown;
 	jsonTestDataId: number;
 	jsonTestDataName: string;
-	tagsCount: any;
+	tagsCount: unknown;
 }
 
 export interface IJsonbArrayLengthQuery {

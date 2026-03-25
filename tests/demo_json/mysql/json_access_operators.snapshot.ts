@@ -63,8 +63,8 @@ export type JsonPathAccessParams = [];
 
 export interface IJsonPathAccessResult {
 	firstItemJson: string;
-	firstItemName: any;
-	firstItemRarity: any;
+	firstItemName: unknown;
+	firstItemRarity: unknown;
 	id: number;
 	level: number;
 	levelJson: string;
@@ -80,7 +80,7 @@ export type JsonDeepPathAccessParams = [];
 
 export interface IJsonDeepPathAccessResult {
 	darkMode: number;
-	dbHost: any;
+	dbHost: unknown;
 	dbHostJson: string;
 	dbPort: number;
 	emailNotifications: number;
@@ -110,15 +110,16 @@ export interface IJsonFilterByFieldQuery {
 export type JsonNullHandlingParams = [];
 
 export interface IJsonNullHandlingResult {
-	firstComment: any;
-	firstReviewer: any;
+	firstComment: unknown;
+	firstReviewer: unknown;
 	id: number;
-	secondComment: any;
-	thirdComment: any;
-	thirdReviewer: any;
+	secondComment: unknown;
+	thirdComment: unknown;
+	thirdReviewer: unknown;
 }
 
 export interface IJsonNullHandlingQuery {
 	params: JsonNullHandlingParams;
 	result: IJsonNullHandlingResult;
 }
+

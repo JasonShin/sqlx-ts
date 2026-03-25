@@ -2,9 +2,9 @@ export type JsonArrayLengthParams = [];
 
 export interface IJsonArrayLengthResult {
 	id: number;
-	itemsCount: any;
+	itemsCount: unknown;
 	name: string;
-	tagsCount: any;
+	tagsCount: unknown;
 }
 
 export interface IJsonArrayLengthQuery {
@@ -15,11 +15,11 @@ export interface IJsonArrayLengthQuery {
 export type JsonArrayExtractParams = [];
 
 export interface IJsonArrayExtractResult {
-	firstTag: any;
+	firstTag: unknown;
 	id: number;
 	name: string;
-	secondTag: any;
-	thirdTag: any;
+	secondTag: unknown;
+	thirdTag: unknown;
 }
 
 export interface IJsonArrayExtractQuery {
@@ -30,11 +30,11 @@ export interface IJsonArrayExtractQuery {
 export type JsonArrayContainsParams = [];
 
 export interface IJsonArrayContainsResult {
-	hasDatabase: any;
-	hasMysql: any;
+	hasDatabase: unknown;
+	hasMysql: unknown;
 	id: number;
 	name: string;
-	tags: any;
+	tags: unknown;
 }
 
 export interface IJsonArrayContainsQuery {
@@ -45,8 +45,8 @@ export interface IJsonArrayContainsQuery {
 export type JsonArrayMembershipParams = [];
 
 export interface IJsonArrayMembershipResult {
-	hasMysqlTag: any;
-	hasTutorialTag: any;
+	hasMysqlTag: unknown;
+	hasTutorialTag: unknown;
 	id: number;
 	name: string;
 }
@@ -59,12 +59,12 @@ export interface IJsonArrayMembershipQuery {
 export type JsonNestedArrayAccessParams = [];
 
 export interface IJsonNestedArrayAccessResult {
-	firstItemName: any;
-	firstItemPrice: any;
+	firstItemName: unknown;
+	firstItemPrice: unknown;
 	id: number;
 	name: string;
-	secondItemName: any;
-	secondItemQuantity: any;
+	secondItemName: unknown;
+	secondItemQuantity: unknown;
 }
 
 export interface IJsonNestedArrayAccessQuery {
@@ -75,12 +75,12 @@ export interface IJsonNestedArrayAccessQuery {
 export type JsonDeepNestedArrayParams = [];
 
 export interface IJsonDeepNestedArrayResult {
-	firstAchievement: any;
-	firstInventoryItem: any;
-	firstItemRarity: any;
+	firstAchievement: unknown;
+	firstInventoryItem: unknown;
+	firstItemRarity: unknown;
 	id: number;
 	name: string;
-	secondInventoryItem: any;
+	secondInventoryItem: unknown;
 }
 
 export interface IJsonDeepNestedArrayQuery {
@@ -91,7 +91,7 @@ export interface IJsonDeepNestedArrayQuery {
 export type JsonArrayBuildParams = [];
 
 export interface IJsonArrayBuildResult {
-	firstTwoTags: any;
+	firstTwoTags: unknown;
 	id: number;
 	name: string;
 }
@@ -106,8 +106,8 @@ export type JsonArrayAppendParams = [];
 export interface IJsonArrayAppendResult {
 	id: number;
 	name: string;
-	originalTags: any;
-	tagsWithNew: any;
+	originalTags: unknown;
+	tagsWithNew: unknown;
 }
 
 export interface IJsonArrayAppendQuery {
@@ -120,8 +120,8 @@ export type JsonArrayInsertParams = [];
 export interface IJsonArrayInsertResult {
 	id: number;
 	name: string;
-	originalTags: any;
-	tagsWithInsert: any;
+	originalTags: unknown;
+	tagsWithInsert: unknown;
 }
 
 export interface IJsonArrayInsertQuery {

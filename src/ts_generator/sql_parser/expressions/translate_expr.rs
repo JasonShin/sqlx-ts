@@ -657,7 +657,7 @@ pub async fn translate_expr(
           FunctionArguments::List(arg_list) => &arg_list.args,
           _ => {
             // If no arguments or subquery, return Any
-            return ts_query.insert_result(Some(alias), &[TsFieldType::Any], is_selection, false, expr_for_logging);
+            return ts_query.insert_result(Some(alias), &[TsFieldType::Unknown], is_selection, false, expr_for_logging);
           }
         };
 

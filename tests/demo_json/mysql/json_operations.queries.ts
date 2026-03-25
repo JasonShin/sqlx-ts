@@ -1,7 +1,7 @@
 export type JsonOperatorsSelectParams = [];
 
 export interface IJsonOperatorsSelectResult {
-	extractedName: any;
+	extractedName: unknown;
 	id: number;
 	name: string;
 }
