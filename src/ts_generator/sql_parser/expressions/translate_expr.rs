@@ -136,7 +136,8 @@ pub async fn get_sql_query_param(
   cte_columns: &std::collections::HashMap<String, std::collections::HashMap<String, TsFieldType>>,
 ) -> Result<Option<(TsFieldType, bool, Option<String>)>, TsGeneratorError> {
   // Try the standard order first: left=column, right=placeholder
-  let result = get_sql_query_param_directed(left, right, single_table_name, table_with_joins, db_conn, cte_columns).await?;
+  let result =
+    get_sql_query_param_directed(left, right, single_table_name, table_with_joins, db_conn, cte_columns).await?;
   if result.is_some() {
     return Ok(result);
   }
