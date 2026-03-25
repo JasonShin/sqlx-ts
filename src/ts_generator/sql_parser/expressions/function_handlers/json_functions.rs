@@ -147,9 +147,13 @@ pub async fn handle_json_build_function(
   }
 
   // For other build functions or on failure, return Any
-  ctx
-    .ts_query
-    .insert_result(Some(ctx.alias), &[TsFieldType::Unknown], ctx.is_selection, false, expr_log)
+  ctx.ts_query.insert_result(
+    Some(ctx.alias),
+    &[TsFieldType::Unknown],
+    ctx.is_selection,
+    false,
+    expr_log,
+  )
 }
 
 /// Handle JSON aggregation functions (jsonb_agg, json_agg, etc.)
