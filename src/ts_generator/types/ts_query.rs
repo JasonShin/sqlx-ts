@@ -244,11 +244,7 @@ impl TsFieldType {
 
   /// Converts SQLite type affinity strings to TsFieldType.
   /// SQLite uses type affinity rules, so we match common type names.
-  pub fn get_ts_field_type_from_sqlite_field_type(
-    field_type: String,
-    table_name: String,
-    field_name: String,
-  ) -> Self {
+  pub fn get_ts_field_type_from_sqlite_field_type(field_type: String, table_name: String, field_name: String) -> Self {
     let upper = field_type.to_uppercase();
     // SQLite type affinity rules (see https://www.sqlite.org/datatype3.html)
     if upper.contains("INT") {

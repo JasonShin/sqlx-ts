@@ -36,7 +36,7 @@ impl Dotenv {
           "mysql" => Some(DatabaseType::Mysql),
           "sqlite" => Some(DatabaseType::Sqlite),
           _ => Some(DatabaseType::Postgres),
-        }
+        },
       },
       db_user: Self::get_var("DB_USER"),
       db_host: Self::get_var("DB_HOST"),
