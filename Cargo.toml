@@ -31,6 +31,7 @@ tokio-postgres = "0.7.16"
 tokio = { version = "1.50.0", features = ["rt-multi-thread", "macros", "default"]}
 async-recursion = "1.1.1"
 bb8 = "0.9.1"
+rusqlite = { version = "0.31", features = ["bundled"] }
 log = "0.4.29"
 
 [dev-dependencies]
@@ -39,3 +40,4 @@ predicates = "3.1.4"
 tempfile = "3.27.0"
 test_utils = { path="test-utils" }
 pretty_assertions = "1.4.1"
+rusqlite = { version = "0.31", features = ["bundled"] }

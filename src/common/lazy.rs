@@ -4,6 +4,7 @@ use crate::common::types::DatabaseType;
 use crate::core::connection::{DBConn, DBConnections};
 use crate::core::mysql::pool::MySqlConnectionManager;
 use crate::core::postgres::pool::PostgresConnectionManager;
+use crate::core::sqlite::pool::SqliteConnectionManager;
 use crate::ts_generator::information_schema::DBSchema;
 use clap::Parser;
 use std::sync::LazyLock;
@@ -47,6 +48,20 @@ pub static DB_CONN_CACHE: LazyLock<HashMap<String, Arc<Mutex<DBConn>>>> = LazyLo
             .expect(&ERR_DB_CONNECTION_ISSUE);
 
           DBConn::MySQLPooledConn(Mutex::new(pool))
+        })
+      }),
+      DatabaseType::Sqlite => task::block_in_place(|| {
+        Handle::current().block_on(async {
+          let sqlite_path = CONFIG.get_sqlite_path(connection_config);
+          let manager = SqliteConnectionManager::new(sqlite_path, connection.to_string());
+          let pool = bb8::Pool::builder()
+            .max_size(connection_config.pool_size)
+            .connection_timeout(std::time::Duration::from_secs(connection_config.connection_timeout))
+            .build(manager)
+            .await
+            .expect(&ERR_DB_CONNECTION_ISSUE);
+
+          DBConn::SqliteConn(Mutex::new(pool))
         })
       }),
       DatabaseType::Postgres => task::block_in_place(|| {

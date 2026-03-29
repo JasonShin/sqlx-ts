@@ -46,6 +46,21 @@ impl TestConfig {
                 config_file_name,
             }
         }
+        if db_type == "sqlite" {
+            return TestConfig {
+                db_type: "sqlite".into(),
+                file_extension: "ts".to_string(),
+                db_host: String::new(),
+                db_port: 0,
+                db_user: String::new(),
+                db_pass: None,
+                // db_name will be overridden per-test with the actual temp SQLite file path
+                db_name: ":memory:".to_string(),
+                generate_path,
+                generate_types,
+                config_file_name,
+            }
+        }
         TestConfig {
             db_type: "postgres".into(),
             file_extension: "ts".to_string(),
@@ -148,6 +163,7 @@ $(
       let db_name = test_config.db_name;
       let config_file_name = test_config.config_file_name;
       let generate_path = test_config.generate_path;
+      let is_sqlite = db_type == "sqlite";
 
       // SETUP
       let dir = tempdir()?;
@@ -164,10 +180,13 @@ $(
       cmd.arg(parent_path.to_str().unwrap())
           .arg(format!("--ext={file_extension}"))
           .arg(format!("--db-type={db_type}"))
-          .arg(format!("--db-host={db_host}"))
-          .arg(format!("--db-port={db_port}"))
-          .arg(format!("--db-user={db_user}"))
           .arg(format!("--db-name={db_name}"));
+
+      if !is_sqlite {
+        cmd.arg(format!("--db-host={db_host}"))
+            .arg(format!("--db-port={db_port}"))
+            .arg(format!("--db-user={db_user}"));
+      }
 
       if &generate_path.is_some() == &true {
         let generate_path = generate_path.clone();
@@ -190,11 +209,13 @@ $(
         cmd.arg(format!("--config={config_path}"));
       }
 
-      if (db_pass.is_some()) {
-        let db_pass = db_pass.unwrap();
-        cmd.arg(format!("--db-pass={db_pass}"));
-      } else {
-        cmd.arg("--db-pass=");
+      if !is_sqlite {
+        if (db_pass.is_some()) {
+          let db_pass = db_pass.unwrap();
+          cmd.arg(format!("--db-pass={db_pass}"));
+        } else {
+          cmd.arg("--db-pass=");
+        }
       }
 
       cmd.assert()
@@ -248,6 +269,7 @@ $(
       let db_name = test_config.db_name;
       let config_file_name = test_config.config_file_name;
       let generate_path = test_config.generate_path;
+      let is_sqlite = db_type == "sqlite";
 
       // SETUP
       let dir = tempdir()?;
@@ -264,10 +286,13 @@ $(
       cmd.arg(parent_path.to_str().unwrap())
           .arg(format!("--ext={file_extension}"))
           .arg(format!("--db-type={db_type}"))
-          .arg(format!("--db-host={db_host}"))
-          .arg(format!("--db-port={db_port}"))
-          .arg(format!("--db-user={db_user}"))
           .arg(format!("--db-name={db_name}"));
+
+      if !is_sqlite {
+        cmd.arg(format!("--db-host={db_host}"))
+            .arg(format!("--db-port={db_port}"))
+            .arg(format!("--db-user={db_user}"));
+      }
 
       if &generate_path.is_some() == &true {
         let generate_path = generate_path.clone();
@@ -290,11 +315,13 @@ $(
         cmd.arg(format!("--config={config_path}"));
       }
 
-      if (db_pass.is_some()) {
-        let db_pass = db_pass.unwrap();
-        cmd.arg(format!("--db-pass={db_pass}"));
-      } else {
-        cmd.arg("--db-pass=");
+      if !is_sqlite {
+        if (db_pass.is_some()) {
+          let db_pass = db_pass.unwrap();
+          cmd.arg(format!("--db-pass={db_pass}"));
+        } else {
+          cmd.arg("--db-pass=");
+        }
       }
 
       cmd.assert()

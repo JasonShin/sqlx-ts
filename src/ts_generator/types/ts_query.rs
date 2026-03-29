@@ -242,6 +242,48 @@ impl TsFieldType {
     }
   }
 
+  /// Converts SQLite type affinity strings to TsFieldType.
+  /// SQLite uses type affinity rules, so we match common type names.
+  pub fn get_ts_field_type_from_sqlite_field_type(
+    field_type: String,
+    table_name: String,
+    field_name: String,
+  ) -> Self {
+    let upper = field_type.to_uppercase();
+    // SQLite type affinity rules (see https://www.sqlite.org/datatype3.html)
+    if upper.contains("INT") {
+      return Self::Number;
+    }
+    if upper.contains("CHAR") || upper.contains("CLOB") || upper.contains("TEXT") {
+      return Self::String;
+    }
+    if upper.contains("BLOB") || upper.is_empty() {
+      // Empty type name in SQLite means BLOB affinity
+      return Self::String;
+    }
+    if upper.contains("REAL") || upper.contains("FLOA") || upper.contains("DOUB") {
+      return Self::Number;
+    }
+    if upper.contains("BOOL") {
+      return Self::Boolean;
+    }
+    if upper.contains("DATE") || upper.contains("TIME") {
+      return Self::Date;
+    }
+    if upper.contains("NUMERIC") || upper.contains("DECIMAL") {
+      return Self::Number;
+    }
+    if upper.contains("JSON") {
+      return Self::Object;
+    }
+    // Default: SQLite NUMERIC affinity
+    let message = format!(
+      "The column {field_name} of type {field_type} in table {table_name} will be translated as any (unsupported SQLite type)"
+    );
+    info!(message);
+    Self::Any
+  }
+
   pub fn get_ts_field_from_annotation(annotated_type: &str) -> Self {
     if annotated_type == "string" {
       return Self::String;

@@ -18,6 +18,7 @@ pub enum FileExtension {
 pub enum DatabaseType {
   Postgres,
   Mysql,
+  Sqlite,
 }
 
 #[derive(ValueEnum, Debug, Clone, Serialize, Deserialize)]
