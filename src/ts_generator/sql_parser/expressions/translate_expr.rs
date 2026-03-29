@@ -123,6 +123,10 @@ pub fn translate_column_name_assignment(assignment: &Assignment) -> Option<Strin
 ///
 /// some_field = $1
 /// some_table.some_field = $1
+///
+/// Also handles the reversed case where the placeholder is on the left:
+/// ? >= some_field
+/// $1 >= some_table.some_field
 pub async fn get_sql_query_param(
   left: &Expr,
   right: &Expr,
@@ -131,23 +135,41 @@ pub async fn get_sql_query_param(
   db_conn: &DBConn,
   cte_columns: &std::collections::HashMap<String, std::collections::HashMap<String, TsFieldType>>,
 ) -> Result<Option<(TsFieldType, bool, Option<String>)>, TsGeneratorError> {
+  // Try the standard order first: left=column, right=placeholder
+  let result =
+    get_sql_query_param_directed(left, right, single_table_name, table_with_joins, db_conn, cte_columns).await?;
+  if result.is_some() {
+    return Ok(result);
+  }
+
+  // Try the reversed order: left=placeholder, right=column
+  get_sql_query_param_directed(right, left, single_table_name, table_with_joins, db_conn, cte_columns).await
+}
+
+/// Internal helper that checks a specific direction: column_expr for column name, placeholder_expr for placeholder
+async fn get_sql_query_param_directed(
+  column_expr: &Expr,
+  placeholder_expr: &Expr,
+  single_table_name: &Option<&str>,
+  table_with_joins: &Option<Vec<TableWithJoins>>,
+  db_conn: &DBConn,
+  cte_columns: &std::collections::HashMap<String, std::collections::HashMap<String, TsFieldType>>,
+) -> Result<Option<(TsFieldType, bool, Option<String>)>, TsGeneratorError> {
   let table_name: Option<String>;
 
   if table_with_joins.is_some() {
-    table_name = translate_table_from_expr(table_with_joins, &left.clone()).ok();
+    table_name = translate_table_from_expr(table_with_joins, &column_expr.clone()).ok();
   } else if single_table_name.is_some() {
     table_name = single_table_name.map(|x| x.to_string());
   } else {
-    return Err(TsGeneratorError::TableNameInferenceFailedInWhere {
-      query: left.to_string(),
-    });
+    return Ok(None);
   }
 
-  let column_name = translate_column_name_expr(left);
+  let column_name = translate_column_name_expr(column_expr);
 
-  // If the right side of the expression is a placeholder `?` or `$n`
+  // If the placeholder side of the expression is a placeholder `?` or `$n`
   // they are valid query parameter to process
-  let expr_placeholder = get_expr_placeholder(right);
+  let expr_placeholder = get_expr_placeholder(placeholder_expr);
 
   match (column_name, expr_placeholder, table_name) {
     (Some(column_name), Some(expr_placeholder), Some(table_name)) => {
@@ -407,30 +429,67 @@ pub async fn translate_expr(
       low,
       high,
     } => {
-      let low = get_sql_query_param(
-        expr,
-        low,
-        single_table_name,
-        table_with_joins,
-        db_conn,
-        &ts_query.table_valued_function_columns,
-      )
-      .await?;
-      let high = get_sql_query_param(
-        expr,
-        high,
-        single_table_name,
-        table_with_joins,
-        db_conn,
-        &ts_query.table_valued_function_columns,
-      )
-      .await?;
-      if let Some((value, is_nullable, placeholder)) = low {
-        ts_query.insert_param(&value, &is_nullable, &placeholder)?;
-      }
+      // BETWEEN has two forms:
+      // 1. `column BETWEEN ? AND ?` — expr is column, low/high are placeholders
+      // 2. `? BETWEEN low_col AND high_col` — expr is placeholder, low/high are columns
+      let expr_is_placeholder = get_expr_placeholder(expr).is_some();
 
-      if let Some((value, is_nullable, placeholder)) = high {
-        ts_query.insert_param(&value, &is_nullable, &placeholder)?;
+      if expr_is_placeholder {
+        // Case 2: `? BETWEEN low_col AND high_col`
+        // The placeholder is the expr itself, infer its type from low (or high) column
+        let result = get_sql_query_param_directed(
+          low,
+          expr,
+          single_table_name,
+          table_with_joins,
+          db_conn,
+          &ts_query.table_valued_function_columns,
+        )
+        .await?;
+        if let Some((value, is_nullable, placeholder)) = result {
+          ts_query.insert_param(&value, &is_nullable, &placeholder)?;
+        } else {
+          // Fallback: try high column
+          let result = get_sql_query_param_directed(
+            high,
+            expr,
+            single_table_name,
+            table_with_joins,
+            db_conn,
+            &ts_query.table_valued_function_columns,
+          )
+          .await?;
+          if let Some((value, is_nullable, placeholder)) = result {
+            ts_query.insert_param(&value, &is_nullable, &placeholder)?;
+          }
+        }
+      } else {
+        // Case 1: `column BETWEEN ? AND ?`
+        // The expr is a column, low and high may be placeholders
+        let low_result = get_sql_query_param_directed(
+          expr,
+          low,
+          single_table_name,
+          table_with_joins,
+          db_conn,
+          &ts_query.table_valued_function_columns,
+        )
+        .await?;
+        let high_result = get_sql_query_param_directed(
+          expr,
+          high,
+          single_table_name,
+          table_with_joins,
+          db_conn,
+          &ts_query.table_valued_function_columns,
+        )
+        .await?;
+        if let Some((value, is_nullable, placeholder)) = low_result {
+          ts_query.insert_param(&value, &is_nullable, &placeholder)?;
+        }
+        if let Some((value, is_nullable, placeholder)) = high_result {
+          ts_query.insert_param(&value, &is_nullable, &placeholder)?;
+        }
       }
       Ok(())
     }
