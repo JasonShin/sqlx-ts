@@ -11,8 +11,8 @@
 SQLx-ts is a CLI application featuring compile-time checked queries without a DSL and generates types against SQLs to keep your code type-safe
 
 - **Compile time checked queries** - never ship a broken SQL query to production (and [sqlx-ts is not an ORM](https://github.com/JasonShin/sqlx-ts#sqlx-ts-is-not-an-orm))
-- **TypeScript type generations** - generates type definitions based on the raw SQLs and you can use them with any MySQL or PostgreSQL driver
-- **Database Agnostic** - support for [PostgreSQL](http://postgresql.org/) and [MySQL](https://www.mysql.com/) (and more DB supports to come)
+- **TypeScript type generations** - generates type definitions based on the raw SQLs and you can use them with any MySQL, PostgreSQL, or SQLite driver
+- **Database Agnostic** - support for [PostgreSQL](http://postgresql.org/), [MySQL](https://www.mysql.com/), and [SQLite](https://www.sqlite.org/)
 - **TypeScript and JavaScript** - supports for both [TypeScript](https://jasonshin.github.io/sqlx-ts/reference-guide/4.typescript-types-generation.html) and [JavaScript](https://github.com/JasonShin/sqlx-ts#using-sqlx-ts-in-vanilla-javascript)
 
 <br>

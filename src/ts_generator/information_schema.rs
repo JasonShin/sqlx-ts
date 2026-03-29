@@ -246,18 +246,12 @@ impl DBSchema {
           Err(_) => continue,
         };
 
-        for row in rows {
-          if let Ok((field_name, field_type, notnull, tbl_name)) = row {
-            let field = Field {
-              field_type: TsFieldType::get_ts_field_type_from_sqlite_field_type(
-                field_type,
-                tbl_name,
-                field_name.clone(),
-              ),
-              is_nullable: !notnull,
-            };
-            all_fields.insert(field_name, field);
-          }
+        for (field_name, field_type, notnull, tbl_name) in rows.flatten() {
+          let field = Field {
+            field_type: TsFieldType::get_ts_field_type_from_sqlite_field_type(field_type, tbl_name, field_name.clone()),
+            is_nullable: !notnull,
+          };
+          all_fields.insert(field_name, field);
         }
       }
 

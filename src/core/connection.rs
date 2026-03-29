@@ -18,6 +18,7 @@ use color_eyre::Result;
 use swc_common::errors::Handler;
 
 /// Enum to hold a specific database connection instance
+#[allow(clippy::enum_variant_names)]
 pub enum DBConn {
   MySQLPooledConn(Mutex<Pool<MySqlConnectionManager>>),
   PostgresConn(Mutex<Pool<PostgresConnectionManager>>),

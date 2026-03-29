@@ -46,6 +46,14 @@ $ sqlx-ts <path> --db-type postgres --db-url postgres://user:pass@localhost:5432
 $ sqlx-ts <path> --db-type mysql --db-url mysql://user:pass@localhost:3306/mydb
 ```
 
+#### SQLite
+
+For SQLite, you only need to provide the database file path. No host, port, or user credentials are required:
+
+```bash
+$ sqlx-ts <path> --db-type sqlite --db-name ./mydb.sqlite
+```
+
 **Note:** When `--db-url` is provided, it takes precedence over individual connection parameters (`--db-host`, `--db-port`, `--db-user`, `--db-pass`, `--db-name`).
 
 Run the following command for more details:

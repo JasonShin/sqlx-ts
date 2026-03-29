@@ -7,7 +7,7 @@
 | DB_HOST               | Primary DB host                                                                            |
 | DB_PASS               | Primary DB password                                                                        |
 | DB_PORT               | Primary DB port number                                                                     |
-| DB_TYPE               | Type of primary database to connect [default: postgres] [possible values: postgres, mysql] |
+| DB_TYPE               | Type of primary database to connect [default: postgres] [possible values: postgres, mysql, sqlite] |
 | DB_USER               | Primary DB user name                                                                       |
 | DB_NAME               | Primary DB name                                                                            |
 | PG_SEARCH_PATH        | PostgreSQL schema search path (default is "$user,public") [https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH](https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH)                                                                                           |
@@ -46,4 +46,15 @@ sqlx-ts <path>
 ```
 
 **Note:** When `DB_URL` is set, it takes precedence over individual connection parameters (`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`).
+
+### SQLite
+
+For SQLite, only `DB_TYPE` and `DB_NAME` (file path) are required:
+
+```bash
+export DB_TYPE=sqlite
+export DB_NAME=./mydb.sqlite
+
+sqlx-ts <path>
+```
 
