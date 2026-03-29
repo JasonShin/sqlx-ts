@@ -63,7 +63,11 @@ pub fn get_sql_from_expr(
             .iter()
             .map(|tpl_element| SQL {
               var_decl_name: var_decl_name.to_owned(),
-              query: tpl_element.raw.to_string(),
+              query: tpl_element
+                .cooked
+                .as_ref()
+                .map(|c| c.to_atom_lossy().to_string())
+                .unwrap_or_else(|| tpl_element.raw.to_string()),
               span: span.clone(),
             })
             .collect();
