@@ -240,16 +240,17 @@ impl DBSchema {
           let name: String = row.get(1)?;
           let type_name: String = row.get(2)?;
           let notnull: bool = row.get(3)?;
-          Ok((name, type_name, notnull, table_name.clone()))
+          let pk: i32 = row.get(5)?;
+          Ok((name, type_name, notnull, pk, table_name.clone()))
         }) {
           Ok(rows) => rows,
           Err(_) => continue,
         };
 
-        for (field_name, field_type, notnull, tbl_name) in rows.flatten() {
+        for (field_name, field_type, notnull, pk, tbl_name) in rows.flatten() {
           let field = Field {
             field_type: TsFieldType::get_ts_field_type_from_sqlite_field_type(field_type, tbl_name, field_name.clone()),
-            is_nullable: !notnull,
+            is_nullable: !notnull && pk == 0,
           };
           all_fields.insert(field_name, field);
         }
