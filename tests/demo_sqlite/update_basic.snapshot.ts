@@ -9,7 +9,7 @@ export interface IUpdateItemNameQuery {
 	result: IUpdateItemNameResult;
 }
 
-export type UpdateCharacterLevelParams = [number | null, unknown | null, number];
+export type UpdateCharacterLevelParams = [number | null, number | null, number];
 
 export interface IUpdateCharacterLevelResult {
 	

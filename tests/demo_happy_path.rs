@@ -318,11 +318,14 @@ mod demo_happy_path_tests {
     fs::write(&config_path, &config_content)?;
 
     // Run sqlx-ts against the demo_sqlite directory
+    // Use --db-type and --db-name CLI args to override any .env file values
     let mut cmd = cargo_bin_cmd!("sqlx-ts");
     cmd
       .arg(demo_path.to_str().unwrap())
       .arg("--ext=ts")
       .arg(format!("--config={}", config_path.display()))
+      .arg("--db-type=sqlite")
+      .arg(format!("--db-name={}", db_path.display()))
       .arg("-g");
 
     cmd
