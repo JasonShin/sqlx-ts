@@ -22,7 +22,7 @@ SQLx-ts is a CLI application featuring compile-time checked queries without a DS
     </strong>
     <strong> | </strong>
     <strong>
-        🤓 <a href="https://github.com/JasonShin/sqlx-ts-demo">Demo</a>
+        🤓 <a href="https://github.com/JasonShin/sqlx-ts/tree/main/demo">Demo</a>
     </strong>
 </div>
 <br>
