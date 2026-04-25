@@ -25,6 +25,8 @@ pub fn translate_value(value: &Value) -> Option<TsFieldType> {
     Value::Boolean(_) => Some(TsFieldType::Boolean),
     Value::Null => Some(TsFieldType::Null),
     Value::Placeholder(_) => None,
+    Value::QuoteDelimitedStringLiteral(_) => Some(TsFieldType::String),
+    Value::NationalQuoteDelimitedStringLiteral(_) => Some(TsFieldType::String),
   }
 }
 
@@ -137,7 +139,7 @@ pub fn translate_data_type(data_type: &DataType) -> TsFieldType {
     DataType::Datetime(_) => TsFieldType::Date,
     DataType::Datetime64(_, _) => TsFieldType::Date,
     DataType::Timestamp(_, _) => TsFieldType::String,
-    DataType::TimestampNtz => TsFieldType::String,
+    DataType::TimestampNtz(_) => TsFieldType::String,
     DataType::Interval { .. } => TsFieldType::Unknown,
 
     // JSON types

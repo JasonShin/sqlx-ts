@@ -72,7 +72,7 @@ pub async fn translate_stmt(
       }
       FromTable::WithoutKeyword(_) => Err(TsGeneratorError::FromWithoutKeyword(sql_statement.to_string()))?,
     },
-    Statement::Update {
+    Statement::Update(sqlparser::ast::Update {
       table,
       assignments,
       from,
@@ -80,7 +80,9 @@ pub async fn translate_stmt(
       returning,
       or: _,
       limit: _,
-    } => {
+      update_token: _,
+      optimizer_hint: _,
+    }) => {
       // Convert UpdateTableFromKind to Option<TableWithJoins>
       let from_table = match from {
         Some(UpdateTableFromKind::AfterSet(tables)) => {

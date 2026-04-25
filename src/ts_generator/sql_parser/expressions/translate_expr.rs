@@ -580,6 +580,7 @@ pub async fn translate_expr(
       expr,
       data_type,
       format: _,
+      array: _,
     } => {
       let data_type = translate_data_type(data_type);
       ts_query.insert_result(alias, from_ref(&data_type), is_selection, false, expr_for_logging)?;
