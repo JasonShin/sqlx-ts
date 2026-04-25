@@ -7,8 +7,9 @@
     "compile:pg": "../target/${BUILD_MODE:-debug}/sqlx-ts ./pg --config ./.sqlxrc.json -g",
     "compile:mysql": "../target/${BUILD_MODE:-debug}/sqlx-ts ./mysql2 --config ./.sqlxrc.json -g",
     "compile:sequelize": "../target/${BUILD_MODE:-debug}/sqlx-ts ./sequelize --config ./.sqlxrc.json -g",
-    "compile:sqlite": "../target/${BUILD_MODE:-debug}/sqlx-ts ./sqlite --config ./.sqlxrc.json -g",
+    "compile:sqlite": "npm run sqlite && ../target/${BUILD_MODE:-debug}/sqlx-ts ./sqlite --config ./.sqlxrc.json -g",
     "compile:all": "npm run compile:pg && npm run compile:mysql && npm run compile:sequelize && npm run compile:sqlite",
+    "sqlite": "rm -f sqlite/demo.db && ./create-sqlite.sh",
     "build": "npm run compile:all && npm run typecheck",
     "typecheck": "npx tsc -p ./tsconfig.json --noEmit"
   },
