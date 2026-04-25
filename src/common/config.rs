@@ -7,6 +7,7 @@ use regex::Regex;
 use serde;
 use serde::{Deserialize, Serialize};
 use serde_json;
+use serde_json::Value as JsonValue;
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
@@ -18,6 +19,50 @@ pub struct SqlxConfig {
   #[serde(rename = "generateTypes")]
   pub generate_types: Option<GenerateTypesConfig>,
   pub connections: HashMap<String, DbConnectionConfig>,
+}
+
+#[derive(Clone, Debug)]
+pub enum CustomTypeMapping {
+  Simple(String),
+  WithImport { type_name: String, import: String },
+}
+
+impl<'de> Deserialize<'de> for CustomTypeMapping {
+  fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+  where
+    D: serde::Deserializer<'de>,
+  {
+    let value = JsonValue::deserialize(deserializer)?;
+    match value {
+      JsonValue::String(s) => Ok(CustomTypeMapping::Simple(s)),
+      JsonValue::Object(map) => {
+        let type_name = map.get("type")
+          .and_then(|v| v.as_str()).ok_or_else(|| serde::de::Error::missing_field("type"))?
+          .to_string();
+        let import = map.get("import")
+          .and_then(|v| v.as_str()).ok_or_else(|| serde::de::Error::missing_field("import"))?
+          .to_string();
+        Ok(CustomTypeMapping::WithImport { type_name, import })
+      }
+      _ => Err(serde::de::Error::custom("Expected a string or an object for CustomTypeMapping")),
+    }
+  }
+}
+
+impl Serialize for CustomTypeMapping {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where S: serde::Serializer {
+    match self {
+      CustomTypeMapping::Simple(s) => serializer.serialize_str(s),
+      CustomTypeMapping::WithImport { type_name, import } => {
+        use serde::ser::SerializeMap;
+        let mut map = serializer.serialize_map(Some(2))?;
+        map.serialize_entry("type", type_name)?;
+        map.serialize_entry("import", import)?;
+        map.end()
+      }
+    }
+  }
 }
 
 pub const fn default_bool<const V: bool>() -> bool {
@@ -35,6 +80,8 @@ pub struct GenerateTypesConfig {
   pub column_naming_convention: Option<NamingConvention>,
   pub generate_path: Option<PathBuf>,
 }
+
+
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DbConnectionConfig {
@@ -58,6 +105,7 @@ pub struct DbConnectionConfig {
   pub pool_size: u32,
   #[serde(rename = "CONNECTION_TIMEOUT", default = "default_connection_timeout")]
   pub connection_timeout: u64,
+  pub type_mapping: Option<HashMap<String, CustomTypeMapping>>,
 }
 
 fn default_pool_size() -> u32 {
@@ -318,6 +366,11 @@ impl Config {
       .or_else(|| Some(default_connection_timeout()))
       .unwrap();
 
+    let type_mapping = default_config
+      .and_then(|x| x.type_mapping.clone());
+
+    println!("checking {:#?}", type_mapping);
+
     DbConnectionConfig {
       db_type: db_type.to_owned(),
       db_host,
@@ -329,6 +382,7 @@ impl Config {
       pg_search_path: pg_search_path.to_owned(),
       pool_size,
       connection_timeout,
+      type_mapping,
     }
   }
 
