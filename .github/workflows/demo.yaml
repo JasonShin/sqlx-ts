@@ -85,7 +85,7 @@ jobs:
         working-directory: ./demo
         run: |
           sudo apt-get update && sudo apt-get install -y sqlite3
-          bash ./create-db.sh
+          bash ./create-sqlite.sh
 
       - name: Install demo dependencies
         working-directory: ./demo
