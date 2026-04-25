@@ -1,6 +1,6 @@
 {
   "name": "sqlx-ts",
-  "version": "0.45.0",
+  "version": "0.46.0",
   "description": "Compile-time checked raw SQL queries with TypeScript type generation for PostgreSQL, MySQL, and SQLite",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
