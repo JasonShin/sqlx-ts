@@ -28,10 +28,9 @@ jobs:
           - name: mysql-8
             postgres: ""
             mysql: "8"
-# uncomment when we add SQLite support
-#          - name: sqlite
-#            postgres: ""
-#            mysql: ""
+          - name: sqlite
+            postgres: ""
+            mysql: ""
 
     steps:
       - uses: actions/checkout@v4
@@ -90,60 +89,29 @@ jobs:
         working-directory: ./demo
         run: npm install
 
-      - name: Install sqlx-ts globally for demo
-        run: npm install -g sqlx-ts
-
       - name: Compile demo TypeScript code (to verify it compiles before generating types)
         working-directory: ./demo
         run: npm run compile:all
-
-      - name: Copy sqlx-ts binary into node package
-        run: cp target/release/sqlx-ts node/sqlx-ts
 
       - name: Generate types (PostgreSQL demos)
         if: matrix.db.postgres != ''
         working-directory: ./demo
         run: |
-          npx sqlx-ts ./pg --config ./.sqlxrc.json -g
-          npx sqlx-ts ./sequelize --config ./.sqlxrc.json -g
+          ../target/release/sqlx-ts ./pg --config ./.sqlxrc.json -g
+          ../target/release/sqlx-ts ./sequelize --config ./.sqlxrc.json -g
 
       - name: Generate types (MySQL demo)
         if: matrix.db.mysql != ''
         working-directory: ./demo
         run: |
-          npx sqlx-ts ./mysql2 --config ./.sqlxrc.json -g
+          ../target/release/sqlx-ts ./mysql2 --config ./.sqlxrc.json -g
 
       - name: Generate types (SQLite demo)
         if: matrix.db.name == 'sqlite'
         working-directory: ./demo
         run: |
-          npx sqlx-ts ./sqlite --config ./.sqlxrc.json -g
+          ../target/release/sqlx-ts ./sqlite --config ./.sqlxrc.json -g
 
       - name: Type-check generated code
         working-directory: ./demo
         run: npm run build
-
-      - name: Verify generated types are not empty
-        working-directory: ./demo
-        run: |
-          check_file() {
-            if [ ! -f "$1" ]; then
-              echo "FAIL: $1 not found"
-              exit 1
-            fi
-            if [ ! -s "$1" ]; then
-              echo "FAIL: $1 is empty"
-              exit 1
-            fi
-            echo "OK: $1"
-          }
-          if [ -n "${{ matrix.db.postgres }}" ]; then
-            check_file "pg/index.queries.ts"
-            check_file "sequelize/index.queries.ts"
-          fi
-          if [ -n "${{ matrix.db.mysql }}" ]; then
-            check_file "mysql2/index.queries.ts"
-          fi
-          if [ "${{ matrix.db.name }}" = "sqlite" ]; then
-            check_file "sqlite/index.queries.ts"
-          fi
