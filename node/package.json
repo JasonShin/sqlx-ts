@@ -1,6 +1,6 @@
 {
   "name": "sqlx-ts",
-  "version": "0.44.0",
+  "version": "0.45.0",
   "description": "Compile-time checked raw SQL queries with TypeScript type generation for PostgreSQL, MySQL, and SQLite",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -35,7 +35,9 @@
   ],
   "author": "Jason Shin <visualbbasic@gmail.com>",
   "license": "MIT",
-  "bin": "./sqlx-ts",
+  "bin": {
+    "sqlx-ts": "sqlx-ts"
+  },
   "scripts": {
     "postinstall": "node postinstall.js",
     "compile": "npx tsc -p tsconfig.json",
