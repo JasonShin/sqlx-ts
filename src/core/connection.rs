@@ -3,6 +3,7 @@ use crate::common::types::DatabaseType;
 use crate::common::SQL;
 use crate::core::mysql::prepare as mysql_explain;
 use crate::core::postgres::prepare as postgres_explain;
+use crate::core::sqlite::prepare as sqlite_explain;
 use crate::ts_generator::types::ts_query::TsQuery;
 use bb8::Pool;
 use std::collections::HashMap;
@@ -11,14 +12,17 @@ use tokio::sync::Mutex;
 
 use super::mysql::pool::MySqlConnectionManager;
 use super::postgres::pool::PostgresConnectionManager;
+use super::sqlite::pool::SqliteConnectionManager;
 use crate::common::errors::DB_CONN_FROM_LOCAL_CACHE_ERROR;
 use color_eyre::Result;
 use swc_common::errors::Handler;
 
 /// Enum to hold a specific database connection instance
+#[allow(clippy::enum_variant_names)]
 pub enum DBConn {
   MySQLPooledConn(Mutex<Pool<MySqlConnectionManager>>),
   PostgresConn(Mutex<Pool<PostgresConnectionManager>>),
+  SqliteConn(Mutex<Pool<SqliteConnectionManager>>),
 }
 
 impl DBConn {
@@ -31,6 +35,7 @@ impl DBConn {
     let (explain_failed, ts_query) = match &self {
       DBConn::MySQLPooledConn(_conn) => mysql_explain::prepare(self, sql, should_generate_types, handler).await?,
       DBConn::PostgresConn(_conn) => postgres_explain::prepare(self, sql, should_generate_types, handler).await?,
+      DBConn::SqliteConn(_conn) => sqlite_explain::prepare(self, sql, should_generate_types, handler).await?,
     };
 
     Ok((explain_failed, ts_query))
@@ -41,6 +46,7 @@ impl DBConn {
     match self {
       DBConn::MySQLPooledConn(_) => DatabaseType::Mysql,
       DBConn::PostgresConn(_) => DatabaseType::Postgres,
+      DBConn::SqliteConn(_) => DatabaseType::Sqlite,
     }
   }
 }

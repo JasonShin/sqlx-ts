@@ -1,0 +1,115 @@
+name: demo projects
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  demo-test:
+    name: Demo project sqlx-ts (${{ matrix.db.name }})
+    if: "!contains(github.event.head_commit.message, 'Release')"
+    runs-on: ubuntu-latest
+    env:
+      BUILD_MODE: release
+    strategy:
+      fail-fast: false
+      matrix:
+        db:
+          - name: postgres-16
+            postgres: "16"
+            mysql: ""
+          - name: postgres-13
+            postgres: "13"
+            mysql: ""
+          - name: mysql-8
+            postgres: ""
+            mysql: "8"
+          - name: sqlite
+            postgres: ""
+            mysql: ""
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install stable Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+          cache-provider: "github"
+
+      - name: Build sqlx-ts binary
+        run: cargo build --release
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Start database services
+        if: matrix.db.postgres != '' || matrix.db.mysql != ''
+        run: docker compose -f docker-compose.yml up -d
+        env:
+          PG_VERSION: ${{ matrix.db.postgres || '16' }}
+          MYSQL_VERSION: ${{ matrix.db.mysql || '8' }}
+
+      - name: Wait for databases to be ready
+        if: matrix.db.postgres != '' || matrix.db.mysql != ''
+        run: |
+          echo "Waiting for databases to initialize..."
+          sleep 15
+          if [ -n "${{ matrix.db.postgres }}" ]; then
+            until docker compose exec -T postgres pg_isready -U postgres 2>/dev/null; do
+              echo "Waiting for PostgreSQL..."
+              sleep 2
+            done
+            echo "PostgreSQL is ready"
+          fi
+          if [ -n "${{ matrix.db.mysql }}" ]; then
+            until docker compose exec -T mysql mysqladmin ping -h localhost --silent 2>/dev/null; do
+              echo "Waiting for MySQL..."
+              sleep 2
+            done
+            echo "MySQL is ready"
+          fi
+
+      - name: Create SQLite database
+        if: matrix.db.name == 'sqlite'
+        working-directory: ./demo
+        run: |
+          sudo apt-get update && sudo apt-get install -y sqlite3
+          bash ./create-sqlite.sh
+
+      - name: Install demo dependencies
+        working-directory: ./demo
+        run: npm install
+
+      - name: Generate types (PostgreSQL demos)
+        if: matrix.db.postgres != ''
+        working-directory: ./demo
+        run: |
+          ../target/release/sqlx-ts ./pg --config ./.sqlxrc.json -g
+          ../target/release/sqlx-ts ./sequelize --config ./.sqlxrc.json -g
+
+      - name: Generate types (MySQL demo)
+        if: matrix.db.mysql != ''
+        working-directory: ./demo
+        run: |
+          ../target/release/sqlx-ts ./mysql2 --config ./.sqlxrc.json -g
+
+      - name: Generate types (SQLite demo)
+        if: matrix.db.name == 'sqlite'
+        working-directory: ./demo
+        run: |
+          ../target/release/sqlx-ts ./sqlite --config ./.sqlxrc.json -g
+
+      - name: Type-check generated code
+        working-directory: ./demo
+        run: npm run build

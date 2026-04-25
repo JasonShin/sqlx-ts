@@ -32,13 +32,11 @@ impl Dotenv {
     Dotenv {
       db_type: match Self::get_var("DB_TYPE") {
         None => None,
-        Some(val) => {
-          if val == "mysql" {
-            Some(DatabaseType::Mysql)
-          } else {
-            Some(DatabaseType::Postgres)
-          }
-        }
+        Some(val) => match val.as_str() {
+          "mysql" => Some(DatabaseType::Mysql),
+          "sqlite" => Some(DatabaseType::Sqlite),
+          _ => Some(DatabaseType::Postgres),
+        },
       },
       db_user: Self::get_var("DB_USER"),
       db_host: Self::get_var("DB_HOST"),

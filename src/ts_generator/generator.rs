@@ -17,7 +17,7 @@ use color_eyre::eyre::Result;
 use convert_case::{Case, Casing};
 use regex::Regex;
 use sqlparser::{
-  dialect::{Dialect, MySqlDialect, PostgreSqlDialect},
+  dialect::{Dialect, MySqlDialect, PostgreSqlDialect, SQLiteDialect},
   parser::Parser,
 };
 
@@ -125,6 +125,7 @@ pub async fn generate_ts_interface(sql: &SQL, db_conn: &DBConn) -> Result<TsQuer
   let dialect: Box<dyn Dialect> = match db_conn.get_db_type() {
     DatabaseType::Postgres => Box::new(PostgreSqlDialect {}),
     DatabaseType::Mysql => Box::new(MySqlDialect {}),
+    DatabaseType::Sqlite => Box::new(SQLiteDialect {}),
   };
 
   let sql_ast = Parser::parse_sql(&*dialect, &sql.query)?;

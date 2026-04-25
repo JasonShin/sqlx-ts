@@ -3,6 +3,7 @@ use crate::common::logger::*;
 use crate::core::connection::DBConn;
 use crate::core::mysql::pool::MySqlConnectionManager;
 use crate::core::postgres::pool::PostgresConnectionManager;
+use crate::core::sqlite::pool::SqliteConnectionManager;
 use bb8::Pool;
 use mysql_async::prelude::Queryable;
 use std::collections::HashMap;
@@ -54,6 +55,7 @@ impl DBSchema {
     let result = match &conn {
       DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, table_name, conn).await,
       DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, &"public".to_string(), table_name, conn).await,
+      DBConn::SqliteConn(conn) => Self::sqlite_fetch_table(self, table_name, conn).await,
     };
 
     if let Some(result) = &result {
@@ -205,6 +207,64 @@ impl DBSchema {
         fields.insert(field_name.to_owned(), field);
       }
 
+      return Some(fields);
+    }
+
+    None
+  }
+
+  async fn sqlite_fetch_table(
+    &self,
+    table_names: &Vec<&str>,
+    conn: &Mutex<Pool<SqliteConnectionManager>>,
+  ) -> Option<Fields> {
+    let mut fields: HashMap<String, Field> = HashMap::new();
+    let conn = conn.lock().await;
+    let pool_conn = conn.get().await.expect(DB_CONN_POOL_RETRIEVE_ERROR);
+    let inner = pool_conn.conn.clone();
+
+    let table_names_owned: Vec<String> = table_names.iter().map(|s| s.to_string()).collect();
+
+    let result = tokio::task::spawn_blocking(move || {
+      let conn = inner.lock().unwrap();
+      let mut all_fields: HashMap<String, Field> = HashMap::new();
+
+      for table_name in &table_names_owned {
+        let query = format!("PRAGMA table_info('{}')", table_name);
+        let mut stmt = match conn.prepare(&query) {
+          Ok(stmt) => stmt,
+          Err(_) => continue,
+        };
+
+        let rows = match stmt.query_map([], |row| {
+          let name: String = row.get(1)?;
+          let type_name: String = row.get(2)?;
+          let notnull: bool = row.get(3)?;
+          let pk: i32 = row.get(5)?;
+          Ok((name, type_name, notnull, pk, table_name.clone()))
+        }) {
+          Ok(rows) => rows,
+          Err(_) => continue,
+        };
+
+        for (field_name, field_type, notnull, pk, tbl_name) in rows.flatten() {
+          let field = Field {
+            field_type: TsFieldType::get_ts_field_type_from_sqlite_field_type(field_type, tbl_name, field_name.clone()),
+            is_nullable: !notnull && pk == 0,
+          };
+          all_fields.insert(field_name, field);
+        }
+      }
+
+      all_fields
+    })
+    .await;
+
+    if let Ok(result) = result {
+      if result.is_empty() {
+        return None;
+      }
+      fields.extend(result);
       return Some(fields);
     }
 

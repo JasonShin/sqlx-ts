@@ -95,25 +95,22 @@ fn split_sql_queries(content: &str) -> Vec<String> {
       }
 
       // Handle single-line comments
-      '-' if !in_string && !in_comment => {
-        if chars.peek() == Some(&'-') {
-          in_comment = true;
-          current_query.push(ch);
-          current_query.push(chars.next().unwrap()); // consume second dash
-        } else {
-          current_query.push(ch);
-        }
+      '-' if !in_string && !in_comment && chars.peek() == Some(&'-') => {
+        in_comment = true;
+        current_query.push(ch);
+        current_query.push(chars.next().unwrap()); // consume second dash
       }
 
       // Handle multi-line comments
-      '/' if !in_string && !in_comment => {
-        if chars.peek() == Some(&'*') {
-          in_comment = true;
-          current_query.push(ch);
-          current_query.push(chars.next().unwrap()); // consume asterisk
-        } else {
-          current_query.push(ch);
-        }
+      '/' if !in_string && !in_comment && chars.peek() == Some(&'*') => {
+        in_comment = true;
+        current_query.push(ch);
+        current_query.push(chars.next().unwrap()); // consume asterisk
+      }
+
+      // Non-comment dash or slash
+      '-' | '/' if !in_string && !in_comment => {
+        current_query.push(ch);
       }
 
       '*' if in_comment && !in_string => {

@@ -7,6 +7,7 @@ mod demo_happy_path_tests {
   use std::fs;
   use std::io::Write;
   use std::path::Path;
+  use tempfile::tempdir;
   use walkdir::WalkDir;
 
   fn run_demo_test(demo_path: &Path) -> Result<(), Box<dyn std::error::Error>> {
@@ -280,6 +281,85 @@ mod demo_happy_path_tests {
       .success()
       .stdout(predicates::str::contains("Found 6 SQL queries"))
       .stdout(predicates::str::contains("No SQL errors detected!"));
+
+    Ok(())
+  }
+
+  #[test]
+  fn all_demo_sqlite_should_pass() -> Result<(), Box<dyn std::error::Error>> {
+    let root_path = current_dir().unwrap();
+    let demo_path = root_path.join("tests/demo_sqlite");
+    let migration_path = root_path.join("playpen/db/sqlite_migration.sql");
+
+    // Create a temporary SQLite database and run the migration
+    let tmp_dir = tempdir()?;
+    let db_path = tmp_dir.path().join("demo_test.db");
+    let conn = rusqlite::Connection::open(&db_path)?;
+    let migration_sql = fs::read_to_string(&migration_path)?;
+    conn.execute_batch(&migration_sql)?;
+    drop(conn);
+
+    // Create a temporary config file pointing to the SQLite database
+    let config_path = tmp_dir.path().join(".sqlxrc.json");
+    let config_content = format!(
+      r#"{{
+  "generateTypes": {{
+    "enabled": true
+  }},
+  "connections": {{
+    "default": {{
+      "DB_TYPE": "sqlite",
+      "DB_NAME": "{}"
+    }}
+  }}
+}}"#,
+      db_path.display()
+    );
+    fs::write(&config_path, &config_content)?;
+
+    // Run sqlx-ts against the demo_sqlite directory
+    // Use --db-type and --db-name CLI args to override any .env file values
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
+    cmd
+      .arg(demo_path.to_str().unwrap())
+      .arg("--ext=ts")
+      .arg(format!("--config={}", config_path.display()))
+      .arg("--db-type=sqlite")
+      .arg(format!("--db-name={}", db_path.display()))
+      .arg("-g");
+
+    cmd
+      .assert()
+      .success()
+      .stdout(predicates::str::contains("No SQL errors detected!"));
+
+    // Verify all generated types match snapshots
+    for entry in WalkDir::new(&demo_path) {
+      if entry.is_ok() {
+        let entry = entry.unwrap();
+        let path = entry.path();
+        let parent = entry.path().parent().unwrap();
+        let file_name = path.file_name().unwrap().to_str().unwrap().to_string();
+
+        if path.is_file() && file_name.ends_with(".queries.ts") {
+          let base_file_name = file_name.split('.').collect::<Vec<&str>>();
+          let base_file_name = base_file_name.first().unwrap();
+          let snapshot_path = parent.join(format!("{base_file_name}.snapshot.ts"));
+
+          let generated_types = fs::read_to_string(path)?;
+
+          if !snapshot_path.exists() {
+            let mut snapshot_file = fs::File::create(&snapshot_path)?;
+            writeln!(snapshot_file, "{generated_types}")?;
+          }
+
+          assert_eq!(
+            generated_types.trim().to_string().trim(),
+            fs::read_to_string(&snapshot_path)?.to_string().trim(),
+          )
+        }
+      }
+    }
 
     Ok(())
   }

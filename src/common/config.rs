@@ -234,7 +234,9 @@ impl Config {
         .or_else(|| default_config.map(|x| x.db_host.clone()))
     };
 
-    let db_host = match (db_url.is_some(), db_host_chain()) {
+    let is_sqlite = matches!(db_type, DatabaseType::Sqlite);
+
+    let db_host = match (db_url.is_some() || is_sqlite, db_host_chain()) {
       (true, Some(v)) => v,
       (true, None) => String::new(),
       (false, Some(v)) => v,
@@ -254,7 +256,7 @@ impl Config {
         .or_else(|| default_config.map(|x| x.db_port))
     };
 
-    let db_port = match (db_url.is_some(), db_port_chain()) {
+    let db_port = match (db_url.is_some() || is_sqlite, db_port_chain()) {
       (true, Some(v)) => v,
       (true, None) => 0,
       (false, Some(v)) => v,
@@ -275,7 +277,7 @@ impl Config {
         .or_else(|| default_config.map(|x| x.db_user.clone()))
     };
 
-    let db_user = match (db_url.is_some(), db_user_chain()) {
+    let db_user = match (db_url.is_some() || is_sqlite, db_user_chain()) {
       (true, Some(v)) => v,
       (true, None) => String::new(),
       (false, Some(v)) => v,
@@ -379,6 +381,19 @@ impl Config {
       db_name = &conn.db_name.clone().unwrap_or(conn.db_user.to_owned()),
     )
     .to_string()
+  }
+
+  /// Returns the file path for a SQLite database connection.
+  /// If DB_URL is provided, it's used directly. Otherwise DB_NAME is used as the file path.
+  pub fn get_sqlite_path(&self, conn: &DbConnectionConfig) -> String {
+    if let Some(db_url) = &conn.db_url {
+      return db_url.to_owned();
+    }
+
+    conn
+      .db_name
+      .clone()
+      .unwrap_or_else(|| panic!("DB_NAME (file path) is required for SQLite connections"))
   }
 
   pub fn get_postgres_cred(&self, conn: &DbConnectionConfig) -> String {
