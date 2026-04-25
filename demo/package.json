@@ -16,7 +16,8 @@
   "dependencies": {
     "mysql2": "^3.5.2",
     "pg": "^8.11.1",
-    "sequelize": "^6.32.1"
+    "sequelize": "^6.32.1",
+    "sqlx-ts": "^0.45.0"
   },
   "devDependencies": {
     "@types/pg": "^8.10.2",
