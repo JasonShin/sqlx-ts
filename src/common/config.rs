@@ -96,8 +96,7 @@ impl Config {
     let connections = Self::build_configs(&dotenv, file_config_path);
     let generate_types_config = Self::generate_types_config(file_config_path);
 
-    let generate_types_config =
-      generate_types_config.filter(|config| config.enabled);
+    let generate_types_config = generate_types_config.filter(|config| config.enabled);
     let ignore_patterns = Self::get_ignore_patterns(&default_ignore_config_path);
     let log_level = Self::get_log_level(file_config_path);
     Config {
