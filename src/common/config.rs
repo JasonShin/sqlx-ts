@@ -96,8 +96,7 @@ impl Config {
     let connections = Self::build_configs(&dotenv, file_config_path);
     let generate_types_config = Self::generate_types_config(file_config_path);
 
-    let generate_types_config =
-      generate_types_config.and_then(|config| if config.enabled { Some(config) } else { None });
+    let generate_types_config = generate_types_config.filter(|config| config.enabled);
     let ignore_patterns = Self::get_ignore_patterns(&default_ignore_config_path);
     let log_level = Self::get_log_level(file_config_path);
     Config {
@@ -374,11 +373,11 @@ impl Config {
 
     format!(
       "mysql://{user}:{pass}@{host}:{port}/{db_name}",
-      user = &conn.db_user,
-      pass = &conn.db_pass.as_ref().unwrap_or(&"".to_string()),
-      host = &conn.db_host,
-      port = &conn.db_port,
-      db_name = &conn.db_name.clone().unwrap_or(conn.db_user.to_owned()),
+      user = conn.db_user,
+      pass = conn.db_pass.as_ref().unwrap_or(&"".to_string()),
+      host = conn.db_host,
+      port = conn.db_port,
+      db_name = conn.db_name.clone().unwrap_or(conn.db_user.to_owned()),
     )
     .to_string()
   }
@@ -404,14 +403,14 @@ impl Config {
 
     format!(
       "postgresql://{user}:{pass}@{host}:{port}/{db_name}",
-      user = &conn.db_user,
-      pass = &conn.db_pass.as_ref().unwrap_or(&"".to_string()),
-      host = &conn.db_host,
-      port = &conn.db_port,
+      user = conn.db_user,
+      pass = conn.db_pass.as_ref().unwrap_or(&"".to_string()),
+      host = conn.db_host,
+      port = conn.db_port,
       // This is to follow the spec of Rust Postgres
       // `db_user` name gets used if `db_name` is not provided
       // https://docs.rs/postgres/latest/postgres/config/struct.Config.html#keys
-      db_name = &conn.db_name.clone().unwrap_or(conn.db_user.to_owned()),
+      db_name = conn.db_name.clone().unwrap_or(conn.db_user.to_owned()),
     )
   }
 

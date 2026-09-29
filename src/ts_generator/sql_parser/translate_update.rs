@@ -17,7 +17,7 @@ async fn translate_assignments(
   db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
   for assignment in assignments {
-    let table = translate_table_from_assignments(&[table_with_joins.to_owned()], assignment)?;
+    let table = translate_table_from_assignments(std::slice::from_ref(table_with_joins), assignment)?;
 
     translate_assignment(assignment, table.as_str(), ts_query, db_conn)
       .await

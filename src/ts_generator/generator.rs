@@ -89,7 +89,7 @@ pub fn write_single_ts_file(sqls_to_write: String) -> Result<()> {
     .unwrap_or_else(|_| {
       panic!(
         "Failed to write to file {:?} - check if the --generate-path provided is an existing folder",
-        &output
+        output
       )
     });
 
