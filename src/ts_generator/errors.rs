@@ -46,6 +46,7 @@ pub enum TsGeneratorError {
   UpdateStatementProcessingFailed { reason: String, query: String },
   #[error("[E019] Table '{table}' not found in database schema. Check that the table exists and is accessible.")]
   TableNotFoundInSchema { table: String },
+  #[allow(dead_code)]
   #[error("[E020] Failed to infer table name while processing WHERE clause. Query: `{query}`")]
   TableNameInferenceFailedInWhere { query: String },
   #[error("Unknown error: `{0}`")]

@@ -113,7 +113,7 @@ impl TestConfig {
 
 /// Checks if the MySQL server at the given host:port is above the specified major.minor version.
 /// Uses `docker exec` to query the version. Returns true if version cannot be determined.
-pub fn is_mysql_version_above(db_host: &str, db_port: i32, major: u32, minor: u32) -> bool {
+pub fn is_mysql_version_above(_db_host: &str, _db_port: i32, major: u32, minor: u32) -> bool {
   let output = std::process::Command::new("docker")
     .args(["exec", "sqlx-ts-mysql-1", "mysql", "-u", "root", "-N", "-e", "SELECT VERSION();"])
     .output();

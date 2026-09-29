@@ -46,7 +46,7 @@ pub async fn handle_polymorphic_functions(
               if let Some(field) = table_details.get(&column_name) {
                 return ctx.ts_query.insert_result(
                   Some(ctx.alias),
-                  &[field.field_type.to_owned()],
+                  std::slice::from_ref(&field.field_type),
                   ctx.is_selection,
                   false, // IFNULL/COALESCE removes nullability
                   expr_log,
@@ -68,7 +68,7 @@ pub async fn handle_polymorphic_functions(
               if let Some(field) = table_details.get(&column_name) {
                 return ctx.ts_query.insert_result(
                   Some(ctx.alias),
-                  &[field.field_type.to_owned()],
+                  std::slice::from_ref(&field.field_type),
                   ctx.is_selection,
                   false, // IFNULL/COALESCE removes nullability
                   expr_log,

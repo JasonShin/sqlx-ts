@@ -85,7 +85,7 @@ pub static DB_CONN_CACHE: LazyLock<HashMap<String, Arc<Mutex<DBConn>>>> = LazyLo
           if connection_config.pg_search_path.is_some() {
             let search_path_query = format!(
               "SET search_path TO {}",
-              &connection_config.pg_search_path.clone().unwrap().as_str()
+              connection_config.pg_search_path.clone().unwrap().as_str()
             );
             {
               let conn = conn.lock().await;

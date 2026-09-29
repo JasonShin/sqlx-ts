@@ -155,15 +155,13 @@ async fn get_sql_query_param_directed(
   db_conn: &DBConn,
   cte_columns: &std::collections::HashMap<String, std::collections::HashMap<String, TsFieldType>>,
 ) -> Result<Option<(TsFieldType, bool, Option<String>)>, TsGeneratorError> {
-  let table_name: Option<String>;
-
-  if table_with_joins.is_some() {
-    table_name = translate_table_from_expr(table_with_joins, &column_expr.clone()).ok();
+  let table_name: Option<String> = if table_with_joins.is_some() {
+    translate_table_from_expr(table_with_joins, &column_expr.clone()).ok()
   } else if single_table_name.is_some() {
-    table_name = single_table_name.map(|x| x.to_string());
+    single_table_name.map(|x| x.to_string())
   } else {
     return Ok(None);
-  }
+  };
 
   let column_name = translate_column_name_expr(column_expr);
 
@@ -236,9 +234,10 @@ pub async fn translate_expr(
       if let Some(tvf_columns) = ts_query.table_valued_function_columns.get(table_name) {
         if let Some(ts_type) = tvf_columns.get(&column_name) {
           let field_name = alias.unwrap_or(column_name.as_str());
+          let ts_type = ts_type.to_owned();
           ts_query.insert_result(
             Some(field_name),
-            &[ts_type.to_owned()],
+            std::slice::from_ref(&ts_type),
             is_selection,
             false, // Table-valued function columns are not nullable by default
             expr_for_logging,
@@ -255,7 +254,7 @@ pub async fn translate_expr(
           let field_name = alias.unwrap_or(column_name.as_str());
           ts_query.insert_result(
             Some(field_name),
-            &[field.field_type.to_owned()],
+            std::slice::from_ref(&field.field_type),
             is_selection,
             field.is_nullable,
             expr_for_logging,
@@ -293,9 +292,10 @@ pub async fn translate_expr(
                           key_name.as_str()
                       });
 
+            let ts_type = ts_type.to_owned();
             ts_query.insert_result(
               Some(key_name),
-              &[ts_type.to_owned()],
+              std::slice::from_ref(&ts_type),
               is_selection,
               false, // Table-valued function columns are not nullable by default
               expr_for_logging,
@@ -325,7 +325,7 @@ pub async fn translate_expr(
 
             ts_query.insert_result(
               Some(key_name),
-              &[field.field_type.to_owned()],
+              std::slice::from_ref(&field.field_type),
               is_selection,
               field.is_nullable,
               expr_for_logging,
