@@ -14,6 +14,21 @@
       "DB_NAME": "postgres",
       "PG_SEARCH_PATH": "public,myschema"
     },
+    "db_custom_types": {
+      "DB_TYPE": "postgres",
+      "DB_HOST": "127.0.0.1",
+      "DB_PORT": 54321,
+      "DB_USER": "postgres",
+      "DB_PASS": "postgres",
+      "DB_NAME": "postgres",
+      "PG_SEARCH_PATH": "public,myschema",
+      "type_mapping": {
+        "bigint": "string",
+        "interval": "string",
+        "timestamp": { "type": "DateTime", "import": "import type { DateTime } from 'luxon'" },
+        "timestamptz": { "type": "Dayjs", "import": "import type { Dayjs } from 'dayjs'" }
+      }
+    },
     "db_mysql": {
       "DB_TYPE": "mysql",
       "DB_HOST": "127.0.0.1",
