@@ -269,3 +269,13 @@ INSERT INTO json_test_data (name, data, metadata) VALUES
 ('analytics',
  '{"date": "2024-01-15", "metrics": {"visitors": 1500, "pageViews": 4500, "bounceRate": 0.35, "sources": {"organic": 850, "direct": 400, "referral": 250}}}',
  '{"source": "analytics", "version": "1.0"}');
+
+CREATE SCHEMA staff;
+
+CREATE TYPE staff.priority_enum AS ENUM ('low', 'high');
+
+CREATE TABLE staff.announcements (
+  id SERIAL PRIMARY KEY,
+  message VARCHAR(1000),
+  priority staff.priority_enum NOT NULL
+);

@@ -8,6 +8,7 @@ use crate::common::lazy::CONFIG;
 use crate::common::SQL;
 use crate::core::connection::DBConn;
 use crate::ts_generator::annotations::extract_result_annotations;
+use crate::ts_generator::information_schema::{collect_table_schemas, with_table_schemas};
 use crate::ts_generator::sql_parser::translate_stmt::translate_stmt;
 use crate::ts_generator::types::ts_query::TsQuery;
 
@@ -183,10 +184,16 @@ pub async fn generate_ts_interface(sql: &SQL, db_conn: &DBConn) -> Result<TsQuer
   let annotated_param_types = extract_param_annotations(sql.query.as_str());
   ts_query.set_annotated_params(annotated_param_types);
 
-  for sql_statement in &sql_ast {
-    // The loot level statements cannot have any alias
-    translate_stmt(&mut ts_query, sql_statement, None, db_conn).await?;
-  }
+  // Table names are resolved without their schema while translating, so schemas of qualified names are looked up from here
+  let table_schemas = collect_table_schemas(&sql_ast);
+  with_table_schemas(table_schemas, async {
+    for sql_statement in &sql_ast {
+      // The loot level statements cannot have any alias
+      translate_stmt(&mut ts_query, sql_statement, None, db_conn).await?;
+    }
+    Ok::<(), TsGeneratorError>(())
+  })
+  .await?;
 
   Ok(ts_query)
 }
