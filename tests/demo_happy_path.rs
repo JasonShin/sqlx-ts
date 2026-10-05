@@ -58,30 +58,27 @@ mod demo_happy_path_tests {
     }
 
     // Verify all generated types match snapshots
-    for entry in WalkDir::new(demo_path) {
-      if entry.is_ok() {
-        let entry = entry.unwrap();
-        let path = entry.path();
-        let parent = entry.path().parent().unwrap();
-        let file_name = path.file_name().unwrap().to_str().unwrap().to_string();
+    for entry in WalkDir::new(demo_path).into_iter().flatten() {
+      let path = entry.path();
+      let parent = entry.path().parent().unwrap();
+      let file_name = path.file_name().unwrap().to_str().unwrap().to_string();
 
-        if path.is_file() && file_name.ends_with(".queries.ts") {
-          let base_file_name = file_name.split('.').collect::<Vec<&str>>();
-          let base_file_name = base_file_name.first().unwrap();
-          let snapshot_path = parent.join(format!("{base_file_name}.snapshot.ts"));
+      if path.is_file() && file_name.ends_with(".queries.ts") {
+        let base_file_name = file_name.split('.').collect::<Vec<&str>>();
+        let base_file_name = base_file_name.first().unwrap();
+        let snapshot_path = parent.join(format!("{base_file_name}.snapshot.ts"));
 
-          let generated_types = fs::read_to_string(path)?;
+        let generated_types = fs::read_to_string(path)?;
 
-          if !snapshot_path.exists() {
-            let mut snapshot_file = fs::File::create(&snapshot_path)?;
-            writeln!(snapshot_file, "{generated_types}")?;
-          }
-
-          assert_eq!(
-            generated_types.trim().to_string().trim(),
-            fs::read_to_string(&snapshot_path)?.to_string().trim(),
-          )
+        if !snapshot_path.exists() {
+          let mut snapshot_file = fs::File::create(&snapshot_path)?;
+          writeln!(snapshot_file, "{generated_types}")?;
         }
+
+        assert_eq!(
+          generated_types.trim().to_string().trim(),
+          fs::read_to_string(&snapshot_path)?.to_string().trim(),
+        )
       }
     }
 
@@ -334,30 +331,27 @@ mod demo_happy_path_tests {
       .stdout(predicates::str::contains("No SQL errors detected!"));
 
     // Verify all generated types match snapshots
-    for entry in WalkDir::new(&demo_path) {
-      if entry.is_ok() {
-        let entry = entry.unwrap();
-        let path = entry.path();
-        let parent = entry.path().parent().unwrap();
-        let file_name = path.file_name().unwrap().to_str().unwrap().to_string();
+    for entry in WalkDir::new(&demo_path).into_iter().flatten() {
+      let path = entry.path();
+      let parent = entry.path().parent().unwrap();
+      let file_name = path.file_name().unwrap().to_str().unwrap().to_string();
 
-        if path.is_file() && file_name.ends_with(".queries.ts") {
-          let base_file_name = file_name.split('.').collect::<Vec<&str>>();
-          let base_file_name = base_file_name.first().unwrap();
-          let snapshot_path = parent.join(format!("{base_file_name}.snapshot.ts"));
+      if path.is_file() && file_name.ends_with(".queries.ts") {
+        let base_file_name = file_name.split('.').collect::<Vec<&str>>();
+        let base_file_name = base_file_name.first().unwrap();
+        let snapshot_path = parent.join(format!("{base_file_name}.snapshot.ts"));
 
-          let generated_types = fs::read_to_string(path)?;
+        let generated_types = fs::read_to_string(path)?;
 
-          if !snapshot_path.exists() {
-            let mut snapshot_file = fs::File::create(&snapshot_path)?;
-            writeln!(snapshot_file, "{generated_types}")?;
-          }
-
-          assert_eq!(
-            generated_types.trim().to_string().trim(),
-            fs::read_to_string(&snapshot_path)?.to_string().trim(),
-          )
+        if !snapshot_path.exists() {
+          let mut snapshot_file = fs::File::create(&snapshot_path)?;
+          writeln!(snapshot_file, "{generated_types}")?;
         }
+
+        assert_eq!(
+          generated_types.trim().to_string().trim(),
+          fs::read_to_string(&snapshot_path)?.to_string().trim(),
+        )
       }
     }
 

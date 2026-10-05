@@ -220,7 +220,7 @@ pub fn translate_table_from_assignments(
       match first_part {
         Some(part) => {
           if let Some(ident) = part.as_ident() {
-            find_table_name_from_identifier(table_with_joins, &[ident.value.to_string()])
+            find_table_name_from_identifier(table_with_joins, std::slice::from_ref(&ident.value))
           } else {
             // If it's a function-based name, use default table
             Ok(get_default_table(table_with_joins))
