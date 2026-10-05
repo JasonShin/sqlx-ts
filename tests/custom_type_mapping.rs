@@ -288,4 +288,170 @@ const secondQuery = sql`SELECT created_at FROM events`
     assert_eq!(type_file.matches("created_at: DateTime;").count(), 2);
     Ok(())
   }
+
+  const COMPLEX_SCHEMA: &str = "CREATE TABLE users (id INTEGER PRIMARY KEY NOT NULL, name VARCHAR(255) NOT NULL, balance DECIMAL(10,2) NOT NULL, created_at DATETIME NOT NULL, deleted_at DATETIME); CREATE TABLE orders (id INTEGER PRIMARY KEY NOT NULL, user_id INTEGER NOT NULL, total DECIMAL(10,2) NOT NULL, ordered_at DATETIME NOT NULL, shipped_at TIMESTAMP);";
+
+  const COMPLEX_TYPE_MAPPING: &str = r#"{ "varchar": "UserName", "decimal": "string", "datetime": { "type": "DateTime", "import": "import type { DateTime } from \"luxon\"" }, "timestamp": { "type": "Dayjs", "import": "import type { Dayjs } from \"dayjs\"" } }"#;
+
+  fn assert_complex_query_types(ts_content: &str, expected: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let (_, type_file) = run_type_mapping_test(COMPLEX_SCHEMA, ts_content, COMPLEX_TYPE_MAPPING)?;
+    assert_eq!(
+      expected.trim().to_string().flatten(),
+      type_file.trim().to_string().flatten()
+    );
+    Ok(())
+  }
+
+  #[test]
+  fn should_map_types_across_joins() -> Result<(), Box<dyn std::error::Error>> {
+    assert_complex_query_types(
+      r#"
+import { sql } from 'sqlx-ts'
+const joinQuery = sql`SELECT u.id AS id, u.name AS name, o.total AS total, o.shipped_at AS shipped_at FROM users u INNER JOIN orders o ON o.user_id = u.id WHERE o.ordered_at > ? AND u.balance >= ?`
+"#,
+      r#"
+import type { DateTime } from "luxon";
+import type { Dayjs } from "dayjs";
+
+export type JoinQueryParams = [DateTime, string];
+
+export interface IJoinQueryResult {
+	id: number;
+	name: UserName;
+	shipped_at: Dayjs | null;
+	total: string;
+}
+
+export interface IJoinQueryQuery {
+	params: JoinQueryParams;
+	result: IJoinQueryResult;
+}
+"#,
+    )
+  }
+
+  #[test]
+  fn should_map_param_types_in_subquery() -> Result<(), Box<dyn std::error::Error>> {
+    assert_complex_query_types(
+      r#"
+import { sql } from 'sqlx-ts'
+const subqueryQuery = sql`SELECT id, created_at FROM users WHERE id IN (SELECT user_id FROM orders WHERE total > ?)`
+"#,
+      r#"
+import type { DateTime } from "luxon";
+
+export type SubqueryQueryParams = [string];
+
+export interface ISubqueryQueryResult {
+	created_at: DateTime;
+	id: number;
+}
+
+export interface ISubqueryQueryQuery {
+	params: SubqueryQueryParams;
+	result: ISubqueryQueryResult;
+}
+"#,
+    )
+  }
+
+  #[test]
+  fn should_map_types_in_cte() -> Result<(), Box<dyn std::error::Error>> {
+    assert_complex_query_types(
+      r#"
+import { sql } from 'sqlx-ts'
+const cteQuery = sql`WITH recent AS (SELECT user_id, ordered_at FROM orders WHERE ordered_at > ?) SELECT r.user_id AS user_id, r.ordered_at AS ordered_at FROM recent r`
+"#,
+      r#"
+import type { DateTime } from "luxon";
+
+export type CteQueryParams = [DateTime];
+
+export interface ICteQueryResult {
+	ordered_at: DateTime;
+	user_id: number;
+}
+
+export interface ICteQueryQuery {
+	params: CteQueryParams;
+	result: ICteQueryResult;
+}
+"#,
+    )
+  }
+
+  #[test]
+  fn should_map_insert_params_and_returning() -> Result<(), Box<dyn std::error::Error>> {
+    assert_complex_query_types(
+      r#"
+import { sql } from 'sqlx-ts'
+const insertQuery = sql`INSERT INTO orders (user_id, total, ordered_at, shipped_at) VALUES (?, ?, ?, ?) RETURNING id, total, ordered_at`
+"#,
+      r#"
+import type { DateTime } from "luxon";
+import type { Dayjs } from "dayjs";
+
+export type InsertQueryParams = [[number, string, DateTime, Dayjs | null]];
+
+export interface IInsertQueryResult {
+	id: number;
+	ordered_at: DateTime;
+	total: string;
+}
+
+export interface IInsertQueryQuery {
+	params: InsertQueryParams;
+	result: IInsertQueryResult;
+}
+"#,
+    )
+  }
+
+  #[test]
+  fn should_map_update_params() -> Result<(), Box<dyn std::error::Error>> {
+    assert_complex_query_types(
+      r#"
+import { sql } from 'sqlx-ts'
+const updateQuery = sql`UPDATE users SET balance = ?, deleted_at = ? WHERE created_at < ?`
+"#,
+      r#"
+import type { DateTime } from "luxon";
+
+export type UpdateQueryParams = [string, DateTime | null, DateTime];
+
+export interface IUpdateQueryResult {
+	
+}
+
+export interface IUpdateQueryQuery {
+	params: UpdateQueryParams;
+	result: IUpdateQueryResult;
+}
+"#,
+    )
+  }
+
+  #[test]
+  fn should_map_delete_params() -> Result<(), Box<dyn std::error::Error>> {
+    assert_complex_query_types(
+      r#"
+import { sql } from 'sqlx-ts'
+const deleteQuery = sql`DELETE FROM orders WHERE shipped_at < ? AND total < ?`
+"#,
+      r#"
+import type { Dayjs } from "dayjs";
+
+export type DeleteQueryParams = [Dayjs | null, string];
+
+export interface IDeleteQueryResult {
+	
+}
+
+export interface IDeleteQueryQuery {
+	params: DeleteQueryParams;
+	result: IDeleteQueryResult;
+}
+"#,
+    )
+  }
 }

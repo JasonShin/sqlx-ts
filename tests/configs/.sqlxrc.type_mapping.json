@@ -1,0 +1,24 @@
+{
+  "generateTypes": {
+    "enabled": true
+  },
+  "connections": {
+    "default": {
+      "DB_TYPE": "postgres",
+      "DB_HOST": "127.0.0.1",
+      "DB_PORT": 54321,
+      "DB_USER": "postgres",
+      "DB_PASS": "postgres",
+      "DB_NAME": "postgres",
+      "PG_SEARCH_PATH": "public,myschema",
+      "type_mapping": {
+        "bigint": "string",
+        "interval": "string",
+        "jsonb": "Record<string, unknown>",
+        "faction_enum": { "type": "Faction", "import": "import type { Faction } from './enums'" },
+        "timestamp": { "type": "DateTime", "import": "import type { DateTime } from 'luxon'" },
+        "timestamptz": { "type": "Dayjs", "import": "import type { Dayjs } from 'dayjs'" }
+      }
+    }
+  }
+}
