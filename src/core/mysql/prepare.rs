@@ -19,7 +19,7 @@ pub async fn prepare(
   let mut failed = false;
 
   let conn = match &db_conn {
-    DBConn::MySQLPooledConn(conn) => conn,
+    DBConn::MySQLPooledConn(conn, _) => conn,
     _ => panic!("Invalid connection type"),
   };
 

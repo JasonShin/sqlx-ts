@@ -52,8 +52,29 @@ pub fn get_query_name(sql: &SQL) -> Result<String> {
   Err(TsGeneratorError::EmptyQueryNameFromVarDecl(sql.query.to_string()).into())
 }
 
+fn normalize_imports(imports: &[String]) -> Vec<String> {
+  imports
+    .iter()
+    .map(|import| {
+      let import = import.split_whitespace().collect::<Vec<_>>().join(" ");
+      if import.ends_with(';') {
+        import
+      } else {
+        format!("{import};")
+      }
+    })
+    .collect()
+}
+
+fn with_imports(imports: &[String], sqls_to_write: &str) -> String {
+  if imports.is_empty() {
+    return sqls_to_write.to_string();
+  }
+  format!("{}\n\n{sqls_to_write}", imports.join("\n"))
+}
+
 /// Write colocated Type definition file next to the TS source code
-pub fn write_colocated_ts_file(file_path: &Path, sqls_to_write: String) -> Result<()> {
+pub fn write_colocated_ts_file(file_path: &Path, sqls_to_write: String, imports: &[String]) -> Result<()> {
   let path = file_path.parent().unwrap();
   let file = file_path.file_stem().unwrap();
   let file_name = file.to_str().unwrap();
@@ -65,12 +86,13 @@ pub fn write_colocated_ts_file(file_path: &Path, sqls_to_write: String) -> Resul
 
   let mut file_to_write = fs::File::create(query_ts_file_path)?;
 
+  let sqls_to_write = with_imports(&normalize_imports(imports), &sqls_to_write);
   file_to_write.write_all(sqls_to_write.as_ref())?;
   Ok(())
 }
 
 /// Write a single TS file to a target destination according to CLI_ARGS.generate_path
-pub fn write_single_ts_file(sqls_to_write: String) -> Result<()> {
+pub fn write_single_ts_file(sqls_to_write: String, imports: &[String]) -> Result<()> {
   let generate_path = CONFIG.generate_types_config.clone().and_then(|x| x.generate_path);
   let output = generate_path.ok_or(eyre!(
     "TS generation path (--generate-path=) is required if you want to generate the SQL at a single path"
@@ -79,6 +101,30 @@ pub fn write_single_ts_file(sqls_to_write: String) -> Result<()> {
   let parent_output_path: Option<&Path> = output.parent();
   if let Some(parent_output_path) = parent_output_path {
     fs::create_dir_all(parent_output_path)?;
+  }
+
+  let imports = normalize_imports(imports);
+  if !imports.is_empty() {
+    let existing = fs::read_to_string(&output).unwrap_or_default();
+    let mut lines = existing.lines().peekable();
+    let mut merged_imports: Vec<String> = vec![];
+    while let Some(line) = lines.next_if(|line| line.starts_with("import ")) {
+      merged_imports.push(line.to_string());
+    }
+    for import in imports {
+      if !merged_imports.contains(&import) {
+        merged_imports.push(import);
+      }
+    }
+    let existing_types = lines.collect::<Vec<_>>().join("\n");
+    let existing_types = existing_types.trim_start();
+    let types = if existing_types.is_empty() {
+      sqls_to_write
+    } else {
+      format!("{existing_types}\n{sqls_to_write}")
+    };
+    fs::write(&output, with_imports(&merged_imports, &types))?;
+    return Ok(());
   }
 
   let mut file_to_write = OpenOptions::new()

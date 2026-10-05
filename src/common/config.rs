@@ -7,6 +7,7 @@ use regex::Regex;
 use serde;
 use serde::{Deserialize, Serialize};
 use serde_json;
+use serde_json::Value as JsonValue;
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
@@ -18,6 +19,69 @@ pub struct SqlxConfig {
   #[serde(rename = "generateTypes")]
   pub generate_types: Option<GenerateTypesConfig>,
   pub connections: HashMap<String, DbConnectionConfig>,
+}
+
+#[derive(Clone, Debug)]
+pub enum CustomTypeMapping {
+  Simple(String),
+  WithImport { type_name: String, import: String },
+}
+
+impl<'de> Deserialize<'de> for CustomTypeMapping {
+  fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+  where
+    D: serde::Deserializer<'de>,
+  {
+    let value = JsonValue::deserialize(deserializer)?;
+    let non_empty = |type_name: &str| -> Result<String, D::Error> {
+      let type_name = type_name.trim();
+      if type_name.is_empty() {
+        return Err(serde::de::Error::custom("type in type_mapping cannot be empty"));
+      }
+      Ok(type_name.to_string())
+    };
+    match value {
+      JsonValue::String(s) => Ok(CustomTypeMapping::Simple(non_empty(&s)?)),
+      JsonValue::Object(map) => {
+        let type_name = map
+          .get("type")
+          .and_then(|v| v.as_str())
+          .ok_or_else(|| serde::de::Error::missing_field("type"))?;
+        let type_name = non_empty(type_name)?;
+        let import = match map.get("import") {
+          None | Some(JsonValue::Null) => None,
+          Some(JsonValue::String(import)) if import.trim().is_empty() => None,
+          Some(JsonValue::String(import)) => Some(import.to_string()),
+          Some(_) => return Err(serde::de::Error::custom("import in type_mapping must be a string")),
+        };
+        match import {
+          Some(import) => Ok(CustomTypeMapping::WithImport { type_name, import }),
+          None => Ok(CustomTypeMapping::Simple(type_name)),
+        }
+      }
+      _ => Err(serde::de::Error::custom(
+        "Expected a string or an object for CustomTypeMapping",
+      )),
+    }
+  }
+}
+
+impl Serialize for CustomTypeMapping {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: serde::Serializer,
+  {
+    match self {
+      CustomTypeMapping::Simple(s) => serializer.serialize_str(s),
+      CustomTypeMapping::WithImport { type_name, import } => {
+        use serde::ser::SerializeMap;
+        let mut map = serializer.serialize_map(Some(2))?;
+        map.serialize_entry("type", type_name)?;
+        map.serialize_entry("import", import)?;
+        map.end()
+      }
+    }
+  }
 }
 
 pub const fn default_bool<const V: bool>() -> bool {
@@ -58,6 +122,47 @@ pub struct DbConnectionConfig {
   pub pool_size: u32,
   #[serde(rename = "CONNECTION_TIMEOUT", default = "default_connection_timeout")]
   pub connection_timeout: u64,
+  #[serde(default)]
+  pub type_mapping: Option<HashMap<String, CustomTypeMapping>>,
+}
+
+impl DbConnectionConfig {
+  pub fn find_type_mapping(&self, db_types: &[&str]) -> Option<&CustomTypeMapping> {
+    let type_mapping = self.type_mapping.as_ref()?;
+    let normalized: HashMap<String, &CustomTypeMapping> = type_mapping
+      .iter()
+      .map(|(k, v)| (k.trim().to_lowercase(), v))
+      .collect();
+
+    db_types.iter().find_map(|db_type| {
+      let db_type = db_type
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
+        .to_lowercase();
+      normalized
+        .get(&db_type)
+        .or_else(|| normalized.get(&strip_type_modifiers(&db_type)))
+        .copied()
+    })
+  }
+}
+
+/// e.g. `bigint(20) unsigned` -> `bigint unsigned`, `varchar(255)` -> `varchar`
+fn strip_type_modifiers(db_type: &str) -> String {
+  let mut depth = 0;
+  let stripped: String = db_type
+    .chars()
+    .filter(|c| {
+      match c {
+        '(' => depth += 1,
+        ')' => depth -= 1,
+        _ => return depth == 0,
+      }
+      false
+    })
+    .collect();
+  stripped.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
 fn default_pool_size() -> u32 {
@@ -317,6 +422,8 @@ impl Config {
       .or_else(|| Some(default_connection_timeout()))
       .unwrap();
 
+    let type_mapping = default_config.and_then(|x| x.type_mapping.clone());
+
     DbConnectionConfig {
       db_type: db_type.to_owned(),
       db_host,
@@ -328,6 +435,7 @@ impl Config {
       pg_search_path: pg_search_path.to_owned(),
       pool_size,
       connection_timeout,
+      type_mapping,
     }
   }
 

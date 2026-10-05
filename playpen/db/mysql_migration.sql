@@ -223,3 +223,11 @@ INSERT INTO json_test_data (name, data, metadata) VALUES
 ('analytics',
  '{"date": "2024-01-15", "metrics": {"visitors": 1500, "pageViews": 4500, "bounceRate": 0.35, "sources": {"organic": 850, "direct": 400, "referral": 250}}}',
  '{"source": "analytics", "version": "1.0"}');
+
+CREATE TABLE type_mapping_test (
+  id INT PRIMARY KEY,
+  is_active TINYINT(1) NOT NULL,
+  flags TINYINT NOT NULL,
+  big_id BIGINT UNSIGNED NOT NULL,
+  amount BIGINT NOT NULL
+);

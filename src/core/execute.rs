@@ -18,6 +18,7 @@ pub async fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) ->
 
   for (file_path, sqls) in queries {
     let mut sqls_to_write: Vec<String> = vec![];
+    let mut imports: Vec<String> = vec![];
     for sql in sqls {
       let mut connection = DB_CONNECTIONS.lock().await;
       let connection = &connection.get_connection(&sql.query).clone();
@@ -31,6 +32,11 @@ pub async fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) ->
 
       if *should_generate_types {
         let ts_query = &ts_query.clone().expect("Failed to generate types from query");
+        for import in ts_query.imports() {
+          if !imports.contains(&import) {
+            imports.push(import);
+          }
+        }
         let ts_query = &ts_query.to_string();
         sqls_to_write.push(ts_query.to_owned());
       }
@@ -46,10 +52,10 @@ pub async fn execute(queries: &HashMap<PathBuf, Vec<SQL>>, handler: &Handler) ->
 
       if CLI_ARGS.generate_path.is_none() {
         // generates types colocated to source code
-        write_colocated_ts_file(file_path, sqls_to_write)?;
+        write_colocated_ts_file(file_path, sqls_to_write, &imports)?;
       } else {
         // generates types in a single directory/file
-        write_single_ts_file(sqls_to_write)?;
+        write_single_ts_file(sqls_to_write, &imports)?;
       }
     }
   }

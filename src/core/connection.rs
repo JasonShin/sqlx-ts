@@ -20,9 +20,9 @@ use swc_common::errors::Handler;
 /// Enum to hold a specific database connection instance
 #[allow(clippy::enum_variant_names)]
 pub enum DBConn {
-  MySQLPooledConn(Mutex<Pool<MySqlConnectionManager>>),
-  PostgresConn(Mutex<Pool<PostgresConnectionManager>>),
-  SqliteConn(Mutex<Pool<SqliteConnectionManager>>),
+  MySQLPooledConn(Mutex<Pool<MySqlConnectionManager>>, String),
+  PostgresConn(Mutex<Pool<PostgresConnectionManager>>, String),
+  SqliteConn(Mutex<Pool<SqliteConnectionManager>>, String),
 }
 
 impl DBConn {
@@ -33,9 +33,9 @@ impl DBConn {
     handler: &Handler,
   ) -> Result<(bool, Option<TsQuery>)> {
     let (explain_failed, ts_query) = match &self {
-      DBConn::MySQLPooledConn(_conn) => mysql_explain::prepare(self, sql, should_generate_types, handler).await?,
-      DBConn::PostgresConn(_conn) => postgres_explain::prepare(self, sql, should_generate_types, handler).await?,
-      DBConn::SqliteConn(_conn) => sqlite_explain::prepare(self, sql, should_generate_types, handler).await?,
+      DBConn::MySQLPooledConn(..) => mysql_explain::prepare(self, sql, should_generate_types, handler).await?,
+      DBConn::PostgresConn(..) => postgres_explain::prepare(self, sql, should_generate_types, handler).await?,
+      DBConn::SqliteConn(..) => sqlite_explain::prepare(self, sql, should_generate_types, handler).await?,
     };
 
     Ok((explain_failed, ts_query))
@@ -44,9 +44,15 @@ impl DBConn {
   /// Get the database type for this connection
   pub fn get_db_type(&self) -> DatabaseType {
     match self {
-      DBConn::MySQLPooledConn(_) => DatabaseType::Mysql,
-      DBConn::PostgresConn(_) => DatabaseType::Postgres,
-      DBConn::SqliteConn(_) => DatabaseType::Sqlite,
+      DBConn::MySQLPooledConn(..) => DatabaseType::Mysql,
+      DBConn::PostgresConn(..) => DatabaseType::Postgres,
+      DBConn::SqliteConn(..) => DatabaseType::Sqlite,
+    }
+  }
+
+  pub fn get_connection_name(&self) -> &str {
+    match self {
+      DBConn::MySQLPooledConn(_, name) | DBConn::PostgresConn(_, name) | DBConn::SqliteConn(_, name) => name,
     }
   }
 }
