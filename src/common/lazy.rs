@@ -47,7 +47,7 @@ pub static DB_CONN_CACHE: LazyLock<HashMap<String, Arc<Mutex<DBConn>>>> = LazyLo
             .await
             .expect(&ERR_DB_CONNECTION_ISSUE);
 
-          DBConn::MySQLPooledConn(Mutex::new(pool))
+          DBConn::MySQLPooledConn(Mutex::new(pool), connection.to_string())
         })
       }),
       DatabaseType::Sqlite => task::block_in_place(|| {
@@ -61,7 +61,7 @@ pub static DB_CONN_CACHE: LazyLock<HashMap<String, Arc<Mutex<DBConn>>>> = LazyLo
             .await
             .expect(&ERR_DB_CONNECTION_ISSUE);
 
-          DBConn::SqliteConn(Mutex::new(pool))
+          DBConn::SqliteConn(Mutex::new(pool), connection.to_string())
         })
       }),
       DatabaseType::Postgres => task::block_in_place(|| {
@@ -75,10 +75,10 @@ pub static DB_CONN_CACHE: LazyLock<HashMap<String, Arc<Mutex<DBConn>>>> = LazyLo
             .await
             .expect(&ERR_DB_CONNECTION_ISSUE);
 
-          let db_conn = DBConn::PostgresConn(Mutex::new(pool));
+          let db_conn = DBConn::PostgresConn(Mutex::new(pool), connection.to_string());
 
           let conn = match &db_conn {
-            DBConn::PostgresConn(conn) => conn,
+            DBConn::PostgresConn(conn, _) => conn,
             _ => panic!("Invalid connection type"),
           };
 

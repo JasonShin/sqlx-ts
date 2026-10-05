@@ -122,6 +122,10 @@ pub enum TsFieldType {
   Array(Box<TsFieldType>),
   #[allow(dead_code)]
   Never,
+  Custom {
+    type_name: String,
+    import: Option<String>,
+  },
 }
 
 impl fmt::Display for TsFieldType {
@@ -151,6 +155,7 @@ impl fmt::Display for TsFieldType {
       TsFieldType::Null => write!(f, "null"),
       TsFieldType::Never => write!(f, "never"),
       TsFieldType::Unknown => write!(f, "unknown"),
+      TsFieldType::Custom { type_name, .. } => write!(f, "{type_name}"),
       TsFieldType::Array(ts_field_type) => {
         let ts_field_type = ts_field_type.clone();
         let ts_field_type = *ts_field_type;
@@ -278,6 +283,18 @@ impl TsFieldType {
     );
     info!(message);
     Self::Any
+  }
+
+  fn collect_imports(&self, imports: &mut Vec<String>) {
+    match self {
+      TsFieldType::Custom {
+        import: Some(import), ..
+      } if !imports.contains(import) => imports.push(import.to_owned()),
+      TsFieldType::Array(inner) => inner.collect_imports(imports),
+      TsFieldType::Array2D(rows) => rows.iter().flatten().for_each(|x| x.collect_imports(imports)),
+      TsFieldType::StructuredObject(fields) => fields.iter().for_each(|(_, x, _)| x.collect_imports(imports)),
+      _ => {}
+    }
   }
 
   pub fn get_ts_field_from_annotation(annotated_type: &str) -> Self {
@@ -546,6 +563,20 @@ impl TsQuery {
       self.params.insert(order, values);
     }
     Ok(())
+  }
+
+  pub fn imports(&self) -> Vec<String> {
+    let mut imports = vec![];
+    let params = self.params.values().flatten();
+    let insert_params = self.insert_params.values().flat_map(|x| x.values()).flatten();
+    let mut result_keys = Vec::from_iter(self.result.keys());
+    result_keys.sort();
+    let results = result_keys.into_iter().flat_map(|key| &self.result[key]);
+
+    for ts_field_type in params.chain(insert_params).chain(results) {
+      ts_field_type.collect_imports(&mut imports);
+    }
+    imports
   }
 
   /// The method is to format SQL params extracted via translate methods

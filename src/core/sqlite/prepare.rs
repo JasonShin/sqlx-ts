@@ -18,7 +18,7 @@ pub async fn prepare(
   let mut failed = false;
 
   let conn = match &db_conn {
-    DBConn::SqliteConn(conn) => conn,
+    DBConn::SqliteConn(conn, _) => conn,
     _ => panic!("Invalid connection type"),
   };
 

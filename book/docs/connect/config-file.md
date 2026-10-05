@@ -116,6 +116,36 @@ Supported fields of each connection include
 - `PG_SEARCH_PATH`: PostgreSQL schema search path (default is "$user,public") [https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH](https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH)
 - `POOL_SIZE`: Size of the connection pool to establish per connection type
 - `CONNECTION_TIMEOUT`: Timeout in second of Database connection attempt
+- `type_mapping`: Overrides the generated TypeScript type of database column types (see below)
+
+#### type_mapping
+
+By default, SQLX-TS translates each database column type into a built-in TypeScript type (e.g. `bigint` -> `number`).
+You can override this per connection by mapping a database column type to any TypeScript type. If the type
+needs to be imported, provide an object with `type` and `import`; the import statement is added at the top of
+the generated types file.
+
+```json
+{
+  "connections": {
+    "default": {
+      "DB_TYPE": "postgres",
+      "DB_URL": "postgres://postgres:postgres@127.0.0.1:5432/mydb",
+      "type_mapping": {
+        "bigint": "string",
+        "numeric": "string | number",
+        "timestamp": { "type": "DateTime", "import": "import type { DateTime } from 'luxon'" }
+      }
+    }
+  }
+}
+```
+
+- Keys are matched case-insensitively against the column type reported by the database, e.g. `bigint`, `DATETIME`
+- Type modifiers are ignored when matching, so `varchar` also matches `VARCHAR(255)`
+- For PostgreSQL, both the `data_type` (e.g. `timestamp without time zone`) and the `udt_name` (e.g. `timestamp`, `int8` or the name of a custom enum type) are matched
+- Nullable columns still produce `| null`, e.g. `string | null`
+- The mapping applies to both query results and parameters
 
 ### generate_types
 

@@ -1,4 +1,6 @@
+use crate::common::config::{CustomTypeMapping, DbConnectionConfig};
 use crate::common::errors::{DB_CONN_POOL_RETRIEVE_ERROR, DB_SCHEME_READ_ERROR};
+use crate::common::lazy::CONFIG;
 use crate::common::logger::*;
 use crate::core::connection::DBConn;
 use crate::core::mysql::pool::MySqlConnectionManager;
@@ -18,6 +20,24 @@ pub struct Field {
 }
 
 pub type Fields = HashMap<String, Field>;
+
+fn resolve_field_type(
+  conn_config: Option<&DbConnectionConfig>,
+  db_types: &[&str],
+  default_type: impl FnOnce() -> TsFieldType,
+) -> TsFieldType {
+  match conn_config.and_then(|x| x.find_type_mapping(db_types)) {
+    Some(CustomTypeMapping::Simple(type_name)) => TsFieldType::Custom {
+      type_name: type_name.to_owned(),
+      import: None,
+    },
+    Some(CustomTypeMapping::WithImport { type_name, import }) => TsFieldType::Custom {
+      type_name: type_name.to_owned(),
+      import: Some(import.to_owned()),
+    },
+    None => default_type(),
+  }
+}
 
 pub struct DBSchema {
   // Holds cache details for table / columns of the target database
@@ -45,7 +65,9 @@ impl DBSchema {
   /// # PostgreSQL Notes
   /// - PostgresSQL would utilise SEARCH_PATH option to search for the table in the database https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH
   pub async fn fetch_table(&mut self, table_name: &Vec<&str>, conn: &DBConn) -> Option<Fields> {
-    let table_key: String = table_name.join(",");
+    let connection_name = conn.get_connection_name();
+    let conn_config = CONFIG.connections.get(connection_name);
+    let table_key: String = format!("{connection_name}:{}", table_name.join(","));
     let cached_table_result = self.tables_cache.get(table_key.as_str());
 
     if let Some(cached_table_result) = cached_table_result {
@@ -53,9 +75,11 @@ impl DBSchema {
     }
 
     let result = match &conn {
-      DBConn::MySQLPooledConn(conn) => Self::mysql_fetch_table(self, table_name, conn).await,
-      DBConn::PostgresConn(conn) => Self::postgres_fetch_table(self, &"public".to_string(), table_name, conn).await,
-      DBConn::SqliteConn(conn) => Self::sqlite_fetch_table(self, table_name, conn).await,
+      DBConn::MySQLPooledConn(conn, _) => Self::mysql_fetch_table(self, table_name, conn, conn_config).await,
+      DBConn::PostgresConn(conn, _) => {
+        Self::postgres_fetch_table(self, &"public".to_string(), table_name, conn, conn_config).await
+      }
+      DBConn::SqliteConn(conn, _) => Self::sqlite_fetch_table(self, table_name, conn, conn_config).await,
     };
 
     if let Some(result) = &result {
@@ -70,6 +94,7 @@ impl DBSchema {
     schema: &String,
     table_names: &Vec<&str>,
     conn: &Mutex<Pool<PostgresConnectionManager>>,
+    conn_config: Option<&DbConnectionConfig>,
   ) -> Option<Fields> {
     let table_names = table_names
       .iter()
@@ -92,7 +117,8 @@ impl DBSchema {
           where n.nspname = '{schema}'
           and t.typname = udt_name
           group by n.nspname, t.typname
-          ) as enum_values
+          ) as enum_values,
+          UDT_NAME as udt_name
       FROM information_schema.COLUMNS
       WHERE TABLE_SCHEMA = '{schema}'
       AND TABLE_NAME IN ({table_names});
@@ -115,14 +141,17 @@ impl DBSchema {
           .try_get(4)
           .ok()
           .map(|val: String| val.split(",").map(|x| x.to_string()).collect());
+        let udt_name: String = row.try_get(5).unwrap_or_default();
 
         let field = Field {
-          field_type: TsFieldType::get_ts_field_type_from_postgres_field_type(
-            field_type.to_owned(),
-            field_name.to_owned(),
-            table_name,
-            enum_values,
-          ),
+          field_type: resolve_field_type(conn_config, &[&field_type, &udt_name], || {
+            TsFieldType::get_ts_field_type_from_postgres_field_type(
+              field_type.to_owned(),
+              field_name.to_owned(),
+              table_name,
+              enum_values,
+            )
+          }),
           is_nullable: is_nullable == "YES",
         };
         if field.field_type == TsFieldType::Any {
@@ -144,6 +173,7 @@ impl DBSchema {
     &self,
     table_names: &Vec<&str>,
     conn: &Mutex<Pool<MySqlConnectionManager>>,
+    conn_config: Option<&DbConnectionConfig>,
   ) -> Option<Fields> {
     let table_names = table_names
       .iter()
@@ -196,12 +226,14 @@ impl DBSchema {
           None
         };
         let field = Field {
-          field_type: TsFieldType::get_ts_field_type_from_mysql_field_type(
-            field_type.to_owned(),
-            table_name.to_owned(),
-            field_name.to_owned(),
-            enum_values.to_owned(),
-          ),
+          field_type: resolve_field_type(conn_config, &[&field_type], || {
+            TsFieldType::get_ts_field_type_from_mysql_field_type(
+              field_type.to_owned(),
+              table_name.to_owned(),
+              field_name.to_owned(),
+              enum_values.to_owned(),
+            )
+          }),
           is_nullable: is_nullable == "YES",
         };
         fields.insert(field_name.to_owned(), field);
@@ -217,6 +249,7 @@ impl DBSchema {
     &self,
     table_names: &Vec<&str>,
     conn: &Mutex<Pool<SqliteConnectionManager>>,
+    conn_config: Option<&'static DbConnectionConfig>,
   ) -> Option<Fields> {
     let mut fields: HashMap<String, Field> = HashMap::new();
     let conn = conn.lock().await;
@@ -249,7 +282,9 @@ impl DBSchema {
 
         for (field_name, field_type, notnull, pk, tbl_name) in rows.flatten() {
           let field = Field {
-            field_type: TsFieldType::get_ts_field_type_from_sqlite_field_type(field_type, tbl_name, field_name.clone()),
+            field_type: resolve_field_type(conn_config, &[&field_type], || {
+              TsFieldType::get_ts_field_type_from_sqlite_field_type(field_type.to_owned(), tbl_name, field_name.clone())
+            }),
             is_nullable: !notnull && pk == 0,
           };
           all_fields.insert(field_name, field);

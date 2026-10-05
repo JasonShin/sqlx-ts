@@ -36,22 +36,30 @@ impl<'de> Deserialize<'de> for CustomTypeMapping {
     match value {
       JsonValue::String(s) => Ok(CustomTypeMapping::Simple(s)),
       JsonValue::Object(map) => {
-        let type_name = map.get("type")
-          .and_then(|v| v.as_str()).ok_or_else(|| serde::de::Error::missing_field("type"))?
+        let type_name = map
+          .get("type")
+          .and_then(|v| v.as_str())
+          .ok_or_else(|| serde::de::Error::missing_field("type"))?
           .to_string();
-        let import = map.get("import")
-          .and_then(|v| v.as_str()).ok_or_else(|| serde::de::Error::missing_field("import"))?
+        let import = map
+          .get("import")
+          .and_then(|v| v.as_str())
+          .ok_or_else(|| serde::de::Error::missing_field("import"))?
           .to_string();
         Ok(CustomTypeMapping::WithImport { type_name, import })
       }
-      _ => Err(serde::de::Error::custom("Expected a string or an object for CustomTypeMapping")),
+      _ => Err(serde::de::Error::custom(
+        "Expected a string or an object for CustomTypeMapping",
+      )),
     }
   }
 }
 
 impl Serialize for CustomTypeMapping {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-  where S: serde::Serializer {
+  where
+    S: serde::Serializer,
+  {
     match self {
       CustomTypeMapping::Simple(s) => serializer.serialize_str(s),
       CustomTypeMapping::WithImport { type_name, import } => {
@@ -81,8 +89,6 @@ pub struct GenerateTypesConfig {
   pub generate_path: Option<PathBuf>,
 }
 
-
-
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DbConnectionConfig {
   #[serde(rename = "DB_TYPE")]
@@ -105,7 +111,27 @@ pub struct DbConnectionConfig {
   pub pool_size: u32,
   #[serde(rename = "CONNECTION_TIMEOUT", default = "default_connection_timeout")]
   pub connection_timeout: u64,
+  #[serde(default)]
   pub type_mapping: Option<HashMap<String, CustomTypeMapping>>,
+}
+
+impl DbConnectionConfig {
+  pub fn find_type_mapping(&self, db_types: &[&str]) -> Option<&CustomTypeMapping> {
+    let type_mapping = self.type_mapping.as_ref()?;
+    let normalized: HashMap<String, &CustomTypeMapping> = type_mapping
+      .iter()
+      .map(|(k, v)| (k.trim().to_lowercase(), v))
+      .collect();
+
+    db_types.iter().find_map(|db_type| {
+      let db_type = db_type.trim().to_lowercase();
+      let base_type = db_type.split('(').next().unwrap_or_default().trim();
+      normalized
+        .get(&db_type)
+        .or_else(|| normalized.get(base_type))
+        .copied()
+    })
+  }
 }
 
 fn default_pool_size() -> u32 {
@@ -365,10 +391,7 @@ impl Config {
       .or_else(|| Some(default_connection_timeout()))
       .unwrap();
 
-    let type_mapping = default_config
-      .and_then(|x| x.type_mapping.clone());
-
-    println!("checking {:#?}", type_mapping);
+    let type_mapping = default_config.and_then(|x| x.type_mapping.clone());
 
     DbConnectionConfig {
       db_type: db_type.to_owned(),
