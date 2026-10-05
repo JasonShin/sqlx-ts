@@ -5,6 +5,9 @@ use swc_common::MultiSpan;
 
 pub mod cli;
 pub mod config;
+#[cfg(test)]
+#[path = "./config.test.rs"]
+mod config_test;
 pub mod dotenv;
 pub mod lazy;
 pub mod types;

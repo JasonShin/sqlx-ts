@@ -33,20 +33,31 @@ impl<'de> Deserialize<'de> for CustomTypeMapping {
     D: serde::Deserializer<'de>,
   {
     let value = JsonValue::deserialize(deserializer)?;
+    let non_empty = |type_name: &str| -> Result<String, D::Error> {
+      let type_name = type_name.trim();
+      if type_name.is_empty() {
+        return Err(serde::de::Error::custom("type in type_mapping cannot be empty"));
+      }
+      Ok(type_name.to_string())
+    };
     match value {
-      JsonValue::String(s) => Ok(CustomTypeMapping::Simple(s)),
+      JsonValue::String(s) => Ok(CustomTypeMapping::Simple(non_empty(&s)?)),
       JsonValue::Object(map) => {
         let type_name = map
           .get("type")
           .and_then(|v| v.as_str())
-          .ok_or_else(|| serde::de::Error::missing_field("type"))?
-          .to_string();
-        let import = map
-          .get("import")
-          .and_then(|v| v.as_str())
-          .ok_or_else(|| serde::de::Error::missing_field("import"))?
-          .to_string();
-        Ok(CustomTypeMapping::WithImport { type_name, import })
+          .ok_or_else(|| serde::de::Error::missing_field("type"))?;
+        let type_name = non_empty(type_name)?;
+        let import = match map.get("import") {
+          None | Some(JsonValue::Null) => None,
+          Some(JsonValue::String(import)) if import.trim().is_empty() => None,
+          Some(JsonValue::String(import)) => Some(import.to_string()),
+          Some(_) => return Err(serde::de::Error::custom("import in type_mapping must be a string")),
+        };
+        match import {
+          Some(import) => Ok(CustomTypeMapping::WithImport { type_name, import }),
+          None => Ok(CustomTypeMapping::Simple(type_name)),
+        }
       }
       _ => Err(serde::de::Error::custom(
         "Expected a string or an object for CustomTypeMapping",
@@ -124,14 +135,34 @@ impl DbConnectionConfig {
       .collect();
 
     db_types.iter().find_map(|db_type| {
-      let db_type = db_type.trim().to_lowercase();
-      let base_type = db_type.split('(').next().unwrap_or_default().trim();
+      let db_type = db_type
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
+        .to_lowercase();
       normalized
         .get(&db_type)
-        .or_else(|| normalized.get(base_type))
+        .or_else(|| normalized.get(&strip_type_modifiers(&db_type)))
         .copied()
     })
   }
+}
+
+/// e.g. `bigint(20) unsigned` -> `bigint unsigned`, `varchar(255)` -> `varchar`
+fn strip_type_modifiers(db_type: &str) -> String {
+  let mut depth = 0;
+  let stripped: String = db_type
+    .chars()
+    .filter(|c| {
+      match c {
+        '(' => depth += 1,
+        ')' => depth -= 1,
+        _ => return depth == 0,
+      }
+      false
+    })
+    .collect();
+  stripped.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
 fn default_pool_size() -> u32 {

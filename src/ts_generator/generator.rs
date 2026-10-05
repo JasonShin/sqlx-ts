@@ -56,9 +56,9 @@ fn normalize_imports(imports: &[String]) -> Vec<String> {
   imports
     .iter()
     .map(|import| {
-      let import = import.trim();
+      let import = import.split_whitespace().collect::<Vec<_>>().join(" ");
       if import.ends_with(';') {
-        import.to_string()
+        import
       } else {
         format!("{import};")
       }

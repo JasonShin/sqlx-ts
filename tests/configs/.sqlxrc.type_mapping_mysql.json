@@ -1,0 +1,20 @@
+{
+  "generateTypes": {
+    "enabled": true
+  },
+  "connections": {
+    "default": {
+      "DB_TYPE": "mysql",
+      "DB_HOST": "127.0.0.1",
+      "DB_PORT": 33306,
+      "DB_USER": "root",
+      "DB_NAME": "sqlx-ts",
+      "type_mapping": {
+        "tinyint(1)": "boolean",
+        "tinyint": "number",
+        "bigint unsigned": "string",
+        "bigint": "bigint"
+      }
+    }
+  }
+}

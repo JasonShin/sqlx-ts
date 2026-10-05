@@ -22,6 +22,24 @@ mod custom_type_mapping_tests {
     type_mapping_json: &str,
     generate_path: Option<&str>,
   ) -> Result<(String, String), Box<dyn std::error::Error>> {
+    let (output, type_file) = run_sqlx_ts(schema_sql, ts_files, type_mapping_json, generate_path)?;
+    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+
+    assert!(
+      output.status.success(),
+      "sqlx-ts failed!\nstdout: {stdout}\nstderr: {stderr}"
+    );
+
+    Ok((stdout, type_file))
+  }
+
+  fn run_sqlx_ts(
+    schema_sql: &str,
+    ts_files: &[(&str, &str)],
+    type_mapping_json: &str,
+    generate_path: Option<&str>,
+  ) -> Result<(std::process::Output, String), Box<dyn std::error::Error>> {
     let dir = tempdir()?;
     let parent_path = dir.path();
 
@@ -69,13 +87,6 @@ mod custom_type_mapping_tests {
     }
 
     let output = cmd.output()?;
-    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-
-    assert!(
-      output.status.success(),
-      "sqlx-ts failed!\nstdout: {stdout}\nstderr: {stderr}"
-    );
 
     let type_file_path = match generate_path {
       Some(generate_path) => parent_path.join(generate_path),
@@ -87,7 +98,7 @@ mod custom_type_mapping_tests {
       String::new()
     };
 
-    Ok((stdout, type_file))
+    Ok((output, type_file))
   }
 
   #[test]
@@ -453,5 +464,93 @@ export interface IDeleteQueryQuery {
 }
 "#,
     )
+  }
+
+  #[test]
+  fn should_write_multiline_import_once_with_generate_path() -> Result<(), Box<dyn std::error::Error>> {
+    let schema = "CREATE TABLE events (id INTEGER PRIMARY KEY NOT NULL, created_at DATETIME NOT NULL);";
+
+    let first = r#"
+import { sql } from 'sqlx-ts'
+const firstQuery = sql`SELECT created_at FROM events`
+"#;
+    let second = r#"
+import { sql } from 'sqlx-ts'
+const secondQuery = sql`SELECT created_at FROM events`
+"#;
+
+    let type_mapping =
+      r#"{ "datetime": { "type": "DT", "import": "import type {\n  DateTime as DT\n} from \"luxon\"" } }"#;
+
+    let (_, type_file) = run_type_mapping_test_with_files(
+      schema,
+      &[("first.ts", first), ("second.ts", second)],
+      type_mapping,
+      Some("types.ts"),
+    )?;
+
+    assert!(
+      type_file.starts_with("import type { DateTime as DT } from \"luxon\";\n\n"),
+      "Expected a single-line import at the top of generated file, got:\n{type_file}"
+    );
+    assert_eq!(type_file.matches("import ").count(), 1);
+    assert_eq!(type_file.matches("created_at: DT;").count(), 2);
+    Ok(())
+  }
+
+  #[test]
+  fn should_allow_object_mapping_without_import() -> Result<(), Box<dyn std::error::Error>> {
+    let schema = "CREATE TABLE test_custom_types (id INTEGER PRIMARY KEY NOT NULL, count BIGINT NOT NULL);";
+
+    let ts_content = r#"
+import { sql } from 'sqlx-ts'
+const someQuery = sql`SELECT count FROM test_custom_types`
+"#;
+
+    let type_mapping = r#"{ "bigint": { "type": "bigint" } }"#;
+
+    let (_, type_file) = run_type_mapping_test(schema, ts_content, type_mapping)?;
+
+    let expected = r#"
+export type SomeQueryParams = [];
+
+export interface ISomeQueryResult {
+	count: bigint;
+}
+
+export interface ISomeQueryQuery {
+	params: SomeQueryParams;
+	result: ISomeQueryResult;
+}
+"#;
+
+    assert_eq!(
+      expected.trim().to_string().flatten(),
+      type_file.trim().to_string().flatten()
+    );
+    Ok(())
+  }
+
+  #[test]
+  fn should_reject_empty_type() -> Result<(), Box<dyn std::error::Error>> {
+    let schema = "CREATE TABLE test_custom_types (id INTEGER PRIMARY KEY NOT NULL, count BIGINT NOT NULL);";
+
+    let ts_content = r#"
+import { sql } from 'sqlx-ts'
+const someQuery = sql`SELECT count FROM test_custom_types`
+"#;
+
+    for type_mapping in [r#"{ "bigint": "" }"#, r#"{ "bigint": { "type": "  " } }"#] {
+      let (output, type_file) = run_sqlx_ts(schema, &[("index.ts", ts_content)], type_mapping, None)?;
+      let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+
+      assert!(!output.status.success(), "Expected sqlx-ts to fail for {type_mapping}");
+      assert!(
+        stderr.contains("type in type_mapping cannot be empty"),
+        "Unexpected stderr for {type_mapping}:\n{stderr}"
+      );
+      assert!(type_file.is_empty());
+    }
+    Ok(())
   }
 }

@@ -121,9 +121,9 @@ Supported fields of each connection include
 #### type_mapping
 
 By default, SQLX-TS translates each database column type into a built-in TypeScript type (e.g. `bigint` -> `number`).
-You can override this per connection by mapping a database column type to any TypeScript type. If the type
-needs to be imported, provide an object with `type` and `import`; the import statement is added at the top of
-the generated types file.
+You can override this per connection by mapping a database column type to any TypeScript type. A mapping is either
+a type, or an object with `type` and an optional `import`; the import statement is added at the top of the generated
+types file.
 
 ```json
 {
@@ -134,6 +134,7 @@ the generated types file.
       "type_mapping": {
         "bigint": "string",
         "numeric": "string | number",
+        "_int8": "string[]",
         "timestamp": { "type": "DateTime", "import": "import type { DateTime } from 'luxon'" }
       }
     }
@@ -141,11 +142,26 @@ the generated types file.
 }
 ```
 
+**Matching**
+
 - Keys are matched case-insensitively against the column type reported by the database, e.g. `bigint`, `DATETIME`
-- Type modifiers are ignored when matching, so `varchar` also matches `VARCHAR(255)`
-- For PostgreSQL, both the `data_type` (e.g. `timestamp without time zone`) and the `udt_name` (e.g. `timestamp`, `int8` or the name of a custom enum type) are matched
+- An exact match wins, otherwise type modifiers are ignored, so `varchar` matches `VARCHAR(255)` and `bigint unsigned` matches `bigint(20) unsigned`
+- PostgreSQL: both the `data_type` (e.g. `timestamp without time zone`) and the `udt_name` (e.g. `timestamp`, `int8`, or the name of an enum or extension type such as `citext`) are matched. Domain types are matched by their underlying type
+- PostgreSQL arrays: array columns are reported as `ARRAY`, so the mapping of the element type does not apply. Map the array's `udt_name` instead, which is the element type prefixed with `_`, e.g. `"_int8": "string[]"`
+- MySQL: both the full `COLUMN_TYPE` (e.g. `tinyint(1)`, `bigint unsigned`) and the `DATA_TYPE` (e.g. `tinyint`, `bigint`) are matched, with `COLUMN_TYPE` taking priority. This lets you map `"tinyint(1)": "boolean"` separately from `"tinyint": "number"`
+
+**Generated types**
+
 - Nullable columns still produce `| null`, e.g. `string | null`
 - The mapping applies to both query results and parameters
+- `@result` and `@param` [annotations](../type-generation/annotations.md) take priority over the mapping
+- The mapping only applies to values typed from a table column, including expressions derived from one such as `COALESCE(col, 0)`. Types from the SQL itself, such as `CAST(col AS BIGINT)` or column definitions of a table-valued function (`jsonb_to_recordset($1) AS t(id BIGINT)`), are not mapped
+
+**Imports**
+
+- Each import is written once per generated file, including when all types are generated into a single file with `--generate-path`
+- Multi-line imports are written on a single line
+- Imports are de-duplicated by their text, so use the same import statement for every mapping that imports the same type. For example, `import type { DateTime } from 'luxon'` and `import type { DateTime } from "luxon"` are written as two imports, which TypeScript reports as a duplicate identifier
 
 ### generate_types
 

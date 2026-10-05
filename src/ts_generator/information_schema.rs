@@ -199,7 +199,8 @@ impl DBSchema {
               WHERE subcols.TABLE_SCHEMA = (SELECT DATABASE())
                 AND subcols.TABLE_NAME = C.TABLE_NAME
                 AND subcols.COLUMN_NAME = C.COLUMN_NAME
-            ) AS enums
+            ) AS enums,
+            COLUMN_TYPE as column_type
         FROM information_schema.COLUMNS C
         WHERE TABLE_SCHEMA = (SELECT DATABASE())
         AND TABLE_NAME IN ({table_names})
@@ -217,6 +218,7 @@ impl DBSchema {
         let field_type: String = row.clone().take(1).expect(DB_SCHEME_READ_ERROR);
         let is_nullable: String = row.clone().take(2).expect(DB_SCHEME_READ_ERROR);
         let table_name: String = row.clone().take(3).expect(DB_SCHEME_READ_ERROR);
+        let column_type: String = row.clone().take(5).unwrap_or_default();
 
         let enum_values: Option<Vec<String>> = if field_type == "enum" {
           let enums: String = row.clone().take(4).expect(DB_SCHEME_READ_ERROR);
@@ -226,7 +228,7 @@ impl DBSchema {
           None
         };
         let field = Field {
-          field_type: resolve_field_type(conn_config, &[&field_type], || {
+          field_type: resolve_field_type(conn_config, &[&column_type, &field_type], || {
             TsFieldType::get_ts_field_type_from_mysql_field_type(
               field_type.to_owned(),
               table_name.to_owned(),
