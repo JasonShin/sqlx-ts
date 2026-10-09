@@ -44,30 +44,64 @@ fn resolve_field_type(
 }
 
 tokio::task_local! {
-  // Maps table names to the schema (or the database in MySQL) they were qualified with in the query being translated
   static TABLE_SCHEMAS: HashMap<String, String>;
 }
 
-/// Collects schemas of qualified table names, e.g. `staff.announcements` -> ("announcements", "staff")
-/// For `database.schema.table` names, the schema is used
-pub fn collect_table_schemas(statements: &Vec<Statement>) -> HashMap<String, String> {
-  let mut table_schemas = HashMap::new();
+#[derive(Debug, Default, PartialEq)]
+pub struct TableSchemas {
+  pub schemas: HashMap<String, String>,
+  pub ambiguous_tables: Vec<AmbiguousTable>,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct AmbiguousTable {
+  pub table_name: String,
+  pub references: Vec<String>,
+  pub resolved_schema: String,
+}
+
+pub fn collect_table_schemas(statements: &Vec<Statement>) -> TableSchemas {
+  let mut references: Vec<(String, Vec<Option<String>>)> = vec![];
   let _ = visit_relations(statements, |relation| {
     let parts = &relation.0;
-    if parts.len() >= 2 {
-      if let Some(schema) = parts[parts.len() - 2].as_ident() {
-        table_schemas.insert(
-          DisplayObjectName(relation).to_string(),
-          DisplayIndent(schema).to_string(),
-        );
-      }
+    let table_name = DisplayObjectName(relation).to_string();
+    let schema = parts
+      .len()
+      .checked_sub(2)
+      .and_then(|index| parts[index].as_ident())
+      .map(|schema| DisplayIndent(schema).to_string());
+
+    match references.iter_mut().find(|(name, _)| *name == table_name) {
+      Some((_, schemas)) if !schemas.contains(&schema) => schemas.push(schema),
+      Some(_) => {}
+      None => references.push((table_name, vec![schema])),
     }
     ControlFlow::<()>::Continue(())
   });
+
+  let mut table_schemas = TableSchemas::default();
+  for (table_name, schemas) in references {
+    let Some(resolved_schema) = schemas.iter().flatten().next().cloned() else {
+      continue;
+    };
+    if schemas.len() > 1 {
+      table_schemas.ambiguous_tables.push(AmbiguousTable {
+        table_name: table_name.to_owned(),
+        references: schemas
+          .iter()
+          .map(|schema| match schema {
+            Some(schema) => format!("{schema}.{table_name}"),
+            None => table_name.to_owned(),
+          })
+          .collect(),
+        resolved_schema: resolved_schema.to_owned(),
+      });
+    }
+    table_schemas.schemas.insert(table_name, resolved_schema);
+  }
   table_schemas
 }
 
-/// Runs the translation of a query with the schemas of its qualified table names
 pub async fn with_table_schemas<F: Future>(table_schemas: HashMap<String, String>, f: F) -> F::Output {
   TABLE_SCHEMAS.scope(table_schemas, f).await
 }
@@ -151,7 +185,6 @@ impl DBSchema {
     conn: &Mutex<Pool<PostgresConnectionManager>>,
     conn_config: Option<&DbConnectionConfig>,
   ) -> Option<Fields> {
-    // Tables without a schema are looked up in the public schema
     let table_conditions = tables
       .iter()
       .map(|(schema, table_name)| {
@@ -237,7 +270,6 @@ impl DBSchema {
     conn: &Mutex<Pool<MySqlConnectionManager>>,
     conn_config: Option<&DbConnectionConfig>,
   ) -> Option<Fields> {
-    // Tables without a database are looked up in the database of the connection
     let table_conditions = tables
       .iter()
       .map(|(database, table_name)| {
@@ -336,7 +368,6 @@ impl DBSchema {
       let mut all_fields: HashMap<String, Field> = HashMap::new();
 
       for (schema, table_name) in &tables {
-        // Tables qualified with an attached database are looked up in that database
         let query = match schema {
           Some(schema) => format!(
             "PRAGMA \"{}\".table_info({})",

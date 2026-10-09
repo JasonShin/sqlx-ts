@@ -5,6 +5,7 @@ use std::{fs, path::Path};
 use super::annotations::extract_param_annotations;
 
 use crate::common::lazy::CONFIG;
+use crate::common::logger::*;
 use crate::common::SQL;
 use crate::core::connection::DBConn;
 use crate::ts_generator::annotations::extract_result_annotations;
@@ -184,9 +185,18 @@ pub async fn generate_ts_interface(sql: &SQL, db_conn: &DBConn) -> Result<TsQuer
   let annotated_param_types = extract_param_annotations(sql.query.as_str());
   ts_query.set_annotated_params(annotated_param_types);
 
-  // Table names are resolved without their schema while translating, so schemas of qualified names are looked up from here
   let table_schemas = collect_table_schemas(&sql_ast);
-  with_table_schemas(table_schemas, async {
+  for ambiguous_table in &table_schemas.ambiguous_tables {
+    warning!(
+      "Table '{}' is referenced as {} in query {}. sqlx-ts cannot tell tables with the same name apart yet, so it uses {}.{} and the generated types may be incorrect",
+      ambiguous_table.table_name,
+      ambiguous_table.references.join(" and "),
+      ts_query.name,
+      ambiguous_table.resolved_schema,
+      ambiguous_table.table_name
+    );
+  }
+  with_table_schemas(table_schemas.schemas, async {
     for sql_statement in &sql_ast {
       // The loot level statements cannot have any alias
       translate_stmt(&mut ts_query, sql_statement, None, db_conn).await?;

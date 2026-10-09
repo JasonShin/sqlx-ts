@@ -9,3 +9,9 @@ The page aims to list down limitations of SQLX-TS. So for the users who are inte
 ### 1. parsing of SQL is done using sqlparser-rs and any bugs in this modules would be inherited
 
 [sqlparser-rs](https://github.com/sqlparser-rs/sqlparser-rs) is an essential module of SQLX-TS in order to process SQLs into Typescript type definitions. As a result, any bug in this module will be inherited to sqlx-ts and we will need an update in the module in order to fix the problem. So far, sqlparser-rs is well maintained and being updated in the recent days.
+
+### 2. tables with the same name from different schemas cannot be used in the same query
+
+Columns of a table are looked up by its name, so a query that uses tables with the same name from different schemas
+or databases, e.g. `staff.announcements` with `public.announcements`, cannot tell them apart. SQLX-TS warns about it
+and reads the columns of the first qualified table. See [qualified table names](/type-generation#qualified-table-names).

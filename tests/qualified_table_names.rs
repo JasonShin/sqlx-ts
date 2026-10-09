@@ -165,4 +165,42 @@ export interface ISomeQueryQuery {
 	result: ISomeQueryResult;
 }
 "#);
+
+  #[test]
+  fn postgres_should_warn_about_tables_with_the_same_name() -> Result<(), Box<dyn std::error::Error>> {
+    use assert_cmd::cargo::cargo_bin_cmd;
+
+    let dir = tempdir()?;
+    let parent_path = dir.path();
+    let mut temp_file = fs::File::create(parent_path.join("index.ts"))?;
+    writeln!(
+      temp_file,
+      r#"
+import {{ sql }} from 'sqlx-ts'
+const someQuery = sql`
+WITH announcements AS (SELECT 1 AS id)
+SELECT s.message AS message
+FROM staff.announcements s
+JOIN announcements a ON a.id = s.id
+`
+"#
+    )?;
+
+    let mut cmd = cargo_bin_cmd!("sqlx-ts");
+    cmd
+      .arg(parent_path.to_str().unwrap())
+      .arg("--ext=ts")
+      .arg("--db-type=postgres")
+      .arg("--db-host=127.0.0.1")
+      .arg("--db-port=54321")
+      .arg("--db-user=postgres")
+      .arg("--db-pass=postgres")
+      .arg("--db-name=postgres")
+      .arg("-g");
+
+    cmd.assert().success().stdout(predicates::str::contains(
+      "Table 'announcements' is referenced as staff.announcements and announcements in query SomeQuery",
+    ));
+    Ok(())
+  }
 }

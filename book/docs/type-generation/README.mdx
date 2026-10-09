@@ -88,6 +88,29 @@ the type name by setting the `@name` annotation, you can read more in the sectio
 
 ### Annotations for overrides
 
+### Qualified table names
+
+Tables can be qualified with a schema in PostgreSQL, or with a database in MySQL. SQLX-TS reads the columns of the
+table from that schema or database instead of the default one of the connection.
+
+```typescript
+// PostgreSQL: reads columns of the `announcements` table in the `staff` schema
+const announcements = sql`SELECT message FROM staff.announcements WHERE message = $1`
+
+// MySQL: reads columns of the `announcements` table in the `staff` database,
+// even if `DB_NAME` of the connection is another database
+const announcements = sql`SELECT message FROM staff.announcements WHERE message = ?`
+```
+
+- Unqualified tables are read from the `public` schema in PostgreSQL and from the `DB_NAME` database in MySQL
+- For `database.schema.table` names in PostgreSQL, the schema is used
+- In SQLite, tables can be qualified with `main`, e.g. `main.items`
+- The database user of the connection needs access to the schema or database. `information_schema` only lists
+  tables the user has privileges on, so a table without access is reported as having no columns
+- A query cannot use two tables with the same name from different schemas yet, e.g. `staff.announcements` with
+  `public.announcements`, or `staff.announcements` with an unqualified `announcements`. SQLX-TS warns about it and
+  reads the columns of the first qualified table, so the types of the other table may be incorrect
+
 ## Q & A
 
 ##### Why doesn't SQLx support named parameterised queries? `e.g. SELECT * FROM items WHERE point = :point`
