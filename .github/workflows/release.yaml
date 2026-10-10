@@ -7,19 +7,13 @@ jobs:
   version-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - name: Install stable Rust
-        uses: actions-rs/toolchain@v1
-        with:
-            toolchain: stable
-            override: true
-      - run: cargo install toml-cli
       - run: |
-          TOML_VERSION=$(toml get Cargo.toml package.version --raw)
-          if [[ "v$TOML_VERSION" != "${{ github.event.release.tag_name }}" ]]; then
-            echo "Version mismatch: Cargo.toml version is v$TOML_VERSION, but release tag is ${{ github.event.release.tag_name }}"
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-.+)?$ ]]; then
+            echo "Release tag $TAG must look like v1.2.3"
             exit 1
           fi
+        env:
+          TAG: ${{ github.event.release.tag_name }}
 
   assets:
     runs-on: ${{ matrix.os }}
@@ -74,6 +68,11 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           ci/ubuntu-install-packages
+      - name: Set version from release tag
+        shell: bash
+        run: perl -pi.bak -e "s/^version = \".*\"/version = \"${TAG#v}\"/" Cargo.toml
+        env:
+          TAG: ${{ github.event.release.tag_name }}
       - run: cargo install cross --git https://github.com/cross-rs/cross
       - run: ${{ matrix.command }} build --release --target ${{ matrix.target }}
       - run: ls target
@@ -112,6 +111,9 @@ jobs:
   node:
     needs: assets
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     defaults:
       run:
         working-directory: ./node
@@ -122,6 +124,27 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
-      - run: npm publish --access public
+      - run: npm version "${TAG#v}" --no-git-tag-version
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          TAG: ${{ github.event.release.tag_name }}
+      - run: npm publish --access public
+
+  bump-version:
+    needs: node
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          ssh-key: ${{ secrets.RELEASE_DEPLOY_KEY }}
+      - run: |
+          VERSION="${TAG#v}"
+          perl -pi -e "s/^version = \".*\"/version = \"$VERSION\"/" Cargo.toml
+          perl -0pi -e "s/(name = \"sqlx-ts\"\nversion = )\".*?\"/\$1\"$VERSION\"/" Cargo.lock
+          (cd node && npm version "$VERSION" --no-git-tag-version)
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Release $VERSION"
+          git push origin main
+        env:
+          TAG: ${{ github.event.release.tag_name }}
