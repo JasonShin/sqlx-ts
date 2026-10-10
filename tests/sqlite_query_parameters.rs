@@ -285,4 +285,37 @@ export interface ISomeQueryQuery {
     );
     Ok(())
   }
+
+  #[test]
+  fn should_pick_query_params_from_limit_and_offset() -> Result<(), Box<dyn std::error::Error>> {
+    let schema = "CREATE TABLE items (id INTEGER PRIMARY KEY NOT NULL, name TEXT NOT NULL, price REAL);";
+
+    let ts_content = r#"
+import { sql } from 'sqlx-ts'
+
+const someQuery = sql`SELECT id, name FROM items WHERE name = ? LIMIT ? OFFSET ?`
+"#;
+
+    let (_, type_file) = run_sqlite_test(schema, ts_content, true)?;
+
+    let expected = r#"
+export type SomeQueryParams = [string, number, number];
+
+export interface ISomeQueryResult {
+	id: number;
+	name: string;
+}
+
+export interface ISomeQueryQuery {
+	params: SomeQueryParams;
+	result: ISomeQueryResult;
+}
+"#;
+
+    assert_eq!(
+      expected.trim().to_string().flatten(),
+      type_file.trim().to_string().flatten()
+    );
+    Ok(())
+  }
 }
