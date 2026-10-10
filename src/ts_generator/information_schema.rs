@@ -6,9 +6,13 @@ use crate::core::connection::DBConn;
 use crate::core::mysql::pool::MySqlConnectionManager;
 use crate::core::postgres::pool::PostgresConnectionManager;
 use crate::core::sqlite::pool::SqliteConnectionManager;
+use crate::ts_generator::sql_parser::quoted_strings::{DisplayIndent, DisplayObjectName};
 use bb8::Pool;
 use mysql_async::prelude::Queryable;
+use sqlparser::ast::{visit_relations, Statement};
 use std::collections::HashMap;
+use std::future::Future;
+use std::ops::ControlFlow;
 use tokio::sync::Mutex;
 
 use super::types::ts_query::TsFieldType;
@@ -39,6 +43,80 @@ fn resolve_field_type(
   }
 }
 
+tokio::task_local! {
+  static TABLE_SCHEMAS: HashMap<String, String>;
+}
+
+#[derive(Debug, Default, PartialEq)]
+pub struct TableSchemas {
+  pub schemas: HashMap<String, String>,
+  pub ambiguous_tables: Vec<AmbiguousTable>,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct AmbiguousTable {
+  pub table_name: String,
+  pub references: Vec<String>,
+  pub resolved_schema: String,
+}
+
+pub fn collect_table_schemas(statements: &Vec<Statement>) -> TableSchemas {
+  let mut references: Vec<(String, Vec<Option<String>>)> = vec![];
+  let _ = visit_relations(statements, |relation| {
+    let parts = &relation.0;
+    let table_name = DisplayObjectName(relation).to_string();
+    let schema = parts
+      .len()
+      .checked_sub(2)
+      .and_then(|index| parts[index].as_ident())
+      .map(|schema| DisplayIndent(schema).to_string());
+
+    match references.iter_mut().find(|(name, _)| *name == table_name) {
+      Some((_, schemas)) if !schemas.contains(&schema) => schemas.push(schema),
+      Some(_) => {}
+      None => references.push((table_name, vec![schema])),
+    }
+    ControlFlow::<()>::Continue(())
+  });
+
+  let mut table_schemas = TableSchemas::default();
+  for (table_name, schemas) in references {
+    let Some(resolved_schema) = schemas.iter().flatten().next().cloned() else {
+      continue;
+    };
+    if schemas.len() > 1 {
+      table_schemas.ambiguous_tables.push(AmbiguousTable {
+        table_name: table_name.to_owned(),
+        references: schemas
+          .iter()
+          .map(|schema| match schema {
+            Some(schema) => format!("{schema}.{table_name}"),
+            None => table_name.to_owned(),
+          })
+          .collect(),
+        resolved_schema: resolved_schema.to_owned(),
+      });
+    }
+    table_schemas.schemas.insert(table_name, resolved_schema);
+  }
+  table_schemas
+}
+
+pub async fn with_table_schemas<F: Future>(table_schemas: HashMap<String, String>, f: F) -> F::Output {
+  TABLE_SCHEMAS.scope(table_schemas, f).await
+}
+
+fn get_table_schema(table_name: &str) -> Option<String> {
+  TABLE_SCHEMAS
+    .try_with(|table_schemas| table_schemas.get(table_name).cloned())
+    .ok()
+    .flatten()
+}
+
+fn quote_literal(value: &str) -> String {
+  format!("'{}'", value.replace('\'', "''"))
+}
+
 pub struct DBSchema {
   // Holds cache details for table / columns of the target database
   tables_cache: HashMap<String, Fields>,
@@ -67,7 +145,21 @@ impl DBSchema {
   pub async fn fetch_table(&mut self, table_name: &Vec<&str>, conn: &DBConn) -> Option<Fields> {
     let connection_name = conn.get_connection_name();
     let conn_config = CONFIG.connections.get(connection_name);
-    let table_key: String = format!("{connection_name}:{}", table_name.join(","));
+    let tables: Vec<(Option<String>, String)> = table_name
+      .iter()
+      .map(|table_name| (get_table_schema(table_name), table_name.to_string()))
+      .collect();
+    let table_key: String = format!(
+      "{connection_name}:{}",
+      tables
+        .iter()
+        .map(|(schema, table_name)| match schema {
+          Some(schema) => format!("{schema}.{table_name}"),
+          None => table_name.to_owned(),
+        })
+        .collect::<Vec<_>>()
+        .join(",")
+    );
     let cached_table_result = self.tables_cache.get(table_key.as_str());
 
     if let Some(cached_table_result) = cached_table_result {
@@ -75,11 +167,9 @@ impl DBSchema {
     }
 
     let result = match &conn {
-      DBConn::MySQLPooledConn(conn, _) => Self::mysql_fetch_table(self, table_name, conn, conn_config).await,
-      DBConn::PostgresConn(conn, _) => {
-        Self::postgres_fetch_table(self, &"public".to_string(), table_name, conn, conn_config).await
-      }
-      DBConn::SqliteConn(conn, _) => Self::sqlite_fetch_table(self, table_name, conn, conn_config).await,
+      DBConn::MySQLPooledConn(conn, _) => Self::mysql_fetch_table(self, &tables, conn, conn_config).await,
+      DBConn::PostgresConn(conn, _) => Self::postgres_fetch_table(self, &tables, conn, conn_config).await,
+      DBConn::SqliteConn(conn, _) => Self::sqlite_fetch_table(self, &tables, conn, conn_config).await,
     };
 
     if let Some(result) = &result {
@@ -91,16 +181,22 @@ impl DBSchema {
 
   async fn postgres_fetch_table(
     &self,
-    schema: &String,
-    table_names: &Vec<&str>,
+    tables: &[(Option<String>, String)],
     conn: &Mutex<Pool<PostgresConnectionManager>>,
     conn_config: Option<&DbConnectionConfig>,
   ) -> Option<Fields> {
-    let table_names = table_names
+    let table_conditions = tables
       .iter()
-      .map(|x| format!("'{x}'"))
+      .map(|(schema, table_name)| {
+        let schema = schema.as_deref().unwrap_or("public");
+        format!(
+          "(TABLE_SCHEMA = {} AND TABLE_NAME = {})",
+          quote_literal(schema),
+          quote_literal(table_name)
+        )
+      })
       .collect::<Vec<_>>()
-      .join(",");
+      .join(" OR ");
 
     let query = format!(
       r"
@@ -114,14 +210,13 @@ impl DBSchema {
           from pg_type t
               join pg_enum e on t.oid = e.enumtypid
               join pg_catalog.pg_namespace n ON n.oid = t.typnamespace
-          where n.nspname = '{schema}'
+          where n.nspname = udt_schema
           and t.typname = udt_name
           group by n.nspname, t.typname
           ) as enum_values,
           UDT_NAME as udt_name
       FROM information_schema.COLUMNS
-      WHERE TABLE_SCHEMA = '{schema}'
-      AND TABLE_NAME IN ({table_names});
+      WHERE {table_conditions};
                 "
     );
 
@@ -171,15 +266,24 @@ impl DBSchema {
 
   async fn mysql_fetch_table(
     &self,
-    table_names: &Vec<&str>,
+    tables: &[(Option<String>, String)],
     conn: &Mutex<Pool<MySqlConnectionManager>>,
     conn_config: Option<&DbConnectionConfig>,
   ) -> Option<Fields> {
-    let table_names = table_names
+    let table_conditions = tables
       .iter()
-      .map(|x| format!("'{x}'"))
+      .map(|(database, table_name)| {
+        let database = database
+          .as_deref()
+          .map(quote_literal)
+          .unwrap_or_else(|| "(SELECT DATABASE())".to_string());
+        format!(
+          "(TABLE_SCHEMA = {database} AND TABLE_NAME = {})",
+          quote_literal(table_name)
+        )
+      })
       .collect::<Vec<_>>()
-      .join(",");
+      .join(" OR ");
     let query = format!(
       r"
         SELECT
@@ -196,14 +300,13 @@ impl DBSchema {
                 , ''
               )
               FROM information_schema.COLUMNS subcols
-              WHERE subcols.TABLE_SCHEMA = (SELECT DATABASE())
+              WHERE subcols.TABLE_SCHEMA = C.TABLE_SCHEMA
                 AND subcols.TABLE_NAME = C.TABLE_NAME
                 AND subcols.COLUMN_NAME = C.COLUMN_NAME
             ) AS enums,
             COLUMN_TYPE as column_type
         FROM information_schema.COLUMNS C
-        WHERE TABLE_SCHEMA = (SELECT DATABASE())
-        AND TABLE_NAME IN ({table_names})
+        WHERE {table_conditions}
                 "
     );
 
@@ -249,7 +352,7 @@ impl DBSchema {
 
   async fn sqlite_fetch_table(
     &self,
-    table_names: &Vec<&str>,
+    tables: &[(Option<String>, String)],
     conn: &Mutex<Pool<SqliteConnectionManager>>,
     conn_config: Option<&'static DbConnectionConfig>,
   ) -> Option<Fields> {
@@ -258,14 +361,21 @@ impl DBSchema {
     let pool_conn = conn.get().await.expect(DB_CONN_POOL_RETRIEVE_ERROR);
     let inner = pool_conn.conn.clone();
 
-    let table_names_owned: Vec<String> = table_names.iter().map(|s| s.to_string()).collect();
+    let tables = tables.to_vec();
 
     let result = tokio::task::spawn_blocking(move || {
       let conn = inner.lock().unwrap();
       let mut all_fields: HashMap<String, Field> = HashMap::new();
 
-      for table_name in &table_names_owned {
-        let query = format!("PRAGMA table_info('{}')", table_name);
+      for (schema, table_name) in &tables {
+        let query = match schema {
+          Some(schema) => format!(
+            "PRAGMA \"{}\".table_info({})",
+            schema.replace('"', "\"\""),
+            quote_literal(table_name)
+          ),
+          None => format!("PRAGMA table_info({})", quote_literal(table_name)),
+        };
         let mut stmt = match conn.prepare(&query) {
           Ok(stmt) => stmt,
           Err(_) => continue,

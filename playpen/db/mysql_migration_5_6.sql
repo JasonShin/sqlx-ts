@@ -217,3 +217,11 @@ CREATE TABLE type_mapping_test (
   big_id BIGINT UNSIGNED NOT NULL,
   amount BIGINT NOT NULL
 );
+
+CREATE DATABASE IF NOT EXISTS staff;
+
+CREATE TABLE staff.announcements (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  message VARCHAR(1000),
+  priority ENUM('low', 'high') NOT NULL
+);

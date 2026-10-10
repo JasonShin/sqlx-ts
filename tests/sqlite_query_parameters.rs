@@ -252,4 +252,37 @@ const someQuery = sql`SELECT * FROM nonexistent_table`
     );
     Ok(())
   }
+
+  #[test]
+  fn should_resolve_table_qualified_with_main_database() -> Result<(), Box<dyn std::error::Error>> {
+    let schema = "CREATE TABLE items (id INTEGER PRIMARY KEY NOT NULL, name TEXT NOT NULL, price REAL);";
+
+    let ts_content = r#"
+import { sql } from 'sqlx-ts'
+
+const someQuery = sql`SELECT i.name AS name, i.price AS price FROM main.items i WHERE i.id = ?`
+"#;
+
+    let (_, type_file) = run_sqlite_test(schema, ts_content, true)?;
+
+    let expected = r#"
+export type SomeQueryParams = [number];
+
+export interface ISomeQueryResult {
+	name: string;
+	price: number | null;
+}
+
+export interface ISomeQueryQuery {
+	params: SomeQueryParams;
+	result: ISomeQueryResult;
+}
+"#;
+
+    assert_eq!(
+      expected.trim().to_string().flatten(),
+      type_file.trim().to_string().flatten()
+    );
+    Ok(())
+  }
 }
