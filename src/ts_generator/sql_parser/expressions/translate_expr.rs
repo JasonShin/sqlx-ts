@@ -420,7 +420,7 @@ pub async fn translate_expr(
       negated: _,
     } => {
       // You do not need an alias as we are processing a subquery within the WHERE clause
-      translate_query(ts_query, &None, subquery, db_conn, None, false).await?;
+      translate_query(ts_query, table_with_joins, subquery, db_conn, None, false).await?;
       Ok(())
     }
     Expr::Between {
@@ -654,7 +654,7 @@ pub async fn translate_expr(
     } => ts_query.insert_result(alias, &[TsFieldType::Unknown], is_selection, false, expr_for_logging),
     Expr::Exists { subquery, negated: _ } => {
       ts_query.insert_result(alias, &[TsFieldType::Boolean], is_selection, false, expr_for_logging)?;
-      translate_query(ts_query, &None, subquery, db_conn, alias, false).await
+      translate_query(ts_query, table_with_joins, subquery, db_conn, alias, false).await
     }
     // Note: ListAgg and ArrayAgg were removed in sqlparser 0.59.0
     // They are now represented as Function variants

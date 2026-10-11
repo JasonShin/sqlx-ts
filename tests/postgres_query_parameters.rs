@@ -127,4 +127,70 @@ export interface ISomeQueryQuery {
     result: ISomeQueryResult;
 }
 "#);
+
+  #[rustfmt::skip]
+run_test!(should_pick_query_params_from_correlated_exists_subquery, TestConfig::new("postgres", true, None, None),
+
+//// TS query ////
+r#"
+const someQuery = sql`SELECT c.id AS id FROM characters c WHERE EXISTS (SELECT 1 FROM character_quests cq WHERE cq.character_id = c.id AND cq.status = $1) AND c.level > $2`;
+"#,
+
+//// Generated TS interfaces ////
+r#"
+export type SomeQueryParams = [string | null, number | null];
+
+export interface ISomeQueryResult {
+    id: number;
+}
+
+export interface ISomeQueryQuery {
+    params: SomeQueryParams;
+    result: ISomeQueryResult;
+}
+"#);
+
+  #[rustfmt::skip]
+run_test!(should_pick_query_params_from_correlated_exists_subquery_referencing_unaliased_table, TestConfig::new("postgres", true, None, None),
+
+//// TS query ////
+r#"
+const someQuery = sql`SELECT id FROM characters WHERE EXISTS (SELECT 1 FROM character_quests cq WHERE cq.character_id = characters.id AND cq.status = $1)`;
+"#,
+
+//// Generated TS interfaces ////
+r#"
+export type SomeQueryParams = [string | null];
+
+export interface ISomeQueryResult {
+    id: number;
+}
+
+export interface ISomeQueryQuery {
+    params: SomeQueryParams;
+    result: ISomeQueryResult;
+}
+"#);
+
+  #[rustfmt::skip]
+run_test!(should_pick_query_params_from_correlated_in_subquery, TestConfig::new("postgres", true, None, None),
+
+//// TS query ////
+r#"
+const someQuery = sql`SELECT c.id AS id FROM characters c WHERE c.id IN (SELECT cq.character_id FROM character_quests cq WHERE cq.character_id = c.id AND cq.status = $1)`;
+"#,
+
+//// Generated TS interfaces ////
+r#"
+export type SomeQueryParams = [string | null];
+
+export interface ISomeQueryResult {
+    id: number;
+}
+
+export interface ISomeQueryQuery {
+    params: SomeQueryParams;
+    result: ISomeQueryResult;
+}
+"#);
 }

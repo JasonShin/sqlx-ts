@@ -313,4 +313,26 @@ export interface ISomeQueryQuery {
     result: ISomeQueryResult;
 }
 "#);
+
+  #[rustfmt::skip]
+run_test!(should_pick_query_params_from_correlated_exists_subquery, TestConfig::new("mysql", true, None, None),
+
+//// TS query ////
+r#"
+const someQuery = sql`SELECT c.id AS id FROM characters c WHERE EXISTS (SELECT 1 FROM character_quests cq WHERE cq.character_id = c.id AND cq.status = ?) AND c.level > ?`;
+"#,
+
+//// Generated TS interfaces ////
+r#"
+export type SomeQueryParams = [string | null, number | null];
+
+export interface ISomeQueryResult {
+    id: number;
+}
+
+export interface ISomeQueryQuery {
+    params: SomeQueryParams;
+    result: ISomeQueryResult;
+}
+"#);
 }
