@@ -36,7 +36,7 @@
   "author": "Jason Shin <visualbbasic@gmail.com>",
   "license": "MIT",
   "bin": {
-    "sqlx-ts": "sqlx-ts"
+    "sqlx-ts": "bin/sqlx-ts.js"
   },
   "scripts": {
     "postinstall": "node postinstall.js",
@@ -61,5 +61,10 @@
   },
   "engines": {
     "node": ">=16"
-  }
+  },
+  "files": [
+    "dist",
+    "bin",
+    "postinstall.js"
+  ]
 }

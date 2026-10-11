@@ -195,12 +195,18 @@ td=$(mktemp -d || mktemp -d -t tmp)
 echo "URL to download $url"
 
 curl -LSfs $url --output $td/sqlx-ts.zip
-unzip -j $td/sqlx-ts.zip -d $td
-if [ "$os" = "win32" ]; then
-    cp $td/sqlx-ts.exe .
+curl -LSfs $url.sha256 --output $td/sqlx-ts.zip.sha256
+expected=$(tr -d '[:space:]' < $td/sqlx-ts.zip.sha256)
+if command -v sha256sum > /dev/null 2>&1; then
+    actual=$(sha256sum $td/sqlx-ts.zip | cut -d' ' -f1)
 else
-    cp $td/sqlx-ts .
+    actual=$(shasum -a 256 $td/sqlx-ts.zip | cut -d' ' -f1)
 fi
+if [ "$actual" != "$expected" ]; then
+    err "checksum mismatch for $url: expected $expected, got $actual"
+fi
+rm $td/sqlx-ts.zip.sha256
+unzip -j $td/sqlx-ts.zip -d $td
 
 # shellcheck disable=SC2045
 for f in $(ls $td); do

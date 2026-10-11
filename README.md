@@ -53,6 +53,32 @@ Verify the installation by running
 $ npx sqlx-ts --version
 ```
 
+##### Bun and Deno
+
+Bun and Deno do not run the npm `postinstall` step that downloads the `sqlx-ts` binary, so install the npm module for
+the `sql` tag and [install the binary separately](#installing-binary-separately) to a directory on your PATH
+
+```bash
+# Bun
+$ bun add sqlx-ts
+# Deno
+$ deno add npm:sqlx-ts
+
+# macOS & ARM CPU, see below for other platforms
+$ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | sh -s -- --os darwin --cpu arm64 --to ~/.local/bin
+```
+
+`bunx sqlx-ts` and `sqlx-ts` in package.json scripts then use the binary from your PATH. If the binary is missing, they
+print the command to install it.
+
+With Bun, you can instead let it run the `postinstall` step by adding sqlx-ts to `trustedDependencies` in package.json
+
+```json
+{
+  "trustedDependencies": ["sqlx-ts"]
+}
+```
+
 And to use sqlx-ts in your code
 
 In TypeScript based projects:
@@ -119,7 +145,7 @@ If you're a **Windows** user, then you can install sqlx-ts from via install.sh:
 # windows & x32
 $ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | sh -s -- --os win32 --cpu x32
 # windows & x64
-$ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | sh -s -- --os win32 --cpu x32
+$ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | sh -s -- --os win32 --cpu x64
 ```
 
 If you're a **Linux** user, then you can install sqlx-ts from via install.sh:
