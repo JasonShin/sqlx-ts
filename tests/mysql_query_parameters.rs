@@ -267,4 +267,50 @@ export interface ISomeQueryQuery {
     result: ISomeQueryResult;
 }
 "#, min_mysql: (5, 7));
+
+  #[rustfmt::skip]
+run_test!(should_pick_query_params_from_limit_and_offset, TestConfig::new("mysql", true, None, None),
+
+//// TS query ////
+r#"
+const someQuery = sql`SELECT id, name FROM items WHERE rarity = ? LIMIT ? OFFSET ?`;
+"#,
+
+//// Generated TS interfaces ////
+r#"
+export type SomeQueryParams = [string | null, number, number];
+
+export interface ISomeQueryResult {
+    id: number;
+    name: string;
+}
+
+export interface ISomeQueryQuery {
+    params: SomeQueryParams;
+    result: ISomeQueryResult;
+}
+"#);
+
+  #[rustfmt::skip]
+run_test!(should_pick_query_params_from_offset_comma_limit, TestConfig::new("mysql", true, None, None),
+
+//// TS query ////
+r#"
+const someQuery = sql`SELECT id, name FROM items WHERE rarity = ? LIMIT ?, ?`;
+"#,
+
+//// Generated TS interfaces ////
+r#"
+export type SomeQueryParams = [string | null, number, number];
+
+export interface ISomeQueryResult {
+    id: number;
+    name: string;
+}
+
+export interface ISomeQueryQuery {
+    params: SomeQueryParams;
+    result: ISomeQueryResult;
+}
+"#);
 }

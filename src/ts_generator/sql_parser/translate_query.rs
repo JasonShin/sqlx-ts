@@ -1,9 +1,12 @@
 use async_recursion::async_recursion;
-use sqlparser::ast::{FunctionArg, FunctionArgExpr, Query, Select, SelectItem, SetExpr, TableFactor, TableWithJoins};
+use sqlparser::ast::{
+  FunctionArg, FunctionArgExpr, LimitClause, Query, Select, SelectItem, SetExpr, TableFactor, TableWithJoins,
+};
 use std::collections::HashMap;
 
 use super::expressions::{
-  translate_expr::translate_expr, translate_table_with_joins::translate_table_with_joins,
+  translate_expr::{get_expr_placeholder, translate_expr},
+  translate_table_with_joins::translate_table_with_joins,
   translate_wildcard_expr::translate_wildcard_expr,
 };
 use crate::ts_generator::sql_parser::quoted_strings::{DisplayIndent, DisplayTableAlias};
@@ -244,10 +247,23 @@ pub async fn translate_query(
   let body = *query.body.clone();
   match body {
     SetExpr::Select(select) => {
-      translate_select(ts_query, table_with_joins, &select, db_conn, alias, is_selection).await
+      translate_select(ts_query, table_with_joins, &select, db_conn, alias, is_selection).await?
     }
     _ => Err(TsGeneratorError::Unknown(format!(
       "Unknown query type while processing query: {query}"
-    ))),
+    )))?,
   }
+
+  if let Some(limit_clause) = &query.limit_clause {
+    let exprs = match limit_clause {
+      LimitClause::LimitOffset { limit, offset, .. } => {
+        vec![limit.as_ref(), offset.as_ref().map(|offset| &offset.value)]
+      }
+      LimitClause::OffsetCommaLimit { offset, limit } => vec![Some(offset), Some(limit)],
+    };
+    for expr in exprs.into_iter().flatten() {
+      ts_query.insert_param(&TsFieldType::Number, &false, &get_expr_placeholder(expr))?;
+    }
+  }
+  Ok(())
 }

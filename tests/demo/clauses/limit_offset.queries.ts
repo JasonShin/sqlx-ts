@@ -46,7 +46,7 @@ export interface ILimitWithOrderByQuery {
 	result: ILimitWithOrderByResult;
 }
 
-export type PaginationWithParamsParams = [string | null];
+export type PaginationWithParamsParams = [string | null, number, number];
 
 export interface IPaginationWithParamsResult {
 	id: number;
