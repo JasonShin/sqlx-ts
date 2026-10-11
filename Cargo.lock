@@ -1967,7 +1967,7 @@ dependencies = [
 
 [[package]]
 name = "sqlx-ts"
-version = "0.48.0"
+version = "0.49.0"
 dependencies = [
  "assert_cmd",
  "async-recursion",
