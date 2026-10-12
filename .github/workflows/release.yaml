@@ -124,13 +124,31 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
+      - run: npm run compile
+      - run: cp ../README.md .
       - run: npm version "${TAG#v}" --no-git-tag-version
         env:
           TAG: ${{ github.event.release.tag_name }}
-      - run: npm publish --access public
+      - name: Publish platform packages and sqlx-ts
+        run: |
+          [[ "$TAG" == *-* ]] && NPM_TAG=next || NPM_TAG=latest
+          gh release download "$TAG" -p '*.zip' -D "$RUNNER_TEMP/zips"
+          ../scripts/build-npm-platform-packages.sh "$TAG" "$RUNNER_TEMP/zips" "$RUNNER_TEMP/platform"
+          for dir in "$RUNNER_TEMP"/platform/*; do
+            if [ -n "$(npm view "$(basename "$dir")@${TAG#v}" version 2> /dev/null)" ]; then
+              echo "$(basename "$dir")@${TAG#v} is already published"
+            else
+              npm publish "$dir" --access public --tag "$NPM_TAG"
+            fi
+          done
+          npm publish --access public --tag "$NPM_TAG" --ignore-scripts
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          GH_TOKEN: ${{ github.token }}
 
   bump-version:
     needs: node
+    if: ${{ !contains(github.event.release.tag_name, '-') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -146,5 +164,47 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -am "Release $VERSION"
           git push origin main
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+
+  smoke-test:
+    needs: node
+    name: smoke test ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+    steps:
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - uses: oven-sh/setup-bun@v2
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Wait for npm to make the packages available
+        shell: bash
+        run: |
+          VERSION="${TAG#v}"
+          PLATFORM_PACKAGE="sqlx-ts-$(node -p 'process.platform + "-" + process.arch')"
+          for i in $(seq 1 30); do
+            if [ -n "$(npm view "sqlx-ts@$VERSION" version 2> /dev/null)" ] && [ -n "$(npm view "$PLATFORM_PACKAGE@$VERSION" version 2> /dev/null)" ]; then
+              exit 0
+            fi
+            sleep 20
+          done
+          echo "sqlx-ts@$VERSION or $PLATFORM_PACKAGE@$VERSION is not available on npm after 10 minutes"
+          exit 1
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+      - name: Run sqlx-ts with npx, bunx and deno
+        shell: bash
+        run: |
+          VERSION="${TAG#v}"
+          cd "$(mktemp -d)"
+          npx -y "sqlx-ts@$VERSION" --version | grep -F "sqlx-ts $VERSION"
+          bunx "sqlx-ts@$VERSION" --version | grep -F "sqlx-ts $VERSION"
+          deno run -A "npm:sqlx-ts@$VERSION" --version | grep -F "sqlx-ts $VERSION"
         env:
           TAG: ${{ github.event.release.tag_name }}

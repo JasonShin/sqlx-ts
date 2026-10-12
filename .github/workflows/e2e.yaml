@@ -33,23 +33,66 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Install dependencies (npm install)
-        run: npm install
+      - name: Build npm packages from the current release
+        shell: bash
+        run: |
+          TEMP_DIR="${RUNNER_TEMP//\\//}"
+          VERSION=$(node -p "require('./package.json').version")
+          gh release download "v$VERSION" -p '*.zip' -D "$TEMP_DIR/zips"
+          ../scripts/build-npm-platform-packages.sh "v$VERSION" "$TEMP_DIR/zips" "$TEMP_DIR/platform"
+          git checkout package.json
+          npm pack --pack-destination "$TEMP_DIR"
+          (cd "$TEMP_DIR/platform/sqlx-ts-$(node -p 'process.platform + "-" + process.arch')" && npm pack --pack-destination "$TEMP_DIR")
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Install sqlx-ts with its platform package
+        shell: bash
+        run: |
+          TEMP_DIR="${RUNNER_TEMP//\\//}"
+          mkdir "$TEMP_DIR/project"
+          cd "$TEMP_DIR/project"
+          npm init -y
+          npm install "$TEMP_DIR"/sqlx-ts-*.tgz
 
       - name: Verify sqlx-ts binary from npm install
+        working-directory: ${{ runner.temp }}/project
         run: |
-          chmod +x ./sqlx-ts || true
-          ./sqlx-ts --version
-          ./sqlx-ts --help
+          npx sqlx-ts --version
+          npx sqlx-ts --help
 
-      - name: Install using local install.sh
-        run: node postinstall.js
+      - uses: oven-sh/setup-bun@v2
+        if: matrix.node == 22
 
-      - name: Verify sqlx-ts binary from local install
+      - name: Verify sqlx-ts binary from bun install
+        if: matrix.node == 22
+        shell: bash
         run: |
-          chmod +x ./sqlx-ts || true
-          ./sqlx-ts --version
-          ./sqlx-ts --help
+          TEMP_DIR="${RUNNER_TEMP//\\//}"
+          mkdir "$TEMP_DIR/bun-project"
+          cd "$TEMP_DIR/bun-project"
+          echo '{ "name": "bun-project" }' > package.json
+          bun add "$TEMP_DIR"/sqlx-ts-*.tgz
+          bunx sqlx-ts --version
+
+      - uses: denoland/setup-deno@v2
+        if: matrix.node == 22
+        with:
+          deno-version: v2.x
+
+      - name: Verify sqlx-ts launcher with deno
+        if: matrix.node == 22
+        working-directory: ${{ runner.temp }}/project
+        run: deno run -A node_modules/sqlx-ts/bin/sqlx-ts.js --version
+
+      - name: Install using install.sh
+        shell: bash
+        run: |
+          OS=$(node -p 'process.platform')
+          CPU=$(node -p '["arm64", "x64"].includes(process.arch) ? process.arch : "x32"')
+          TEMP_DIR="${RUNNER_TEMP//\\//}"
+          sh ../scripts/install.sh --os "$OS" --cpu "$CPU" --to "$TEMP_DIR/bin"
+          "$TEMP_DIR/bin/sqlx-ts" --version
 
   linux-distro-static-binary-test:
     name: linux distro ${{ matrix.distro }}

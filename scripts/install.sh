@@ -103,19 +103,7 @@ need mktemp
 need unzip
 
 need sed
-
-# Optional dependencies
-if [ -z $tag ]; then
-    need cut
-fi
-
-if [ -z $tag ]; then
-    need rev
-fi
-
-if [ -z $to ]; then
-    need grep
-fi
+need cut
 ################
 
 url="https://github.com/jasonshin/sqlx-ts"
@@ -128,7 +116,11 @@ if [ -z $tag ]; then
       echo "artifact was given, it will override tag - artifact: $artifact, tag: $tag"
     fi
 
-    tag=$(curl --silent "https://api.github.com/repos/jasonshin/sqlx-ts/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    tag=$(curl -LSfs -o /dev/null -w '%{url_effective}' "https://github.com/jasonshin/sqlx-ts/releases/latest" | sed 's#.*/tag/##')
+    case $tag in
+        v*) ;;
+        *) err "failed to find the latest release of sqlx-ts, use --tag to choose a version" ;;
+    esac
     say_err "Tag: latest ($tag)"
 else
     case $tag in
@@ -195,12 +187,18 @@ td=$(mktemp -d || mktemp -d -t tmp)
 echo "URL to download $url"
 
 curl -LSfs $url --output $td/sqlx-ts.zip
-unzip -j $td/sqlx-ts.zip -d $td
-if [ "$os" = "win32" ]; then
-    cp $td/sqlx-ts.exe .
+curl -LSfs $url.sha256 --output $td/sqlx-ts.zip.sha256
+expected=$(tr -d '[:space:]' < $td/sqlx-ts.zip.sha256)
+if command -v sha256sum > /dev/null 2>&1; then
+    actual=$(sha256sum $td/sqlx-ts.zip | cut -d' ' -f1)
 else
-    cp $td/sqlx-ts .
+    actual=$(shasum -a 256 $td/sqlx-ts.zip | cut -d' ' -f1)
 fi
+if [ "$actual" != "$expected" ]; then
+    err "checksum mismatch for $url: expected $expected, got $actual"
+fi
+rm $td/sqlx-ts.zip.sha256
+unzip -j $td/sqlx-ts.zip -d $td
 
 # shellcheck disable=SC2045
 for f in $(ls $td); do
