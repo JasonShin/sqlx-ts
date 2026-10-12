@@ -124,13 +124,31 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
+      - run: npm run compile
+      - run: cp ../README.md .
       - run: npm version "${TAG#v}" --no-git-tag-version
         env:
           TAG: ${{ github.event.release.tag_name }}
-      - run: npm publish --access public
+      - name: Publish platform packages and sqlx-ts
+        run: |
+          [[ "$TAG" == *-* ]] && NPM_TAG=next || NPM_TAG=latest
+          gh release download "$TAG" -p '*.zip' -D "$RUNNER_TEMP/zips"
+          ../scripts/build-npm-platform-packages.sh "$TAG" "$RUNNER_TEMP/zips" "$RUNNER_TEMP/platform"
+          for dir in "$RUNNER_TEMP"/platform/*; do
+            if [ -n "$(npm view "$(basename "$dir")@${TAG#v}" version 2> /dev/null)" ]; then
+              echo "$(basename "$dir")@${TAG#v} is already published"
+            else
+              npm publish "$dir" --access public --tag "$NPM_TAG"
+            fi
+          done
+          npm publish --access public --tag "$NPM_TAG" --ignore-scripts
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          GH_TOKEN: ${{ github.token }}
 
   bump-version:
     needs: node
+    if: ${{ !contains(github.event.release.tag_name, '-') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

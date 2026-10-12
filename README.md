@@ -55,23 +55,23 @@ $ npx sqlx-ts --version
 
 ##### Bun and Deno
 
-Bun and Deno do not run the npm `postinstall` step that downloads the `sqlx-ts` binary, so install the npm module for
-the `sql` tag and [install the binary separately](#installing-binary-separately) to a directory on your PATH
+From v0.50.0, the `sqlx-ts` binary comes as an optional dependency for your platform (e.g. `sqlx-ts-darwin-arm64`), so
+Bun and Deno install it the same way as npm
 
 ```bash
 # Bun
 $ bun add sqlx-ts
+$ bunx sqlx-ts --version
 # Deno
 $ deno add npm:sqlx-ts
-
-# macOS & ARM CPU, see below for other platforms
-$ curl -LSfs https://jasonshin.github.io/sqlx-ts/install.sh | sh -s -- --os darwin --cpu arm64 --to ~/.local/bin
+$ deno run -A npm:sqlx-ts --version
 ```
 
-`bunx sqlx-ts` and `sqlx-ts` in package.json scripts then use the binary from your PATH. If the binary is missing, they
-print the command to install it.
+The binary is not installed with `--omit=optional` or `--no-optional`. In that case, or on a platform without a prebuilt
+binary, [install the binary separately](#installing-binary-separately) to a directory on your PATH and `sqlx-ts` will use it.
 
-With Bun, you can instead let it run the `postinstall` step by adding sqlx-ts to `trustedDependencies` in package.json
+v0.49.0 and older download the binary in a `postinstall` step, which Bun and Deno do not run. For these versions, install
+the binary separately, or with Bun add sqlx-ts to `trustedDependencies` in package.json
 
 ```json
 {

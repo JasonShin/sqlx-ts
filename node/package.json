@@ -25,7 +25,7 @@
   "homepage": "https://jasonshin.github.io/sqlx-ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/JasonShin/sqlx-ts"
+    "url": "git+https://github.com/JasonShin/sqlx-ts.git"
   },
   "bugs": {
     "url": "https://github.com/JasonShin/sqlx-ts/issues"
@@ -39,15 +39,11 @@
     "sqlx-ts": "bin/sqlx-ts.js"
   },
   "scripts": {
-    "postinstall": "node postinstall.js",
     "compile": "npx tsc -p tsconfig.json",
     "lint": "npx eslint --ext .ts src",
     "lint:fix": "npx eslint --ext .ts src --fix",
     "test": "npx jest",
     "prepublishOnly": "cp ../README.md . && npm i && npm run compile"
-  },
-  "dependencies": {
-    "adm-zip": "^0.5.16"
   },
   "devDependencies": {
     "@types/jest": "^27.4.1",
@@ -64,7 +60,6 @@
   },
   "files": [
     "dist",
-    "bin",
-    "postinstall.js"
+    "bin"
   ]
 }
