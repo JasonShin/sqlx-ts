@@ -166,3 +166,45 @@ jobs:
           git push origin main
         env:
           TAG: ${{ github.event.release.tag_name }}
+
+  smoke-test:
+    needs: node
+    name: smoke test ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+    steps:
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - uses: oven-sh/setup-bun@v2
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Wait for npm to make the packages available
+        shell: bash
+        run: |
+          VERSION="${TAG#v}"
+          PLATFORM_PACKAGE="sqlx-ts-$(node -p 'process.platform + "-" + process.arch')"
+          for i in $(seq 1 30); do
+            if [ -n "$(npm view "sqlx-ts@$VERSION" version 2> /dev/null)" ] && [ -n "$(npm view "$PLATFORM_PACKAGE@$VERSION" version 2> /dev/null)" ]; then
+              exit 0
+            fi
+            sleep 20
+          done
+          echo "sqlx-ts@$VERSION or $PLATFORM_PACKAGE@$VERSION is not available on npm after 10 minutes"
+          exit 1
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+      - name: Run sqlx-ts with npx, bunx and deno
+        shell: bash
+        run: |
+          VERSION="${TAG#v}"
+          cd "$(mktemp -d)"
+          npx -y "sqlx-ts@$VERSION" --version | grep -F "sqlx-ts $VERSION"
+          bunx "sqlx-ts@$VERSION" --version | grep -F "sqlx-ts $VERSION"
+          deno run -A "npm:sqlx-ts@$VERSION" --version | grep -F "sqlx-ts $VERSION"
+        env:
+          TAG: ${{ github.event.release.tag_name }}
