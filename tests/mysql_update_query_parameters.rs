@@ -64,4 +64,30 @@ export interface ISomeUpdateQueryQuery {
     result: ISomeUpdateQueryResult;
 }
 "#);
+
+  #[rustfmt::skip]
+run_test!(should_pick_query_params_from_arithmetic_in_set, TestConfig::new("mysql", true, None, None),
+
+//// TS query ////
+r#"
+const someUpdateQuery = sql`
+UPDATE characters
+SET gold = gold + (? * 86400)
+WHERE name = ?
+`
+"#,
+
+//// Generated TS interfaces ////
+r#"
+export type SomeUpdateQueryParams = [number | null, string];
+
+export interface ISomeUpdateQueryResult {
+    
+}
+
+export interface ISomeUpdateQueryQuery {
+    params: SomeUpdateQueryParams;
+    result: ISomeUpdateQueryResult;
+}
+"#);
 }

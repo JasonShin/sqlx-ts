@@ -33,4 +33,30 @@ export interface ISomeUpdateQueryQuery {
     result: ISomeUpdateQueryResult;
 }
 "#);
+
+  #[rustfmt::skip]
+run_test!(should_pick_query_params_from_arithmetic_in_set, TestConfig::new("postgres", true, None, None),
+
+//// TS query ////
+r#"
+const someUpdateQuery = sql`
+UPDATE characters
+SET gold = gold + ($2 * 86400)
+WHERE name = $1
+`
+"#,
+
+//// Generated TS interfaces ////
+r#"
+export type SomeUpdateQueryParams = [string, number | null];
+
+export interface ISomeUpdateQueryResult {
+    
+}
+
+export interface ISomeUpdateQueryQuery {
+    params: SomeUpdateQueryParams;
+    result: ISomeUpdateQueryResult;
+}
+"#);
 }
