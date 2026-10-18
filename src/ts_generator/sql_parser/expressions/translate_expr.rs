@@ -19,7 +19,8 @@ use crate::ts_generator::types::ts_query::{TsFieldType, TsQuery};
 use async_recursion::async_recursion;
 use color_eyre::Result;
 use regex::Regex;
-use sqlparser::ast::{Assignment, Expr, TableWithJoins, Value};
+use sqlparser::ast::{visit_expressions, Assignment, Expr, TableWithJoins, Value};
+use std::ops::ControlFlow;
 use std::slice::from_ref;
 
 /// Given an expression
@@ -847,9 +848,13 @@ pub async fn translate_assignment(
   ts_query: &mut TsQuery,
   db_conn: &DBConn,
 ) -> Result<(), TsGeneratorError> {
-  let value = get_expr_placeholder(&assignment.value);
+  let mut placeholders = vec![];
+  let _ = visit_expressions(&assignment.value, |expr| {
+    placeholders.extend(get_expr_placeholder(expr));
+    ControlFlow::<()>::Continue(())
+  });
 
-  if value.is_some() {
+  if !placeholders.is_empty() {
     let table_details = DB_SCHEMA
       .lock()
       .await
@@ -879,7 +884,9 @@ pub async fn translate_assignment(
       }
     })?;
 
-    let _ = ts_query.insert_param(&field.field_type, &field.is_nullable, &value);
+    for placeholder in placeholders {
+      ts_query.insert_param(&field.field_type, &field.is_nullable, &Some(placeholder))?;
+    }
   }
   Ok(())
 }
